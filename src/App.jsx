@@ -383,7 +383,8 @@ export default function App() {
     return { ...baseTheme, ...customTheme };
   };
 
-  const isPosMode = (window.location.pathname === '/pos' || window.location.search.includes('mode=pos')) && !window.location.search.includes('track=');
+  const _cleanPath = window.location.pathname.replace(/\/+$/, ''); // strip trailing slashes
+  const isPosMode = (_cleanPath === '/pos' || _cleanPath === '/pos/index.html' || window.location.search.includes('mode=pos')) && !window.location.search.includes('track=');
 
   if (!isPosMode) {
     return <OnlineShop />;
