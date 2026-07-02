@@ -1,0 +1,179 @@
+Created At: 2026-06-27T04:56:22Z
+Completed At: 2026-06-27T04:56:23Z
+File Path: `file:///c:/Users/sutha/OneDrive/Desktop/kp%20pakse%20pos/src/components/Reports.jsx`
+Total Lines: 1098
+Total Bytes: 55907
+Showing lines 750 to 920
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+750:               className="form-control"
+751:               placeholder="ຄົ້ນຫາໃບບິນຂາຍ..."
+752:               value={searchQuery}
+753:               onChange={(e) => setSearchQuery(e.target.value)}
+754:               style={{ maxWidth: '350px' }}
+755:             />
+756:           </div>
+757: 
+758:           <div style={{ overflowX: 'auto' }}>
+759:             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
+760:               <thead>
+761:                 <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+762:                   <th style={{ padding: '12px' }}>&nbsp;&nbsp;ເລກບິນ (ID)</th>
+763:                   <th style={{ padding: '12px' }}>ວັນທີ / ເວລາ</th>
+764:                   <th style={{ padding: '12px' }}>ພະນັກງານຂາຍ</th>
+765:                   <th style={{ padding: '12px', textAlign: 'right' }}>ສ່ວນຫຼຸດ</th>
+766:                   <th style={{ padding: '12px', textAlign: 'right' }}>ຍອດລວມສຸດທິ</th>
+767:                   <th style={{ padding: '12px', textAlign: 'center' }}>ຊ່ອງທາງຊຳລະ</th>
+768:                   <th style={{ padding: '12px', textAlign: 'center' }}>ປຣິນບິນຄືນ</th>
+769:                 </tr>
+770:               </thead>
+771:               <tbody>
+772:                 {filteredOrders.length === 0 ? (
+773:                   <tr>
+774:                     <td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
+775:                       ບໍ່ມີໃບບິນຂາຍໃນຊ່ວງເວລານີ້
+776:                     </td>
+777:                   </tr>
+778:                 ) : (
+779:                   filteredOrders.map(order => (
+780:                     <tr
+781:                       key={order.id}
+782:                       style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', fontSize: '0.85rem' }}
+783:                     >
+784:                       <td style={{ padding: '12px', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
+785:                         {order.id}
+786:                       </td>
+787:                       <td style={{ padding: '12px' }}>
+788:                         {new Date(order.date).toLocaleString('lo-LA')}
+789:                       </td>
+790:                       <td style={{ padding: '12px' }}>
+791:                         {order.cashierName}
+792:                       </td>
+793:                       <td style={{ padding: '12px', textAlign: 'right', color: 'var(--success-green)' }}>
+794:                         {order.discount > 0 ? `-${order.discount.toLocaleString()} ₭` : '-'}
+795:                       </td>
+796:                       <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>
+797:                         {order.total.toLocaleString()} ₭
+798:                       </td>
+799:                       <td style={{ padding: '12px', textAlign: 'center' }}>
+800:                         <span
+801:                           style={{
+802:                             fontSize: '0.75rem',
+803:                             padding: '2px 8px',
+804:                             borderRadius: '10px',
+805:                             background: order.paymentMethod === 'cash' ? 'rgba(243, 156, 18, 0.15)' :
+806:                                         order.paymentMethod === 'split' ? 'rgba(46, 204, 113, 0.15)' :
+807:                                         'rgba(52, 152, 219, 0.15)',
+808:                             color: order.paymentMethod === 'cash' ? '#f39c12' :
+809:                                    order.paymentMethod === 'split' ? '#2ecc71' :
+810:                                    '#3498db',
+811:                             border: `1px solid ${
+812:                               order.paymentMethod === 'cash' ? 'rgba(243, 156, 18, 0.3)' :
+813:                               order.paymentMethod === 'split' ? 'rgba(46, 204, 113, 0.3)' :
+814:                               'rgba(52, 152, 219, 0.3)'
+815:                             }`
+816:                           }}
+817:                         >
+818:                           {order.paymentMethod === 'cash' ? '💵 ເງິນສົດ' :
+819:                            order.paymentMethod === 'split' ? '💵 ສົດ + 📱 ໂອນ' :
+820:                            '📱 ໂອນທະນາຄານ'}
+821:                         </span>
+822:                       </td>
+823:                       <td style={{ padding: '12px', textAlign: 'center' }}>
+824:                         <button
+825:                           className="btn btn-secondary"
+826:                           style={{ padding: '3px 8px', fontSize: '0.75rem' }}
+827:                           onClick={() => handleReprint(order)}
+828:                         >
+829:                           🖨️ ເປີດເບິ່ງ/ປຣິນ
+830:                         </button>
+831:                       </td>
+832:                     </tr>
+833:                   ))
+834:                 )}
+835:               </tbody>
+836:             </table>
+837:           </div>
+838:         </div>
+839: 
+840:         {/* Period Outstanding Debt Ledger */}
+841:         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+842:           <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.05rem' }}>📒 ບັນຊີລູກຄ້າຕິດໜີ້ຊ່ວງນີ້ (Period Debts Table)</h3>
+843:           
+844:           <div style={{ overflowX: 'auto' }}>
+845:             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
+846:               <thead>
+847:                 <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+848:                   <th style={{ padding: '12px' }}>ເລກໃບບິນໜີ້</th>
+849:                   <th style={{ padding: '12px' }}>ວັນທີຄ້າງຊຳລະ</th>
+850:                   <th style={{ padding: '12px' }}>ຊື່ລູກຄ້າ</th>
+851:                   <th style={{ padding: '12px' }}>ເບີໂທຕິດຕໍ່</th>
+852:                   <th style={{ padding: '12px' }}>ລາຍການສິນຄ້າ</th>
+853:                   <th style={{ padding: '12px', textAlign: 'right' }}>ຍອດຕິດໜີ້</th>
+854:                   <th style={{ padding: '12px', textAlign: 'center' }}>ສະຖານະ</th>
+855:                 </tr>
+856:               </thead>
+857:               <tbody>
+858:                 {filteredDebts.length === 0 ? (
+859:                   <tr>
+860:                     <td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
+861:                       ບໍ່ມີລາຍການຕິດໜີ້ໃນຊ່ວງເວລານີ້
+862:                     </td>
+863:                   </tr>
+864:                 ) : (
+865:                   filteredDebts.map(debt => (
+866:                     <tr
+867:                       key={debt.id}
+868:                       style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', fontSize: '0.85rem' }}
+869:                     >
+870:                       <td style={{ padding: '12px', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
+871:                         {debt.id}
+872:                       </td>
+873:                       <td style={{ padding: '12px' }}>
+874:                         {new Date(debt.date).toLocaleDateString('lo-LA')}
+875:                       </td>
+876:                       <td style={{ padding: '12px', fontWeight: '500' }}>
+877:                         {debt.customerName}
+878:                       </td>
+879:                       <td style={{ padding: '12px', fontFamily: 'monospace' }}>
+880:                         {debt.customerPhone}
+881:                       </td>
+882:                       <td style={{ padding: '12px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+883:                         {debt.items.map(item => `${item.name} (x${item.qty})`).join(', ')}
+884:                       </td>
+885:                       <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold', color: 'var(--alert-red)' }}>
+886:                         {debt.total.toLocaleString()} ₭
+887:                       </td>
+888:                       <td style={{ padding: '12px', textAlign: 'center' }}>
+889:                         <span
+890:                           style={{
+891:                             fontSize: '0.75rem',
+892:                             padding: '2px 8px',
+893:                             borderRadius: '10px',
+894:                             background: debt.status === 'unpaid' ? 'rgba(231, 76, 60, 0.15)' : 'rgba(39, 174, 96, 0.15)',
+895:                             color: debt.status === 'unpaid' ? 'var(--alert-red)' : 'var(--success-green)',
+896:                             border: `1px solid ${debt.status === 'unpaid' ? 'rgba(231, 76, 60, 0.3)' : 'rgba(39, 174, 96, 0.3)'}`
+897:                           }}
+898:                         >
+899:                           {debt.status === 'unpaid' ? '🔴 ຕິດໜີ້ຄ້າງຊຳລະ' : '🟢 ຊຳລະໜີ້ແລ້ວ'}
+900:                         </span>
+901:                       </td>
+902:                     </tr>
+903:                   ))
+904:                 )}
+905:               </tbody>
+906:             </table>
+907:           </div>
+908:         </div>
+909: 
+910:       </div>
+911: 
+912:       {/* Invoice Reprint / Lookup Detail Modal */}
+913:       {showReprintModal && selectedReceipt && (
+914:         <div className="modal-overlay print-modal">
+915:           <div className="modal-content modal-sm animate-fade-in">
+916:             <div className="modal-header no-print">
+917:               <span className="modal-title">ເບິ່ງໃບບິນຍ້ອນຫຼັງ (ID: {selectedReceipt.id})</span>
+918:               <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowReprintModal(false)}>✕</button>
+919:             </div>
+920:             
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

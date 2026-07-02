@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: kp-pakse-pos
+    runtime: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    envVars:
+      - key: PORT
+        value: 5173
+      - key: NODE_ENV
+        value: production

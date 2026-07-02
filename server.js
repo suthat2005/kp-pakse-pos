@@ -1,0 +1,526 @@
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
+import { exec } from 'child_process';
+import os from 'os';
+import { fileURLToPath } from 'url';
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+import zlib from 'zlib';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const PORT = process.env.PORT || 5173;
+const DIST_DIR = path.resolve(__dirname, './dist');
+const DB_FILE = path.resolve(__dirname, './db_shared.json');
+const KEY_FILE = path.resolve(__dirname, './firebase-key.json');
+
+// Initialize Firebase Admin
+let firestoreDb = null;
+try {
+  if (fs.existsSync(KEY_FILE)) {
+    const serviceAccount = JSON.parse(fs.readFileSync(KEY_FILE, 'utf8'));
+    initializeApp({
+      credential: cert(serviceAccount)
+    });
+    firestoreDb = getFirestore();
+    console.log("✓ Firebase Admin SDK initialized successfully!");
+    
+    // Sync data from Firestore to local JSON on startup
+    syncFromCloudOnStartup();
+  } else {
+    console.warn("⚠️ firebase-key.json not found. Running in Local Offline Mode.");
+  }
+} catch (err) {
+  console.error("❌ Failed to initialize Firebase:", err);
+}
+
+// Startup cloud sync function
+async function syncFromCloudOnStartup() {
+  if (!firestoreDb) return;
+  try {
+    let localDb = {};
+    if (fs.existsSync(DB_FILE)) {
+      localDb = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+    }
+    
+    console.log("☁️ Pulling latest updates from Cloud Firestore...");
+    const snapshot = await firestoreDb.collection('pos_db').get();
+    let updatedCount = 0;
+    
+    snapshot.forEach(doc => {
+      const key = doc.id;
+      const cloudVal = doc.data();
+      const localVal = localDb[key];
+      
+      const cloudTs = Number(cloudVal.updatedAt || '0');
+      const localTs = Number(localVal?.updatedAt || '0');
+      
+      if (cloudTs > localTs) {
+        localDb[key] = {
+          data: cloudVal.data,
+          updatedAt: cloudTs
+        };
+        updatedCount++;
+      }
+    });
+    
+    if (updatedCount > 0) {
+      fs.writeFileSync(DB_FILE, JSON.stringify(localDb, null, 2), 'utf8');
+      console.log(`✓ Cloud sync complete. Updated ${updatedCount} tables locally.`);
+    } else {
+      console.log("✓ Local database is already up to date with Cloud Firestore.");
+    }
+  } catch (err) {
+    console.error("❌ Cloud sync failed on startup:", err);
+  }
+}
+
+const MIME_TYPES = {
+  '.html': 'text/html',
+  '.css': 'text/css',
+  '.js': 'application/javascript',
+  '.json': 'application/json',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon'
+};
+
+const server = http.createServer(async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 200;
+    res.end();
+    return;
+  }
+
+  const parsedUrl = new URL(req.url, `http://localhost:${PORT}`);
+  const pathname = parsedUrl.pathname;
+
+  // API: Get server network IP
+  if (pathname === '/api/server-ip' && req.method === 'GET') {
+    res.setHeader('Content-Type', 'application/json');
+    const interfaces = os.networkInterfaces();
+    let ip = '127.0.0.1';
+    const candidates = [];
+    for (const devName in interfaces) {
+      const iface = interfaces[devName];
+      for (let i = 0; i < iface.length; i++) {
+        const alias = iface[i];
+        if (alias.family === 'IPv4' && !alias.internal) {
+          const nameLower = devName.toLowerCase();
+          const isVirtual = nameLower.includes('vmnet') || 
+                            nameLower.includes('vbox') || 
+                            nameLower.includes('virtualbox') || 
+                            nameLower.includes('docker') || 
+                            nameLower.includes('wsl') || 
+                            nameLower.includes('host-only') ||
+                            nameLower.includes('vpn');
+          candidates.push({ address: alias.address, isVirtual });
+        }
+      }
+    }
+    const nonVirtual = candidates.filter(c => !c.isVirtual);
+    if (nonVirtual.length > 0) {
+      ip = nonVirtual[0].address;
+    } else if (candidates.length > 0) {
+      ip = candidates[0].address;
+    }
+    res.statusCode = 200;
+    res.end(JSON.stringify({ ip }));
+    return;
+  }
+
+  // API: Kick Cash Drawer (Local Hardware Port Link)
+  if (pathname === '/api/kick-drawer') {
+    const printerName = parsedUrl.searchParams.get('printer') || 'GP-L80250 Series';
+    const escapedPrinterName = printerName.replace(/"/g, '\\"');
+    
+    exec(`powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File kick-drawer.ps1 -PrinterName "${escapedPrinterName}"`, (err, stdout, stderr) => {
+      res.setHeader('Content-Type', 'application/json');
+      if (err) {
+        console.error('Local printer kick error:', err, stderr);
+        res.statusCode = 500;
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      } else {
+        console.log('Local printer kick command sent to:', printerName);
+        res.statusCode = 200;
+        res.end(JSON.stringify({ success: true }));
+      }
+    });
+    return;
+  }
+
+  // API: Print Barcode Sticker (Local Hardware Port Link)
+  if (pathname === '/api/print-barcode' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      res.setHeader('Content-Type', 'application/json');
+      try {
+        const data = JSON.parse(body);
+        const printerName = data.printer || 'Barcode Printer';
+        const base64Image = data.image;
+        const qty = data.qty || 1;
+
+        if (!base64Image) {
+          res.statusCode = 400;
+          res.end(JSON.stringify({ success: false, error: 'No image data provided' }));
+          return;
+        }
+
+        const base64Data = base64Image.replace(/^data:image\/[a-zA-Z]+;base64,/, "");
+        const tempFilePath = path.join(os.tmpdir(), `barcode-${Date.now()}.png`);
+        fs.writeFileSync(tempFilePath, base64Data, 'base64');
+
+        const escapedPrinterName = printerName.replace(/"/g, '\\"');
+        const escapedFilePath = tempFilePath.replace(/"/g, '\\"');
+
+        exec(`powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File print-barcode.ps1 -PrinterName "${escapedPrinterName}" -ImagePath "${escapedFilePath}" -Copies ${qty}`, (err, stdout, stderr) => {
+          try { fs.unlinkSync(tempFilePath); } catch (e) {}
+
+          if (err) {
+            console.error('Local barcode print error:', err, stderr);
+            res.statusCode = 500;
+            res.end(JSON.stringify({ success: false, error: err.message }));
+          } else {
+            console.log('Local barcode print command sent to:', printerName);
+            res.statusCode = 200;
+            res.end(JSON.stringify({ success: true }));
+          }
+        });
+      } catch (err) {
+        res.statusCode = 500;
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
+  }
+
+  // API: DB Sync (Loads local cache updates & queries Cloud Firestore updates)
+  if (pathname === '/api/db/sync') {
+    res.setHeader('Content-Type', 'application/json');
+    try {
+      let sharedDb = {};
+      if (fs.existsSync(DB_FILE)) {
+        sharedDb = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+      }
+      const response = {};
+      for (const [key, val] of Object.entries(sharedDb)) {
+        const clientTs = Number(parsedUrl.searchParams.get(key) || '0');
+        const serverTs = Number(val.updatedAt || '0');
+        if (serverTs > clientTs) {
+          response[key] = val;
+        }
+      }
+      res.statusCode = 200;
+      res.end(JSON.stringify(response));
+
+      // Background Sync: Pull cloud changes to local file asynchronously
+      if (firestoreDb) {
+        firestoreDb.collection('pos_db').get().then(snapshot => {
+          let hasUpdates = false;
+          snapshot.forEach(doc => {
+            const key = doc.id;
+            const cloudVal = doc.data();
+            const localVal = sharedDb[key];
+            const cloudTs = Number(cloudVal.updatedAt || '0');
+            const localTs = Number(localVal?.updatedAt || '0');
+            if (cloudTs > localTs) {
+              sharedDb[key] = { data: cloudVal.data, updatedAt: cloudTs };
+              hasUpdates = true;
+            }
+          });
+          if (hasUpdates) {
+            fs.writeFileSync(DB_FILE, JSON.stringify(sharedDb, null, 2), 'utf8');
+            console.log("☁️ Background DB sync from cloud completed: updated local cache.");
+          }
+        }).catch(err => console.warn("Cloud background sync warning:", err.message));
+      }
+    } catch (err) {
+      res.statusCode = 500;
+      res.end(JSON.stringify({ success: false, error: err.message }));
+    }
+    return;
+  }
+
+  // API: DB Save (Saves locally for immediate response & writes to Cloud Firestore in bg)
+  if (pathname === '/api/db/save' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      res.setHeader('Content-Type', 'application/json');
+      try {
+        const { key, data, updatedAt } = JSON.parse(body);
+        if (!key) {
+          res.statusCode = 400;
+          res.end(JSON.stringify({ success: false, error: 'Missing key' }));
+          return;
+        }
+        
+        // 1. Write to local JSON file for speed & offline reliability
+        let sharedDb = {};
+        if (fs.existsSync(DB_FILE)) {
+          sharedDb = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+        }
+        const timeNow = updatedAt || Date.now();
+        sharedDb[key] = { data, updatedAt: timeNow };
+        fs.writeFileSync(DB_FILE, JSON.stringify(sharedDb, null, 2), 'utf8');
+        
+        res.statusCode = 200;
+        res.end(JSON.stringify({ success: true }));
+
+        // 2. Write to Cloud Firestore database in background
+        if (firestoreDb) {
+          firestoreDb.collection('pos_db').doc(key).set({
+            data: data,
+            updatedAt: timeNow
+          }).then(() => {
+            console.log(`☁️ Successfully backed up key [${key}] to Cloud Firestore.`);
+          }).catch(err => {
+            console.warn(`⚠️ Cloud write failed for [${key}] (offline):`, err.message);
+          });
+        }
+      } catch (err) {
+        res.statusCode = 500;
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
+  }
+
+  // Helper to generate empty initial queue slots for database reset
+  function getInitialSlots() {
+    const slots = {};
+    slots['Walk-In'] = { id: 'Walk-In', label: 'Walk-In', items: [], depositAmount: 0 };
+    for (let i = 1; i <= 30; i++) {
+      const id = `P${i}`;
+      slots[id] = { id, label: `ຄິວ ${i} (Queue)`, items: [], depositAmount: 0 };
+    }
+    return slots;
+  }
+
+  // API: Production - Full Backup (Downloads Gzip compressed db_shared.json)
+  if (pathname === '/api/production/backup' && req.method === 'GET') {
+    try {
+      if (fs.existsSync(DB_FILE)) {
+        const dbContent = fs.readFileSync(DB_FILE, 'utf8');
+        const compressed = zlib.gzipSync(Buffer.from(dbContent, 'utf8'));
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/gzip');
+        res.setHeader('Content-Disposition', `attachment; filename="pos_backup_${Date.now()}.json.gz"`);
+        res.end(compressed);
+      } else {
+        res.statusCode = 404;
+        res.end(JSON.stringify({ success: false, error: 'Database file not found' }));
+      }
+    } catch (err) {
+      res.statusCode = 500;
+      res.end(JSON.stringify({ success: false, error: err.message }));
+    }
+    return;
+  }
+
+  // API: Production - Restore Database (Receives Gzip compressed db_shared.json and overwrites it)
+  if (pathname === '/api/production/restore' && req.method === 'POST') {
+    const chunks = [];
+    req.on('data', chunk => { chunks.push(chunk); });
+    req.on('end', async () => {
+      res.setHeader('Content-Type', 'application/json');
+      try {
+        const buffer = Buffer.concat(chunks);
+        const decompressed = zlib.gunzipSync(buffer);
+        const parsed = JSON.parse(decompressed.toString('utf8'));
+        
+        // Simple validation check: ensure it is a valid database object containing some known keys
+        if (typeof parsed !== 'object' || parsed === null) {
+          res.statusCode = 400;
+          res.end(JSON.stringify({ success: false, error: 'Invalid database backup structure' }));
+          return;
+        }
+
+        // Save atomically
+        fs.writeFileSync(DB_FILE, JSON.stringify(parsed, null, 2), 'utf8');
+
+        // Sync all collections to Cloud Firestore if active
+        if (firestoreDb) {
+          console.log("☁️ Restoring all collections to Cloud Firestore...");
+          const batch = firestoreDb.batch();
+          for (const [key, val] of Object.entries(parsed)) {
+            batch.set(firestoreDb.collection('pos_db').doc(key), {
+              data: val.data,
+              updatedAt: val.updatedAt || Date.now()
+            });
+          }
+          await batch.commit();
+        }
+
+        res.statusCode = 200;
+        res.end(JSON.stringify({ success: true }));
+      } catch (err) {
+        console.error("❌ Database restore failed:", err);
+        res.statusCode = 500;
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
+  }
+
+  // API: Production - Reset Demo Data (Wipes transactional data atomically)
+  if (pathname === '/api/production/reset-demo' && req.method === 'POST') {
+    res.setHeader('Content-Type', 'application/json');
+    try {
+      let sharedDb = {};
+      if (fs.existsSync(DB_FILE)) {
+        sharedDb = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+      }
+      const timeNow = Date.now();
+      const keysToReset = [
+        'products', 'categories', 'customers', 'orders', 'framing_jobs', 
+        'debts', 'expenses', 'raw_materials', 'otp_logs', 'production_history',
+        'shifts', 'leaves', 'payrolls', 'order_payments', 'audit_logs', 'attendance',
+        'online_orders'
+      ];
+      
+      keysToReset.forEach(k => {
+        sharedDb[k] = { data: [], updatedAt: timeNow };
+      });
+      
+      // Reset slots to empty queues
+      const initialSlots = getInitialSlots();
+      sharedDb['slots'] = { data: initialSlots, updatedAt: timeNow };
+
+      fs.writeFileSync(DB_FILE, JSON.stringify(sharedDb, null, 2), 'utf8');
+
+      // Sync reset state to Cloud Firestore
+      if (firestoreDb) {
+        console.log("☁️ Resetting Cloud Firestore collections to empty...");
+        const batch = firestoreDb.batch();
+        keysToReset.forEach(k => {
+          batch.set(firestoreDb.collection('pos_db').doc(k), { data: [], updatedAt: timeNow });
+        });
+        batch.set(firestoreDb.collection('pos_db').doc('slots'), { data: initialSlots, updatedAt: timeNow });
+        await batch.commit();
+      }
+
+      res.statusCode = 200;
+      res.end(JSON.stringify({ success: true }));
+    } catch (err) {
+      console.error("❌ Reset Demo Data failed:", err);
+      res.statusCode = 500;
+      res.end(JSON.stringify({ success: false, error: err.message }));
+    }
+    return;
+  }
+
+  // API: Production - Initialize System Admin Account (Seed default admin/admin123 with force password change)
+  if (pathname === '/api/production/initialize' && req.method === 'POST') {
+    res.setHeader('Content-Type', 'application/json');
+    try {
+      let sharedDb = {};
+      if (fs.existsSync(DB_FILE)) {
+        sharedDb = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+      }
+      
+      const timeNow = Date.now();
+      const usersData = sharedDb['users']?.data || [];
+      
+      // Check if admin already exists
+      const adminIdx = usersData.findIndex(u => u.id === 'admin' || u.email === 'admin@gmail.com');
+      const adminUser = {
+        id: 'admin',
+        name: 'System Administrator',
+        email: 'admin@gmail.com',
+        role: 'owner', // Maps to owner privileges
+        roleName: 'ເຈົ້າຂອງຮ້ານ (Owner)',
+        password: 'admin123', // plaintext fallback for standard auth checks
+        passwordHash: 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', // SHA-256 hash of 'admin123'
+        forcePasswordChange: true,
+        passcode: '9999',
+        payType: 'monthly',
+        baseWage: 5000000,
+        otRate: 50000,
+        permissions: {
+          admin: true,
+          pos: true,
+          inventory: true,
+          hrm: true,
+          reports: true,
+          debts: true,
+          ai: true,
+          settings: true
+        }
+      };
+
+      if (adminIdx !== -1) {
+        usersData[adminIdx] = adminUser;
+      } else {
+        usersData.push(adminUser);
+      }
+
+      sharedDb['users'] = { data: usersData, updatedAt: timeNow };
+      fs.writeFileSync(DB_FILE, JSON.stringify(sharedDb, null, 2), 'utf8');
+
+      // Sync initialized admin to Cloud Firestore
+      if (firestoreDb) {
+        await firestoreDb.collection('pos_db').doc('users').set({
+          data: usersData,
+          updatedAt: timeNow
+        });
+        console.log("☁️ Seeded/Updated Admin user to Cloud Firestore.");
+      }
+
+      res.statusCode = 200;
+      res.end(JSON.stringify({ success: true }));
+    } catch (err) {
+      console.error("❌ Production Initialize failed:", err);
+      res.statusCode = 500;
+      res.end(JSON.stringify({ success: false, error: err.message }));
+    }
+    return;
+  }
+
+  // Serve static files from /dist
+  let filePath = path.join(DIST_DIR, pathname);
+  
+  if (filePath === DIST_DIR || (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory())) {
+    filePath = path.join(DIST_DIR, 'index.html');
+  }
+
+  if (!fs.existsSync(filePath)) {
+    filePath = path.join(DIST_DIR, 'index.html');
+  }
+
+  const ext = path.extname(filePath).toLowerCase();
+  const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+
+  fs.readFile(filePath, (err, content) => {
+    if (err) {
+      res.statusCode = 500;
+      res.end(`Server Error: ${err.code}`);
+    } else {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', contentType);
+      // Disable caching for HTML and JS files to prevent old bundle files from being cached by browser
+      if (ext === '.html' || ext === '.js') {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+      }
+      res.end(content);
+    }
+  });
+});
+
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`===================================================`);
+  console.log(`POS Production Server running on port ${PORT}`);
+  console.log(`Access POS locally: http://localhost:${PORT}`);
+  console.log(`===================================================`);
+});

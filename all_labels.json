@@ -1,0 +1,366 @@
+{
+  "pos_board_title": {
+    "default": "📿 ບັດຄິວອັດກອບພຣະເຄື່ອງ",
+    "file": "POS.jsx"
+  },
+  "pos_board_subtitle": {
+    "default": "ແຕະບັດຄິວເພື່ອເລີ່ມລາຍການ • ຄລິກ ✏️ ເພື່ອແກ້ໄຂລູກຄ້າ",
+    "file": "POS.jsx"
+  },
+  "pos_add_queue": {
+    "default": "ເພີ່ມບັດຄິວ",
+    "file": "POS.jsx"
+  },
+  "pos_walk_in": {
+    "default": "Walk-In",
+    "file": "POS.jsx"
+  },
+  "cart_title": {
+    "default": "🛒 ກະຕ່າສິນຄ້າ (Shopping Cart)",
+    "file": "POS.jsx"
+  },
+  "pos_queue": {
+    "default": "ຄິວ",
+    "file": "POS.jsx"
+  },
+  "cart_empty": {
+    "default": "ບໍ່ມີລາຍການສິນຄ້າໃນກະຕ່າ",
+    "file": "POS.jsx"
+  },
+  "rcpt_subtotal": {
+    "default": "ຍອດລວມ:",
+    "file": "POS.jsx"
+  },
+  "cart_discount": {
+    "default": "ສ່ວນຫຼຸດ:",
+    "file": "POS.jsx"
+  },
+  "rcpt_total_label": {
+    "default": "ຍອດຊຳລະສຸດທິ:",
+    "file": "POS.jsx"
+  },
+  "cart_work_order_btn": {
+    "default": "🖨️ ພิມບິນ",
+    "file": "POS.jsx"
+  },
+  "cart_debt_btn": {
+    "default": "📒 ຕິດໜີ້",
+    "file": "POS.jsx"
+  },
+  "cart_pay_btn": {
+    "default": "💵 ຊຳລະເງິນ",
+    "file": "POS.jsx"
+  },
+  "pos_board_title_short": {
+    "default": "ບັດຄິວ",
+    "file": "POS.jsx"
+  },
+  "slot_entry_subtitle": {
+    "default": "ເລືອກປະເພດການໃຫ້ບໍລິການ",
+    "file": "POS.jsx"
+  },
+  "slot_entry_with_info": {
+    "default": "ລູກຄ້າຝາກ / ລົງທະບຽນ",
+    "file": "POS.jsx"
+  },
+  "slot_entry_with_info_desc": {
+    "default": "ໃສ່ຊື່ + ເບີໂທ ເພື່ອບັນທຶກຂໍ້ມູນໄວ້ດຶງຄືນໃນພາຍຫຼັງ",
+    "file": "POS.jsx"
+  },
+  "slot_entry_name_ph": {
+    "default": "ຊື່ລູກຄ້າ (ຕ້ອງໃສ່) *",
+    "file": "POS.jsx"
+  },
+  "slot_entry_phone_ph": {
+    "default": "ເບີໂທ (ສາມາດວ່າງໄດ້)",
+    "file": "POS.jsx"
+  },
+  "slot_entry_confirm": {
+    "default": "ບັນທຶກ ແລະ ເຂົ້າໜ້າຂາຍ",
+    "file": "POS.jsx"
+  },
+  "slot_entry_direct": {
+    "default": "ຂາຍໜ້າຮ້ານ (Walk-In)",
+    "file": "POS.jsx"
+  },
+  "slot_entry_direct_desc": {
+    "default": "ລູກຄ້າຊື້ໜ້າຮ້ານ — ບໍ່ຈຳເປັນຕ້ອງໃສ່ຂໍ້ມູນ",
+    "file": "POS.jsx"
+  },
+  "pos_add_queue_title": {
+    "default": "➕ ເພີ່ມບັດຄິວ (Add Queue)",
+    "file": "POS.jsx"
+  },
+  "chk_title": {
+    "default": "ຂັ້ນຕອນການຊຳລະເງິນ",
+    "file": "POS.jsx"
+  },
+  "cart_subtotal": {
+    "default": "ຍອດລວມ:",
+    "file": "POS.jsx"
+  },
+  "cart_total": {
+    "default": "ຍອດທີ່ຕ້ອງຊຳລະ",
+    "file": "POS.jsx"
+  },
+  "chk_coupon": {
+    "default": "ລະຫັດຄູປອງ / Promo Code",
+    "file": "POS.jsx"
+  },
+  "chk_pay_method": {
+    "default": "ຊ່ອງທາງຊຳລະ",
+    "file": "POS.jsx"
+  },
+  "chk_cash": {
+    "default": "ເງິນສົດ (Cash)",
+    "file": "POS.jsx"
+  },
+  "chk_transfer": {
+    "default": "ໂອນ BCEL One",
+    "file": "POS.jsx"
+  },
+  "chk_received": {
+    "default": "ຮັບເງິນສົດ",
+    "file": "POS.jsx"
+  },
+  "chk_change": {
+    "default": "ເງິນທອນ (Change)",
+    "file": "POS.jsx"
+  },
+  "cancel": {
+    "default": "ຍົກເລີກ",
+    "file": "POS.jsx"
+  },
+  "chk_confirm_btn": {
+    "default": "ຢືນຢັນການຊຳລະ",
+    "file": "POS.jsx"
+  },
+  "rcpt_title": {
+    "default": "ໃບບິນຮັບເງິນ / RECEIPT",
+    "file": "POS.jsx"
+  },
+  "rcpt_bill_no": {
+    "default": "ເລກບິນ:",
+    "file": "POS.jsx"
+  },
+  "rcpt_date": {
+    "default": "ວັນທີ:",
+    "file": "POS.jsx"
+  },
+  "rcpt_cashier": {
+    "default": "ພະນັກງານຂາຍ:",
+    "file": "POS.jsx"
+  },
+  "rcpt_customer_label": {
+    "default": "ລູກຄ້າ:",
+    "file": "POS.jsx"
+  },
+  "rcpt_header_qty": {
+    "default": "ຈຳນວນ",
+    "file": "POS.jsx"
+  },
+  "rcpt_header_price": {
+    "default": "ລາຄາ",
+    "file": "POS.jsx"
+  },
+  "rcpt_discount_label": {
+    "default": "ສ່ວນຫຼຸດ:",
+    "file": "POS.jsx"
+  },
+  "rcpt_payment_amount_label": {
+    "default": "ຍອດຊຳລະ",
+    "file": "POS.jsx"
+  },
+  "rcpt_change_label": {
+    "default": "ເງິນທອນ",
+    "file": "POS.jsx"
+  },
+  "rcpt_received_label": {
+    "default": "ຮັບເງິນ",
+    "file": "POS.jsx"
+  },
+  "rcpt_ref_label": {
+    "default": "ເລກອ້າງອີງ (Ref):",
+    "file": "POS.jsx"
+  },
+  "rcpt_equivalent_totals_label": {
+    "default": "ມູນຄ່າທຽບເທົ່າ (Equivalent)",
+    "file": "POS.jsx"
+  },
+  "rcpt_currency_lak": {
+    "default": "LAK (ກີບ):",
+    "file": "POS.jsx"
+  },
+  "rcpt_currency_thb": {
+    "default": "THB (ບาด):",
+    "file": "POS.jsx"
+  },
+  "rcpt_currency_usd": {
+    "default": "USD (ໂດລາ):",
+    "file": "POS.jsx"
+  },
+  "rcpt_exchange_rate_label": {
+    "default": "ອັດຕາແລກປ່ຽນ:",
+    "file": "POS.jsx"
+  },
+  "rcpt_qr_payment_title": {
+    "default": "QR Code ຮັບເງິນ (BCEL One)",
+    "file": "POS.jsx"
+  },
+  "rcpt_bank_account_name_label": {
+    "default": "ຊື່ບັນຊີ:",
+    "file": "POS.jsx"
+  },
+  "rcpt_bank_account_no_label": {
+    "default": "ເລກບັນຊີ:",
+    "file": "POS.jsx"
+  },
+  "rcpt_paid_by": {
+    "default": "ຜູ້ຈ່າຍເງິນ (Paid By)",
+    "file": "POS.jsx"
+  },
+  "rcpt_received_by": {
+    "default": "ຜູ້ຮັບເງິນ (Received By)",
+    "file": "POS.jsx"
+  },
+  "title_inventory": {
+    "default": "📦 ຈັດການຄັງສິນຄ້າ & ສະຕັອກ (Inventory)",
+    "file": "Inventory.jsx"
+  },
+  "title_reports": {
+    "default": "📊 ບົດລາຍງານຍອດຂາຍ & ການເງິນ (Sales & Finance Reports)",
+    "file": "Reports.jsx"
+  },
+  "settings_tab_shop": {
+    "default": "🏪 ຂໍ້ມູນຮ້ານ (Shop Info)",
+    "file": "Settings.jsx"
+  },
+  "settings_tab_receipt": {
+    "default": "🖨️ ຮູບແບບໃບບິນ (Receipt Design)",
+    "file": "Settings.jsx"
+  },
+  "settings_tab_barcode": {
+    "default": "🔌 ບາໂຄດ & ສະແກນ (Barcode/Scanner)",
+    "file": "Settings.jsx"
+  },
+  "settings_tab_theme": {
+    "default": "🎨 ສີ & ຄວາມໂຄ້ງ (Theme/Borders)",
+    "file": "Settings.jsx"
+  },
+  "settings_tab_labels": {
+    "default": "📝 ປັບແຕ່ງພາສາ (Translate Labels)",
+    "file": "Settings.jsx"
+  },
+  "settings_tab_notifications": {
+    "default": "🔔 ແຈ້ງເຕືອນໂທລະສັບ (Phone Alerts)",
+    "file": "Settings.jsx"
+  },
+  "settings_tab_rules": {
+    "default": "⚙️ ກົດລະບຽບ (Rules)",
+    "file": "Settings.jsx"
+  },
+  "settings_tab_coupons": {
+    "default": "🏷️ ໂປຣໂມຊັ່ນ (Coupons)",
+    "file": "Settings.jsx"
+  },
+  "settings_tab_system": {
+    "default": "⚠️ ຄວບຄຸມລະບົບ (System)",
+    "file": "Settings.jsx"
+  },
+  "rcpt_payment_method_label": {
+    "default": "ການຊຳລະ:",
+    "file": "Settings.jsx"
+  },
+  "rcpt_payment_cash": {
+    "default": "ເງິນສົດ (Cash)",
+    "file": "Settings.jsx"
+  },
+  "rcpt_customer_general": {
+    "default": "ລູກຄ້າທົ່ວໄປ",
+    "file": "Settings.jsx"
+  },
+  "rcpt_header_item": {
+    "default": "ລາຍການ",
+    "file": "Settings.jsx"
+  },
+  "tab_framing": {
+    "default": "🛠️ ງານອັດກອບ (Framing)",
+    "file": "App.jsx"
+  },
+  "tab_pos": {
+    "default": "💵 ຂາຍໜ້າຮ້ານ (POS)",
+    "file": "App.jsx"
+  },
+  "tab_inventory": {
+    "default": "📦 ສະຕັອກ (Inventory)",
+    "file": "App.jsx"
+  },
+  "tab_hrm": {
+    "default": "👥 ຈັດການບຸກຄະລາກອນ (HRM)",
+    "file": "App.jsx"
+  },
+  "tab_reports": {
+    "default": "📊 ລາຍງານ (Reports)",
+    "file": "App.jsx"
+  },
+  "tab_debts": {
+    "default": "📒 ບັນຊີຕິດໜີ້ (Debts)",
+    "file": "App.jsx"
+  },
+  "tab_ai": {
+    "default": "🤖 ລະບົບ AI",
+    "file": "App.jsx"
+  },
+  "tab_settings": {
+    "default": "⚙️ ຕັ້ງຄ່າ (Settings)",
+    "file": "App.jsx"
+  },
+  "title_debts": {
+    "default": "📒 ບັນຊີຕິດໜີ້ລູກຄ້າ (Customer Credit Ledger)",
+    "file": "Debts.jsx"
+  },
+  "title_hrm": {
+    "default": "👥 ລະບົບຈັດການບຸກຄະລາກອນ & ເງິນເດືອນ (HRM)",
+    "file": "HRM.jsx"
+  },
+  "hrm_sub_desc": {
+    "default": "ຈັດການບັນຊີພະນັກງານ, ຕາຕະລາງກະເຮັດວຽກ, ລະບົບເຂົ້າງານ, ການຂໍລາພັກ ແລະ ບັນຊີເງິນເດືອນ.",
+    "file": "HRM.jsx"
+  },
+  "hrm_tab_employees": {
+    "default": "👥 ພະນັກງານ",
+    "file": "HRM.jsx"
+  },
+  "hrm_tab_shifts": {
+    "default": "📅 ຕາຕະລາງກະ",
+    "file": "HRM.jsx"
+  },
+  "hrm_tab_attendance": {
+    "default": "🕒 ລະບົບເຂົ້າງານ",
+    "file": "HRM.jsx"
+  },
+  "hrm_tab_leaves": {
+    "default": "📝 ການລາພັກ",
+    "file": "HRM.jsx"
+  },
+  "hrm_tab_payroll": {
+    "default": "💵 ບັນຊີເງິນເດືອນ",
+    "file": "HRM.jsx"
+  },
+  "login_error_invalid": {
+    "default": "ອີເມລ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ!",
+    "file": "Login.jsx"
+  },
+  "login_email_label": {
+    "default": "Gmail / Email",
+    "file": "Login.jsx"
+  },
+  "login_password_label": {
+    "default": "ລະຫັດຜ່ານ (Password)",
+    "file": "Login.jsx"
+  },
+  "login_btn_text": {
+    "default": "🚀 ເຂົ້າສູ່ລະບົບ",
+    "file": "Login.jsx"
+  }
+}

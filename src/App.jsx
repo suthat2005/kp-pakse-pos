@@ -1,0 +1,1524 @@
+import React, { useState, useEffect } from 'react';
+import { db, DEFAULT_LABEL_KEYS } from './utils/db';
+import Login from './components/Login';
+import POS from './components/POS';
+import Inventory from './components/Inventory';
+import FramingBoard from './components/FramingBoard';
+import Reports from './components/Reports';
+import AIDetector from './components/AIDetector';
+import Settings from './components/Settings';
+import Debts from './components/Debts';
+import HRM from './components/HRM';
+import OrderTracking from './components/OrderTracking';
+import Customers from './components/Customers';
+import OnlineShop from './components/OnlineShop';
+import OnlineOrders from './components/OnlineOrders';
+
+// Authorization helper to check custom permissions with backward-compatible role fallbacks
+const hasPermission = (user, tabKey) => {
+  if (!user) return false;
+  if (user.role === 'owner') return true;
+  if (user.permissions) {
+    if (user.permissions.admin) return true;
+    return !!user.permissions[tabKey];
+  }
+  // Fallback defaults for legacy users:
+  if (tabKey === 'pos') return true;
+  if (tabKey === 'inventory') return user.role === 'owner';
+  if (tabKey === 'hrm') return user.role === 'owner';
+  if (tabKey === 'reports') return user.role === 'owner';
+  if (tabKey === 'debts') return user.role === 'owner' || user.role === 'cashier';
+  if (tabKey === 'ai') return user.role !== 'cashier';
+  if (tabKey === 'settings') return user.role === 'owner';
+  if (tabKey === 'customers') return user.role === 'owner' || user.role === 'cashier';
+  return false;
+};
+
+export default function App() {
+  const [activeUser, setActiveUser] = useState(null);
+  const [activeTab, setActiveTab] = useState('pos');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [trackingJobId, setTrackingJobId] = useState(null);
+  const [settings, setSettings] = useState({ shopName: '', shopSubtitle: '', appTheme: 'gold', themeColors: {}, shopLogo: '' });
+  const [lowStockWarning, setLowStockWarning] = useState(false);
+
+  // Check URL query parameter for order tracking (?track=JOBXXXXX)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const trackId = params.get('track');
+    if (trackId) {
+      setTrackingJobId(trackId);
+    }
+  }, []);
+  
+  // Shared state to bridge Framing Board payments into POS cart
+  const [redirectedCartItem, setRedirectedCartItem] = useState(null);
+  const [todayAttendance, setTodayAttendance] = useState(null);
+  const [inventoryFilter, setInventoryFilter] = useState('all');
+  
+  // Expense Logging states
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [expenseFormData, setExpenseFormData] = useState({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '', paymentMethod: 'cash', supplier: '' });
+  const [showExpenseHistory, setShowExpenseHistory] = useState(false);
+  const [expensePrintId, setExpensePrintId] = useState(null);
+
+  // Shift Report modal states
+  const [showShiftReportModal, setShowShiftReportModal] = useState(false);
+  const [shiftReportData, setShiftReportData] = useState(null);
+
+  // Sync today's attendance check-in status
+  useEffect(() => {
+    if (activeUser) {
+      const logs = db.getAttendance();
+      const record = logs.find(l => l.userId === activeUser.id && !l.clockOut);
+      setTodayAttendance(record || null);
+    } else {
+      setTodayAttendance(null);
+    }
+  }, [activeUser]);
+
+  // Inject Custom Theme Colors Dynamically
+  useEffect(() => {
+    const root = document.documentElement;
+    const customKeys = [
+      'gold-primary', 'bg-main', 'bg-card', 'success-green', 'alert-red', 
+      'radius-lg', 'radius-md', 'radius-sm', 'gold-dark', 'gold-glow', 'bg-card-hover',
+      'accent-amber', 'text-primary', 'text-secondary', 'border-color', 'font-lao', 'shadow-premium'
+    ];
+    customKeys.forEach(k => {
+      root.style.removeProperty(`--user-${k}`);
+      root.style.removeProperty(`--${k}`);
+    });
+
+    if (settings && settings.themeConfig) {
+      const cfg = settings.themeConfig;
+      if (cfg.colors) {
+        root.style.setProperty('--user-gold-primary', cfg.colors.primary || '#d4af37');
+        root.style.setProperty('--user-bg-main', cfg.colors.background || '#0c0b09');
+        root.style.setProperty('--user-bg-card', cfg.colors.card || '#161411');
+        root.style.setProperty('--user-success-green', cfg.colors.success || '#2ecc71');
+        root.style.setProperty('--user-alert-red', cfg.colors.danger || '#e74c3c');
+        root.style.setProperty('--border-color', cfg.colors.border || '#3D352E');
+        root.style.setProperty('--accent-amber', cfg.colors.secondary || '#4A3B32');
+        
+        const primary = cfg.colors.primary || '#d4af37';
+        root.style.setProperty('--user-gold-dark', darkenColor(primary, 0.2));
+        root.style.setProperty('--user-gold-glow', hexToRgba(primary, 0.25));
+        
+        const cardBg = cfg.colors.card || '#161411';
+        root.style.setProperty('--user-bg-card-hover', lightenColor(cardBg, 0.15));
+      }
+      
+      if (cfg.typography) {
+        root.style.setProperty('--font-lao', cfg.typography.fontFamily || 'Phetsarath, Noto Sans Lao, sans-serif');
+      }
+      
+      if (cfg.layout) {
+        root.style.setProperty('--user-radius-lg', cfg.layout.borderRadius || '8px');
+        const rVal = parseInt(cfg.layout.borderRadius || '8px');
+        root.style.setProperty('--user-radius-md', `${Math.round(rVal / 2)}px`);
+        root.style.setProperty('--user-radius-sm', `${Math.round(rVal / 4)}px`);
+        
+        root.style.setProperty('--sidebar-width', cfg.layout.sidebarWidth || '260px');
+        root.style.setProperty('--sidebar-collapsed-width', cfg.layout.sidebarCollapsedWidth || '70px');
+      }
+    } else if (settings && settings.themeColors) {
+      Object.entries(settings.themeColors).forEach(([key, val]) => {
+        if (val) {
+          root.style.setProperty(`--user-${key}`, val);
+          if (key === 'gold-primary') {
+            root.style.setProperty('--user-gold-dark', darkenColor(val, 0.2));
+            root.style.setProperty('--user-gold-glow', hexToRgba(val, 0.25));
+          }
+          if (key === 'bg-card') {
+            root.style.setProperty('--user-bg-card-hover', lightenColor(val, 0.15));
+          }
+        }
+      });
+    }
+
+    if (settings && settings.uiControls) {
+      const uic = settings.uiControls;
+      if (!uic.roundedCorners) {
+        root.style.setProperty('--user-radius-lg', '0px');
+        root.style.setProperty('--user-radius-md', '0px');
+        root.style.setProperty('--user-radius-sm', '0px');
+      }
+      if (!uic.shadowsEnabled) {
+        root.style.setProperty('--shadow-premium', 'none');
+      }
+      if (!uic.animationEnabled) {
+        document.body.classList.add('no-animations');
+      } else {
+        document.body.classList.remove('no-animations');
+      }
+    }
+  }, [settings]);
+
+  // Theme helper tools
+  function hexToRgba(hex, alpha) {
+    if (!hex || hex.length < 7) return `rgba(212,175,55,${alpha})`;
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+  function darkenColor(hex, percent) {
+    if (!hex || hex.length < 7) return '#aa8412';
+    let r = parseInt(hex.slice(1, 3), 16);
+    let g = parseInt(hex.slice(3, 5), 16);
+    let b = parseInt(hex.slice(5, 7), 16);
+    r = Math.max(0, Math.floor(r * (1 - percent)));
+    g = Math.max(0, Math.floor(g * (1 - percent)));
+    b = Math.max(0, Math.floor(b * (1 - percent)));
+    return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+  }
+  function lightenColor(hex, percent) {
+    if (!hex || hex.length < 7) return '#211e19';
+    let r = parseInt(hex.slice(1, 3), 16);
+    let g = parseInt(hex.slice(3, 5), 16);
+    let b = parseInt(hex.slice(5, 7), 16);
+    r = Math.min(255, Math.floor(r + (255 - r) * percent));
+    g = Math.min(255, Math.floor(g + (255 - g) * percent));
+    b = Math.min(255, Math.floor(b + (255 - b) * percent));
+    return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+  }
+
+  // Initialize DB and load active session
+  useEffect(() => {
+    db.init();
+    const current = db.getActiveUser();
+    if (current) {
+      setActiveUser(current);
+      adjustDefaultTabForRole(current.role);
+    }
+    loadSystemConfig();
+  }, []);
+
+  // Background Database synchronization effect
+  useEffect(() => {
+    if (activeUser) {
+      db.startSync(handleSystemUpdate);
+    } else {
+      db.stopSync();
+    }
+    return () => {
+      db.stopSync();
+    };
+  }, [activeUser]);
+
+  // Dynamic favicon update effect
+  useEffect(() => {
+    if (settings.shopLogo) {
+      let link = document.querySelector("link[rel~='icon']");
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.getElementsByTagName('head')[0].appendChild(link);
+      }
+      link.href = settings.shopLogo;
+      link.type = 'image/png';
+    }
+  }, [settings.shopLogo]);
+
+  // Global Double Click Translation listener
+  useEffect(() => {
+    const handleGlobalDoubleClick = (e) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+      
+      const text = e.target.textContent ? e.target.textContent.trim() : '';
+      if (!text) return;
+
+      const activeSettings = db.getSettings();
+      const labels = activeSettings.labels || {};
+      
+      let matchedKey = null;
+      let matchedDefault = '';
+
+      for (const item of DEFAULT_LABEL_KEYS) {
+        const customValue = labels[item.key];
+        const defaultValue = item.defaultValue.trim();
+        
+        const cleanEmoji = (str) => str.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
+
+        if (
+          (customValue && customValue.trim() === text) ||
+          defaultValue === text ||
+          cleanEmoji(defaultValue) === text ||
+          (customValue && cleanEmoji(customValue) === text)
+        ) {
+          matchedKey = item.key;
+          matchedDefault = item.defaultValue;
+          break;
+        }
+      }
+
+      if (matchedKey) {
+        const currentVal = labels[matchedKey] || matchedDefault;
+        const newVal = prompt(`ແກ້ໄຂຂໍ້ຄວາມພາສາລາວສຳລັບ [${matchedKey}]:\n\nຄ່າເກົ່າ: "${currentVal}"\n\nປ້ອນຂໍ້ຄວາມໃໝ່ທີ່ຕ້ອງການສະແດງ:`, currentVal);
+        if (newVal !== null) {
+          const updatedLabels = { ...labels, [matchedKey]: newVal };
+          db.saveLabels(updatedLabels);
+          alert(`✓ ແກ້ໄຂຂໍ້ຄວາມສຳເລັດ! ລະບົບຈະໂຫຼດໜ້າຈໍຄືນໃໝ່ເພື່ອປັບປຸງ.`);
+          window.location.reload();
+        }
+      }
+    };
+
+    window.addEventListener('dblclick', handleGlobalDoubleClick);
+    return () => window.removeEventListener('dblclick', handleGlobalDoubleClick);
+  }, []);
+
+  const loadSystemConfig = () => {
+    setSettings(db.getSettings());
+    checkStockAlerts();
+  };
+
+  const checkStockAlerts = () => {
+    const products = db.getProducts();
+    const hasLow = products.some(p => !db.isServiceCategory(p.category) && p.stock <= p.minStock);
+    setLowStockWarning(hasLow);
+  };
+
+  const adjustDefaultTabForRole = (role) => {
+    setActiveTab('pos');
+  };
+
+  const handleLoginSuccess = (user) => {
+    setActiveUser(user);
+    adjustDefaultTabForRole(user.role);
+    loadSystemConfig();
+  };
+
+  const handleLogout = () => {
+    db.setActiveUser(null);
+    setActiveUser(null);
+  };
+
+  const handleClockOut = () => {
+    const rec = db.clockOutUser(activeUser.id);
+    setTodayAttendance(null); // Clear state so user can clock in again
+    
+    // Clean up delivered framing jobs to keep DB size compact
+    db.cleanupDeliveredJobs();
+    
+    // Fetch summary for the shift
+    const summary = db.getSalesSummary(activeUser.id, rec.clockIn, rec.clockOut, true);
+    setShiftReportData({
+      cashierName: activeUser.name,
+      clockIn: rec.clockIn,
+      clockOut: rec.clockOut,
+      ...summary
+    });
+    setShowShiftReportModal(true);
+    handleSystemUpdate();
+  };
+
+  const handleSystemUpdate = () => {
+    loadSystemConfig();
+    const current = db.getActiveUser();
+    if (current) {
+      setActiveUser(current);
+    }
+  };
+
+  const handleRedirectToPOSPayment = (itemToPay) => {
+    setRedirectedCartItem(itemToPay);
+    setActiveTab('pos');
+  };
+
+  const getThemeStyle = () => {
+    const theme = settings.appTheme || 'gold';
+    const themes = {
+      gold: {
+        '--gold-primary': '#d4af37',
+        '--gold-dark': '#aa8412',
+        '--gold-glow': 'rgba(212, 175, 55, 0.25)',
+        '--accent-amber': '#e5a93b'
+      },
+      amber: {
+        '--gold-primary': '#e67e22',
+        '--gold-dark': '#d35400',
+        '--gold-glow': 'rgba(230, 126, 34, 0.25)',
+        '--accent-amber': '#f39c12'
+      },
+      emerald: {
+        '--gold-primary': '#2ecc71',
+        '--gold-dark': '#27ae60',
+        '--gold-glow': 'rgba(46, 204, 113, 0.25)',
+        '--accent-amber': '#16a085'
+      },
+      blue: {
+        '--gold-primary': '#3498db',
+        '--gold-dark': '#2980b9',
+        '--gold-glow': 'rgba(52, 152, 219, 0.25)',
+        '--accent-amber': '#1abc9c'
+      },
+      crimson: {
+        '--gold-primary': '#e74c3c',
+        '--gold-dark': '#c0392b',
+        '--gold-glow': 'rgba(231, 76, 60, 0.25)',
+        '--accent-amber': '#e67e22'
+      }
+    };
+    
+    const baseTheme = themes[theme] || themes.gold;
+    const customTheme = {};
+    if (settings.themeColors) {
+      Object.entries(settings.themeColors).forEach(([key, val]) => {
+        if (val) {
+          customTheme[`--${key}`] = val;
+          if (key === 'gold-primary') {
+            customTheme['--gold-dark'] = darkenColor(val, 0.2);
+            customTheme['--gold-glow'] = hexToRgba(val, 0.25);
+          }
+          if (key === 'bg-card') {
+            customTheme['--bg-card-hover'] = lightenColor(val, 0.15);
+          }
+        }
+      });
+    }
+    
+    return { ...baseTheme, ...customTheme };
+  };
+
+  const isPosMode = (window.location.pathname === '/pos' || window.location.search.includes('mode=pos')) && !window.location.search.includes('track=');
+
+  if (!isPosMode) {
+    return <OnlineShop />;
+  }
+
+  if (trackingJobId) {
+    return <OrderTracking jobId={trackingJobId} onClose={() => setTrackingJobId(null)} />;
+  }
+
+  if (!activeUser) {
+    return <Login onLoginSuccess={handleLoginSuccess} />;
+  }
+
+  const computedStyle = getThemeStyle();
+
+  return (
+    <div className="app-container" style={computedStyle}>
+      <style>{`
+        /* Collapsible Sidebar Styles */
+        .app-container {
+          display: flex !important;
+          flex-direction: row !important;
+          min-height: 100vh;
+          background-color: var(--bg-main);
+          color: var(--text-primary);
+        }
+        .app-sidebar {
+          background: var(--bg-card);
+          border-right: 1.5px solid var(--border-color);
+          display: flex;
+          flex-direction: column;
+          height: 100vh;
+          position: sticky;
+          top: 0;
+          transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          z-index: 101;
+          overflow-y: auto;
+          overflow-x: hidden;
+          box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+          flex-shrink: 0;
+        }
+        .sidebar-logo {
+          padding: 16px 12px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          border-bottom: 1.5px solid var(--border-color);
+          min-height: 70px;
+        }
+        .sidebar-logo .logo-img {
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+          border: 1.5px solid var(--gold-primary);
+          box-shadow: 0 0 8px var(--gold-glow);
+          flex-shrink: 0;
+          object-fit: cover;
+        }
+        .sidebar-logo .logo-img-fallback {
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+          background: rgba(212,175,55,0.1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.25rem;
+          border: 1.5px solid var(--gold-primary);
+          flex-shrink: 0;
+        }
+        .sidebar-logo .logo-text {
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        .sidebar-logo .logo-text h1 {
+          font-size: 0.9rem;
+          color: var(--gold-primary);
+          font-weight: 700;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          margin: 0;
+        }
+        .sidebar-logo .logo-text p {
+          font-size: 0.65rem;
+          color: var(--text-secondary);
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          margin: 0;
+        }
+        .sidebar-nav {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          padding: 12px 8px;
+          flex-grow: 1;
+        }
+        .sidebar-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 10px 12px;
+          background: transparent;
+          border: 1.5px solid transparent;
+          border-radius: var(--user-radius-md, var(--radius-md, 6px));
+          color: var(--text-secondary);
+          font-family: inherit;
+          font-size: 0.85rem;
+          font-weight: 500;
+          text-align: left;
+          cursor: pointer;
+          transition: all 0.2s;
+          width: 100%;
+        }
+        .sidebar-item:hover {
+          background: rgba(255, 255, 255, 0.03);
+          color: white;
+        }
+        .sidebar-item.active {
+          background: linear-gradient(95deg, var(--user-gold-glow, var(--gold-glow)) 0%, rgba(212,175,55,0.02) 100%);
+          border-color: rgba(212, 175, 55, 0.3);
+          color: var(--user-gold-primary, var(--gold-primary));
+        }
+        .sidebar-icon {
+          font-size: 1.1rem;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 24px;
+          height: 24px;
+          flex-shrink: 0;
+        }
+        .sidebar-label {
+          white-space: nowrap;
+          opacity: 1;
+          transition: opacity 0.2s;
+        }
+        .sidebar-toggle-btn {
+          background: rgba(255,255,255,0.02);
+          border: none;
+          border-top: 1px solid var(--border-color);
+          color: var(--text-secondary);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 12px;
+          font-size: 1rem;
+          transition: background 0.2s;
+        }
+        .sidebar-toggle-btn:hover {
+          background: rgba(255,255,255,0.05);
+          color: white;
+        }
+        .main-layout {
+          display: flex;
+          flex-direction: column;
+          flex-grow: 1;
+          min-width: 0;
+          height: 100vh;
+          overflow: hidden;
+        }
+        .app-topbar {
+          background: var(--bg-card);
+          border-bottom: 1.5px solid var(--border-color);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 24px;
+          min-height: 70px;
+          flex-shrink: 0;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+          z-index: 100;
+        }
+        .active-route-name {
+          font-size: 1.05rem;
+          font-weight: 700;
+          color: var(--user-gold-primary, var(--gold-primary));
+        }
+        .topbar-actions {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .dashboard-content {
+          flex-grow: 1;
+          overflow-y: auto !important;
+          padding: 24px;
+          background-color: var(--bg-main);
+        }
+        .no-animations * {
+          transition: none !important;
+          animation: none !important;
+        }
+        .hamburger-menu-btn {
+          display: none;
+          background: none;
+          border: none;
+          color: white;
+          font-size: 1.5rem;
+          cursor: pointer;
+          padding: 8px;
+          margin-right: 12px;
+          line-height: 1;
+        }
+        .sidebar-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.6);
+          backdrop-filter: blur(4px);
+          z-index: 998;
+        }
+        @media (max-width: 768px) {
+          .app-sidebar {
+            position: fixed !important;
+            left: 0 !important;
+            top: 0 !important;
+            bottom: 0 !important;
+            width: 260px !important;
+            transform: translateX(-100%);
+            z-index: 1000 !important;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+          }
+          .app-sidebar.mobile-open {
+            transform: translateX(0) !important;
+          }
+          .sidebar-toggle-btn {
+            display: none !important;
+          }
+          .app-topbar {
+            padding: 0 16px !important;
+          }
+          .hamburger-menu-btn {
+            display: block !important;
+          }
+          .dashboard-content {
+            padding: 16px !important;
+          }
+        }
+      `}</style>
+
+      {/* Left Sidebar Navigation Overlay for Mobile */}
+      {mobileSidebarOpen && (
+        <div className="sidebar-overlay" onClick={() => setMobileSidebarOpen(false)}></div>
+      )}
+
+      {/* Left Sidebar Navigation */}
+      <aside className={`app-sidebar ${mobileSidebarOpen ? 'mobile-open' : ''}`} style={{ width: sidebarCollapsed ? '70px' : '260px' }}>
+        <div className="sidebar-logo">
+          {settings.shopLogo ? (
+            <img src={settings.shopLogo} className="logo-img" alt="Shop Logo" />
+          ) : (
+            <div className="logo-img-fallback">🪷</div>
+          )}
+          {!sidebarCollapsed && (
+            <div className="logo-text">
+              <h1>{settings.shopName || 'ຂອບພຣະຣັທເກຊ'}</h1>
+              <p>{settings.shopSubtitle || 'ຮ້ານອັດກອບພຣະເຄື່ອງ & ວັດຖຸມຸງຄຸນ'}</p>
+            </div>
+          )}
+        </div>
+
+        <nav className="sidebar-nav">
+          {hasPermission(activeUser, 'pos') && (
+            <button
+              type="button"
+              className={`sidebar-item ${activeTab === 'pos' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('pos'); setMobileSidebarOpen(false); }}
+            >
+              <span className="sidebar-icon">{activeUser.role === 'technician' ? '🛠️' : '💵'}</span>
+              {!sidebarCollapsed && (
+                <span className="sidebar-label">
+                  {activeUser.role === 'technician'
+                    ? db.getLabel('tab_framing', '🛠️ ງານອັດກອບ (Framing)')
+                    : db.getLabel('tab_pos', '💵 ຂາຍໜ້າຮ້ານ (POS)')}
+                </span>
+              )}
+            </button>
+          )}
+
+
+
+          {hasPermission(activeUser, 'inventory') && (
+            <button
+              type="button"
+              className={`sidebar-item ${activeTab === 'inventory' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('inventory'); setMobileSidebarOpen(false); }}
+            >
+              <span className="sidebar-icon">📦</span>
+              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_inventory', '📦 ສະຕັອກ (Inventory)')}</span>}
+            </button>
+          )}
+
+          {hasPermission(activeUser, 'hrm') && (
+            <button
+              type="button"
+              className={`sidebar-item ${activeTab === 'hrm' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('hrm'); setMobileSidebarOpen(false); }}
+            >
+              <span className="sidebar-icon">👥</span>
+              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_hrm', '👥 ຈັດການບຸກຄະລາກອນ (HRM)')}</span>}
+            </button>
+          )}
+
+          {hasPermission(activeUser, 'customers') && (
+            <button
+              type="button"
+              className={`sidebar-item ${activeTab === 'customers' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('customers'); setMobileSidebarOpen(false); }}
+            >
+              <span className="sidebar-icon">💳</span>
+              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_customers', '💳 ສະມາຊິກ (Members)')}</span>}
+            </button>
+          )}
+
+
+
+          {hasPermission(activeUser, 'reports') && (
+            <button
+              type="button"
+              className={`sidebar-item ${activeTab === 'reports' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('reports'); setMobileSidebarOpen(false); }}
+            >
+              <span className="sidebar-icon">📊</span>
+              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_reports', '📊 ລາຍງານ (Reports)')}</span>}
+            </button>
+          )}
+
+          {(activeUser.role === 'owner' || activeUser.role === 'manager') && (
+            <button
+              type="button"
+              className={`sidebar-item ${activeTab === 'online_orders' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('online_orders'); setMobileSidebarOpen(false); }}
+            >
+              <span className="sidebar-icon">🛒</span>
+              {!sidebarCollapsed && <span className="sidebar-label">🛒 ອໍເດີ້ອອນລາຍ (Online Orders)</span>}
+            </button>
+          )}
+
+          {hasPermission(activeUser, 'debts') && (
+            <button
+              type="button"
+              className={`sidebar-item ${activeTab === 'debts' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('debts'); setMobileSidebarOpen(false); }}
+            >
+              <span className="sidebar-icon">📒</span>
+              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_debts', '📒 ບັນຊີຕິດໜີ້ (Debts)')}</span>}
+            </button>
+          )}
+
+          {hasPermission(activeUser, 'ai') && (
+            <button
+              type="button"
+              className={`sidebar-item ${activeTab === 'ai' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('ai'); setMobileSidebarOpen(false); }}
+            >
+              <span className="sidebar-icon">🤖</span>
+              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_ai', '🤖 ລະບົບ AI')}</span>}
+            </button>
+          )}
+
+          {hasPermission(activeUser, 'settings') && (
+            <button
+              type="button"
+              className={`sidebar-item ${activeTab === 'settings' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('settings'); setMobileSidebarOpen(false); }}
+            >
+              <span className="sidebar-icon">⚙️</span>
+              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_settings', '⚙️ ຕັ້ງຄ່າ (Settings)')}</span>}
+            </button>
+          )}
+        </nav>
+
+        <button
+          type="button"
+          className="sidebar-toggle-btn"
+          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          title={sidebarCollapsed ? 'ຂະຫຍາຍເມນູ' : 'ພັບເມນູ'}
+        >
+          {sidebarCollapsed ? '➡️' : '⬅️'}
+        </button>
+      </aside>
+
+      {/* Main Right Content Panel */}
+      <div className="main-layout">
+        {/* Topbar Utility Header */}
+        <header className="app-topbar">
+          <div className="topbar-left" style={{ display: 'flex', alignItems: 'center' }}>
+            <button 
+              type="button"
+              className="hamburger-menu-btn" 
+              onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+              title="ເມນູ (Menu)"
+            >
+              ☰
+            </button>
+            <span className="active-route-name">
+              {activeTab === 'pos' && (activeUser.role === 'technician' ? '🛠️ ງານອັດກອບ (Framing)' : '💵 ຂາຍໜ້າຮ້ານ (POS)')}
+              {activeTab === 'inventory' && '📦 ຈັດການສະຕັອກ & ວັດຖຸດິບ (Inventory)'}
+              {activeTab === 'hrm' && '👥 ຈັດການບຸກຄະລາກອນ & ເງິນເດືອນ (HRM)'}
+              {activeTab === 'reports' && '📊 ບົດລາຍງານຍອດຂາຍ & ລາຍຈ່າຍ (Reports)'}
+              {activeTab === 'debts' && '📒 ບັນຊີລູກຄ້າຕິດໜີ້ (Debts)'}
+              {activeTab === 'ai' && '🤖 ລະບົບກ້ອງ CCTV AI'}
+              {activeTab === 'settings' && '⚙️ ຕັ້ງຄ່າລະບົບ (Settings)'}
+            </span>
+          </div>
+
+          <div className="topbar-actions">
+            {lowStockWarning && activeUser.role === 'owner' && (
+              <div
+                onClick={() => {
+                  setActiveTab('inventory');
+                  setInventoryFilter('low_stock');
+                }}
+                style={{
+                  background: 'rgba(231, 76, 60, 0.2)',
+                  color: 'var(--alert-red)',
+                  border: '1px solid var(--alert-red)',
+                  padding: '6px 12px',
+                  borderRadius: '20px',
+                  fontSize: '0.75rem',
+                  fontWeight: 'bold',
+                  animation: 'pulse-gold 1.5s infinite',
+                  cursor: 'pointer'
+                }}
+              >
+                ⚠️ ສະຕັອກໃກ້ໝົດ!
+              </div>
+            )}
+
+            {/* Quick-action Expense Logger */}
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{
+                padding: '6px 12px',
+                fontSize: '0.75rem',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                background: 'rgba(229, 169, 59, 0.12)',
+                color: 'var(--accent-amber)',
+                borderColor: 'rgba(229, 169, 59, 0.3)',
+                whiteSpace: 'nowrap',
+                fontWeight: 'bold'
+              }}
+              onClick={() => {
+                setExpenseFormData({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '' });
+                setShowExpenseModal(true);
+              }}
+            >
+              💸 ບັນທຶກລາຍຈ່າຍ
+            </button>
+
+            {/* Shift Report reprint button for active / last shift */}
+            {activeUser.role === 'cashier' && (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{
+                  padding: '6px 12px',
+                  fontSize: '0.75rem',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  color: 'var(--text-secondary)',
+                  borderColor: 'rgba(255, 255, 255, 0.1)',
+                  whiteSpace: 'nowrap',
+                  fontWeight: 'bold'
+                }}
+                onClick={() => {
+                  const logs = db.getAttendance();
+                  const activeRecord = logs.find(l => l.userId === activeUser.id && !l.clockOut);
+                  const lastRecord = logs.find(l => l.userId === activeUser.id);
+                  const recordToUse = activeRecord || lastRecord;
+                  if (recordToUse) {
+                    const summary = db.getSalesSummary(activeUser.id, recordToUse.clockIn, recordToUse.clockOut || new Date().toISOString(), true);
+                    setShiftReportData({
+                      cashierName: activeUser.name,
+                      clockIn: recordToUse.clockIn,
+                      clockOut: recordToUse.clockOut || null,
+                      ...summary
+                    });
+                    setShowShiftReportModal(true);
+                  } else {
+                    alert('ບໍ່ພົບຂໍ້ມູນກະການເຮັດວຽກ!');
+                  }
+                }}
+              >
+                🖨️ ສະຫຼຸບກະ
+              </button>
+            )}
+
+            <div className="user-badge" style={{ border: 'none', background: 'transparent', padding: 0 }}>
+              <div className="user-avatar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }}>
+                {activeUser.avatar ? (
+                  <img src={activeUser.avatar} alt="User Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : settings.shopLogo ? (
+                  <img src={settings.shopLogo} alt="Shop Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  activeUser.role === 'owner' ? '👑' : activeUser.role === 'cashier' ? '💵' : '🛠️'
+                )}
+              </div>
+              <div className="user-info-text">
+                <div className="user-name">{activeUser.name}</div>
+                <div className="user-role">
+                  {activeUser.roleName.split(' ')[0]}
+                  {todayAttendance && !todayAttendance.clockOut && (
+                    <span style={{ color: 'var(--success-green)', fontWeight: 'bold', marginLeft: '6px' }}>
+                      (ກະ: {db.getShiftSales(activeUser.id).toLocaleString()} ₭)
+                    </span>
+                  )}
+                </div>
+              </div>
+              
+              {/* Clock-In / Clock-Out Button */}
+              <div style={{ marginLeft: '6px', marginRight: '6px', display: 'flex', alignItems: 'center' }}>
+                {!todayAttendance ? (
+                  <button
+                    type="button"
+                    className="btn"
+                    style={{
+                      padding: '4px 10px',
+                      fontSize: '0.7rem',
+                      background: 'var(--success-green)',
+                      color: 'black',
+                      fontWeight: 'bold',
+                      borderColor: 'var(--success-green)',
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                    onClick={() => {
+                      const rec = db.clockInUser(activeUser.id);
+                      setTodayAttendance(rec);
+                      alert('✓ ບັນທຶກເວລາເຂົ້າງານສຳເລັດ!');
+                      handleSystemUpdate();
+                    }}
+                  >
+                    🕒 ເຂົ້າງານ
+                  </button>
+                ) : !todayAttendance.clockOut ? (
+                  <button
+                    type="button"
+                    className="btn"
+                    style={{
+                      padding: '4px 10px',
+                      fontSize: '0.7rem',
+                      background: 'var(--alert-red)',
+                      color: 'white',
+                      fontWeight: 'bold',
+                      borderColor: 'var(--alert-red)',
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                    onClick={() => {
+                      handleClockOut();
+                    }}
+                  >
+                    🕒 ອອກງານ
+                  </button>
+                ) : (
+                  <span
+                    style={{
+                      padding: '4px 10px',
+                      fontSize: '0.65rem',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      color: 'var(--text-secondary)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: '12px',
+                      fontWeight: 'bold',
+                      display: 'inline-flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    ✓ ເຮັດວຽກແລ້ວ
+                  </span>
+                )}
+              </div>
+
+              <button className="logout-btn" onClick={handleLogout} title="ອອກຈາກລະບົບ">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Workspace Tabs Renderer */}
+        <main className="dashboard-content">
+          {activeTab === 'pos' && hasPermission(activeUser, 'pos') && (
+            <POS
+              activeUser={activeUser}
+              onUpdate={handleSystemUpdate}
+              redirectedCartItem={redirectedCartItem}
+              clearRedirectedCartItem={() => setRedirectedCartItem(null)}
+              onTabChange={setActiveTab}
+              onTrackJob={setTrackingJobId}
+            />
+          )}
+          
+          {activeTab === 'inventory' && hasPermission(activeUser, 'inventory') && (
+            <Inventory
+              activeUser={activeUser}
+              onUpdate={handleSystemUpdate}
+              initialFilter={inventoryFilter}
+              onFilterChange={setInventoryFilter}
+            />
+          )}
+
+          {activeTab === 'hrm' && hasPermission(activeUser, 'hrm') && (
+            <HRM activeUser={activeUser} onUpdate={handleSystemUpdate} />
+          )}
+          
+          {activeTab === 'reports' && hasPermission(activeUser, 'reports') && (
+            <Reports activeUser={activeUser} />
+          )}
+          
+          {activeTab === 'ai' && hasPermission(activeUser, 'ai') && (
+            <AIDetector activeUser={activeUser} />
+          )}
+
+          {activeTab === 'debts' && hasPermission(activeUser, 'debts') && (
+            <Debts activeUser={activeUser} onUpdate={handleSystemUpdate} />
+          )}
+
+          {activeTab === 'customers' && hasPermission(activeUser, 'customers') && (
+            <Customers activeUser={activeUser} onUpdate={handleSystemUpdate} />
+          )}
+
+          {activeTab === 'settings' && hasPermission(activeUser, 'settings') && (
+            <Settings activeUser={activeUser} onUpdate={handleSystemUpdate} />
+          )}
+
+          {activeTab === 'online_orders' && (activeUser.role === 'owner' || activeUser.role === 'manager') && (
+            <OnlineOrders activeUser={activeUser} />
+          )}
+        </main>
+      </div>
+
+      {/* Expense Logging Modal Overlay */}
+      {showExpenseModal && (
+        <div className="modal-overlay" style={{ zIndex: 1100 }}>
+          <div className="modal-content glass-card" style={{ maxWidth: '680px', padding: '28px', maxHeight: '92vh', overflowY: 'auto' }}>
+            <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '1.15rem' }}>💸 ບັນທຶກລາຍຈ່າຍ (Record Expense)</h3>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <button type="button" className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '6px 12px' }} onClick={() => setShowExpenseHistory(!showExpenseHistory)}>
+                  {showExpenseHistory ? '📝 ຟອມໃໝ່' : '📋 ປະຫວັດລາຍຈ່າຍ'}
+                </button>
+                <button className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowExpenseModal(false)}>✕</button>
+              </div>
+            </div>
+
+            {/* ===== Expense History View ===== */}
+            {showExpenseHistory ? (
+              <div>
+                <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                  {(db.getExpenses() || []).length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)' }}>ບໍ່ມີລາຍຈ່າຍ</div>
+                  ) : (db.getExpenses() || []).slice(0, 50).map(ex => (
+                    <div key={ex.id} className="glass-card" style={{ padding: '12px 16px', marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid var(--border-color)' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                          <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)', fontSize: '0.9rem' }}>{ex.categoryName || ex.category}</span>
+                          <span style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '10px', background: ex.paymentMethod === 'transfer' ? 'rgba(52,152,219,0.2)' : 'rgba(46,204,113,0.2)', color: ex.paymentMethod === 'transfer' ? '#3498db' : '#2ecc71' }}>
+                            {ex.paymentMethod === 'transfer' ? '📱 ໂອນ' : '💵 ເງິນສົດ'}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                          {new Date(ex.date).toLocaleString('lo-LA')}
+                          {ex.supplier ? ` • ${ex.supplier}` : ''}
+                          {ex.notes ? ` • ${ex.notes}` : ''}
+                        </div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                          ຜູ້ບັນທຶກ: {ex.createdByName || 'N/A'}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontWeight: 'bold', color: '#e74c3c', fontSize: '1rem' }}>-{(ex.amount || 0).toLocaleString()} ກີບ</span>
+                        <button type="button" style={{ background: 'none', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '4px 8px', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: '0.75rem' }} onClick={() => {
+                          setExpensePrintId(ex.id);
+                          setTimeout(() => {
+                            const el = document.getElementById('expense-receipt-print');
+                            if (el) {
+                              const w = window.open('', '_blank', 'width=400,height=600');
+                              w.document.write('<html><head><title>Expense Receipt</title><style>body{font-family:monospace;font-size:13px;padding:10px;color:#000}table{width:100%;border-collapse:collapse}td{padding:3px 0}.dashed{border-top:1px dashed #000;margin:8px 0}</style></head><body>');
+                              w.document.write(el.innerHTML);
+                              w.document.write('</body></html>');
+                              w.document.close();
+                              w.print();
+                            }
+                            setExpensePrintId(null);
+                          }, 100);
+                        }}>🖨️</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Hidden print template */}
+                {expensePrintId && (() => {
+                  const ex = (db.getExpenses() || []).find(e => e.id === expensePrintId);
+                  if (!ex) return null;
+                  return (
+                    <div id="expense-receipt-print" style={{ display: 'none' }}>
+                      <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+                        <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{settings.shopName || 'ຂອບພຣະຣັທເກຊ'}</div>
+                        <div style={{ fontSize: '12px' }}>{settings.shopSubtitle}</div>
+                        <div style={{ fontSize: '14px', fontWeight: 'bold', marginTop: '6px' }}>ໃບບິນລາຍຈ່າຍ / Expense Receipt</div>
+                      </div>
+                      <div className="dashed"></div>
+                      <table>
+                        <tbody>
+                          <tr><td><b>ເລກທີ:</b></td><td style={{ textAlign: 'right' }}>{ex.id}</td></tr>
+                          <tr><td><b>ວັນທີ:</b></td><td style={{ textAlign: 'right' }}>{new Date(ex.date).toLocaleString('lo-LA')}</td></tr>
+                          <tr><td><b>ປະເພດ:</b></td><td style={{ textAlign: 'right' }}>{ex.categoryName || ex.category}</td></tr>
+                          {ex.supplier && <tr><td><b>ຜູ້ສະໜອງ:</b></td><td style={{ textAlign: 'right' }}>{ex.supplier}</td></tr>}
+                          <tr><td><b>ວິທີຊຳລະ:</b></td><td style={{ textAlign: 'right' }}>{ex.paymentMethod === 'transfer' ? 'ໂອນທະນາຄານ' : 'ເງິນສົດ'}</td></tr>
+                        </tbody>
+                      </table>
+                      <div className="dashed"></div>
+                      <div style={{ fontSize: '16px', fontWeight: 'bold', textAlign: 'center' }}>ມູນຄ່າ: {(ex.amount || 0).toLocaleString()} ກີບ</div>
+                      <div className="dashed"></div>
+                      {ex.notes && <div><b>ໝາຍເຫດ:</b> {ex.notes}</div>}
+                      <div style={{ fontSize: '11px', marginTop: '6px' }}>ຜູ້ບັນທຶກ: {ex.createdByName || 'N/A'}</div>
+                    </div>
+                  );
+                })()}
+              </div>
+            ) : (
+              /* ===== Expense Entry Form ===== */
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const amountVal = parseFloat(expenseFormData.amount);
+                if (!amountVal || amountVal <= 0) {
+                  alert('ກະລຸນາປ້ອນຈຳນວນເງິນໃຫ້ຖືກຕ້ອງ');
+                  return;
+                }
+                db.addExpense({
+                  category: expenseFormData.category,
+                  categoryName: expenseFormData.categoryName,
+                  amount: amountVal,
+                  notes: expenseFormData.notes || '',
+                  paymentMethod: expenseFormData.paymentMethod || 'cash',
+                  supplier: expenseFormData.supplier || ''
+                });
+                alert('✓ ບັນທຶກລາຍຈ່າຍສຳເລັດ!');
+                setExpenseFormData({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '', paymentMethod: 'cash', supplier: '' });
+                handleSystemUpdate();
+              }}>
+                {/* Row 1: Category & Supplier */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>📂 ປະເພດລາຍຈ່າຍ *</label>
+                    <input
+                      type="text"
+                      list="expense-categories-datalist"
+                      required
+                      placeholder="ເລືອກ ຫຼື ປ້ອນປະເພດ..."
+                      className="form-control"
+                      style={{ width: '100%', background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px' }}
+                      value={expenseFormData.categoryName}
+                      onChange={(e) => {
+                        const typed = e.target.value;
+                        const categories = db.getExpenseCategories();
+                        const matched = categories.find(c => c.name === typed || c.rawName === typed);
+                        if (matched) {
+                          setExpenseFormData({
+                            ...expenseFormData,
+                            category: matched.id,
+                            categoryName: matched.rawName
+                          });
+                        } else {
+                          setExpenseFormData({
+                            ...expenseFormData,
+                            category: typed.toLowerCase().trim(),
+                            categoryName: typed
+                          });
+                        }
+                      }}
+                    />
+                    <datalist id="expense-categories-datalist">
+                      {db.getExpenseCategories().map(cat => (
+                        <option key={cat.id} value={cat.name} />
+                      ))}
+                      {(() => {
+                        const existingExpenses = db.getExpenses() || [];
+                        const customExpenseNames = Array.from(new Set(existingExpenses.map(ex => ex.categoryName)));
+                        const standardNames = db.getExpenseCategories().map(c => c.rawName);
+                        return customExpenseNames.filter(name => name && !standardNames.includes(name));
+                      })().map(name => (
+                        <option key={name} value={name} />
+                      ))}
+                    </datalist>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>🏢 ຜູ້ສະໜອງ / ຮ້ານ</label>
+                    <input
+                      type="text"
+                      placeholder="ຊື່ຮ້ານ/ຜູ້ສະໜອງ (ຖ້າມີ)"
+                      className="form-control"
+                      style={{ width: '100%', background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px' }}
+                      value={expenseFormData.supplier}
+                      onChange={(e) => setExpenseFormData({ ...expenseFormData, supplier: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                {/* Row 2: Amount & Payment Method */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>💰 ຈຳນວນເງິນ (LAK) *</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="ປ້ອນຈຳນວນເງິນ..."
+                      className="form-control"
+                      style={{ width: '100%', background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px', fontSize: '1.05rem', fontWeight: 'bold' }}
+                      value={expenseFormData.amount}
+                      onChange={(e) => setExpenseFormData({ ...expenseFormData, amount: e.target.value })}
+                    />
+                    {expenseFormData.amount && parseFloat(expenseFormData.amount) > 0 && (
+                      <div style={{ fontSize: '0.75rem', color: 'var(--gold-primary)', marginTop: '4px' }}>= {parseFloat(expenseFormData.amount).toLocaleString()} ກີບ</div>
+                    )}
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>💳 ວິທີຊຳລະ *</label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setExpenseFormData({ ...expenseFormData, paymentMethod: 'cash' })}
+                        style={{
+                          flex: 1, padding: '10px', borderRadius: '8px', border: expenseFormData.paymentMethod === 'cash' ? '2px solid #2ecc71' : '1px solid var(--border-color)',
+                          background: expenseFormData.paymentMethod === 'cash' ? 'rgba(46,204,113,0.15)' : '#221e1a',
+                          color: expenseFormData.paymentMethod === 'cash' ? '#2ecc71' : 'var(--text-secondary)',
+                          cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem', transition: 'all 0.2s'
+                        }}
+                      >💵 ເງິນສົດ</button>
+                      <button
+                        type="button"
+                        onClick={() => setExpenseFormData({ ...expenseFormData, paymentMethod: 'transfer' })}
+                        style={{
+                          flex: 1, padding: '10px', borderRadius: '8px', border: expenseFormData.paymentMethod === 'transfer' ? '2px solid #3498db' : '1px solid var(--border-color)',
+                          background: expenseFormData.paymentMethod === 'transfer' ? 'rgba(52,152,219,0.15)' : '#221e1a',
+                          color: expenseFormData.paymentMethod === 'transfer' ? '#3498db' : 'var(--text-secondary)',
+                          cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem', transition: 'all 0.2s'
+                        }}
+                      >📱 ໂອນ</button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Row 3: Notes */}
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>📝 ຄຳອະທິບາຍ / ໝາຍເຫດ</label>
+                  <textarea
+                    className="form-control"
+                    placeholder="ລະບຸລາຍລະອຽດ... (ຕົວຢ່າງ: ຊື້ອາໄຫຼ່ XX 5 ອັນ)"
+                    style={{ width: '100%', background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px', minHeight: '70px', resize: 'vertical' }}
+                    value={expenseFormData.notes}
+                    onChange={(e) => setExpenseFormData({ ...expenseFormData, notes: e.target.value })}
+                  />
+                </div>
+
+                {/* Buttons */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowExpenseModal(false)}>ຍົກເລີກ</button>
+                  <button type="submit" className="btn btn-primary" style={{ padding: '10px 28px', fontSize: '0.95rem' }}>💾 ບັນທຶກລາຍຈ່າຍ</button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Shift Report Modal Overlay */}
+      {showShiftReportModal && shiftReportData && (
+        <div className="modal-overlay" style={{ zIndex: 1100 }}>
+          <div className="modal-content modal-sm glass-card" style={{ padding: '20px', maxHeight: '85%', overflowY: 'auto' }}>
+            <div className="modal-header no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>🖨️ ໃບບິນສະຫຼຸບກະ (Shift Report)</h3>
+              <button className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowShiftReportModal(false)}>✕</button>
+            </div>
+            
+            {/* Printable Area */}
+            <div id="print-shift-report" style={{ background: '#fff', color: '#000', padding: '16px', borderRadius: '4px', fontFamily: 'monospace', fontSize: '13px', lineHeight: '1.4' }}>
+              <div style={{ textAlign: 'center', borderBottom: '1px dashed #000', paddingBottom: '10px', marginBottom: '10px' }}>
+                {settings.shopLogo && <img src={settings.shopLogo} alt="Logo" style={{ maxHeight: '40px', marginBottom: '6px' }} />}
+                <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{settings.shopName || 'ຂອບພຣະຣັທເກຊ'}</div>
+                <div style={{ fontSize: '12px' }}>{settings.shopSubtitle}</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', marginTop: '6px' }}>ໃບສະຫຼຸບຍອດປິດກະ (Shift Report)</div>
+              </div>
+              
+              <div style={{ marginBottom: '10px', borderBottom: '1px dashed #000', paddingBottom: '8px' }}>
+                <div><b>ພະນັກງານ:</b> {shiftReportData.cashierName}</div>
+                <div><b>ເວລາເຂົ້າງານ:</b> {new Date(shiftReportData.clockIn).toLocaleString('lo-LA')}</div>
+                <div><b>ເວລາອອກງານ:</b> {shiftReportData.clockOut ? new Date(shiftReportData.clockOut).toLocaleString('lo-LA') : 'ຍັງບໍ່ທັນອອກກະ'}</div>
+              </div>
+
+              {shiftReportData.soldProducts && shiftReportData.soldProducts.length > 0 && (
+                <div style={{ marginBottom: '10px', borderBottom: '1px dashed #000', paddingBottom: '8px' }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>ລາຍການສິນຄ້າທີ່ຂາຍໄດ້ (Products Sold):</div>
+                  {shiftReportData.soldProducts.map((p, idx) => (
+                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', fontSize: '12px' }}>
+                      <span>- {p.name}:</span>
+                      <b>{p.qty} ອັນ</b>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div style={{ marginBottom: '10px', borderBottom: '1px dashed #000', paddingBottom: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+                  <span>ຈຳນວນບິນຂາຍ:</span>
+                  <span>{shiftReportData.ordersCount} ບິນ</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '14px', marginTop: '4px' }}>
+                  <span>ຍອດຂາຍລວມ (LAK):</span>
+                  <span>{(shiftReportData.totalSalesLak || 0).toLocaleString()} ₭</span>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '10px', borderBottom: '1px dashed #000', paddingBottom: '8px' }}>
+                <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>ແຍກຕາມການຊຳລະ:</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                  <span>- ໂອນຜ່ານ BCEL (LAK):</span>
+                  <span>{(shiftReportData.totalTransferLak || 0).toLocaleString()} ₭</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                  <span>- ເງິນສົດ (LAK):</span>
+                  <span>{(shiftReportData.totalCashLak || 0).toLocaleString()} ₭</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                  <span>- ເງິນສົດ (THB):</span>
+                  <span>{(shiftReportData.totalCashThb || 0).toLocaleString()} ฿</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                  <span>- ເງິນສົດ (USD):</span>
+                  <span>${(shiftReportData.totalCashUsd || 0).toLocaleString()}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', color: '#c0392b' }}>
+                  <span>- ຍອດຕິດໜີ້ (Debts):</span>
+                  <span>{(shiftReportData.totalDebtLak || 0).toLocaleString()} ₭</span>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '10px', borderBottom: '1px dashed #000', paddingBottom: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#c0392b' }}>
+                  <span>ລາຍຈ່າຍໃນກະ (Expenses):</span>
+                  <span>-{(shiftReportData.totalExpenseLak || 0).toLocaleString()} ₭</span>
+                </div>
+                {shiftReportData.expenses && shiftReportData.expenses.length > 0 && (
+                  <div style={{ paddingLeft: '8px', fontSize: '11px', color: '#555' }}>
+                    {shiftReportData.expenses.map((ex, idx) => (
+                      <div key={idx}>• {ex.categoryName}: {ex.amount.toLocaleString()} ₭ ({ex.notes})</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ marginBottom: '15px', padding: '6px', background: '#f5f5f5', borderRadius: '4px', border: '1px solid #ddd' }}>
+                <div style={{ fontSize: '12px', fontWeight: 'bold' }}>ການຄິດໄລ່ເງິນສົດໃນລິ້ນຊັກ (LAK):</div>
+                <div style={{ fontSize: '11px', color: '#555', marginTop: '2px' }}>
+                  ເງິນສົດ LAK + (ເງິນສົດ THB * {settings.exchangeRateThb || 750}) - ລາຍຈ່າຍ LAK
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '13px', marginTop: '6px', borderTop: '1px solid #ccc', paddingTop: '4px' }}>
+                  <span>ຍອດເງິນສົດທີ່ຕ້ອງມີ:</span>
+                  <span>
+                    {(
+                      (shiftReportData.totalCashLak || 0) +
+                      (shiftReportData.totalCashThb || 0) * (settings.exchangeRateThb || 750) -
+                      (shiftReportData.totalExpenseLak || 0)
+                    ).toLocaleString()} ₭
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ marginTop: '25px', display: 'flex', justifyContent: 'space-between', textAlign: 'center', fontSize: '11px' }}>
+                <div style={{ width: '45%' }}>
+                  <div style={{ borderBottom: '1px solid #000', height: '30px' }}></div>
+                  <div style={{ marginTop: '4px' }}>ພະນັກງານລາຍງານ</div>
+                </div>
+                <div style={{ width: '45%' }}>
+                  <div style={{ borderBottom: '1px solid #000', height: '30px' }}></div>
+                  <div style={{ marginTop: '4px' }}>ເຈົ້າຂອງຮ້ານກວດສອບ</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-footer no-print" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '16px' }}>
+              <button type="button" className="btn btn-secondary" onClick={() => setShowShiftReportModal(false)}>ປິດ</button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => {
+                  const reportElement = document.getElementById('print-shift-report');
+                  if (!reportElement) return;
+
+                  const iframe = document.createElement('iframe');
+                  iframe.style.position = 'fixed';
+                  iframe.style.right = '0';
+                  iframe.style.bottom = '0';
+                  iframe.style.width = '0';
+                  iframe.style.height = '0';
+                  iframe.style.border = '0';
+                  document.body.appendChild(iframe);
+
+                  const reportHtml = reportElement.innerHTML;
+                  const doc = iframe.contentWindow.document || iframe.contentDocument;
+                  doc.open();
+                  doc.write(`
+                    <html>
+                      <head>
+                        <title>Shift Report</title>
+                        <style>
+                          @page { size: 80mm auto; margin: 0; }
+                          body {
+                            background: white;
+                            color: black;
+                            margin: 0;
+                            padding: 0;
+                            font-family: monospace;
+                            width: 80mm;
+                          }
+                          #print-shift-report {
+                            width: 80mm;
+                            padding: 2mm;
+                            margin: 0 auto;
+                          }
+                        </style>
+                      </head>
+                      <body onload="window.print();">
+                        <div id="print-shift-report">${reportHtml}</div>
+                      </body>
+                    </html>
+                  `);
+                  doc.close();
+
+                  setTimeout(() => {
+                    try {
+                      document.body.removeChild(iframe);
+                    } catch (err) {
+                      console.error('Failed to clean up shift report print iframe:', err);
+                    }
+                  }, 1500);
+                }}
+              >
+                🖨️ ພິມບິນສະຫຼຸບ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bottom Navigation for Mobile */}
+      {activeUser && (
+        <nav className="bottom-nav">
+          <button
+            type="button"
+            className={`bottom-nav-item ${activeTab === 'pos' ? 'active' : ''}`}
+            onClick={() => setActiveTab('pos')}
+          >
+            <span className="bottom-nav-icon">💵</span>
+            <span>POS</span>
+          </button>
+
+          {activeUser.role === 'owner' && (
+            <button
+              type="button"
+              className={`bottom-nav-item ${activeTab === 'inventory' ? 'active' : ''}`}
+              onClick={() => setActiveTab('inventory')}
+            >
+              <span className="bottom-nav-icon">📦</span>
+              <span>Stock</span>
+            </button>
+          )}
+
+          {activeUser.role === 'owner' && (
+            <button
+              type="button"
+              className={`bottom-nav-item ${activeTab === 'reports' ? 'active' : ''}`}
+              onClick={() => setActiveTab('reports')}
+            >
+              <span className="bottom-nav-icon">📊</span>
+              <span>Reports</span>
+            </button>
+          )}
+
+          {(activeUser.role === 'owner' || activeUser.role === 'manager') && (
+            <button
+              type="button"
+              className={`bottom-nav-item ${activeTab === 'online_orders' ? 'active' : ''}`}
+              onClick={() => setActiveTab('online_orders')}
+            >
+              <span className="bottom-nav-icon">🛒</span>
+              <span>Orders</span>
+            </button>
+          )}
+
+          {(activeUser.role === 'owner' || activeUser.role === 'cashier') && (
+            <button
+              type="button"
+              className={`bottom-nav-item ${activeTab === 'debts' ? 'active' : ''}`}
+              onClick={() => setActiveTab('debts')}
+            >
+              <span className="bottom-nav-icon">📒</span>
+              <span>Debts</span>
+            </button>
+          )}
+
+          {activeUser.role === 'owner' && (
+            <button
+              type="button"
+              className={`bottom-nav-item ${activeTab === 'settings' ? 'active' : ''}`}
+              onClick={() => setActiveTab('settings')}
+            >
+              <span className="bottom-nav-icon">⚙️</span>
+              <span>Settings</span>
+            </button>
+          )}
+        </nav>
+      )}
+    </div>
+  );
+}
