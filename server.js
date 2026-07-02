@@ -94,12 +94,9 @@ const server = http.createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Set Global Security Headers to protect client frontend and API traffic
-  res.setHeader('X-Frame-Options', 'DENY');
+  // Set Global Security Headers
   res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('Content-Security-Policy', "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://*.googleapis.com https://*.gstatic.com https://*.firebaseio.com https://*.qrserver.com;");
 
   if (req.method === 'OPTIONS') {
     res.statusCode = 200;
