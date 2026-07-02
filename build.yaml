@@ -1,0 +1,10 @@
+# Flutter Build Configuration
+# To compile with obfuscation and split debug info, run:
+# flutter build apk --obfuscate --split-debug-info=build/app/outputs/symbols
+#
+targets:
+  $default:
+    builders:
+      source_gen|combining_builder:
+        options:
+          obfuscate: true

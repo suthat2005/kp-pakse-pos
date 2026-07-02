@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Security & Private Credentials
+firebase-key.json
+suthat-eb36a-firebase-adminsdk-fbsvc-*.json
+.env
+.env.local
+.env.*.local

@@ -1,0 +1,17 @@
+{
+  "comment": "Security rule enforcement: NestJS synchronize: false by default to prevent accidental data loss in production",
+  "type": "postgres",
+  "host": "localhost",
+  "port": 5432,
+  "username": "postgres",
+  "password": "password",
+  "database": "kp_pakse_pos",
+  "synchronize": false,
+  "logging": true,
+  "entities": ["src/**/*.entity.js"],
+  "migrations": ["migrations/**/*.js"],
+  "cli": {
+    "entitiesDir": "src/entities",
+    "migrationsDir": "migrations"
+  }
+}

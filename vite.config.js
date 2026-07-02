@@ -302,4 +302,10 @@ export default defineConfig({
       }
     }
   ],
+  build: {
+    minify: true,
+    sourcemap: false,
+    cssMinify: true,
+    chunkSizeWarningLimit: 1000
+  }
 })

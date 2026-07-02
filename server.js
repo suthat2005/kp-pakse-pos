@@ -94,6 +94,13 @@ const server = http.createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
+  // Set Global Security Headers to protect client frontend and API traffic
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Content-Security-Policy', "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://*.googleapis.com https://*.gstatic.com https://*.firebaseio.com https://*.qrserver.com;");
+
   if (req.method === 'OPTIONS') {
     res.statusCode = 200;
     res.end();
@@ -518,9 +525,20 @@ const server = http.createServer(async (req, res) => {
   });
 });
 
+const isProd = process.argv.includes('--prod') || process.env.NODE_ENV === 'production';
+
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`===================================================`);
-  console.log(`POS Production Server running on port ${PORT}`);
+  console.log(`POS Server running on port ${PORT}`);
   console.log(`Access POS locally: http://localhost:${PORT}`);
   console.log(`===================================================`);
+  
+  if (isProd) {
+    // High-visibility RED warning banner in terminal
+    console.log(`\n\x1b[41m\x1b[37m  ⚠️  WARNING: PRODUCTION ACTIVE (โหมดขึ้นเว็บจริง)  ⚠️  \x1b[0m`);
+    console.log(`\x1b[31m  - Running on Live Production Environment\x1b[0m`);
+    console.log(`\x1b[31m  - Any changes will affect live customer database\x1b[0m`);
+    console.log(`\x1b[31m  - Database Schema synchronization is DISABLED (sync: false)\x1b[0m`);
+    console.log(`\x1b[41m\x1b[37m=========================================================\x1b[0m\n`);
+  }
 });
