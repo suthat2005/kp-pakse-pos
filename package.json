@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scratch/minify_obfuscate.cjs",
+    "build": "vite build",
     "start:prod": "node server.js --prod",
     "lint": "eslint .",
     "preview": "vite preview"
