@@ -511,11 +511,13 @@ const server = http.createServer(async (req, res) => {
     } else {
       res.statusCode = 200;
       res.setHeader('Content-Type', contentType);
-      // Disable caching for HTML and JS files to prevent old bundle files from being cached by browser
-      if (ext === '.html' || ext === '.js') {
-        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      // Smart caching: long cache for static assets, no-cache for HTML
+      if (ext === '.html') {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
+      } else if (['.js', '.css', '.ttf', '.woff', '.woff2', '.png', '.jpg', '.svg', '.ico'].includes(ext)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year cache
       }
       res.end(content);
     }

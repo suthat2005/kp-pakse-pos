@@ -2637,30 +2637,6 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   )}
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
-                  <div className="form-group" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', margin: 0 }}>
-                      <input
-                        type="checkbox"
-                        checked={!!formData.showOnline}
-                        onChange={(e) => setFormData({ ...formData, showOnline: e.target.checked })}
-                        style={{ width: '18px', height: '18px', cursor: 'pointer', margin: 0 }}
-                      />
-                      <span>ສະແດງໃນ Online Shop</span>
-                    </label>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">ລາຄາອອນລາຍ (ກີບ)</label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      value={formData.priceOnline}
-                      onChange={(e) => setFormData({ ...formData, priceOnline: e.target.value })}
-                      placeholder={formData.price || '0'}
-                      autoComplete="off"
-                    />
-                  </div>
-                </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', marginTop: '12px' }}>
                   <div className="form-group">

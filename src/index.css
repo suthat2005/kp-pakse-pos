@@ -705,6 +705,14 @@ textarea.form-control {
   flex-direction: column;
 }
 
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .modal-content.modal-sm {
   max-width: 780px !important;
 }
