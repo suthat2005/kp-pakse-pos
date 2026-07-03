@@ -9,7 +9,7 @@ import zlib from 'zlib'
 // https://vite.dev/config/
 export default defineConfig({
   server: {
-    allowedHosts: 'all'
+    allowedHosts: true
   },
   plugins: [
     react(),
