@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../utils/db';
 import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
+import Portal from './Portal';
 
 const ALL_BARCODE_FORMATS = [
   { value: 'QRCODE', label: 'QR Code (ສຳລັບບາໂຄ້ດສັ້ນ/2D)' },
@@ -351,6 +352,7 @@ function RawMaterialsSubView() {
       
       
       {showModal && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 1100 }}>
           <div className="modal-content modal-md glass-card" style={{ padding: '24px' }}>
             <div className="modal-header">
@@ -479,9 +481,11 @@ function RawMaterialsSubView() {
             </form>
           </div>
         </div>
+        </Portal>
       )}
 
       {showCsvModal && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 1100 }}>
           <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
             <div className="modal-header">
@@ -509,6 +513,7 @@ function RawMaterialsSubView() {
             </div>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Mobile FAB to Add Raw Material */}
@@ -1095,6 +1100,7 @@ function ManufacturingSubView() {
 
       {/* Modal overlays for Product & Raw Material creation inside BOM */}
       {showAddProductModal && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
             <div className="modal-header">
@@ -1170,9 +1176,11 @@ function ManufacturingSubView() {
             </form>
           </div>
         </div>
+        </Portal>
       )}
 
       {showAddMaterialModal && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content glass-card" style={{ maxWidth: '450px', padding: '24px' }}>
             <div className="modal-header">
@@ -1243,6 +1251,7 @@ function ManufacturingSubView() {
             </form>
           </div>
         </div>
+        </Portal>
       )}
     </div>
   );
@@ -2527,6 +2536,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       
       {/* Add / Edit Product Modal */}
       {showModal && (
+        <Portal>
         <div className="modal-overlay">
           <div className="modal-content modal-sm animate-fade-in">
             <div className="modal-header">
@@ -2803,10 +2813,12 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
             </form>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Barcode Canvas printing modal */}
       {showBarcodeModal && (
+        <Portal>
         <div className="modal-overlay">
           <div className="modal-content modal-sm animate-fade-in">
             <div className="modal-header">
@@ -2920,10 +2932,12 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
             </div>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Bulk Barcode Modal */}
       {showBulkBarcodeModal && (
+        <Portal>
         <div className="modal-overlay">
           <div className="modal-content modal-sm animate-fade-in">
             <div className="modal-header">
@@ -3143,6 +3157,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
             </div>
           </div>
         </div>
+        </Portal>
       )}
           {/* Mobile FAB to Add Product */}
           <button 
@@ -3158,6 +3173,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
   
       {/* Category Management Modal */}
       {showCategoryModal && (
+        <Portal>
         <div className="modal-overlay">
           <div className="modal-content modal-sm animate-fade-in">
             <div className="modal-header">
@@ -3428,10 +3444,12 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
             </div>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Scan Capture Modal Overlay */}
       {showScanHelperModal && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 2000 }}>
           <div className="modal-content modal-sm animate-fade-in">
             <div className="modal-header">
@@ -3553,6 +3571,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
             </div>
           </div>
         </div>
+        </Portal>
       )}
 
     </div>

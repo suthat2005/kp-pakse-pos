@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../utils/db';
+import Portal from './Portal';
 
 // Optimized Isolated Modal Component to prevent parent re-renders and keypress lag
 function CustomerModal({ show, editingCust, onClose, onSave }) {
@@ -68,6 +69,7 @@ function CustomerModal({ show, editingCust, onClose, onSave }) {
   );
 
   return (
+    <Portal>
     <div className="modal-overlay" style={{ zIndex: 1300, background: 'rgba(0,0,0,0.65)' }}>
       <div className="modal-content modal-sm animate-fade-in" style={{ padding: 0 }}>
         <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px' }}>
@@ -157,6 +159,7 @@ function CustomerModal({ show, editingCust, onClose, onSave }) {
         </form>
       </div>
     </div>
+    </Portal>
   );
 }
 
@@ -194,6 +197,7 @@ function CustomerDetailModal({ show, customer, onClose }) {
   };
 
   return (
+    <Portal>
     <div className="modal-overlay" style={{ zIndex: 1300, background: 'rgba(0,0,0,0.72)' }}>
       <div className="modal-content animate-fade-in" style={{ padding: '24px', maxWidth: '720px', width: '96%', background: '#1c1917', border: '1px solid var(--border-color)', borderRadius: '14px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
         
@@ -381,6 +385,7 @@ function CustomerDetailModal({ show, customer, onClose }) {
         </div>
       </div>
     </div>
+    </Portal>
   );
 }
 

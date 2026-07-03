@@ -13,6 +13,7 @@ import OrderTracking from './components/OrderTracking';
 import Customers from './components/Customers';
 import OnlineShop from './components/OnlineShop';
 import OnlineOrders from './components/OnlineOrders';
+import Portal from './components/Portal';
 
 // Authorization helper to check custom permissions with backward-compatible role fallbacks
 const hasPermission = (user, tabKey) => {
@@ -1039,6 +1040,7 @@ export default function App() {
 
       {/* Expense Logging Modal Overlay */}
       {showExpenseModal && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 1100 }}>
           <div className="modal-content glass-card" style={{ maxWidth: '680px', padding: '28px', maxHeight: '92vh', overflowY: 'auto' }}>
             <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -1271,10 +1273,12 @@ export default function App() {
             )}
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Shift Report Modal Overlay */}
       {showShiftReportModal && shiftReportData && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 1100 }}>
           <div className="modal-content modal-sm glass-card" style={{ padding: '20px', maxHeight: '85%', overflowY: 'auto' }}>
             <div className="modal-header no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -1450,6 +1454,7 @@ export default function App() {
             </div>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Bottom Navigation for Mobile */}

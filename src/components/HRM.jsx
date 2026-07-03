@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../utils/db';
+import Portal from './Portal';
 
 export default function HRM({ activeUser, onUpdate }) {
   const [activeSubTab, setActiveSubTab] = useState('employees'); // employees | shifts | attendance | leaves | payroll
@@ -1478,6 +1479,7 @@ export default function HRM({ activeUser, onUpdate }) {
 
       {/* ADD EMPLOYEE MODAL */}
       {showAddUserModal && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content modal-sm animate-fade-in">
             <div className="modal-header">
@@ -1742,10 +1744,12 @@ export default function HRM({ activeUser, onUpdate }) {
             </form>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* EDIT EMPLOYEE PROFILE MODAL */}
       {editingUser && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content animate-fade-in" style={{ maxWidth: '400px' }}>
             <div className="modal-header">
@@ -1968,10 +1972,12 @@ export default function HRM({ activeUser, onUpdate }) {
             </form>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* ADD MANUAL ATTENDANCE LOG MODAL */}
       {showManualLogModal && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content animate-fade-in" style={{ maxWidth: '400px' }}>
             <div className="modal-header">
@@ -2080,10 +2086,12 @@ export default function HRM({ activeUser, onUpdate }) {
             </form>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* EDIT MANUAL ATTENDANCE LOG MODAL */}
       {showEditLogModal && selectedLogEntry && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content animate-fade-in" style={{ maxWidth: '400px' }}>
             <div className="modal-header">
@@ -2189,10 +2197,12 @@ export default function HRM({ activeUser, onUpdate }) {
             </form>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* A4 PAYSLIP MODAL */}
       {showPayslipModal && selectedPayslip && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content modal-sm glass-card" style={{ padding: '24px', maxHeight: '85%', overflowY: 'auto' }}>
             <div className="modal-header no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -2336,6 +2346,7 @@ export default function HRM({ activeUser, onUpdate }) {
             </div>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* 80MM THERMAL RECEIPT SLIP MODAL */}
@@ -2350,6 +2361,7 @@ export default function HRM({ activeUser, onUpdate }) {
         const totalBasePayout = selectedPayrollUser.totalPayout - totalOtPayout;
 
         return (
+          <Portal>
           <div className="modal-overlay print-modal" style={{ zIndex: 1200 }}>
             <div className="modal-content animate-fade-in" style={{ maxWidth: '400px' }}>
               <div className="modal-header no-print">
@@ -2546,6 +2558,7 @@ export default function HRM({ activeUser, onUpdate }) {
               </div>
             </div>
           </div>
+          </Portal>
         );
       })()}
     </div>

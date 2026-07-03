@@ -1990,6 +1990,15 @@ return defaultValue;
 }
 }
 
+function seedStorage(key, value) {
+  try {
+    localStorage.setItem('amulet_pos_' + key, JSON.stringify(value));
+    localStorage.setItem('amulet_pos_ts_' + key, '0');
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 function setStorage(key, value, skipSync = false) {
 try {
 localStorage.setItem('amulet_pos_' + key, JSON.stringify(value));
@@ -2023,10 +2032,10 @@ export const db = {
     if (this._initialized) return;
     this._initialized = true;
     if (!localStorage.getItem('amulet_pos_categories')) {
-      setStorage('categories', DEFAULT_CATEGORIES);
+      seedStorage('categories', DEFAULT_CATEGORIES);
     }
 if (!localStorage.getItem('amulet_pos_products')) {
-setStorage('products', DEFAULT_PRODUCTS);
+seedStorage('products', DEFAULT_PRODUCTS);
 } else {
   // Ensure K05 and C009-E195 products exist so the user does not have to create them manually
   const currentProducts = getStorage('products', []);
@@ -2071,7 +2080,7 @@ setStorage('products', DEFAULT_PRODUCTS);
 }
 const storedUsers = getStorage('users', []);
 if (!localStorage.getItem('amulet_pos_users') || storedUsers.length === 0 || !storedUsers.some(u => u.email)) {
-setStorage('users', DEFAULT_USERS);
+seedStorage('users', DEFAULT_USERS);
 } else {
 let migrationNeeded = false;
 const migratedUsers = storedUsers.map(u => {
@@ -2109,7 +2118,7 @@ setStorage('users', migratedUsers);
 }
 }
 if (!localStorage.getItem('amulet_pos_orders')) {
-setStorage('orders', DEFAULT_ORDERS);
+seedStorage('orders', DEFAULT_ORDERS);
 }
 if (!localStorage.getItem('amulet_pos_framing_jobs')) {
   // We use raw localStorage to avoid dispatching event in init() loop
@@ -2122,31 +2131,31 @@ if (!localStorage.getItem('amulet_pos_restored_v1')) {
 }
 
 if (!localStorage.getItem('amulet_pos_promotions')) {
-setStorage('promotions', DEFAULT_PROMOTIONS);
+seedStorage('promotions', DEFAULT_PROMOTIONS);
 }
 if (!localStorage.getItem('amulet_pos_active_user')) {
-setStorage('active_user', DEFAULT_USERS[0]);
+seedStorage('active_user', DEFAULT_USERS[0]);
 }
 if (!localStorage.getItem('amulet_pos_settings')) {
-setStorage('settings', DEFAULT_SETTINGS);
+seedStorage('settings', DEFAULT_SETTINGS);
 }
 if (!localStorage.getItem('amulet_pos_slots')) {
-setStorage('slots', getInitialSlots());
+seedStorage('slots', getInitialSlots());
 }
 if (!localStorage.getItem('amulet_pos_debts')) {
-setStorage('debts', DEFAULT_DEBTS);
+seedStorage('debts', DEFAULT_DEBTS);
 }
 if (!localStorage.getItem('amulet_pos_audit_logs')) {
-setStorage('audit_logs', DEFAULT_AUDIT_LOGS);
+seedStorage('audit_logs', DEFAULT_AUDIT_LOGS);
 }
 if (!localStorage.getItem('amulet_pos_attendance')) {
-setStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
+seedStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
 }
 if (!localStorage.getItem('amulet_pos_cameras')) {
-setStorage('cameras', DEFAULT_CCTV_CAMERAS);
+seedStorage('cameras', DEFAULT_CCTV_CAMERAS);
 }
 if (!localStorage.getItem('amulet_pos_cctv_alerts')) {
-setStorage('cctv_alerts', DEFAULT_CCTV_ALERTS);
+seedStorage('cctv_alerts', DEFAULT_CCTV_ALERTS);
 }
 this.runDataRetention();
 },

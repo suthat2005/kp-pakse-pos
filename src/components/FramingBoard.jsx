@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../utils/db';
+import Portal from './Portal';
 
 export default function FramingBoard({ 
   activeUser, 
@@ -317,6 +318,7 @@ export default function FramingBoard({
 
       {/* Customer Notification Modal */}
       {showNotifyModal && notifyJob && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content modal-sm animate-fade-in">
             <div className="modal-header">
@@ -368,6 +370,7 @@ export default function FramingBoard({
             </div>
           </div>
         </div>
+        </Portal>
       )}
 
     </div>

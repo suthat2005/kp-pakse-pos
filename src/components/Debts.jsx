@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../utils/db';
+import Portal from './Portal';
 
 export default function Debts({ activeUser, onUpdate }) {
   const [debts, setDebts] = useState([]);
@@ -246,6 +247,7 @@ export default function Debts({ activeUser, onUpdate }) {
 
       {/* Payment Modal - Placed OUTSIDE the animate-fade-in transform boundary */}
       {showCheckout && selectedDebt && (
+        <Portal>
         <div className="modal-overlay" style={{ backdropFilter: 'blur(8px)', background: 'rgba(0,0,0,0.75)', zIndex: 1200 }}>
           <div className="modal-content animate-fade-in" style={{
             maxWidth: '1100px',
@@ -406,6 +408,7 @@ export default function Debts({ activeUser, onUpdate }) {
 
           </div>
         </div>
+        </Portal>
       )}
     </div>
   );

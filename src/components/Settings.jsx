@@ -4,6 +4,7 @@ import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
 import jsQR from 'jsqr';
 import OrderTracking from './OrderTracking';
+import Portal from './Portal';
 
 // Decode QR image → EMVCo text payload (for dynamic amount injection)
 const decodeQrFromImage = (file) => new Promise((resolve) => {
@@ -3633,6 +3634,7 @@ export default function Settings({ activeUser, onUpdate }) {
       </div>
 
       {showDesignModal && designPromo && (
+        <Portal>
         <div style={{
           position: 'fixed',
           top: 0,
@@ -4233,6 +4235,7 @@ export default function Settings({ activeUser, onUpdate }) {
             </div>
           </div>
         </div>
+        </Portal>
       )}
 
 

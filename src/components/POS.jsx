@@ -4,6 +4,7 @@ import FramingBoard from './FramingBoard';
 import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
 import jsQR from 'jsqr';
+import Portal from './Portal';
 
 const accountConfig = {
   LAK: { mid: 'mch64f01defcb310', code: '418' },
@@ -2923,6 +2924,7 @@ export default function POS({
 
       {/* Select Quantity Modal (Image 3 dialog popup) */}
       {showQtyModal && qtyTargetProd && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 1100 }}>
           <div className="modal-content modal-sm animate-fade-in" style={{ border: '2px solid var(--border-color)', boxShadow: 'var(--shadow-premium)' }}>
             <div className="modal-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', padding: '12px 16px' }}>
@@ -3011,6 +3013,7 @@ export default function POS({
             </form>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Discount Modal */}
@@ -3018,6 +3021,7 @@ export default function POS({
         const discountBase = Math.max(0, subtotal);
 
         return (
+          <Portal>
           <div className="modal-overlay" style={{ zIndex: 1200 }}>
             <div className="modal-content modal-sm animate-fade-in">
               <div className="modal-header">
@@ -3138,11 +3142,13 @@ export default function POS({
               </div>
             </div>
           </div>
+          </Portal>
         );
       })()}
 
       {/* Slot Customer Entry Modal (เด้งทุกครั้งที่กดบัตรคิว) */}
       {showSlotEntryModal && slotEntryTarget && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 1300, backdropFilter: 'blur(6px)', background: 'rgba(0,0,0,0.7)' }}>
           <div className="modal-content animate-fade-in" style={{
             maxWidth: '440px',
@@ -3379,10 +3385,12 @@ export default function POS({
             </div>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Add Queue Slot Modal (ເພີ່ມບັດຄິວ) */}
       {showAddSlotModal && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
             <div className="modal-header">
@@ -3432,10 +3440,12 @@ export default function POS({
             </form>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Service Configuration Modal */}
       {showServiceConfigModal && serviceConfigProduct && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content animate-fade-in" style={{ maxWidth: '480px', padding: 0, height: '100dvh', maxHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
             <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid var(--border-color)' }}>
@@ -3626,9 +3636,11 @@ export default function POS({
             </form>
           </div>
         </div>
+        </Portal>
       )}      
       {/* Rename Queue Slot Modal (ແກ້ໄຂຂໍ້ມູນບັດຄິວ) */}
       {showRenameModal && renameSlotTarget && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content modal-sm animate-fade-in" style={{ padding: '24px' }}>
             <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -3811,10 +3823,12 @@ export default function POS({
             </form>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Checkout Modal - Premium Enterprise Redesign */}
       {showCheckout && (
+        <Portal>
         <div className="modal-overlay" style={{ backdropFilter: 'blur(8px)', background: 'rgba(0,0,0,0.75)' }}>
           <div className="modal-content animate-fade-in" style={{
             maxWidth: '1100px',
@@ -4490,10 +4504,12 @@ export default function POS({
             </div>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Admin PIN authentication modal (Anti-fraud) */}
       {showAdminPinModal && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content modal-sm animate-fade-in">
             <div className="modal-header">
@@ -4536,10 +4552,12 @@ export default function POS({
             </form>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Customer Debt Registration modal (ຕິດໜີ້) */}
       {showDebtModal && (
+        <Portal>
         <div className="modal-overlay">
           <div className="modal-content modal-sm animate-fade-in">
             <div className="modal-header">
@@ -4589,10 +4607,12 @@ export default function POS({
             </form>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Printable Work Order Ticket for Technician (ສັ່ງສິນຄ້າ) */}
       {showWorkOrder && currentWorkOrder && (
+        <Portal>
         <div className="modal-overlay print-modal">
           <div className="modal-content animate-fade-in" style={{ maxWidth: '400px' }}>
             <div className="modal-header no-print">
@@ -4641,10 +4661,12 @@ export default function POS({
             </div>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Printable Invoice Modal (ພິມບິນ) */}
       {showReceipt && currentReceipt && (
+        <Portal>
         <div className="modal-overlay print-modal">
           <div className="modal-content animate-fade-in" style={{ maxWidth: '400px' }}>
             <div className="modal-header no-print">
@@ -5040,10 +5062,12 @@ export default function POS({
             </div>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Add Custom Job Modal */}
       {showFramingAddModal && (
+        <Portal>
         <div className="modal-overlay">
           <div className="modal-content modal-md animate-fade-in">
             <div className="modal-header">
@@ -5346,10 +5370,12 @@ export default function POS({
             </form>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Edit Framing Job Modal */}
       {showFramingEditModal && currentFramingJob && (
+        <Portal>
         <div className="modal-overlay">
           <div className="modal-content animate-fade-in" style={{ maxWidth: '500px' }}>
             <div className="modal-header">
@@ -5675,10 +5701,12 @@ export default function POS({
             </form>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Print Framing Job Ticket Modal */}
       {showFramingPrintModal && currentFramingJob && (
+        <Portal>
         <div className="modal-overlay print-modal">
           <div className="modal-content animate-fade-in" style={{ maxWidth: '400px' }}>
             <div className="modal-header no-print">
@@ -5849,6 +5877,7 @@ export default function POS({
             </div>
           </div>
         </div>
+        </Portal>
       )}
 
       {/* Mobile FAB to Add Queue Slot */}
@@ -5863,6 +5892,7 @@ export default function POS({
 
       {/* Deposit Input Dialog Modal - Simplified Amount Entry */}
       {showDepositInputModal && (
+        <Portal>
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content animate-fade-in" style={{
             maxWidth: '450px',
@@ -6039,6 +6069,7 @@ export default function POS({
             </div>
           </div>
         </div>
+        </Portal>
       )}
     </div>
   );

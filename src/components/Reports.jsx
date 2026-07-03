@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../utils/db';
+import Portal from './Portal';
 
 export default function Reports({ activeUser }) {
   const todayStr = new Date().toLocaleDateString('en-CA');
@@ -1624,6 +1625,7 @@ export default function Reports({ activeUser }) {
       {/* ─── Invoice Reprint Modal (shared, always rendered) ─────────────────── */}
       {/* Invoice Reprint / Lookup Detail Modal */}
       {showReprintModal && selectedReceipt && (
+        <Portal>
         <div className="modal-overlay print-modal">
           <div className="modal-content animate-fade-in" style={{ maxWidth: '400px' }}>
             <div className="modal-header no-print">
@@ -1794,6 +1796,7 @@ export default function Reports({ activeUser }) {
             </div>
           </div>
         </div>
+        </Portal>
       )}
 
     </div>

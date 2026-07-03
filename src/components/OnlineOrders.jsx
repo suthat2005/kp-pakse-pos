@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../utils/db';
+import Portal from './Portal';
 
 export default function OnlineOrders({ activeUser }) {
   const [orders, setOrders] = useState([]);
@@ -484,6 +485,7 @@ export default function OnlineOrders({ activeUser }) {
 
       {/* ZOOM SLIP MODAL OVERLAY */}
       {zoomSlip && selectedOrder?.slipImage && (
+        <Portal>
         <div
           className="modal-overlay"
           onClick={() => setZoomSlip(false)}
@@ -523,6 +525,7 @@ export default function OnlineOrders({ activeUser }) {
             </div>
           </div>
         </div>
+        </Portal>
       )}
     </div>
   );
