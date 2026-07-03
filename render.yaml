@@ -4,8 +4,12 @@ services:
     runtime: docker
     dockerfilePath: Dockerfile
     plan: free
+    domains:
+      - kp-pakse-suthatpospos.shop
+      - www.kp-pakse-suthatpospos.shop
     envVars:
       - key: PORT
         value: 5173
       - key: NODE_ENV
         value: production
+
