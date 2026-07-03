@@ -201,12 +201,16 @@ export default function App() {
   // Initialize DB and load active session
   useEffect(() => {
     db.init();
-    const current = db.getActiveUser();
-    if (current) {
-      setActiveUser(current);
-      adjustDefaultTabForRole(current.role);
-    }
-    loadSystemConfig();
+    
+    // Pull the latest database (users, settings, products) immediately on app startup
+    db.syncOnStartup().then(() => {
+      const current = db.getActiveUser();
+      if (current) {
+        setActiveUser(current);
+        adjustDefaultTabForRole(current.role);
+      }
+      loadSystemConfig();
+    });
   }, []);
 
   // Background Database synchronization effect

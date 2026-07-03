@@ -3368,6 +3368,65 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     }
   },
 
+  async syncOnStartup() {
+    const keys = [
+      'slots', 'products', 'categories', 'orders', 'debts', 'framing_jobs', 'settings',
+      'attendance', 'expenses', 'audit_logs', 'raw_materials', 'production_history',
+      'shifts', 'leaves', 'payrolls', 'users', 'promotions', 'cameras', 'cctv_alerts',
+      'online_orders'
+    ];
+    const baseUrl = window.location.protocol + '//' + window.location.host;
+    const checkParams = new URLSearchParams();
+    keys.forEach(k => checkParams.append(k, '0'));
+    
+    try {
+      const res = await fetch(`${baseUrl}/api/db/sync?` + checkParams.toString());
+      const serverAll = await res.json();
+      
+      const promises = keys.map(async (k) => {
+        const serverTable = serverAll[k];
+        const localDataStr = localStorage.getItem('amulet_pos_' + k);
+        const localTs = Number(localStorage.getItem('amulet_pos_ts_' + k) || '0');
+
+        if (!serverTable) {
+          if (localDataStr) {
+            try {
+              const data = JSON.parse(localDataStr);
+              await fetch(`${baseUrl}/api/db/save`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key: k, data, updatedAt: localTs })
+              });
+            } catch (e) {}
+          }
+        } else {
+          const serverTs = Number(serverTable.updatedAt || '0');
+          if (localTs > serverTs) {
+            if (localDataStr) {
+              try {
+                const data = JSON.parse(localDataStr);
+                await fetch(`${baseUrl}/api/db/save`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ key: k, data, updatedAt: localTs })
+                });
+              } catch (e) {}
+            }
+          } else if (serverTs > localTs) {
+            localStorage.setItem('amulet_pos_' + k, JSON.stringify(serverTable.data));
+            localStorage.setItem('amulet_pos_ts_' + k, String(serverTs));
+          }
+        }
+      });
+      
+      await Promise.all(promises);
+      window.dispatchEvent(new Event('db-updated'));
+      console.log("✓ Startup sync complete.");
+    } catch (err) {
+      console.warn("Startup sync failed:", err.message);
+    }
+  },
+
   deleteRawMaterial(id) {
     const list = this.getRawMaterials();
     const filtered = list.filter(m => m.id !== id);
