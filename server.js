@@ -19,8 +19,14 @@ const KEY_FILE = path.resolve(__dirname, './firebase-key.json');
 // Initialize Firebase Admin
 let firestoreDb = null;
 try {
-  if (fs.existsSync(KEY_FILE)) {
-    const serviceAccount = JSON.parse(fs.readFileSync(KEY_FILE, 'utf8'));
+  let serviceAccount = null;
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  } else if (fs.existsSync(KEY_FILE)) {
+    serviceAccount = JSON.parse(fs.readFileSync(KEY_FILE, 'utf8'));
+  }
+
+  if (serviceAccount) {
     initializeApp({
       credential: cert(serviceAccount)
     });
@@ -30,7 +36,7 @@ try {
     // Sync data from Firestore to local JSON on startup
     syncFromCloudOnStartup();
   } else {
-    console.warn("⚠️ firebase-key.json not found. Running in Local Offline Mode.");
+    console.warn("⚠️ Firebase credentials not found (neither FIREBASE_SERVICE_ACCOUNT env var nor firebase-key.json). Running in Local Offline Mode.");
   }
 } catch (err) {
   console.error("❌ Failed to initialize Firebase:", err);
