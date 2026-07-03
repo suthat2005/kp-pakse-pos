@@ -2221,27 +2221,38 @@ export default function POS({
       {viewMode === 'slots' ? (
         <div className="glass-card animate-fade-in" style={{ height: activeUser.role === 'technician' ? '100%' : 'calc(100% - 58px)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* Queue Board Header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-            <div>
-              <h2 style={{ 
-                color: 'var(--gold-primary)', 
-                margin: 0, 
-                fontSize: '1.4rem',
-                background: 'linear-gradient(135deg, #d4af37, #f5d76e, #d4af37)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}>{db.getLabel('pos_board_title', '📿 ບັດຄິວອັດກອບພຣະເຄື່ອງ')}</h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', margin: '4px 0 0' }}>{db.getLabel('pos_board_subtitle', 'ແຕະບັດຄິວເພື່ອເລີ່ມລາຍການ • ຄລິກ ✏️ ເພື່ອແກ້ໄຂລູກຄ້າ')}</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', borderBottom: '1px solid var(--border-color)', paddingBottom: '14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: '10px' }}>
+              <div>
+                <h2 style={{ 
+                  color: 'var(--gold-primary)', 
+                  margin: 0, 
+                  fontSize: '1.4rem',
+                  background: 'linear-gradient(135deg, #d4af37, #f5d76e, #d4af37)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text'
+                }}>{db.getLabel('pos_board_title', '📿 ບັດຄິວອັດກອບພຣະເຄື່ອງ')}</h2>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', margin: '4px 0 0' }}>{db.getLabel('pos_board_subtitle', 'ແຕະບັດຄິວเพื่อເລີ່ມລາຍການ • ຄລິກ ✏️ ເພື່ອແກ້ໄຂລູກຄ້າ')}</p>
+              </div>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => setShowAddSlotModal(true)}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', padding: '9px 18px', borderRadius: '10px', fontWeight: 'bold', boxShadow: '0 4px 15px rgba(212,175,55,0.3)', margin: 0 }}
+              >
+                ➕ {db.getLabel('pos_add_queue', 'ເພີ່ມບັດຄິວ')}
+              </button>
             </div>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', width: '100%' }}>
               <input
                 type="text"
                 className="form-control"
                 placeholder={db.getLabel('pos_search_customer_placeholder', '🔍 ຄົ້ນຫາເບີໂທ ຫຼື ຊື່ລູກຄ້າ...')}
                 value={queueSearchQuery}
                 onChange={(e) => setQueueSearchQuery(e.target.value)}
-                style={{ maxWidth: '240px', background: 'rgba(0,0,0,0.4)', color: 'white', border: '1px solid var(--border-color)', height: '36px', borderRadius: '10px', fontSize: '0.85rem', padding: '0 12px' }}
+                style={{ maxWidth: '240px', background: 'rgba(0,0,0,0.4)', color: 'white', border: '1px solid var(--border-color)', height: '36px', borderRadius: '10px', fontSize: '0.85rem', padding: '0 12px', margin: 0 }}
               />
               <div style={{ display: 'flex', gap: '6px', fontSize: '0.72rem', flexWrap: 'wrap' }}>
                 <span style={{ padding: '3px 8px', borderRadius: '20px', background: 'rgba(39,174,96,0.12)', border: '1px solid rgba(39,174,96,0.3)', color: '#2ecc71' }}>🟢 ມີສິນຄ້າ</span>
@@ -2249,14 +2260,6 @@ export default function POS({
                 <span style={{ padding: '3px 8px', borderRadius: '20px', background: 'rgba(231,76,60,0.12)', border: '1px solid rgba(231,76,60,0.3)', color: '#e74c3c' }}>🔴 ຕິດໜີ້</span>
                 <span style={{ padding: '3px 8px', borderRadius: '20px', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)', color: 'var(--gold-primary)' }}>⚪ ວ່າງ</span>
               </div>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => setShowAddSlotModal(true)}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', padding: '9px 18px', borderRadius: '10px', fontWeight: 'bold', boxShadow: '0 4px 15px rgba(212,175,55,0.3)' }}
-              >
-                ➕ {db.getLabel('pos_add_queue', 'ເພີ່ມບັດຄິວ')}
-              </button>
             </div>
           </div>
 
