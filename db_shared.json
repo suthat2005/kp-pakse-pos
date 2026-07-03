@@ -3,7 +3,7 @@
     "data": {
       "10": {
         "id": "10",
-        "label": "10",
+        "label": "1",
         "items": [
           {
             "productId": "JOB10001",
@@ -22,11 +22,12 @@
         "amuletImage": "",
         "discountPercent": 0,
         "discountType": "percent",
-        "discountAmount": 0
+        "discountAmount": 0,
+        "customerId": ""
       },
       "11": {
         "id": "11",
-        "label": "11",
+        "label": "2",
         "items": [
           {
             "productId": "JOB10002",
@@ -45,11 +46,12 @@
         "amuletImage": "",
         "discountPercent": 0,
         "discountType": "percent",
-        "discountAmount": 0
+        "discountAmount": 0,
+        "customerId": ""
       },
       "12": {
         "id": "12",
-        "label": "12",
+        "label": "3",
         "items": [
           {
             "productId": "JOB10004",
@@ -68,11 +70,12 @@
         "amuletImage": "",
         "discountPercent": 0,
         "discountType": "percent",
-        "discountAmount": 0
+        "discountAmount": 0,
+        "customerId": ""
       },
       "13": {
         "id": "13",
-        "label": "13",
+        "label": "4",
         "items": [
           {
             "productId": "JOB10005",
@@ -91,12 +94,22 @@
         "amuletImage": "",
         "discountPercent": 0,
         "discountType": "percent",
-        "discountAmount": 0
+        "discountAmount": 0,
+        "customerId": ""
       },
       "14": {
         "id": "14",
-        "label": "14",
-        "items": [],
+        "label": "5",
+        "items": [
+          {
+            "productId": "JOB10006",
+            "name": "ບໍລິການອັດກັນນ້ຳ (ເລນໃສ/ປົກກະຕິ)",
+            "price": 60000,
+            "qty": 3,
+            "total": 180000,
+            "category": "services"
+          }
+        ],
         "notes": "",
         "customerName": "",
         "customerPhone": "",
@@ -105,12 +118,22 @@
         "amuletImage": "",
         "discountPercent": 0,
         "discountType": "percent",
-        "discountAmount": 0
+        "discountAmount": 0,
+        "customerId": ""
       },
       "15": {
         "id": "15",
-        "label": "15",
-        "items": [],
+        "label": "6",
+        "items": [
+          {
+            "productId": "JOB10007",
+            "name": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
+            "price": 90000,
+            "qty": 3,
+            "total": 270000,
+            "category": "services"
+          }
+        ],
         "notes": "",
         "customerName": "",
         "customerPhone": "",
@@ -119,11 +142,12 @@
         "amuletImage": "",
         "discountPercent": 0,
         "discountType": "percent",
-        "discountAmount": 0
+        "discountAmount": 0,
+        "customerId": ""
       },
       "16": {
         "id": "16",
-        "label": "16",
+        "label": "7",
         "items": [
           {
             "productId": "JOB10008",
@@ -142,11 +166,12 @@
         "amuletImage": "",
         "discountPercent": 0,
         "discountType": "percent",
-        "discountAmount": 0
+        "discountAmount": 0,
+        "customerId": ""
       },
       "Walk-In": {
         "id": "Walk-In",
-        "label": "Walk-In",
+        "label": "8",
         "items": [
           {
             "productId": "JOB10010",
@@ -165,11 +190,12 @@
         "amuletImage": "",
         "discountPercent": 0,
         "discountType": "percent",
-        "discountAmount": 0
+        "discountAmount": 0,
+        "customerId": ""
       },
       "01": {
         "id": "01",
-        "label": "01",
+        "label": "9",
         "items": [
           {
             "productId": "JOB10013",
@@ -188,11 +214,12 @@
         "amuletImage": "",
         "discountPercent": 0,
         "discountType": "percent",
-        "discountAmount": 0
+        "discountAmount": 0,
+        "customerId": ""
       },
       "02": {
         "id": "02",
-        "label": "02",
+        "label": "10",
         "items": [],
         "notes": "",
         "customerName": "",
@@ -207,8 +234,17 @@
       },
       "03": {
         "id": "03",
-        "label": "03",
-        "items": [],
+        "label": "11",
+        "items": [
+          {
+            "productId": "JOB10022",
+            "name": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
+            "price": 90000,
+            "qty": 1,
+            "total": 90000,
+            "category": "services"
+          }
+        ],
         "notes": "",
         "customerName": "",
         "customerPhone": "",
@@ -217,11 +253,12 @@
         "amuletImage": "",
         "discountPercent": 0,
         "discountType": "percent",
-        "discountAmount": 0
+        "discountAmount": 0,
+        "customerId": ""
       },
       "04": {
         "id": "04",
-        "label": "04",
+        "label": "12",
         "items": [],
         "notes": "",
         "customerName": "",
@@ -231,11 +268,12 @@
         "amuletImage": "",
         "discountPercent": 0,
         "discountType": "percent",
-        "discountAmount": 0
+        "discountAmount": 0,
+        "customerId": ""
       },
       "05": {
         "id": "05",
-        "label": "05",
+        "label": "13",
         "items": [
           {
             "productId": "JOB10020",
@@ -254,11 +292,12 @@
         "amuletImage": "",
         "discountPercent": 0,
         "discountType": "percent",
-        "discountAmount": 0
+        "discountAmount": 0,
+        "customerId": ""
       },
       "06": {
         "id": "06",
-        "label": "06",
+        "label": "14",
         "items": [
           {
             "productId": "JOB10021",
@@ -277,11 +316,12 @@
         "amuletImage": "",
         "discountPercent": 0,
         "discountType": "percent",
-        "discountAmount": 0
+        "discountAmount": 0,
+        "customerId": ""
       },
       "07": {
         "id": "07",
-        "label": "07",
+        "label": "15",
         "items": [
           {
             "productId": "JOB10019",
@@ -300,11 +340,12 @@
         "amuletImage": "",
         "discountPercent": 0,
         "discountType": "percent",
-        "discountAmount": 0
+        "discountAmount": 0,
+        "customerId": ""
       },
       "08": {
         "id": "08",
-        "label": "08",
+        "label": "16",
         "items": [],
         "notes": "",
         "customerName": "",
@@ -314,11 +355,12 @@
         "amuletImage": "",
         "discountPercent": 0,
         "discountType": "percent",
-        "discountAmount": 0
+        "discountAmount": 0,
+        "customerId": ""
       },
       "09": {
         "id": "09",
-        "label": "09",
+        "label": "17",
         "items": [],
         "notes": "",
         "customerName": "",
@@ -328,11 +370,12 @@
         "amuletImage": "",
         "discountPercent": 0,
         "discountType": "percent",
-        "discountAmount": 0
+        "discountAmount": 0,
+        "customerId": ""
       },
       "P1": {
         "id": "P1",
-        "label": "P1",
+        "label": "18",
         "items": [],
         "notes": "",
         "customerName": "",
@@ -342,7 +385,8 @@
         "amuletImage": "",
         "discountPercent": 0,
         "discountType": "percent",
-        "discountAmount": 0
+        "discountAmount": 0,
+        "customerId": ""
       },
       "P2": {
         "id": "P2",
@@ -402,7 +446,7 @@
         "items": [
           {
             "productId": "JOB10024",
-            "name": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
+            "name": "ບໍລິການອັດກັນນ້ຳ (ເ��ນລາຍ/ພິເສດ)",
             "price": 90000,
             "qty": 1,
             "total": 90000,
@@ -630,7 +674,7 @@
         "discountAmount": 0
       }
     },
-    "updatedAt": 1783072627657
+    "updatedAt": 1783094998874
   },
   "products": {
     "data": [
@@ -1482,7 +1526,7 @@
             "date": "2026-06-30T20:19:34.610Z",
             "amount": 162000,
             "method": "Cash",
-            "cashier": "ທ້າວ ສົມຈິດ (ສົມ)",
+            "cashier": "ທ້າວ ສົມຈິດ (ສົ��)",
             "bankTxRef": ""
           },
           {
@@ -1875,7 +1919,7 @@
         "deposit": 0,
         "notes": "",
         "pickupDate": "2026-07-03T05:16",
-        "status": "pending",
+        "status": "done",
         "slotId": "07",
         "amulets": [
           {
@@ -1906,7 +1950,7 @@
         "deposit": 0,
         "notes": "",
         "pickupDate": "2026-07-03T05:36",
-        "status": "pending",
+        "status": "done",
         "slotId": "05",
         "amulets": [
           {
@@ -1959,7 +2003,7 @@
         "deposit": 0,
         "notes": "",
         "pickupDate": "2026-07-03T05:46",
-        "status": "pending",
+        "status": "done",
         "slotId": "06",
         "amulets": [
           {
@@ -1990,7 +2034,7 @@
         "deposit": 0,
         "notes": "",
         "pickupDate": "2026-07-03T06:06",
-        "status": "pending",
+        "status": "done",
         "slotId": "03",
         "amulets": [
           {
@@ -2021,7 +2065,7 @@
         "deposit": 0,
         "notes": "",
         "pickupDate": "2026-07-03T06:35",
-        "status": "pending",
+        "status": "done",
         "slotId": "P2",
         "amulets": [
           {
@@ -2052,7 +2096,7 @@
         "deposit": 0,
         "notes": "",
         "pickupDate": "2026-07-03T06:48",
-        "status": "pending",
+        "status": "done",
         "slotId": "P5",
         "amulets": [
           {
@@ -2083,7 +2127,7 @@
         "deposit": 0,
         "notes": "",
         "pickupDate": "2026-07-04T03:36",
-        "status": "pending",
+        "status": "done",
         "slotId": "P11",
         "amulets": [
           {
@@ -2114,7 +2158,7 @@
         "deposit": 0,
         "notes": "",
         "pickupDate": "2026-07-04T03:41",
-        "status": "pending",
+        "status": "done",
         "slotId": "P6",
         "amulets": [
           {
@@ -2145,7 +2189,7 @@
         "deposit": 0,
         "notes": "",
         "pickupDate": "2026-07-04T03:50",
-        "status": "pending",
+        "status": "done",
         "slotId": "P16",
         "amulets": [
           {
@@ -2171,12 +2215,12 @@
         "balance": 90000
       },
       {
-        "customerName": "���ູກຄ້າທົ່ວໄປ",
+        "customerName": "���ູກຄ້າທ���່ວໄປ",
         "customerPhone": "",
         "deposit": 0,
         "notes": "",
         "pickupDate": "2026-07-04T03:53",
-        "status": "pending",
+        "status": "done",
         "slotId": "OUT-1",
         "amulets": [
           {
@@ -2202,7 +2246,7 @@
         "balance": 90000
       }
     ],
-    "updatedAt": 1783025626292
+    "updatedAt": 1783094413590
   },
   "attendance": {
     "data": [

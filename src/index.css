@@ -1593,3 +1593,98 @@ select:-webkit-autofill:focus {
   }
 }
 
+/* Category Tabs Horizontally Scrollable on Mobile */
+@media (max-width: 768px) {
+  .category-tabs {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    padding-bottom: 8px !important;
+    scrollbar-width: none; /* Hide default scrollbar on Firefox */
+  }
+  .category-tabs::-webkit-scrollbar {
+    display: none; /* Hide scrollbar on Chrome/Safari */
+  }
+  .category-tab {
+    padding: 10px 16px !important;
+    font-size: 0.9rem !important;
+    min-width: 120px !important;
+  }
+}
+
+/* Cart Actions Grid (Bottom Actions under POS Cart) */
+.cart-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.cart-actions-grid .btn {
+  height: 38px !important;
+  padding: 0 4px !important;
+  font-size: 0.72rem !important;
+  border-radius: var(--radius-sm) !important;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .cart-actions-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+  }
+  .cart-actions-grid .btn {
+    height: 48px !important;
+    padding: 10px 4px !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* Override inline grid style for POS cart actions dynamically */
+  .cart-summary + div {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+  }
+  .cart-summary + div .btn {
+    height: 48px !important;
+    padding: 10px 4px !important;
+    font-size: 0.85rem !important;
+  }
+}
+
+/* Status Dot Pulse Animations */
+@keyframes status-pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7);
+  }
+  70% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 6px rgba(46, 204, 113, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(46, 204, 113, 0);
+  }
+}
+@keyframes status-pulse-offline {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+  }
+  70% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 6px rgba(231, 76, 60, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+  }
+}
+.pulse-dot-online {
+  animation: status-pulse 2s infinite;
+}
+.pulse-dot-offline {
+  animation: status-pulse-offline 2s infinite;
+}
+
+
+

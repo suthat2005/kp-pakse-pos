@@ -43,6 +43,18 @@ export default function App() {
   const [trackingJobId, setTrackingJobId] = useState(null);
   const [settings, setSettings] = useState({ shopName: '', shopSubtitle: '', appTheme: 'gold', themeColors: {}, shopLogo: '' });
   const [lowStockWarning, setLowStockWarning] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Check URL query parameter for order tracking (?track=JOBXXXXX)
   useEffect(() => {
@@ -796,6 +808,31 @@ export default function App() {
               {activeTab === 'ai' && '🤖 ລະບົບກ້ອງ CCTV AI'}
               {activeTab === 'settings' && '⚙️ ຕັ້ງຄ່າລະບົບ (Settings)'}
             </span>
+
+            {/* Connection Status Badge */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              marginLeft: '12px',
+              padding: '4px 10px',
+              borderRadius: '12px',
+              background: isOnline ? 'rgba(46, 204, 113, 0.1)' : 'rgba(231, 76, 60, 0.15)',
+              border: `1px solid ${isOnline ? 'rgba(46, 204, 113, 0.2)' : 'rgba(231, 76, 60, 0.3)'}`,
+              fontSize: '0.72rem',
+              color: isOnline ? '#2ecc71' : '#e74c3c',
+              fontWeight: '600',
+              gap: '6px',
+              transition: 'all 0.3s ease'
+            }}>
+              <span className={isOnline ? 'pulse-dot-online' : 'pulse-dot-offline'} style={{
+                width: '6.5px',
+                height: '6.5px',
+                borderRadius: '50%',
+                background: isOnline ? '#2ecc71' : '#e74c3c',
+                display: 'inline-block'
+              }} />
+              <span className="no-select">{isOnline ? 'Online' : 'Offline'}</span>
+            </div>
           </div>
 
           <div className="topbar-actions">
