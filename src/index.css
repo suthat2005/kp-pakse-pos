@@ -755,9 +755,9 @@ textarea.form-control {
   padding: 16px 20px;
   border-bottom: 1.5px solid var(--border-color);
   display: flex;
-  justify-content: justify;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
 }
 
 .modal-title {
@@ -771,6 +771,27 @@ textarea.form-control {
   overflow-y: auto;
   flex: 1;
   min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212,175,55,0.45) rgba(255,255,255,0.04);
+}
+
+.modal-body::-webkit-scrollbar {
+  width: 5px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.04);
+  border-radius: 4px;
+  margin: 4px 0;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: rgba(212,175,55,0.45);
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(212,175,55,0.75);
 }
 
 .modal-footer {
