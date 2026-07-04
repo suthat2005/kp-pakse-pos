@@ -4431,36 +4431,7 @@ export default function POS({
                         )}
                       </div>
 
-                      {payCurrency === 'LAK' && (
-                        <div style={{ marginTop: '12px' }}>
-                          <button
-                            type="button"
-                            onClick={handleCheckoutPaymentSuccess}
-                            style={{
-                              width: '100%',
-                              maxWidth: '220px',
-                              padding: '8px 14px',
-                              borderRadius: '8px',
-                              border: 'none',
-                              background: 'linear-gradient(135deg, #1b5e20, #2e7d32)',
-                              color: 'white',
-                              fontWeight: 'bold',
-                              fontSize: '0.8rem',
-                              cursor: 'pointer',
-                              boxShadow: '0 4px 15px rgba(46, 125, 50, 0.4)',
-                              transition: 'all 0.2s',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              gap: '6px'
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
-                            onMouseLeave={(e) => e.currentTarget.style.transform = 'none'}
-                          >
-                            <span>⚡ ຈຳລອງການຈ່າຍເງິນ (Simulate Webhook)</span>
-                          </button>
-                        </div>
-                      )}
+
                     </div>
 
                     <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)', padding: '14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
