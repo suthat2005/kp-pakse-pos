@@ -1749,7 +1749,9 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
     if (settings.barcodeDirectPrint) {
       try {
         const dataUrl = await renderStickerToCanvas(name, priceVal, text, format, settings);
-        const baseUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? '' : 'http://localhost:5173';
+        const baseUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+          ? ''
+          : (settings.printServerUrl || 'http://localhost:5173');
         const response = await fetch(`${baseUrl}/api/print-barcode`, {
           method: 'POST',
           headers: {
@@ -1939,7 +1941,9 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
           const text = p.barcode;
           const dataUrl = await renderStickerToCanvas(name, priceVal, text, format, settings);
 
-          const baseUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? '' : 'http://localhost:5173';
+          const baseUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+            ? ''
+            : (settings.printServerUrl || 'http://localhost:5173');
           const response = await fetch(`${baseUrl}/api/print-barcode`, {
             method: 'POST',
             headers: {

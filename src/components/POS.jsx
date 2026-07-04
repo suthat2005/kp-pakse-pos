@@ -1330,7 +1330,9 @@ export default function POS({
     // This is the absolute best method: no print dialog, no paper wasted, works with standard driver!
     try {
       const printerName = settings.windowsPrinterName || 'GP-L80250 Series';
-      const baseUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? '' : 'http://localhost:5173';
+      const baseUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? ''
+        : (settings.printServerUrl || 'http://localhost:5173');
       const response = await fetch(`${baseUrl}/api/kick-drawer?printer=${encodeURIComponent(printerName)}`);
       const resData = await response.json();
       if (resData && resData.success) {

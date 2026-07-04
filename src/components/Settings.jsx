@@ -2030,6 +2030,35 @@ export default function Settings({ activeUser, onUpdate }) {
                       )}
                     </div>
 
+                    {/* General Printer & Hardware Settings */}
+                    <div className="glass-card" style={{ padding: '16px', background: 'rgba(255,255,255,0.01)', marginTop: '16px', borderLeft: '4px solid var(--gold-primary)' }}>
+                      <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.9rem', marginBottom: '12px' }}>📠 ຕັ້ງຄ່າເຄື່ອງພິມທົ່ວໄປ (General Printer & Print Server Settings)</h4>
+                      
+                      <div className="form-group" style={{ marginBottom: '12px' }}>
+                        <label className="form-label">ຊື່ເຄື່ອງພິມໃບບິນ/ລິ້ນຊັກໃນ Windows (Receipt Printer Name)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={settings.windowsPrinterName || 'GP-L80250 Series'}
+                          onChange={(e) => setSettings({ ...settings, windowsPrinterName: e.target.value })}
+                          placeholder="e.g. GP-L80250 Series"
+                        />
+                        <small style={{ color: 'var(--text-secondary)' }}>ຊື່ເຄື່ອງພິມໃບບິນຫຼັກໃນ Control Panel (ໃຊ້ສຳລັບການປິ້ນ ແລະ ຍິງລິ້ນชັກເກັບເງິນ)</small>
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">ທີ່ຢູ່ເຊີເວີການພິມທ້ອງຖິ່ນ (Local Print Server URL)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={settings.printServerUrl || 'http://localhost:5173'}
+                          onChange={(e) => setSettings({ ...settings, printServerUrl: e.target.value })}
+                          placeholder="e.g. http://localhost:5173"
+                        />
+                        <small style={{ color: 'var(--text-secondary)' }}>ທີ່ຢູ່ຂອງ API ການພິມທ້ອງຖິ່ນ (ມາດຕະຖານ: http://localhost:5173 ຫາກໃຊ້ງານໃນຄອມເຄື່ອງດຽວກັນ)</small>
+                      </div>
+                    </div>
+
                     {/* Hardware Tester */}
                     <div className="glass-card" style={{ padding: '16px', background: 'rgba(255,255,255,0.01)' }}>
                       <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.9rem', marginBottom: '8px' }}>📟 ທົດສອບເຄື່ອງສະແກນບາໂຄ້ດ (Scanner Hardware Tester)</h4>
