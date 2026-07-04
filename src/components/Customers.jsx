@@ -7,6 +7,7 @@ function CustomerModal({ show, editingCust, onClose, onSave }) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [discountType, setDiscountType] = useState('percent');
   const [discountValue, setDiscountValue] = useState('');
   const [tier, setTier] = useState('Regular');
@@ -22,6 +23,7 @@ function CustomerModal({ show, editingCust, onClose, onSave }) {
       setName(editingCust.name || '');
       setPhone(editingCust.phone || '');
       setEmail(editingCust.email || '');
+      setPassword(editingCust.password || '');
       setDiscountType(editingCust.discountType || 'percent');
       setDiscountValue(editingCust.discountValue || '');
       setTier(editingCust.tier || 'Regular');
@@ -34,6 +36,7 @@ function CustomerModal({ show, editingCust, onClose, onSave }) {
       setAddrNotes(addr.notes || '');
     } else {
       setName(''); setPhone(''); setEmail('');
+      setPassword('123456'); // Default password for new members
       setDiscountType('percent'); setDiscountValue(''); setTier('Regular');
       setProvince(''); setCity(''); setVillage(''); setAddressLine(''); setAddrNotes('');
     }
@@ -55,7 +58,7 @@ function CustomerModal({ show, editingCust, onClose, onSave }) {
     } : null;
     onSave({
       id: editingCust?.id,
-      name, phone, email,
+      name, phone, email, password,
       discountType,
       discountValue: Number(discountValue || 0),
       tier,
@@ -88,7 +91,7 @@ function CustomerModal({ show, editingCust, onClose, onSave }) {
               <label className="form-label">ຊື່ສະມາຊິກ *</label>
               <input type="text" className="form-control" required value={name} onChange={(e) => setName(e.target.value)} placeholder="ປ້ອນຊື່ ແລະ ນາມສະກຸນ..." style={inputStyle} />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
               <div className="form-group">
                 <label className="form-label">ເບີໂທ *</label>
                 <input type="text" className="form-control" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="020XXXXXXXX" style={inputStyle} />
@@ -96,6 +99,10 @@ function CustomerModal({ show, editingCust, onClose, onSave }) {
               <div className="form-group">
                 <label className="form-label">Email (ອີເມວ)</label>
                 <input type="email" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="example@gmail.com" style={inputStyle} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">ລະຫັດຜ່ານ (Password) *</label>
+                <input type="text" className="form-control" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="ປ້ອນລະຫັດຜ່ານ..." style={inputStyle} />
               </div>
             </div>
 
@@ -430,6 +437,7 @@ export default function Customers({ activeUser, onUpdate }) {
         name: formData.name.trim(),
         phone: formData.phone.trim(),
         email: formData.email?.trim() || '',
+        password: formData.password?.trim() || '',
         discountType: formData.discountType,
         discountValue: formData.discountValue,
         tier: formData.tier,
@@ -441,6 +449,7 @@ export default function Customers({ activeUser, onUpdate }) {
         name: formData.name.trim(),
         phone: formData.phone.trim(),
         email: formData.email?.trim() || '',
+        password: formData.password?.trim() || '123456',
         discountType: formData.discountType,
         discountValue: formData.discountValue,
         tier: formData.tier,
@@ -566,6 +575,11 @@ export default function Customers({ activeUser, onUpdate }) {
                   <td style={{ padding: '14px 20px', color: 'var(--text-secondary)' }}>
                     <div>{c.phone}</div>
                     {c.email && <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '2px' }}>✉️ {c.email}</div>}
+                    {c.password && (
+                      <div style={{ fontSize: '0.78rem', color: 'var(--gold-primary)', marginTop: '2.5px', fontWeight: 'bold' }}>
+                        🔑 {c.password}
+                      </div>
+                    )}
                     {c.addresses && c.addresses.length > 0 && (
                       <div style={{ fontSize: '0.72rem', color: '#666', marginTop: '2px' }}>📍 {[c.addresses[0].village, c.addresses[0].city, c.addresses[0].province].filter(Boolean).join(', ')}</div>
                     )}

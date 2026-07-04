@@ -2088,7 +2088,7 @@ const syncKeys = [
   'slots', 'products', 'categories', 'orders', 'debts', 'framing_jobs', 'settings',
   'attendance', 'expenses', 'audit_logs', 'raw_materials', 'production_history',
   'shifts', 'leaves', 'payrolls', 'users', 'promotions', 'cameras', 'cctv_alerts',
-  'online_orders',
+  'online_orders', 'customers',
   'deposits', 'deposit_transactions', 'payment_logs', 'payment_qr', 'payment_history', 'payment_audit', 'payment_events'
 ];
 if (!skipSync && syncKeys.includes(key)) {
@@ -4002,6 +4002,8 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       discountType: c.discountType || 'percent',
       discountValue: Number(c.discountValue || 0),
       tier: c.tier || 'Regular',
+      password: c.password || '',
+      addresses: c.addresses || [],
       createdDate: new Date().toISOString()
     };
     list.push(newCust);
