@@ -2558,6 +2558,11 @@ return newProduct;
       }
     }
   },
+  deleteProduct(id) {
+    const products = this.getProducts();
+    const filtered = products.filter(p => p.id !== id);
+    this.saveProducts(filtered);
+  },
 
 getCategories() {
 this.init();
@@ -2593,6 +2598,9 @@ setStorage('categories', categories);
     };
     categories.push(newCategory);
     this.saveCategories(categories);
+    this.saveLabels({
+      ['cat_' + newId]: category.name
+    });
     return newCategory;
   },
   updateCategory(updatedCategory) {
@@ -2607,6 +2615,9 @@ setStorage('categories', categories);
         type: updatedCategory.type || categories[idx].type || 'physical'
       };
       this.saveCategories(categories);
+      this.saveLabels({
+        ['cat_' + updatedCategory.id]: updatedCategory.name
+      });
 
       const nextType = categories[idx].type || 'physical';
       if (previousType !== 'service' && nextType === 'service') {

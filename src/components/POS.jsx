@@ -2822,7 +2822,11 @@ export default function POS({
                     <div className="product-card-name" style={{ fontSize: '0.8rem', height: '32px' }}>{p.name}</div>
                     <div style={{ marginTop: '4px' }}>
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.68rem', padding: '2px 8px', borderRadius: '999px', color: isService ? 'var(--accent-amber)' : 'var(--success-green)', border: `1px solid ${isService ? 'rgba(229,169,59,0.25)' : 'rgba(39,174,96,0.25)'}`, background: isService ? 'rgba(229,169,59,0.08)' : 'rgba(39,174,96,0.08)' }}>
-                        {isService ? '🛠️ ບໍລິການ' : '📦 ສິນຄ້າ'}
+                        {(() => {
+                          const cat = categories.find(c => c.id === p.category || c.name === p.category);
+                          const catName = cat ? db.getLabel('cat_' + cat.id, cat.name) : p.category;
+                          return isService ? `🛠️ ${catName || 'ບໍລິການ'}` : `📦 ${catName || 'ສິນຄ້າ'}`;
+                        })()}
                       </span>
                     </div>
                     <div className="product-card-price" style={{ fontSize: '0.9rem' }}>{p.price.toLocaleString()} ກີບ</div>

@@ -2391,7 +2391,11 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                       <span>{p.name}</span>
                       <span style={{ display: 'inline-flex', width: 'fit-content', fontSize: '0.7rem', padding: '2px 6px', borderRadius: '999px', color: isService ? 'var(--accent-amber)' : 'var(--success-green)', border: '1px solid ' + (isService ? 'rgba(229,169,59,0.3)' : 'rgba(39,174,96,0.3)'), background: isService ? 'rgba(229,169,59,0.08)' : 'rgba(39,174,96,0.08)' }}>
-                        {isService ? '🛠️ ບໍລິການ' : '📦 ສິນຄ້າ'}
+                        {(() => {
+                          const cat = categories.find(c => c.id === p.category || c.name === p.category);
+                          const catName = cat ? db.getLabel('cat_' + cat.id, cat.name) : p.category;
+                          return isService ? `🛠️ ${catName || 'ບໍລິການ'}` : `📦 ${catName || 'ສິນຄ້າ'}`;
+                        })()}
                       </span>
                     </div>
                   </td>
