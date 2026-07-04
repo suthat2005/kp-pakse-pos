@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node migrations/migrate.cjs && vite",
-    "build": "vite build",
+    "build": "vite build && node scratch/minify_obfuscate.cjs",
     "start:prod": "node migrations/migrate.cjs && node server.js --prod",
     "lint": "eslint .",
     "preview": "vite preview"
