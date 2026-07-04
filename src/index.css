@@ -1686,5 +1686,21 @@ select:-webkit-autofill:focus {
   animation: status-pulse-offline 2s infinite;
 }
 
-
-
+/* Responsive View helpers */
+@media (max-width: 768px) {
+  .desktop-table-view {
+    display: none !important;
+  }
+  .mobile-cards-view {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+}
+@media (min-width: 769px) {
+  .desktop-table-view {
+    display: block !important;
+  }
+  .mobile-cards-view {
+    display: none !important;
+  }
+}
