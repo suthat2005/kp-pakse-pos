@@ -1355,6 +1355,24 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
     }
   }, [showBarcodeModal, selectedBarcodeProd, customBarcodeText, barcodeFormat]);
 
+  const handleDeleteProduct = (p) => {
+    const pass = prompt('ກະລຸນາປ້ອນລະຫັດຜ່ານຜູ້ດູແລລະບົບ (Admin Passcode) ເພື່ອລົບສິນຄ້າ:');
+    if (!pass) return;
+    
+    const users = db.getUsers();
+    const isAdmin = users.some(u => u.passcode === pass && (u.permissions?.admin || u.role === 'owner'));
+    if (!isAdmin) {
+      alert('ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ!');
+      return;
+    }
+    
+    if (confirm(`ທ່ານຕ້ອງການລົບສິນຄ້າ "${p.name}" ແທ້ຫຼືບໍ່?`)) {
+      db.deleteProduct(p.id);
+      setProducts(db.getProducts());
+      alert('✓ ລົບສິນຄ້າສຳເລັດ!');
+    }
+  };
+
   const handleOpenAdd = () => {
     setEditProduct(null);
     const activeCats = db.getCategories();
@@ -2462,6 +2480,13 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       >
                         📝 ແກ້ໄຂ
                       </button>
+                      <button
+                        className="btn"
+                        style={{ padding: '4px 8px', fontSize: '0.8rem', background: '#c0392b', color: 'white', border: 'none' }}
+                        onClick={() => handleDeleteProduct(p)}
+                      >
+                        🗑️ ລົບ
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -2531,6 +2556,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
                 <button type="button" className="btn btn-secondary btn-sm" onClick={() => handleOpenBarcodeGen(p)}>🏷️ ບາໂຄ້ດ</button>
                 <button type="button" className="btn btn-primary btn-sm" onClick={() => handleOpenEdit(p)}>📝 ແກ້ໄຂ</button>
+                <button type="button" className="btn btn-sm" style={{ background: '#c0392b', color: 'white', border: 'none' }} onClick={() => handleDeleteProduct(p)}>🗑️ ລົບ</button>
               </div>
             </div>
           );

@@ -78,10 +78,62 @@ async function syncFromCloudOnStartup() {
     } else {
       console.log("✓ Local database is already up to date with Cloud Firestore.");
     }
+    
+    // Run duplicate products cleanup
+    await cleanupDuplicateProducts();
   } catch (err) {
     console.error("❌ Cloud sync failed on startup:", err);
   }
 }
+
+async function cleanupDuplicateProducts() {
+  if (!firestoreDb) return;
+  try {
+    console.log("🧹 Running duplicate products cleanup check...");
+    const docRef = firestoreDb.collection('pos_db').doc('products');
+    const doc = await docRef.get();
+    if (!doc.exists) return;
+    
+    const prodVal = doc.data();
+    const products = prodVal.data || [];
+    if (!Array.isArray(products)) return;
+    
+    const beforeCount = products.length;
+    // Filter out products with barcode '0' or 0, cost 10000, price 80000, name including 'ອົງລອຍ'
+    const filtered = products.filter(p => {
+      if (!p) return false;
+      const isBad = (p.barcode === '0' || p.barcode === 0) && 
+                    p.price === 80000 && 
+                    p.name && p.name.includes('ອົງລອຍ');
+      return !isBad;
+    });
+    
+    if (filtered.length !== beforeCount) {
+      const now = Date.now();
+      await docRef.set({
+        data: filtered,
+        updatedAt: now
+      });
+      console.log(`🧹 Cleaned up duplicate products in Cloud Firestore. Removed ${beforeCount - filtered.length} items.`);
+      
+      // Also update local DB file if exists
+      if (fs.existsSync(DB_FILE)) {
+        const localDb = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+        localDb['products'] = {
+          data: filtered,
+          updatedAt: now
+        };
+        fs.writeFileSync(DB_FILE, JSON.stringify(localDb, null, 2), 'utf8');
+        console.log(`🧹 Local DB file updated with cleaned products.`);
+      }
+    } else {
+      console.log("🧹 No duplicate products found in Cloud Firestore.");
+    }
+  } catch (err) {
+    console.error("❌ Failed to clean up duplicate products:", err);
+  }
+}
+
 
 const MIME_TYPES = {
   '.html': 'text/html',
