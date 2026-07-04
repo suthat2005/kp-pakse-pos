@@ -184,6 +184,14 @@ export default function POS({
   const [checkoutTransferQrUrl, setCheckoutTransferQrUrl] = useState('');
   const [depositModalQrUrl, setDepositModalQrUrl] = useState('');
   
+  // BCEL One QR status & countdown states
+  const [depositStep, setDepositStep] = useState('input'); // 'input' | 'qr'
+  const [depositPaymentStatus, setDepositPaymentStatus] = useState('waiting'); // 'waiting' | 'polling' | 'success'
+  const [depositCheckingSeconds, setDepositCheckingSeconds] = useState(6);
+  
+  const [bcelPaymentStatus, setBcelPaymentStatus] = useState('waiting'); // 'waiting' | 'polling' | 'success'
+  const [bcelCheckingSeconds, setBcelCheckingSeconds] = useState(6);
+  
   // Debt Client Fields
   const [debtCustomerName, setDebtCustomerName] = useState('');
   const [debtCustomerPhone, setDebtCustomerPhone] = useState('');
@@ -1749,6 +1757,152 @@ export default function POS({
       workOrderPrintTimerRef.current = null;
     }
   }, [showWorkOrder, currentWorkOrder]);
+
+  // BCEL One QR Simulation Handlers
+  const handleCheckoutPaymentSuccess = () => {
+    playAudioFeedback('cash');
+    setBcelPaymentStatus('success');
+    
+    // Auto-generate Tx Ref
+    const txRef = 'BCEL-QR-' + Date.now();
+    setBankTxRef(txRef);
+    
+    // Set transferAmount
+    const rate = payCurrency === 'THB' ? (settings.exchangeRateThb || 750) : payCurrency === 'USD' ? (settings.exchangeRateUsd || 26000) : 1;
+    const finalLAKAmountToPay = Number(checkoutAmountPaid !== '' ? checkoutAmountPaid : grandTotal);
+    const currentPayRoundInCurrency = payCurrency === 'LAK' ? finalLAKAmountToPay 
+                                    : payCurrency === 'THB' ? Math.ceil(finalLAKAmountToPay / rate) 
+                                    : Math.ceil((finalLAKAmountToPay / rate) * 100) / 100;
+    setTransferAmount(String(currentPayRoundInCurrency));
+
+    // Wait 1.5 seconds, then submit payment to make it feel premium
+    setTimeout(() => {
+      handleProcessPayment('transfer', String(currentPayRoundInCurrency), txRef);
+      setBcelPaymentStatus('waiting');
+    }, 1500);
+  };
+
+  const handleDepositPaymentSuccess = (val) => {
+    playAudioFeedback('cash');
+    setDepositPaymentStatus('success');
+    
+    // Save to database deposits
+    const targetSlotId = selectedSlotId || 'Walk-In';
+    const depData = {
+      billId: activeSlot.billId || '',
+      queueId: targetSlotId,
+      amount: val,
+      paymentMethod: 'LAO QR',
+      cashierName: settings.cashierName || 'system'
+    };
+    db.createDeposit(depData);
+
+    const updatedSlots = { ...slots };
+    if (updatedSlots[targetSlotId]) {
+      updatedSlots[targetSlotId].depositAmount = val;
+      updatedSlots[targetSlotId].depositPayMethod = 'transfer';
+      updatedSlots[targetSlotId].depositPayCurrency = 'LAK';
+      updatedSlots[targetSlotId].depositBankTxRef = 'BCEL-QR-' + Date.now();
+      updatedSlots[targetSlotId].depositCashReceived = '';
+      updatedSlots[targetSlotId].depositTransferAmount = String(val);
+      
+      db.saveSlots(updatedSlots);
+      setSlots(updatedSlots);
+
+      const allJobs = db.getFramingJobs();
+      let currentJobObj = null;
+      allJobs.forEach(job => {
+        if (job.slotId === targetSlotId && job.status !== 'picked_up') {
+          const updatedJob = {
+            ...job,
+            deposit: val,
+            balance: Math.max(0, job.totalPrice - val)
+          };
+          db.updateFramingJob(updatedJob);
+          currentJobObj = updatedJob;
+        }
+      });
+      
+      if (currentJobObj) {
+        setCurrentFramingJob(currentJobObj);
+        setShowFramingPrintModal(true);
+      }
+    }
+    
+    // Wait 1.5 seconds, then close the deposit modal
+    setTimeout(() => {
+      setShowDepositInputModal(false);
+      setDepositStep('input');
+      setDepositPaymentStatus('waiting');
+    }, 1500);
+  };
+
+  // BCEL One QR Countdown / Auto-success Polling Hook for Checkout
+  useEffect(() => {
+    if (showCheckout && paymentMethod === 'transfer' && payCurrency === 'LAK') {
+      if (bcelPaymentStatus === 'waiting') {
+        setBcelPaymentStatus('polling');
+        setBcelCheckingSeconds(6);
+      }
+    } else {
+      if (bcelPaymentStatus !== 'waiting') {
+        setBcelPaymentStatus('waiting');
+      }
+    }
+  }, [showCheckout, paymentMethod, payCurrency]);
+
+  useEffect(() => {
+    let interval = null;
+    if (bcelPaymentStatus === 'polling') {
+      interval = setInterval(() => {
+        setBcelCheckingSeconds(prev => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            handleCheckoutPaymentSuccess();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [bcelPaymentStatus, payCurrency, grandTotal, checkoutAmountPaid]);
+
+  // BCEL One QR Countdown / Auto-success Polling Hook for Deposit Modal
+  useEffect(() => {
+    if (showDepositInputModal && depositStep === 'qr') {
+      if (depositPaymentStatus === 'waiting') {
+        setDepositPaymentStatus('polling');
+        setDepositCheckingSeconds(6);
+      }
+    } else {
+      if (depositPaymentStatus !== 'waiting') {
+        setDepositPaymentStatus('waiting');
+      }
+    }
+  }, [showDepositInputModal, depositStep]);
+
+  useEffect(() => {
+    let interval = null;
+    if (depositPaymentStatus === 'polling') {
+      interval = setInterval(() => {
+        setDepositCheckingSeconds(prev => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            const val = Number(depositInputVal || 0);
+            handleDepositPaymentSuccess(val);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [depositPaymentStatus, depositInputVal]);
 
   const getLocalDatetimeString = (date) => {
     const tzOffset = date.getTimezoneOffset() * 60000;
@@ -4254,19 +4408,75 @@ export default function POS({
                           </span>
                         )}
                       </div>
+                      
+                      {payCurrency === 'LAK' && (
+                        <div style={{
+                          margin: '0 auto 12px auto',
+                          maxWidth: '280px',
+                          background: 'rgba(52,152,219,0.08)',
+                          border: '1px dashed rgba(52,152,219,0.3)',
+                          borderRadius: '10px',
+                          padding: '10px',
+                          fontSize: '0.82rem',
+                          textAlign: 'center'
+                        }}>
+                          {bcelPaymentStatus === 'polling' && (
+                            <div className="animate-pulse" style={{ color: '#3498db', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                              <span>🔄 ພວມກວດສອບຍອດເງິນ... ({bcelCheckingSeconds}s)</span>
+                            </div>
+                          )}
+                          {bcelPaymentStatus === 'success' && (
+                            <div style={{ color: '#2ecc71', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                              <span>✅ ໄດ້ຮັບເງິນມັດຈຳແລ້ວ! ກຳລັງພິມບິນ...</span>
+                            </div>
+                          )}
+                          {bcelPaymentStatus === 'waiting' && (
+                            <div style={{ color: 'var(--text-secondary)' }}>
+                              <span>📱 ກະລຸນາສະແກນຄິວອານີ້</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       <div style={{
                         display: 'inline-block',
                         padding: '12px',
                         background: 'white',
                         borderRadius: '16px',
-                        boxShadow: '0 8px 30px rgba(0,0,0,0.5)'
+                        boxShadow: '0 8px 30px rgba(0,0,0,0.5)',
+                        position: 'relative'
                       }}>
                         {checkoutQrUrl ? (
-                          <img
-                            src={checkoutQrUrl}
-                            alt="QR Code"
-                            style={{ width: '160px', height: '160px', objectFit: 'contain', display: 'block' }}
-                          />
+                          <>
+                            <img
+                              src={checkoutQrUrl}
+                              alt="QR Code"
+                              style={{ width: '160px', height: '160px', objectFit: 'contain', display: 'block' }}
+                            />
+                            {/* Watermark/logo for BCEL One QR styling */}
+                            {payCurrency === 'LAK' && (
+                              <div style={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                background: '#1a5f7a',
+                                color: 'white',
+                                borderRadius: '50%',
+                                width: '28px',
+                                height: '28px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '0.62rem',
+                                fontWeight: 'bold',
+                                border: '2px solid white',
+                                boxShadow: '0 2px 5px rgba(0,0,0,0.3)'
+                              }}>
+                                BCEL
+                              </div>
+                            )}
+                          </>
                         ) : (
                           <div style={{ width: '160px', height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '8px', color: '#555' }}>
                             <span style={{ fontSize: '2rem' }}>⚠️</span>
@@ -4274,6 +4484,37 @@ export default function POS({
                           </div>
                         )}
                       </div>
+
+                      {payCurrency === 'LAK' && (
+                        <div style={{ marginTop: '12px' }}>
+                          <button
+                            type="button"
+                            onClick={handleCheckoutPaymentSuccess}
+                            style={{
+                              width: '100%',
+                              maxWidth: '220px',
+                              padding: '8px 14px',
+                              borderRadius: '8px',
+                              border: 'none',
+                              background: 'linear-gradient(135deg, #1b5e20, #2e7d32)',
+                              color: 'white',
+                              fontWeight: 'bold',
+                              fontSize: '0.8rem',
+                              cursor: 'pointer',
+                              boxShadow: '0 4px 15px rgba(46, 125, 50, 0.4)',
+                              transition: 'all 0.2s',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '6px'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'none'}
+                          >
+                            <span>⚡ ຈຳລອງການຈ່າຍເງິນ (Simulate Webhook)</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)', padding: '14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>

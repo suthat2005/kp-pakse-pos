@@ -16,6 +16,10 @@ function saveDatabase(db) {
 }
 
 function runMigrations() {
+  const isProd = process.env.NODE_ENV === 'production';
+  if (isProd) {
+    console.log(`\x1b[41m\x1b[37m  ⚠️  WARNING: MIGRATION ACTIVE ON LIVE PRODUCTION DATABASE  ⚠️  \x1b[0m`);
+  }
   console.log('📦 Starting Database Migrations...');
   const db = loadDatabase();
   

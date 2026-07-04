@@ -103,6 +103,9 @@ const server = http.createServer(async (req, res) => {
   // Set Global Security Headers
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
 
   if (req.method === 'OPTIONS') {
     res.statusCode = 200;

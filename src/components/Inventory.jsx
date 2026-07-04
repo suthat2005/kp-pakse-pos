@@ -2648,7 +2648,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                 </div>
 
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', marginTop: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
                   <div className="form-group">
                     <label className="form-label">ລາຄາຂາຍ (ກີບ)</label>
                     <input
@@ -2658,6 +2658,18 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                       autoComplete="off"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">ລາຄาຕົ້ນທຶນ (ກີບ)</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      required
+                      value={formData.cost}
+                      onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
+                      autoComplete="off"
+                      placeholder="0"
                     />
                   </div>
                 </div>

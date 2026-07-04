@@ -1980,6 +1980,83 @@ return slots;
 let syncIntervalId = null;
 let lastSyncCheck = 0;
 
+function calculateCRC16(str) {
+  let crc = 0xFFFF;
+  for (let c = 0; c < str.length; c++) {
+    let charCode = str.charCodeAt(c);
+    for (let i = 0; i < 8; i++) {
+      let bit = ((charCode >> (7 - i)) & 1) === 1;
+      let c15 = ((crc >> 15) & 1) === 1;
+      crc <<= 1;
+      if (bit ^ c15) {
+        crc ^= 0x1021;
+      }
+    }
+  }
+  crc &= 0xFFFF;
+  return crc.toString(16).toUpperCase().padStart(4, '0');
+}
+
+function sha256(ascii) {
+  function rightRotate(value, amount) {
+    return (value>>>amount) | (value<<(32-amount));
+  }
+  var mathPow = Math.pow;
+  var maxWord = mathPow(2, 32);
+  var lengthProperty = 'length';
+  var i, j;
+  var result = '';
+  var words = [];
+  var asciiLength = ascii[lengthProperty];
+  var hash = [], k = [];
+  var primeCounter = 0;
+  var isComposite = {};
+  for (var candidate = 2; primeCounter < 64; candidate++) {
+    if (!isComposite[candidate]) {
+      for (i = 0; i < 313; i += candidate) {
+        isComposite[i] = true;
+      }
+      hash[primeCounter] = (mathPow(candidate, .5)*maxWord)|0;
+      k[primeCounter++] = (mathPow(candidate, 1/3)*maxWord)|0;
+    }
+  }
+  ascii += '\x80';
+  while (ascii[lengthProperty]%64 - 56) ascii += '\x00';
+  for (i = 0; i < ascii[lengthProperty]; i++) {
+    j = ascii.charCodeAt(i);
+    if (j>>8) return;
+    words[i>>2] |= j << ((3 - i)%4)*8;
+  }
+  words[words[lengthProperty]] = ((asciiLength*8)/maxWord)|0;
+  words[words[lengthProperty]] = (asciiLength*8)|0;
+  for (j = 0; j < words[lengthProperty];) {
+    var w = words.slice(j, j += 16);
+    var oldHash = hash.slice(0);
+    hash = hash.slice(0, 8);
+    for (i = 0; i < 64; i++) {
+      var w16 = w[i - 16], w15 = w[i - 15], w7 = w[i - 7], w2 = w[i - 2];
+      var s0 = rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15>>>3);
+      var s1 = rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2>>>10);
+      var ch = (hash[4] & hash[5]) ^ (~hash[4] & hash[6]);
+      var maj = (hash[0] & hash[1]) ^ (hash[0] & hash[2]) ^ (hash[1] & hash[2]);
+      var temp1 = hash[7] + (rightRotate(hash[4], 6) ^ rightRotate(hash[4], 11) ^ rightRotate(hash[4], 25)) + ch + k[i] + (w[i] = (i < 16 ? w[i] : (w16 + s0 + w7 + s1)|0));
+      var temp2 = (rightRotate(hash[0], 2) ^ rightRotate(hash[0], 13) ^ rightRotate(hash[0], 22)) + maj;
+      hash = [(temp1 + temp2)|0].concat(hash);
+      hash[4] = (hash[4] + temp1)|0;
+    }
+    for (i = 0; i < 8; i++) {
+      hash[i] = (hash[i] + oldHash[i])|0;
+    }
+  }
+  for (i = 0; i < 8; i++) {
+    for (j = 3; j + 1; j--) {
+      var b = (hash[i]>>(j*8))&255;
+      result += ((b < 16) ? '0' : '') + b.toString(16);
+    }
+  }
+  return result;
+}
+
 function getStorage(key, defaultValue) {
 try {
 const val = localStorage.getItem('amulet_pos_' + key);
@@ -2011,7 +2088,8 @@ const syncKeys = [
   'slots', 'products', 'categories', 'orders', 'debts', 'framing_jobs', 'settings',
   'attendance', 'expenses', 'audit_logs', 'raw_materials', 'production_history',
   'shifts', 'leaves', 'payrolls', 'users', 'promotions', 'cameras', 'cctv_alerts',
-  'online_orders'
+  'online_orders',
+  'deposits', 'deposit_transactions', 'payment_logs', 'payment_qr', 'payment_history', 'payment_audit', 'payment_events'
 ];
 if (!skipSync && syncKeys.includes(key)) {
 const baseUrl = window.location.protocol + '//' + window.location.host;
@@ -3267,7 +3345,8 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       'slots', 'products', 'categories', 'orders', 'debts', 'framing_jobs', 'settings',
       'attendance', 'expenses', 'audit_logs', 'raw_materials', 'production_history',
       'shifts', 'leaves', 'payrolls', 'users', 'promotions', 'cameras', 'cctv_alerts',
-      'online_orders'
+      'online_orders',
+      'deposits', 'deposit_transactions', 'payment_logs', 'payment_qr', 'payment_history', 'payment_audit', 'payment_events'
     ];
 
     const doSync = () => {
@@ -3373,7 +3452,8 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       'slots', 'products', 'categories', 'orders', 'debts', 'framing_jobs', 'settings',
       'attendance', 'expenses', 'audit_logs', 'raw_materials', 'production_history',
       'shifts', 'leaves', 'payrolls', 'users', 'promotions', 'cameras', 'cctv_alerts',
-      'online_orders'
+      'online_orders',
+      'deposits', 'deposit_transactions', 'payment_logs', 'payment_qr', 'payment_history', 'payment_audit', 'payment_events'
     ];
     const baseUrl = window.location.protocol + '//' + window.location.host;
     const checkParams = new URLSearchParams();
@@ -3431,6 +3511,220 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     const list = this.getRawMaterials();
     const filtered = list.filter(m => m.id !== id);
     this.saveRawMaterials(filtered);
+  },
+
+  // === BCEL ONE / LAO QR DEPOSIT DB IMPLEMENTATION ===
+  getDeposits() {
+    this.init();
+    return getStorage('deposits', []);
+  },
+  saveDeposits(data) {
+    setStorage('deposits', data);
+  },
+
+  getDepositTransactions() {
+    this.init();
+    return getStorage('deposit_transactions', []);
+  },
+  saveDepositTransactions(data) {
+    setStorage('deposit_transactions', data);
+  },
+
+  getPaymentLogs() {
+    this.init();
+    return getStorage('payment_logs', []);
+  },
+  savePaymentLogs(data) {
+    setStorage('payment_logs', data);
+  },
+  addPaymentLog(event, details, cashierId = '') {
+    const logs = this.getPaymentLogs();
+    const tzDate = new Date();
+    const dateStr = tzDate.toLocaleDateString('en-CA');
+    const timeStr = tzDate.toLocaleTimeString('en-US', { hour12: false });
+    const newLog = {
+      id: 'LOG_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+      event,
+      details,
+      date: dateStr,
+      time: timeStr,
+      timezone: 'Asia/Vientiane',
+      user: cashierId || 'system',
+      device: navigator.userAgent,
+      ip: window.location.hostname
+    };
+    logs.push(newLog);
+    this.savePaymentLogs(logs);
+    return newLog;
+  },
+
+  getPaymentQr() {
+    this.init();
+    return getStorage('payment_qr', []);
+  },
+  savePaymentQr(data) {
+    setStorage('payment_qr', data);
+  },
+
+  getPaymentHistory() {
+    this.init();
+    return getStorage('payment_history', []);
+  },
+  savePaymentHistory(data) {
+    setStorage('payment_history', data);
+  },
+
+  getPaymentAudit() {
+    this.init();
+    return getStorage('payment_audit', []);
+  },
+  savePaymentAudit(data) {
+    setStorage('payment_audit', data);
+  },
+
+  getPaymentEvents() {
+    this.init();
+    return getStorage('payment_events', []);
+  },
+  savePaymentEvents(data) {
+    setStorage('payment_events', data);
+  },
+
+  createDeposit(depositData) {
+    const deposits = this.getDeposits();
+    const audits = this.getPaymentAudit();
+    
+    const depositId = 'DEP_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    const tzDate = new Date();
+    const dateStr = tzDate.toLocaleDateString('en-CA');
+    const timeStr = tzDate.toLocaleTimeString('en-US', { hour12: false });
+    
+    const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+
+    const merchantId = 'mch64f01defcb310';
+    const amount = Number(depositData.amount);
+    
+    const tag38Value = `0006LAPNET0116${merchantId}`;
+    const tag38Str = `38${String(tag38Value.length).padStart(2, '0')}${tag38Value}`;
+    
+    const amountStr = String(amount);
+    const tag54Str = `54${String(amountStr.length).padStart(2, '0')}${amountStr}`;
+    
+    const refValue = `01${String(depositId.length).padStart(2, '0')}${depositId}`;
+    const tag62Str = `62${String(refValue.length).padStart(2, '0')}${refValue}`;
+    
+    let emvString = `000201010212${tag38Str}5303418${tag54Str}5802LA5906LEYUNG6005PAKSE${tag62Str}6304`;
+    
+    const crc16 = calculateCRC16(emvString);
+    emvString += crc16;
+
+    const newDeposit = {
+      id: depositId,
+      billId: depositData.billId || '',
+      queueId: depositData.queueId || '',
+      tableNumber: depositData.tableNumber || '',
+      customerName: depositData.customerName || '',
+      customerPhone: depositData.customerPhone || '',
+      amount: amount,
+      currency: 'LAK',
+      paymentMethod: depositData.paymentMethod || 'LAO QR',
+      qrReference: emvString,
+      transactionReference: '',
+      date: dateStr,
+      time: timeStr,
+      timezone: 'Asia/Vientiane',
+      user: depositData.cashierName || 'system',
+      cashier: depositData.cashierName || 'system',
+      device: navigator.userAgent,
+      branch: 'ปากเซ',
+      status: 'Waiting Payment',
+      uuid: uuid,
+      checksum: crc16,
+      hash: ''
+    };
+
+    const recordPayload = `${newDeposit.id}|${newDeposit.uuid}|${newDeposit.amount}|${newDeposit.currency}|${newDeposit.cashier}`;
+    const secureHash = sha256(recordPayload);
+    newDeposit.hash = secureHash;
+
+    deposits.push(newDeposit);
+    this.saveDeposits(deposits);
+
+    const qrRecords = this.getPaymentQr();
+    qrRecords.push({
+      depositId: depositId,
+      qrString: emvString,
+      createdAt: tzDate.toISOString()
+    });
+    this.savePaymentQr(qrRecords);
+
+    audits.push({
+      id: 'AUDIT_' + Date.now(),
+      targetId: depositId,
+      type: 'deposit_created',
+      hash: secureHash,
+      date: dateStr,
+      time: timeStr,
+      timezone: 'Asia/Vientiane'
+    });
+    this.savePaymentAudit(audits);
+
+    this.addPaymentLog('QR Created', `Created Deposit QR of ${amount.toLocaleString()} LAK for queue ${newDeposit.queueId}`, depositData.cashierName);
+
+    return newDeposit;
+  },
+
+  confirmDepositPayment(depositId, refNo, transId, cashierName) {
+    const deposits = this.getDeposits();
+    const transactions = this.getDepositTransactions();
+    const idx = deposits.findIndex(d => d.id === depositId);
+    
+    if (idx !== -1) {
+      const tzDate = new Date();
+      const dateStr = tzDate.toLocaleDateString('en-CA');
+      const timeStr = tzDate.toLocaleTimeString('en-US', { hour12: false });
+      
+      deposits[idx].status = 'Paid Deposit';
+      deposits[idx].transactionReference = refNo || transId || '';
+      this.saveDeposits(deposits);
+
+      const transIdGen = 'TXN_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      const newTransaction = {
+        id: transIdGen,
+        depositId: depositId,
+        amount: deposits[idx].amount,
+        referenceNumber: refNo || '',
+        transactionId: transId || transIdGen,
+        paymentTime: `${dateStr} ${timeStr}`,
+        status: 'Paid',
+        date: dateStr,
+        time: timeStr,
+        timezone: 'Asia/Vientiane'
+      };
+      transactions.push(newTransaction);
+      this.saveDepositTransactions(transactions);
+
+      this.addPaymentLog('Payment Success', `Deposit ID ${depositId} payment confirmed manually. Ref: ${refNo}`, cashierName);
+
+      return deposits[idx];
+    }
+    return null;
+  },
+
+  cancelDepositPayment(depositId, cashierName) {
+    const deposits = this.getDeposits();
+    const idx = deposits.findIndex(d => d.id === depositId);
+    if (idx !== -1) {
+      deposits[idx].status = 'Cancelled';
+      this.saveDeposits(deposits);
+      this.addPaymentLog('Cancel', `Deposit ID ${depositId} cancelled.`, cashierName);
+      return deposits[idx];
+    }
+    return null;
   },
 
   // === PRODUCTION HISTORY & BOM PRODUCTION TRIGGER API ===

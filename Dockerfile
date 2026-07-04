@@ -18,4 +18,4 @@ RUN npm run build
 EXPOSE 5173
 
 # Step 7: Define startup command
-CMD ["node", "server.js"]
+CMD ["node", "server.js", "--prod"]

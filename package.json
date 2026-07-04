@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node migrations/migrate.cjs && vite",
     "build": "vite build",
-    "start:prod": "node server.js --prod",
+    "start:prod": "node migrations/migrate.cjs && node server.js --prod",
     "lint": "eslint .",
     "preview": "vite preview"
   },
