@@ -1220,27 +1220,13 @@ export default function POS({
       alert('ກະລຸນາເລືອກສິນຄ້າໃສ່ກະຕ່າກ່ອນ!');
       return;
     }
-
-    const hasPaidDeposit = activeSlot.items.some(item => {
-      if (item.productId && item.productId.startsWith('JOB')) {
-        const job = db.getFramingJobs().find(j => j.id === item.productId);
-        return job && job.paidAmount > 0;
-      }
-      return false;
-    });
-
-    const defaultIsDepositMode = activeSlot.depositAmount > 0 && !hasPaidDeposit;
-    setCheckoutIsDepositMode(defaultIsDepositMode);
+    setCheckoutIsDepositMode(false);
     setCouponCode('');
     setPayCurrency('LAK');
-    setPaymentMethod('cash');
-
-    const targetLAK = defaultIsDepositMode
-      ? (activeSlot.depositAmount || 0)
-      : (hasPaidDeposit ? Math.max(0, grandTotal - (activeSlot.depositAmount || 0)) : grandTotal);
-
-    setCashReceived(String(targetLAK));
+    const remainingLAK = Math.max(0, grandTotal - (activeSlot.depositAmount || 0));
+    setCashReceived(String(remainingLAK));
     setTransferAmount('');
+    setPaymentMethod('cash');
     setShowCheckout(true);
   };
 
