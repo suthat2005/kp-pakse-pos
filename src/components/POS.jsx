@@ -184,13 +184,8 @@ export default function POS({
   const [checkoutTransferQrUrl, setCheckoutTransferQrUrl] = useState('');
   const [depositModalQrUrl, setDepositModalQrUrl] = useState('');
   
-  // BCEL One QR status & countdown states
-  const [depositStep, setDepositStep] = useState('input'); // 'input' | 'qr'
-  const [depositPaymentStatus, setDepositPaymentStatus] = useState('waiting'); // 'waiting' | 'polling' | 'success'
-  const [depositCheckingSeconds, setDepositCheckingSeconds] = useState(6);
-  
-  const [bcelPaymentStatus, setBcelPaymentStatus] = useState('waiting'); // 'waiting' | 'polling' | 'success'
-  const [bcelCheckingSeconds, setBcelCheckingSeconds] = useState(6);
+  // BCEL One QR status states
+  const [bcelPaymentStatus, setBcelPaymentStatus] = useState('waiting'); // 'waiting' | 'success'
   
   // Debt Client Fields
   const [debtCustomerName, setDebtCustomerName] = useState('');
@@ -979,10 +974,8 @@ export default function POS({
   );
 
   const targetRoundTotalLAK = checkoutIsDepositMode
-    ? grandTotal
-    : hasJobBalanceItem
-      ? grandTotal
-      : Math.max(0, grandTotal - (activeSlot.depositAmount || 0));
+    ? (activeSlot.depositAmount || 0)
+    : Math.max(0, grandTotal - (activeSlot.depositAmount || 0));
 
   const targetRoundTotalInCurrency = payCurrency === 'LAK' ? targetRoundTotalLAK
                                    : payCurrency === 'THB' ? Math.ceil(targetRoundTotalLAK / payRate)
@@ -998,7 +991,7 @@ export default function POS({
       setPaymentMethod('cash');
       setBankTxRef('');
       if (checkoutIsDepositMode) {
-        setCashReceived('');
+        setCashReceived(String(activeSlot.depositAmount || 0));
         setTransferAmount('');
       } else {
         const targetLAK = Math.max(0, grandTotal - (activeSlot.depositAmount || 0));
@@ -1225,12 +1218,27 @@ export default function POS({
       alert('ກະລຸນາເລືອກສິນຄ້າໃສ່ກະຕ່າກ່ອນ!');
       return;
     }
-    setCheckoutIsDepositMode(false);
+
+    const hasPaidDeposit = activeSlot.items.some(item => {
+      if (item.productId && item.productId.startsWith('JOB')) {
+        const job = db.getFramingJobs().find(j => j.id === item.productId);
+        return job && job.paidAmount > 0;
+      }
+      return false;
+    });
+
+    const defaultIsDepositMode = activeSlot.depositAmount > 0 && !hasPaidDeposit;
+    setCheckoutIsDepositMode(defaultIsDepositMode);
     setCouponCode('');
     setPayCurrency('LAK');
-    setCashReceived('');
-    setTransferAmount('');
     setPaymentMethod('cash');
+
+    const targetLAK = defaultIsDepositMode
+      ? (activeSlot.depositAmount || 0)
+      : (hasPaidDeposit ? Math.max(0, grandTotal - (activeSlot.depositAmount || 0)) : grandTotal);
+
+    setCashReceived(String(targetLAK));
+    setTransferAmount('');
     setShowCheckout(true);
   };
 
@@ -1784,7 +1792,6 @@ export default function POS({
 
   const handleDepositPaymentSuccess = (val) => {
     playAudioFeedback('cash');
-    setDepositPaymentStatus('success');
     
     // Save to database deposits
     const targetSlotId = selectedSlotId || 'Walk-In';
@@ -1795,7 +1802,10 @@ export default function POS({
       paymentMethod: 'LAO QR',
       cashierName: settings.cashierName || 'system'
     };
-    db.createDeposit(depData);
+    const newDep = db.createDeposit(depData);
+    if (newDep && newDep.id) {
+      db.confirmDepositPayment(newDep.id, depData.depositBankTxRef || ('BCEL-QR-' + Date.now()), '', activeUser.name || 'system');
+    }
 
     const updatedSlots = { ...slots };
     if (updatedSlots[targetSlotId]) {
@@ -1816,7 +1826,10 @@ export default function POS({
           const updatedJob = {
             ...job,
             deposit: val,
-            balance: Math.max(0, job.totalPrice - val)
+            paidAmount: val,
+            balance: Math.max(0, job.totalPrice - val),
+            remainingAmount: Math.max(0, job.totalPrice - val),
+            financialStatus: 'PartialPaid'
           };
           db.updateFramingJob(updatedJob);
           currentJobObj = updatedJob;
@@ -1832,77 +1845,10 @@ export default function POS({
     // Wait 1.5 seconds, then close the deposit modal
     setTimeout(() => {
       setShowDepositInputModal(false);
-      setDepositStep('input');
-      setDepositPaymentStatus('waiting');
     }, 1500);
   };
 
-  // BCEL One QR Countdown / Auto-success Polling Hook for Checkout
-  useEffect(() => {
-    if (showCheckout && paymentMethod === 'transfer' && payCurrency === 'LAK') {
-      if (bcelPaymentStatus === 'waiting') {
-        setBcelPaymentStatus('polling');
-        setBcelCheckingSeconds(6);
-      }
-    } else {
-      if (bcelPaymentStatus !== 'waiting') {
-        setBcelPaymentStatus('waiting');
-      }
-    }
-  }, [showCheckout, paymentMethod, payCurrency]);
 
-  useEffect(() => {
-    let interval = null;
-    if (bcelPaymentStatus === 'polling') {
-      interval = setInterval(() => {
-        setBcelCheckingSeconds(prev => {
-          if (prev <= 1) {
-            clearInterval(interval);
-            handleCheckoutPaymentSuccess();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [bcelPaymentStatus, payCurrency, grandTotal, checkoutAmountPaid]);
-
-  // BCEL One QR Countdown / Auto-success Polling Hook for Deposit Modal
-  useEffect(() => {
-    if (showDepositInputModal && depositStep === 'qr') {
-      if (depositPaymentStatus === 'waiting') {
-        setDepositPaymentStatus('polling');
-        setDepositCheckingSeconds(6);
-      }
-    } else {
-      if (depositPaymentStatus !== 'waiting') {
-        setDepositPaymentStatus('waiting');
-      }
-    }
-  }, [showDepositInputModal, depositStep]);
-
-  useEffect(() => {
-    let interval = null;
-    if (depositPaymentStatus === 'polling') {
-      interval = setInterval(() => {
-        setDepositCheckingSeconds(prev => {
-          if (prev <= 1) {
-            clearInterval(interval);
-            const val = Number(depositInputVal || 0);
-            handleDepositPaymentSuccess(val);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [depositPaymentStatus, depositInputVal]);
 
   const getLocalDatetimeString = (date) => {
     const tzOffset = date.getTimezoneOffset() * 60000;
@@ -3037,13 +2983,9 @@ export default function POS({
                       alert('ກະລຸນາເລືອກສິນຄ້າໃສ່ກະຕ່າກ່ອນ!');
                       return;
                     }
-                    setCheckoutIsDepositMode(true);
-                    setCouponCode('');
-                    setPayCurrency('LAK');
-                    setCashReceived('');
-                    setTransferAmount('');
-                    setPaymentMethod('cash');
-                    setShowCheckout(true);
+                    const defaultDeposit = String(Math.round(grandTotal * 0.3));
+                    setDepositInputVal(defaultDeposit);
+                    setShowDepositInputModal(true);
                   }}
                   disabled={activeSlot.items.length === 0}
                 >
@@ -4424,19 +4366,13 @@ export default function POS({
                           fontSize: '0.82rem',
                           textAlign: 'center'
                         }}>
-                          {bcelPaymentStatus === 'polling' && (
-                            <div className="animate-pulse" style={{ color: '#3498db', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                              <span>🔄 ພວມກວດສອບຍອດເງິນ... ({bcelCheckingSeconds}s)</span>
-                            </div>
-                          )}
-                          {bcelPaymentStatus === 'success' && (
+                          {bcelPaymentStatus === 'success' ? (
                             <div style={{ color: '#2ecc71', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                              <span>✅ ໄດ້ຮັບເງິນມັດຈຳແລ້ວ! ກຳລັງພິມບິນ...</span>
+                              <span>✅ ໄດ້ຮັບເງິນແລ້ວ! ກຳລັງພິມບິນ...</span>
                             </div>
-                          )}
-                          {bcelPaymentStatus === 'waiting' && (
+                          ) : (
                             <div style={{ color: 'var(--text-secondary)' }}>
-                              <span>📱 ກະລຸນາສະແກນຄິວອານີ້</span>
+                              <span>📱 ກະລຸນາສະແກນຄິວອານີ້ເພື່ອຊຳລະເງິນ</span>
                             </div>
                           )}
                         </div>

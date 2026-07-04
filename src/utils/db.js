@@ -140,6 +140,15 @@ const DEFAULT_SETTINGS = {
   workEndTime: '17:00',
   dailyWages: { owner: 150000, cashier: 80000, technician: 100000 },
   otHourlyRates: { owner: 25000, cashier: 15000, technician: 20000 },
+  payrollRules: {
+    lateGraceMinutes: 5,
+    lateDeductionRate: 1000,
+    paidRestDaysPerMonth: 4,
+    paidSickDaysPerMonth: 2,
+    paidPersonalDaysPerMonth: 0,
+    absentDeductionRate: 1.0,
+    calculateByActualHours: false
+  },
   labels: {},
   frameStyles: ['ກອບໃສ', 'ກອບສີ', 'ເລເຊີລາຍ', 'ກັນນ້ຳ 100%'],
   acrylicThicknesses: ['1.5 mm', '2.0 mm', '3.0 mm', '4.0 mm', '5.0 mm'],
@@ -2235,6 +2244,30 @@ seedStorage('cameras', DEFAULT_CCTV_CAMERAS);
 if (!localStorage.getItem('amulet_pos_cctv_alerts')) {
 seedStorage('cctv_alerts', DEFAULT_CCTV_ALERTS);
 }
+
+    // One-time customer ID cleanup for deleted customers (so they don't reappear as ghost records)
+    if (!localStorage.getItem('amulet_pos_cust_cleanup_v1')) {
+      const customers = this.getCustomers();
+      const onlineOrders = this.getOnlineOrders();
+      const customerIds = new Set(customers.map(c => c.id));
+      let changed = false;
+      const updatedOrders = onlineOrders.map(order => {
+        if (order.customerId && !customerIds.has(order.customerId)) {
+          changed = true;
+          return {
+            ...order,
+            customerId: null
+          };
+        }
+        return order;
+      });
+      if (changed) {
+        this.saveOnlineOrders(updatedOrders);
+        console.log('🧹 One-time cleanup of deleted customer IDs from online orders completed.');
+      }
+      localStorage.setItem('amulet_pos_cust_cleanup_v1', 'true');
+    }
+
 this.runDataRetention();
 },
 
@@ -2316,6 +2349,7 @@ this.runDataRetention();
       ...settings,
       dailyWages: { ...DEFAULT_SETTINGS.dailyWages, ...(settings.dailyWages || {}) },
       otHourlyRates: { ...DEFAULT_SETTINGS.otHourlyRates, ...(settings.otHourlyRates || {}) },
+      payrollRules: { ...DEFAULT_SETTINGS.payrollRules, ...(settings.payrollRules || {}) },
       frameStyles: settings.frameStyles || DEFAULT_SETTINGS.frameStyles,
       acrylicThicknesses: settings.acrylicThicknesses || DEFAULT_SETTINGS.acrylicThicknesses,
       labels: labels,
@@ -3870,37 +3904,70 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     if (!user) return null;
     
     const settings = this.getSettings();
+    const rules = settings.payrollRules || {
+      lateGraceMinutes: 5,
+      lateDeductionRate: 1000,
+      paidRestDaysPerMonth: 4,
+      paidSickDaysPerMonth: 2,
+      paidPersonalDaysPerMonth: 0,
+      absentDeductionRate: 1.0,
+      calculateByActualHours: false
+    };
+
     const baseWage = user.baseWage || 0;
     const otRate = user.otRate || 0;
+    const dailyRate = user.payType === 'daily' ? baseWage : baseWage / 30;
     
     let totalOtPay = 0;
     let totalWorkDays = 0;
     let totalAbsentDays = 0;
     let lateDeductions = 0;
+    let totalHoursWorked = 0;
+    let expectedShiftHoursTotal = 0;
     
     const shifts = this.getShifts();
     const userShifts = shifts.filter(s => s.userId === userId);
     
     attendance.forEach(rec => {
+      // Find shift first for expected hours and start time
+      const clockInTime = rec.clockIn ? new Date(rec.clockIn) : null;
+      let shift = null;
+      if (clockInTime) {
+        const dayOfWeek = clockInTime.getDay();
+        shift = userShifts.find(s => s.dayOfWeek === dayOfWeek);
+      }
+      
+      // Calculate hours worked
+      if (rec.clockIn && rec.clockOut) {
+        const diffMs = new Date(rec.clockOut) - new Date(rec.clockIn);
+        const hrs = diffMs / (1000 * 60 * 60);
+        totalHoursWorked += Math.max(0, hrs);
+      }
+      
+      if (shift) {
+        const [sHour, sMin] = shift.startTime.split(':').map(Number);
+        const [eHour, eMin] = shift.endTime.split(':').map(Number);
+        const shiftHrs = (eHour + eMin/60) - (sHour + sMin/60);
+        expectedShiftHoursTotal += Math.max(0, shiftHrs);
+      } else {
+        expectedShiftHoursTotal += 8; // Default 8 hours expected per present day if no shift defined
+      }
+
       if (rec.status === 'present') {
         totalWorkDays++;
         totalOtPay += (rec.otHours || 0) * otRate;
         
         // Late minute calculation
-        if (rec.clockIn) {
-          const clockInTime = new Date(rec.clockIn);
-          const dayOfWeek = clockInTime.getDay();
-          const shift = userShifts.find(s => s.dayOfWeek === dayOfWeek);
+        if (clockInTime) {
           const shiftStartStr = shift ? shift.startTime : '08:00';
-          
           const [sHour, sMin] = shiftStartStr.split(':').map(Number);
           const expectedTime = new Date(clockInTime);
           expectedTime.setHours(sHour, sMin, 0, 0);
           
           if (clockInTime > expectedTime) {
             const diffMin = Math.floor((clockInTime - expectedTime) / (1000 * 60));
-            if (diffMin > 5) { // 5 min grace
-              lateDeductions += diffMin * 1000; // 1,000 Kip per minute
+            if (diffMin > (rules.lateGraceMinutes ?? 5)) {
+              lateDeductions += diffMin * (rules.lateDeductionRate ?? 1000);
             }
           }
         }
@@ -3909,25 +3976,78 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       }
     });
 
+    // Leaves calculation
     const leaves = this.getLeaves().filter(l => l.userId === userId && l.status === 'approved' && l.startDate.startsWith(month));
-    const leaveDeduction = leaves.length * (user.payType === 'daily' ? baseWage : baseWage / 30);
     
-    const baseWages = user.payType === 'daily' ? baseWage * totalWorkDays : baseWage;
-    const absenceDeduction = totalAbsentDays * (user.payType === 'daily' ? baseWage : baseWage / 30);
+    // Count days for each type of leave
+    let vacationDays = 0;
+    let sickDays = 0;
+    let personalDays = 0;
     
+    leaves.forEach(l => {
+      // Calculate duration of leave in days
+      const start = new Date(l.startDate);
+      const end = new Date(l.endDate);
+      const diffTime = Math.abs(end - start);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      
+      if (l.leaveType === 'vacation') vacationDays += diffDays;
+      else if (l.leaveType === 'sick') sickDays += diffDays;
+      else if (l.leaveType === 'personal') personalDays += diffDays;
+    });
+
+    // Deduct only days exceeding the monthly paid limit
+    const unpaidVacation = Math.max(0, vacationDays - (rules.paidRestDaysPerMonth ?? 4));
+    const unpaidSick = Math.max(0, sickDays - (rules.paidSickDaysPerMonth ?? 2));
+    const unpaidPersonal = Math.max(0, personalDays - (rules.paidPersonalDaysPerMonth ?? 0));
+    
+    const totalUnpaidLeaveDays = unpaidVacation + unpaidSick + unpaidPersonal;
+    const leaveDeduction = totalUnpaidLeaveDays * dailyRate;
+    
+    // Base wages calculation
+    let baseWages = 0;
+    if (rules.calculateByActualHours && expectedShiftHoursTotal > 0) {
+      // Hourly calculation mode
+      baseWages = user.payType === 'daily' 
+        ? dailyRate * totalWorkDays * (totalHoursWorked / expectedShiftHoursTotal)
+        : baseWage * (totalHoursWorked / expectedShiftHoursTotal);
+    } else {
+      baseWages = user.payType === 'daily' ? baseWage * totalWorkDays : baseWage;
+    }
+    
+    const absenceDeduction = totalAbsentDays * dailyRate * (rules.absentDeductionRate ?? 1.0);
     const netPay = baseWages + totalOtPay - leaveDeduction - lateDeductions - absenceDeduction;
     
     return {
       userId: user.id,
       userName: user.name,
       month: month,
-      baseWages: baseWages,
-      otPay: totalOtPay,
+      baseWages: Math.round(baseWages),
+      otPay: Math.round(totalOtPay),
       leaveDeduction: Math.round(leaveDeduction),
       lateDeduction: Math.round(lateDeductions),
       absenceDeduction: Math.round(absenceDeduction),
       netPay: Math.max(0, Math.round(netPay)),
-      status: 'unpaid'
+      status: 'unpaid',
+      details: {
+        totalWorkDays,
+        totalAbsentDays,
+        totalHoursWorked,
+        expectedShiftHoursTotal,
+        vacationDays,
+        sickDays,
+        personalDays,
+        unpaidVacation,
+        unpaidSick,
+        unpaidPersonal,
+        lateGraceMinutes: rules.lateGraceMinutes,
+        lateDeductionRate: rules.lateDeductionRate,
+        paidRestDaysPerMonth: rules.paidRestDaysPerMonth,
+        paidSickDaysPerMonth: rules.paidSickDaysPerMonth,
+        paidPersonalDaysPerMonth: rules.paidPersonalDaysPerMonth,
+        absentDeductionRate: rules.absentDeductionRate,
+        calculateByActualHours: rules.calculateByActualHours
+      }
     };
   },
   payoutPayroll(payrollData) {
@@ -4026,6 +4146,23 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     const list = this.getCustomers();
     const filtered = list.filter(c => c.id !== id);
     this.saveCustomers(filtered);
+
+    // Also disassociate from online orders so they don't reconstruct as ghost records
+    const onlineOrders = this.getOnlineOrders();
+    let orderChanged = false;
+    const updatedOrders = onlineOrders.map(order => {
+      if (order.customerId === id) {
+        orderChanged = true;
+        return {
+          ...order,
+          customerId: null
+        };
+      }
+      return order;
+    });
+    if (orderChanged) {
+      this.saveOnlineOrders(updatedOrders);
+    }
   },
 
   // === Expense Categories management ===

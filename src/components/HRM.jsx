@@ -2357,8 +2357,16 @@ export default function HRM({ activeUser, onUpdate }) {
         const otRate = user.otRate !== undefined ? user.otRate : (user.role === 'owner' ? 25000 : user.role === 'cashier' ? 15000 : 20000);
         const dailyWage = payType === 'monthly' ? Math.round(baseWage / 26) : baseWage;
         
+        const record = selectedPayrollUser.record;
         const totalOtPayout = Math.round(selectedPayrollUser.totalOtHours * otRate);
         const totalBasePayout = selectedPayrollUser.totalPayout - totalOtPayout;
+
+        const baseWages = record ? record.baseWages : totalBasePayout;
+        const otPay = record ? record.otPay : totalOtPayout;
+        const lateDeduction = record ? record.lateDeduction : 0;
+        const absenceDeduction = record ? record.absenceDeduction : 0;
+        const leaveDeduction = record ? record.leaveDeduction : 0;
+        const netPay = record ? record.netPay : selectedPayrollUser.totalPayout;
 
         return (
           <Portal>
@@ -2444,19 +2452,37 @@ export default function HRM({ activeUser, onUpdate }) {
                     <div className="print-receipt-divider"></div>
                     
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>ຄ່າຈ้างພື້ນຖານລວມ:</span>
-                      <span>{totalBasePayout.toLocaleString()} ກີບ</span>
+                      <span>ຄ່າຈ້າງພື້ນຖານ (Base):</span>
+                      <span>{baseWages.toLocaleString()} ກີບ</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>ຄ່າລ່ວງເວລາ (OT) ລວມ:</span>
-                      <span>{totalOtPayout.toLocaleString()} ກີບ</span>
+                      <span>ຄ່າລ່ວງເວລາ (OT):</span>
+                      <span>+{otPay.toLocaleString()} ກີບ</span>
                     </div>
+                    {lateDeduction > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#c0392b' }}>
+                        <span>ຫັກເຂົ້າສາຍ (Late):</span>
+                        <span>-{lateDeduction.toLocaleString()} ກີບ</span>
+                      </div>
+                    )}
+                    {absenceDeduction > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#c0392b' }}>
+                        <span>ຫັກຂາດວຽກ (Absence):</span>
+                        <span>-{absenceDeduction.toLocaleString()} ກີບ</span>
+                      </div>
+                    )}
+                    {leaveDeduction > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#c0392b' }}>
+                        <span>ຫັກລາພັກ (Leave):</span>
+                        <span>-{leaveDeduction.toLocaleString()} ກີບ</span>
+                      </div>
+                    )}
                     
                     <div className="print-receipt-divider" style={{ borderTopStyle: 'double', borderWidth: '3px' }}></div>
                     
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10pt', fontWeight: 'bold' }}>
                       <span>ຍອດຮັບສຸດທິ (Net Payout):</span>
-                      <span>{selectedPayrollUser.totalPayout?.toLocaleString() || 0} ກີບ</span>
+                      <span>{netPay?.toLocaleString() || 0} ກີບ</span>
                     </div>
                   </div>
 

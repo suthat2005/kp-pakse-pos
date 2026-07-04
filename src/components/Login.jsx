@@ -1,9 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { db } from '../utils/db';
 
 export default function Login({ onLoginSuccess }) {
-  const users = db.getUsers();
-  const settings = db.getSettings();
+  const [users, setUsers] = useState(() => db.getUsers());
+  const [settings, setSettings] = useState(() => db.getSettings());
+
+  useEffect(() => {
+    const handleDbUpdate = () => {
+      setUsers(db.getUsers());
+      setSettings(db.getSettings());
+    };
+    window.addEventListener('db-updated', handleDbUpdate);
+    return () => {
+      window.removeEventListener('db-updated', handleDbUpdate);
+    };
+  }, []);
   
   // Login Form States
   const [email, setEmail] = useState('');
