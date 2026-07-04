@@ -2059,6 +2059,50 @@ export default function Settings({ activeUser, onUpdate }) {
                       </div>
                     </div>
 
+                    {/* Online Shop & QR Code Settings */}
+                    <div className="glass-card" style={{ padding: '16px', background: 'rgba(255,255,255,0.01)', marginTop: '16px', borderLeft: '4px solid #3498db' }}>
+                      <h4 style={{ color: '#3498db', fontSize: '0.9rem', marginBottom: '12px' }}>🌐 ຕັ້ງຄ່າເວັບໄຊຕ໌/ເມนູອອນລາຍ (Online Shop & Menu QR Settings)</h4>
+                      
+                      <div className="form-group" style={{ marginBottom: '12px' }}>
+                        <label className="form-label">ລິ້ງເວັບໄຊຕ໌/ເມນູອອນລາຍ (Online Shop Link URL)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={settings.onlineShopUrl || ''}
+                          onChange={(e) => setSettings({ ...settings, onlineShopUrl: e.target.value })}
+                          placeholder={`e.g. ${window.location.origin}`}
+                        />
+                        <small style={{ color: 'var(--text-secondary)' }}>ລິ້ງສຳລັບໃຫ້ລູກຄ້າສະແກນເບິ່ງສິນຄ້າ ຫຼື ສັ່ງອາຫານອອນລາຍ (ຫາກວ່າງໄວ້ ຈະໃຊ້ທີ່ຢູ່ເວັບໄຊຕ໌ປັດຈຸບັນ)</small>
+                      </div>
+
+                      <div className="form-group" style={{ marginBottom: '12px' }}>
+                        <label className="form-label">ຫົວຂໍ້/ຄຳອະທິບາຍ QR (QR Label / Description)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={settings.onlineShopLabel || ''}
+                          onChange={(e) => setSettings({ ...settings, onlineShopLabel: e.target.value })}
+                          placeholder="e.g. ສະແກນເບິ່ງເມນູອອນລາຍ (Scan Menu Online)"
+                        />
+                        <small style={{ color: 'var(--text-secondary)' }}>ຂໍ้ຄວາມສະແດງໃຕ້ຮູບ QR Code (ປ່ຽນຂໍ້ຄວາມສະແກນເບິ່ງເມນູໃນຮ້ານໄດ້)</small>
+                      </div>
+
+                      {/* Live QR Code Preview */}
+                      <div style={{ textAlign: 'center', marginTop: '16px', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '10px' }}>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>👁️ ຕົວຢ່າງ QR Code ທີ່ລູກຄ້າຈະສະແກน:</div>
+                        <div style={{ display: 'inline-block', padding: '10px', background: 'white', borderRadius: '12px' }}>
+                          <img 
+                            src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(settings.onlineShopUrl || window.location.origin)}`} 
+                            alt="Online Shop QR Preview" 
+                            style={{ width: '120px', height: '120px', display: 'block' }}
+                          />
+                        </div>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'white', marginTop: '6px' }}>
+                          {settings.onlineShopLabel || 'ສະແກນເບິ່ງເມນູອອນລາຍ (Scan Menu Online)'}
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Hardware Tester */}
                     <div className="glass-card" style={{ padding: '16px', background: 'rgba(255,255,255,0.01)' }}>
                       <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.9rem', marginBottom: '8px' }}>📟 ທົດສອບເຄື່ອງສະແກນບາໂຄ້ດ (Scanner Hardware Tester)</h4>

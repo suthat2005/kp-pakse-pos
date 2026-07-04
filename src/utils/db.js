@@ -178,6 +178,8 @@ const DEFAULT_SETTINGS = {
   discordWebhookUrl: '',
   lineNotifyToken: '',
   // Barcode / Scanner settings
+  onlineShopUrl: '',
+  onlineShopLabel: 'ສະແກນເບິ່ງເມນູອອນລາຍ (Scan Menu Online)',
   barcodeBeep: true,
   barcodeDelay: 50,
   barcodeStickerWidth: '40mm',

@@ -41,6 +41,7 @@ export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [trackingJobId, setTrackingJobId] = useState(null);
+  const [showOnlineShopQrModal, setShowOnlineShopQrModal] = useState(false);
   const [settings, setSettings] = useState({ shopName: '', shopSubtitle: '', appTheme: 'gold', themeColors: {}, shopLogo: '' });
   const [lowStockWarning, setLowStockWarning] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -865,6 +866,27 @@ export default function App() {
               </div>
             )}
 
+            {/* Online Shop QR Code Button */}
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{
+                padding: '6px 12px',
+                fontSize: '0.75rem',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                background: 'rgba(52, 152, 219, 0.12)',
+                color: '#3498db',
+                borderColor: 'rgba(52, 152, 219, 0.3)',
+                whiteSpace: 'nowrap',
+                fontWeight: 'bold',
+                marginRight: '8px'
+              }}
+              onClick={() => setShowOnlineShopQrModal(true)}
+            >
+              🌐 QR ເບິ່ງສິນຄ້າ
+            </button>
+
             {/* Quick-action Expense Logger */}
             <button
               type="button"
@@ -1596,6 +1618,63 @@ export default function App() {
                 }}
               >
                 🖨️ ພິມບິນສະຫຼຸບ
+              </button>
+            </div>
+          </div>
+        </div>
+        </Portal>
+      )}
+
+      {/* Online Shop QR Code Modal */}
+      {showOnlineShopQrModal && (
+        <Portal>
+        <div className="modal-overlay" style={{ zIndex: 1300 }}>
+          <div className="modal-content animate-fade-in" style={{ maxWidth: '420px', width: '90%', padding: '24px', textAlign: 'center', background: 'linear-gradient(145deg, #1a1614 0%, #0f0d0b 100%)', border: '1px solid rgba(212,175,55,0.25)', boxShadow: '0 15px 40px rgba(0,0,0,0.8)' }}>
+            <h3 style={{ color: 'var(--gold-primary)', margin: '0 0 16px 0', fontSize: '1.2rem', fontWeight: 'bold' }}>
+              🌐 QR Code ສິນຄ້າອອນລາຍ
+            </h3>
+            
+            <div style={{ margin: '20px auto', display: 'inline-block', padding: '16px', background: 'white', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
+              <img 
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(settings.onlineShopUrl || window.location.origin)}`} 
+                alt="Online Shop QR" 
+                style={{ width: '200px', height: '200px', display: 'block' }}
+              />
+            </div>
+
+            <div style={{ color: 'white', fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '8px' }}>
+              {settings.onlineShopLabel || 'ສະແກນເບິ່ງເມນູອອນລາຍ (Scan Menu Online)'}
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <a 
+                href={settings.onlineShopUrl || window.location.origin} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                style={{ color: 'var(--gold-primary)', wordBreak: 'break-all', fontSize: '0.82rem', textDecoration: 'underline' }}
+              >
+                {settings.onlineShopUrl || window.location.origin}
+              </a>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <a 
+                href={`https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(settings.onlineShopUrl || window.location.origin)}`} 
+                download="online_shop_qr.png"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-secondary" 
+                style={{ flex: 1, padding: '10px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
+              >
+                📥 ດາວໂຫຼດ QR
+              </a>
+              <button 
+                type="button" 
+                className="btn btn-primary" 
+                onClick={() => setShowOnlineShopQrModal(false)}
+                style={{ flex: 1, padding: '10px', fontSize: '0.85rem' }}
+              >
+                ປິດ (Close)
               </button>
             </div>
           </div>
