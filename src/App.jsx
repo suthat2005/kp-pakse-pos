@@ -79,6 +79,8 @@ export default function App() {
   // Shift Report modal states
   const [showShiftReportModal, setShowShiftReportModal] = useState(false);
   const [shiftReportData, setShiftReportData] = useState(null);
+  const [showClockInModal, setShowClockInModal] = useState(false);
+  const [openingCashInput, setOpeningCashInput] = useState('');
 
   // Sync today's attendance check-in status
   useEffect(() => {
@@ -326,6 +328,7 @@ export default function App() {
       cashierName: activeUser.name,
       clockIn: rec.clockIn,
       clockOut: rec.clockOut,
+      openingCash: rec.openingCash || 0,
       ...summary
     });
     setShowShiftReportModal(true);
@@ -912,6 +915,7 @@ export default function App() {
                       cashierName: activeUser.name,
                       clockIn: recordToUse.clockIn,
                       clockOut: recordToUse.clockOut || null,
+                      openingCash: recordToUse.openingCash || 0,
                       ...summary
                     });
                     setShowShiftReportModal(true);
@@ -966,10 +970,8 @@ export default function App() {
                       gap: '4px'
                     }}
                     onClick={() => {
-                      const rec = db.clockInUser(activeUser.id);
-                      setTodayAttendance(rec);
-                      alert('✓ ບັນທຶກເວລາເຂົ້າງານສຳເລັດ!');
-                      handleSystemUpdate();
+                      setOpeningCashInput('');
+                      setShowClockInModal(true);
                     }}
                   >
                     🕒 ເຂົ້າງານ
@@ -1317,6 +1319,104 @@ export default function App() {
         </Portal>
       )}
 
+      {/* Clock In Modal Overlay */}
+      {showClockInModal && (
+        <Portal>
+        <div className="modal-overlay" style={{ zIndex: 1100 }}>
+          <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
+            <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '1.15rem' }}>🕒 ເປີດກະລິ້ນຊັກ / ເຂົ້າງານ</h3>
+              <button className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowClockInModal(false)}>✕</button>
+            </div>
+            <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                ກະລຸນາປ້ອນຈຳນວນເງິນສົດທອນເລີ່ມຕົ້ນໃນລິ້ນຊັກ (ກີບ):
+              </div>
+              
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="0"
+                  value={openingCashInput}
+                  onChange={(e) => setOpeningCashInput(e.target.value)}
+                  style={{
+                    fontSize: '1.25rem',
+                    textAlign: 'right',
+                    paddingRight: '45px',
+                    fontWeight: 'bold',
+                    color: 'var(--gold-primary)',
+                    background: 'rgba(0,0,0,0.3)',
+                    borderColor: 'var(--border-color)',
+                    height: '48px',
+                    borderRadius: '8px'
+                  }}
+                  autoFocus
+                />
+                <span style={{ position: 'absolute', right: '15px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', fontWeight: 'bold', fontSize: '0.9rem' }}>₭</span>
+              </div>
+
+              {/* Quick cash options */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                {[100000, 200000, 500000, 1000000].map(val => (
+                  <button
+                    key={val}
+                    type="button"
+                    className="btn btn-secondary"
+                    style={{
+                      padding: '8px',
+                      fontSize: '0.85rem',
+                      background: 'rgba(255,255,255,0.03)',
+                      border: '1px solid var(--border-color)',
+                      color: 'var(--text-primary)',
+                      borderRadius: '6px',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => setOpeningCashInput(val.toString())}
+                  >
+                    {val.toLocaleString()} ₭
+                  </button>
+                ))}
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '10px' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowClockInModal(false)}
+                  style={{ padding: '8px 16px', borderRadius: '6px' }}
+                >
+                  ຍົກເລີກ
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  style={{
+                    padding: '8px 24px',
+                    borderRadius: '6px',
+                    background: 'var(--success-green)',
+                    color: 'black',
+                    borderColor: 'var(--success-green)',
+                    fontWeight: 'bold'
+                  }}
+                  onClick={() => {
+                    const cash = parseFloat(openingCashInput) || 0;
+                    const rec = db.clockInUser(activeUser.id, cash);
+                    setTodayAttendance(rec);
+                    setShowClockInModal(false);
+                    alert('✓ ບັນທຶກເວລາເຂົ້າງານສຳເລັດ!');
+                    handleSystemUpdate();
+                  }}
+                >
+                  🕒 ຢືນຢັນເຂົ້າງານ
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        </Portal>
+      )}
+
       {/* Shift Report Modal Overlay */}
       {showShiftReportModal && shiftReportData && (
         <Portal>
@@ -1367,6 +1467,10 @@ export default function App() {
 
               <div style={{ marginBottom: '10px', borderBottom: '1px dashed #000', paddingBottom: '8px' }}>
                 <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>ແຍກຕາມການຊຳລະ:</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', fontWeight: 'bold', color: '#2c3e50' }}>
+                  <span>- ເງິນທອນເລີ່ມຕົ້ນ (Opening Cash):</span>
+                  <span>{(shiftReportData.openingCash || 0).toLocaleString()} ₭</span>
+                </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
                   <span>- ໂອນຜ່ານ BCEL (LAK):</span>
                   <span>{(shiftReportData.totalTransferLak || 0).toLocaleString()} ₭</span>
@@ -1406,12 +1510,13 @@ export default function App() {
               <div style={{ marginBottom: '15px', padding: '6px', background: '#f5f5f5', borderRadius: '4px', border: '1px solid #ddd' }}>
                 <div style={{ fontSize: '12px', fontWeight: 'bold' }}>ການຄິດໄລ່ເງິນສົດໃນລິ້ນຊັກ (LAK):</div>
                 <div style={{ fontSize: '11px', color: '#555', marginTop: '2px' }}>
-                  ເງິນສົດ LAK + (ເງິນສົດ THB * {settings.exchangeRateThb || 750}) - ລາຍຈ່າຍ LAK
+                  ເງິນທອນເລີ່ມຕົ້ນ + ເງິນສົດ LAK + (ເງິນສົດ THB * {settings.exchangeRateThb || 750}) - ລາຍຈ່າຍ LAK
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '13px', marginTop: '6px', borderTop: '1px solid #ccc', paddingTop: '4px' }}>
                   <span>ຍອດເງິນສົດທີ່ຕ້ອງມີ:</span>
                   <span>
                     {(
+                      (shiftReportData.openingCash || 0) +
                       (shiftReportData.totalCashLak || 0) +
                       (shiftReportData.totalCashThb || 0) * (settings.exchangeRateThb || 750) -
                       (shiftReportData.totalExpenseLak || 0)

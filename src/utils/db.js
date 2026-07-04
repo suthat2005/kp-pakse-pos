@@ -2848,7 +2848,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
   saveAttendance(logs) {
     setStorage('attendance', logs);
   },
-  clockInUser(userId) {
+  clockInUser(userId, openingCash = 0) {
     const logs = this.getAttendance();
     const dateStr = new Date().toLocaleDateString('en-CA');
     let record = logs.find(l => l.userId === userId && !l.clockOut);
@@ -2862,6 +2862,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
         date: dateStr,
         clockIn: new Date().toISOString(),
         clockOut: null,
+        openingCash: Number(openingCash) || 0,
         workHours: 0,
         workedPercent: 0,
         otHours: 0,
@@ -2871,7 +2872,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       logs.unshift(record);
       this.saveAttendance(logs);
       
-      this.addAuditLog('clock_in', 'ພະນັກງານ ' + record.userName + ' ເຂົ້າງານ (Clock In)');
+      this.addAuditLog('clock_in', 'ພະນັກງານ ' + record.userName + ' ເຂົ້າງານ (Clock In), ເງິນທອນເລີ່ມຕົ້ນ: ' + (Number(openingCash) || 0).toLocaleString() + ' ກີບ');
     }
     return record;
   },
