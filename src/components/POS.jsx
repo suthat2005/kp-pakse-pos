@@ -974,8 +974,10 @@ export default function POS({
   );
 
   const targetRoundTotalLAK = checkoutIsDepositMode
-    ? (activeSlot.depositAmount || 0)
-    : Math.max(0, grandTotal - (activeSlot.depositAmount || 0));
+    ? grandTotal
+    : hasJobBalanceItem
+      ? grandTotal
+      : Math.max(0, grandTotal - (activeSlot.depositAmount || 0));
 
   const targetRoundTotalInCurrency = payCurrency === 'LAK' ? targetRoundTotalLAK
                                    : payCurrency === 'THB' ? Math.ceil(targetRoundTotalLAK / payRate)
@@ -991,7 +993,7 @@ export default function POS({
       setPaymentMethod('cash');
       setBankTxRef('');
       if (checkoutIsDepositMode) {
-        setCashReceived(String(activeSlot.depositAmount || 0));
+        setCashReceived('');
         setTransferAmount('');
       } else {
         const targetLAK = Math.max(0, grandTotal - (activeSlot.depositAmount || 0));
@@ -2983,9 +2985,13 @@ export default function POS({
                       alert('ກະລຸນາເລືອກສິນຄ້າໃສ່ກະຕ່າກ່ອນ!');
                       return;
                     }
-                    const defaultDeposit = String(Math.round(grandTotal * 0.3));
-                    setDepositInputVal(defaultDeposit);
-                    setShowDepositInputModal(true);
+                    setCheckoutIsDepositMode(true);
+                    setCouponCode('');
+                    setPayCurrency('LAK');
+                    setCashReceived('');
+                    setTransferAmount('');
+                    setPaymentMethod('cash');
+                    setShowCheckout(true);
                   }}
                   disabled={activeSlot.items.length === 0}
                 >
