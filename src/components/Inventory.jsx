@@ -453,11 +453,16 @@ function RawMaterialsSubView({ isMobile }) {
                         onChange={(e) => {
                           const file = e.target.files[0];
                           if (file) {
-                            const reader = new FileReader();
-                            reader.onloadend = () => {
-                              setFormData(prev => ({ ...prev, image: reader.result }));
-                            };
-                            reader.readAsDataURL(file);
+                            compressImage(file).then(compressedBase64 => {
+                              setFormData(prev => ({ ...prev, image: compressedBase64 }));
+                            }).catch(err => {
+                              console.error('Compression failed, falling back:', err);
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setFormData(prev => ({ ...prev, image: reader.result }));
+                              };
+                              reader.readAsDataURL(file);
+                            });
                           }
                         }}
                       />
@@ -1274,6 +1279,45 @@ function ManufacturingSubView({ isMobile }) {
     </div>
   );
 }
+
+
+const compressImage = (file, maxWidth = 800, maxHeight = 800, quality = 0.7) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(dataUrl);
+      };
+      img.onerror = (err) => reject(err);
+    };
+    reader.onerror = (err) => reject(err);
+  });
+};
 
 export default function Inventory({ activeUser, onUpdate, initialFilter, onFilterChange, isMobile }) {
   const [activeSubTab, setActiveSubTab] = useState('products');
@@ -2858,11 +2902,16 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                     onChange={(e) => {
                       const file = e.target.files[0];
                       if (file) {
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                          setFormData(prev => ({ ...prev, image: reader.result }));
-                        };
-                        reader.readAsDataURL(file);
+                        compressImage(file).then(compressedBase64 => {
+                          setFormData(prev => ({ ...prev, image: compressedBase64 }));
+                        }).catch(err => {
+                          console.error('Compression failed, falling back:', err);
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setFormData(prev => ({ ...prev, image: reader.result }));
+                          };
+                          reader.readAsDataURL(file);
+                        });
                       }
                     }}
                   />
@@ -3325,11 +3374,16 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                         onChange={(e) => {
                           const file = e.target.files[0];
                           if (file) {
-                            const reader = new FileReader();
-                            reader.onload = (event) => {
-                              setNewCatIcon(event.target.result);
-                            };
-                            reader.readAsDataURL(file);
+                            compressImage(file).then(compressedBase64 => {
+                              setNewCatIcon(compressedBase64);
+                            }).catch(err => {
+                              console.error('Compression failed, falling back:', err);
+                              const reader = new FileReader();
+                              reader.onload = (event) => {
+                                setNewCatIcon(event.target.result);
+                              };
+                              reader.readAsDataURL(file);
+                            });
                           }
                         }}
                       />
