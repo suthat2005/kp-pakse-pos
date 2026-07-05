@@ -955,14 +955,14 @@ export default function App() {
             >
               ☰
             </button>
-            <span className="active-route-name">
-              {activeTab === 'pos' && (activeUser.role === 'technician' ? '🛠️ ງານອັດກອບ (Framing)' : '💵 ຂາຍໜ້າຮ້ານ (POS)')}
-              {activeTab === 'inventory' && '📦 ຈັດການສະຕັອກ & ວັດຖຸດິບ (Inventory)'}
-              {activeTab === 'hrm' && '👥 ຈັດການບຸກຄະລາກອນ & ເງິນເດືອນ (HRM)'}
-              {activeTab === 'reports' && '📊 ບົດລາຍງານຍອດຂາຍ & ລາຍຈ່າຍ (Reports)'}
-              {activeTab === 'debts' && '📒 ບັນຊີລູກຄ້າຕິດໜີ້ (Debts)'}
-              {activeTab === 'ai' && '🤖 ລະບົບກ້ອງ CCTV AI'}
-              {activeTab === 'settings' && '⚙️ ຕັ້ງຄ່າລະບົບ (Settings)'}
+            <span className="active-route-name" style={isMobile ? { fontSize: '0.85rem', whiteSpace: 'nowrap', maxWidth: '85px', overflow: 'hidden', textOverflow: 'ellipsis' } : {}}>
+              {activeTab === 'pos' && (isMobile ? 'POS' : (activeUser.role === 'technician' ? '🛠️ ງານອັດກອບ' : '💵 ຂາຍໜ້າຮ້ານ (POS)'))}
+              {activeTab === 'inventory' && (isMobile ? 'ສະຕັອກ' : '📦 ຈັດການສະຕັອກ & ວັດຖຸດິບ (Inventory)')}
+              {activeTab === 'hrm' && (isMobile ? 'HRM' : '👥 ຈັດການບຸກຄະລາກອນ & ເງິນເດືອນ (HRM)')}
+              {activeTab === 'reports' && (isMobile ? 'ລາຍງານ' : '📊 ບົດລາຍງານຍອດຂາຍ & ລາຍຈ່າຍ (Reports)')}
+              {activeTab === 'debts' && (isMobile ? 'ຕິດໜີ້' : '📒 ບັນຊີລູກຄ້າຕິດໜີ້ (Debts)')}
+              {activeTab === 'ai' && 'CCTV AI'}
+              {activeTab === 'settings' && (isMobile ? 'ຕັ້ງຄ່າ' : '⚙️ ຕັ້ງຄ່າລະບົບ (Settings)')}
             </span>
 
             {/* Connection Status Badge */}
@@ -1110,17 +1110,19 @@ export default function App() {
                   activeUser.role === 'owner' ? '👑' : activeUser.role === 'cashier' ? '💵' : '🛠️'
                 )}
               </div>
-              <div className="user-info-text">
-                <div className="user-name">{activeUser.name}</div>
-                <div className="user-role">
-                  {activeUser.roleName.split(' ')[0]}
-                  {todayAttendance && !todayAttendance.clockOut && (
-                    <span style={{ color: 'var(--success-green)', fontWeight: 'bold', marginLeft: '6px' }}>
-                      (ກະ: {db.getShiftSales(activeUser.id).toLocaleString()} ₭)
-                    </span>
-                  )}
+              {!isMobile && (
+                <div className="user-info-text">
+                  <div className="user-name">{activeUser.name}</div>
+                  <div className="user-role">
+                    {activeUser.roleName.split(' ')[0]}
+                    {todayAttendance && !todayAttendance.clockOut && (
+                      <span style={{ color: 'var(--success-green)', fontWeight: 'bold', marginLeft: '6px' }}>
+                        (ກະ: {db.getShiftSales(activeUser.id).toLocaleString()} ₭)
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
               
               {/* Clock-In / Clock-Out Button */}
               {!isMobile && (
@@ -1192,13 +1194,15 @@ export default function App() {
                 </div>
               )}
 
-              <button className="logout-btn" onClick={handleLogout} title="ອອກຈາກລະບົບ">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                  <polyline points="16 17 21 12 16 7" />
-                  <line x1="21" y1="12" x2="9" y2="12" />
-                </svg>
-              </button>
+              {!isMobile && (
+                <button className="logout-btn" onClick={handleLogout} title="ອອກຈາກລະບົບ">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                </button>
+              )}
             </div>
           </div>
         </header>

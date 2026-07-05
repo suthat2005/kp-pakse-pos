@@ -1257,7 +1257,7 @@ function ManufacturingSubView() {
   );
 }
 
-export default function Inventory({ activeUser, onUpdate, initialFilter, onFilterChange }) {
+export default function Inventory({ activeUser, onUpdate, initialFilter, onFilterChange, isMobile }) {
   const [activeSubTab, setActiveSubTab] = useState('products');
   const [products, setProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -2197,22 +2197,44 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       {activeSubTab === 'products' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* Header and Actions */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '8px' } : { display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ color: 'var(--gold-primary)' }}>{db.getLabel('title_inventory', '📦 ຈັດການຄັງສິນຄ້າ & ສະຕັອກ (Inventory)')}</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>ຈັດການລາຍການສິນຄ້າ, ຂອບພຣະ, ສ້ອຍຄໍ, ແລະ ປັບສະຕັອກໄດ້ໂດຍກົງ</p>
+          <h2 style={{ color: 'var(--gold-primary)', fontSize: isMobile ? '1.2rem' : '1.5rem', margin: 0 }}>
+            {db.getLabel('title_inventory', '📦 ຈັດການຄັງສິນຄ້າ & ສະຕັອກ (Inventory)')}
+          </h2>
+          {!isMobile && (
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0' }}>
+              ຈັດການລາຍການສິນຄ້າ, ຂອບພຣะ, ສ້ອຍຄໍ, ແລະ ປັບສະຕັອກໄດ້ໂດຍກົງ
+            </p>
+          )}
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button className="btn btn-secondary" onClick={() => { setSelectedBarcodeProd(null); setBarcodePrintQty(1); setShowBarcodeModal(true); }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', width: isMobile ? '100%' : 'auto' }}>
+          <button 
+            className="btn btn-secondary" 
+            style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
+            onClick={() => { setSelectedBarcodeProd(null); setBarcodePrintQty(1); setShowBarcodeModal(true); }}
+          >
             🏷️ ສ້າງບາໂຄ້ດເປົ່າ
           </button>
-          <button className="btn btn-secondary" onClick={() => { setBulkPrintQtys({}); setBulkSearch(''); setBulkCatFilter('all'); setShowBulkBarcodeModal(true); }}>
-            🏷️ ປຣິນບາໂຄ້ດຫຼາຍລາຍການ
+          <button 
+            className="btn btn-secondary" 
+            style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
+            onClick={() => { setBulkPrintQtys({}); setBulkSearch(''); setBulkCatFilter('all'); setShowBulkBarcodeModal(true); }}
+          >
+            🏷️ ປຣິນບາໂຄ້ດຫຼາຍ
           </button>
-          <button className="btn btn-secondary" onClick={openCategoryAdd}>
+          <button 
+            className="btn btn-secondary" 
+            style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
+            onClick={openCategoryAdd}
+          >
             🗂️ ຈັດການໝວດໝູ່
           </button>
-          <button className="btn btn-primary" onClick={handleOpenAdd}>
+          <button 
+            className="btn btn-primary" 
+            style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
+            onClick={handleOpenAdd}
+          >
             ➕ ເພີ່ມສິນຄ້າໃໝ່
           </button>
         </div>
