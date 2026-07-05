@@ -2266,24 +2266,65 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       )}
                     </div>
 
-                    {/* General Printer & Hardware Settings */}
+                                        {/* General Printer & Hardware Settings */}
                     <div className="glass-card" style={{ padding: '16px', background: 'rgba(255,255,255,0.01)', marginTop: '16px', borderLeft: '4px solid var(--gold-primary)' }}>
-                      <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.9rem', marginBottom: '12px' }}>📠 ຕັ້ງຄ່າເຄື່ອງພິມທົ່ວໄປ (General Printer & Print Server Settings)</h4>
+                      <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.9rem', marginBottom: '12px' }}>📠 ຕັ້ງຄ່າເຄື່ອງພິມ & ອຸປະກອນເຊື່ອມຕໍ່ (Printer & Hardware Settings)</h4>
                       
                       <div className="form-group" style={{ marginBottom: '12px' }}>
-                        <label className="form-label">ຊື່ເຄື່ອງພິມໃບບິນ/ລິ້ນຊັກໃນ Windows (Receipt Printer Name)</label>
-                        <input
-                          type="text"
+                        <label className="form-label">ຮູບແບບການເຊື່ອມຕໍ່ເຄື່ອງພິມ (Printer Connection Type)</label>
+                        <select
                           className="form-control"
-                          value={settings.windowsPrinterName || 'GP-L80250 Series'}
-                          onChange={(e) => setSettings({ ...settings, windowsPrinterName: e.target.value })}
-                          placeholder="e.g. GP-L80250 Series"
-                        />
-                        <small style={{ color: 'var(--text-secondary)' }}>ຊື່ເຄື່ອງພິມໃບບິນຫຼັກໃນ Control Panel (ໃຊ້ສຳລັບການປິ້ນ ແລະ ຍິງລິ້ນชັກເກັບເງິນ)</small>
+                          value={settings.printerConnectionType || 'windows'}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setSettings({ 
+                              ...settings, 
+                              printerConnectionType: val,
+                              windowsPrinterName: val === 'lan' ? (settings.lanPrinterIp || '192.168.1.100') : (settings.windowsPrinterName || 'GP-L80250 Series')
+                            });
+                          }}
+                          style={{ background: 'rgba(0,0,0,0.4)', color: 'white', border: '1px solid var(--border-color)', height: '38px', borderRadius: '8px' }}
+                        >
+                          <option value="windows">🔌 ໃຊ້ Driver Windows (USB / Driver Spooler)</option>
+                          <option value="lan">🌐 ເຊື່ອມຕໍ່ຜ່ານສາຍ LAN / Network IP (Direct TCP/IP)</option>
+                        </select>
                       </div>
 
-                      <div className="form-group">
-                        <label className="form-label">ທີ່ຢູ່ເຊີເວີການພິມທ້ອງຖິ່ນ (Local Print Server URL)</label>
+                      {settings.printerConnectionType === 'lan' ? (
+                        <div className="form-group" style={{ marginBottom: '12px' }}>
+                          <label className="form-label">ທີ່ຢູ່ IP ຂອງເຄື່ອງພິມ LAN (LAN Printer IP Address)</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={settings.lanPrinterIp || ''}
+                            onChange={(e) => {
+                              const ip = e.target.value;
+                              setSettings({ 
+                                ...settings, 
+                                lanPrinterIp: ip,
+                                windowsPrinterName: ip
+                              });
+                            }}
+                            placeholder="e.g. 192.168.1.100"
+                          />
+                          <small style={{ color: 'var(--text-secondary)' }}>ປ້ອນ IP ຂອງເຄື່ອງພິມ LAN ເຊັ່ນ 192.168.1.100 (ພອດມາດຕະຖານ: 9100)</small>
+                        </div>
+                      ) : (
+                        <div className="form-group" style={{ marginBottom: '12px' }}>
+                          <label className="form-label">ຊື່ເຄື່ອງພິມໃບບິນໃນ Windows (Windows Printer Name)</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={settings.windowsPrinterName || 'GP-L80250 Series'}
+                            onChange={(e) => setSettings({ ...settings, windowsPrinterName: e.target.value })}
+                            placeholder="e.g. GP-L80250 Series"
+                          />
+                          <small style={{ color: 'var(--text-secondary)' }}>ຊື່ເຄື່ອງພິມຫຼັກໃນ Control Panel (ໃຊ້ສຳລັບການປິ້ນ ແລະ ຍິງລິ້ນຊັກເກັບເງິນ)</small>
+                        </div>
+                      )}
+
+                      <div className="form-group" style={{ marginBottom: '12px' }}>
+                        <label className="form-label">ທີ່ຢູ່ເຊີເວີການພິມ (Local Print Server URL)</label>
                         <input
                           type="text"
                           className="form-control"
@@ -2291,7 +2332,16 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           onChange={(e) => setSettings({ ...settings, printServerUrl: e.target.value })}
                           placeholder="e.g. http://localhost:5173"
                         />
-                        <small style={{ color: 'var(--text-secondary)' }}>ທີ່ຢູ່ຂອງ API ການພິມທ້ອງຖິ່ນ (ມາດຕະຖານ: http://localhost:5173 ຫາກໃຊ້ງານໃນຄອມເຄື່ອງດຽວກັນ)</small>
+                        <small style={{ color: 'var(--text-secondary)' }}>ທີ່ຢູ່ຂອງ API ການພິມ (ເຊັ່ນ: http://192.168.1.50:5173 ຫາກພະນັກງານປິ້ນຜ່ານໂທລະສັບ)</small>
+                      </div>
+
+                      {/* LAN Printer & Bluetooth Scanner Instructions */}
+                      <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(212,175,55,0.05)', border: '1px dashed var(--gold-primary)', borderRadius: '8px', fontSize: '0.8rem' }}>
+                        <h5 style={{ color: 'var(--gold-primary)', margin: '0 0 8px', fontSize: '0.85rem' }}>ℹ️ ວິທີຕັ້ງຄ່າການພິມຜ່ານ LAN & ເຄື່ອງສະແກນ Bluetooth</h5>
+                        <ul style={{ paddingLeft: '16px', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px', color: 'var(--text-secondary)' }}>
+                          <li><b>ເຄື່ອງພິມ LAN & ລิ້ນຊັກ:</b> ເຊື່ອມຕໍ່ສາຍ LAN ເຂົ້າເຄື່ອງພິມ, ຈາກນັ້ນເສີບສາຍ RJ11 ຂອງລິ້ນຊັກເກັບເງິນເຂົ້າເຄື່ອງພິມ. ເມື່ອມີການພິມບິນ ລະບົບຈະຍິງກະແສໄຟເປີດລິ້ນຊັກໂດຍກົງຜ່ານ IP ອັດຕະໂນມັດ.</li>
+                          <li><b>ເຄື່ອງສະແກນ Bluetooth:</b> ເຊື່ອມຕໍ່ (Pair) ເຄື່ອງສະແກນເຂົ້າກັບໂທລະສັບ ຫຼື ຄອມພິວເຕີ ໂດຍຕັ້ງຄ່າໃຫ້ຢູ່ໃນໂໝດ <b>Keyboard Emulator (HID)</b>. ລະບົບ POS ຈະຮັບຄ່າບາໂຄ້ດ ແລະ ເພີ່ມສິນຄ້າເຂົ້າຕະກ່າໃຫ້ເອງໂດຍອັດຕະໂນມັດທັນທີເມື່ອສະແກນ.</li>
+                        </ul>
                       </div>
                     </div>
 

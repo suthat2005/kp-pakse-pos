@@ -1,3 +1,4 @@
+import net from 'net';
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
@@ -205,18 +206,53 @@ const server = http.createServer(async (req, res) => {
   // API: Kick Cash Drawer (Local Hardware Port Link)
   if (pathname === '/api/kick-drawer') {
     const printerName = parsedUrl.searchParams.get('printer') || 'GP-L80250 Series';
+    res.setHeader('Content-Type', 'application/json');
+
+    // Check if the printer name is a LAN IP address
+    const ipRegex = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
+    if (ipRegex.test(printerName)) {
+      console.log('🌐 LAN printer IP detected. Kicking drawer via direct TCP socket on port 9100:', printerName);
+      const client = new net.Socket();
+      client.setTimeout(3000);
+      
+      client.connect(9100, printerName, () => {
+        // ESC p m t1 t2 (raw ESC/POS cash drawer kick code)
+        const kickCommand = Buffer.from([0x1b, 0x70, 0x00, 0x19, 0xfa]);
+        client.write(kickCommand, () => {
+          client.destroy();
+          console.log('✓ Cash drawer kicked successfully via TCP socket to LAN printer at IP:', printerName);
+          res.statusCode = 200;
+          res.end(JSON.stringify({ success: true, method: 'tcp' }));
+        });
+      });
+
+      client.on('error', (err) => {
+        client.destroy();
+        console.error('❌ TCP socket drawer kick error:', err);
+        res.statusCode = 500;
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      });
+
+      client.on('timeout', () => {
+        client.destroy();
+        console.error('❌ TCP socket drawer kick timeout');
+        res.statusCode = 500;
+        res.end(JSON.stringify({ success: false, error: 'Connection timeout' }));
+      });
+      return;
+    }
+
+    // Otherwise fall back to local Windows driver spooler via Powershell
     const escapedPrinterName = printerName.replace(/"/g, '\\"');
-    
     exec(`powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File kick-drawer.ps1 -PrinterName "${escapedPrinterName}"`, (err, stdout, stderr) => {
-      res.setHeader('Content-Type', 'application/json');
       if (err) {
         console.error('Local printer kick error:', err, stderr);
         res.statusCode = 500;
         res.end(JSON.stringify({ success: false, error: err.message }));
       } else {
-        console.log('Local printer kick command sent to:', printerName);
+        console.log('Local printer kick command sent via Powershell to Windows driver:', printerName);
         res.statusCode = 200;
-        res.end(JSON.stringify({ success: true }));
+        res.end(JSON.stringify({ success: true, method: 'powershell' }));
       }
     });
     return;
