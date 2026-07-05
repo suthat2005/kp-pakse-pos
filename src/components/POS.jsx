@@ -3131,7 +3131,7 @@ export default function POS({
                       <span>{totalJobDeposit.toLocaleString()} ກີບ</span>
                     </div>
                     <div className="summary-row" style={{ color: totalJobBalance > 0 ? '#e74c3c' : '#2ecc71', fontWeight: 'bold', fontSize: '0.95rem' }}>
-                      <span>ຍອດຄົງเหลือທີ່ຕ້ອງຊຳລະ (Remaining Balance):</span>
+                      <span>ຍອດຄ້າງຊຳລະຫຼັງຈ່າຍ (Remaining Balance):</span>
                       <span>{totalJobBalance.toLocaleString()} ກີບ</span>
                     </div>
                   </>
