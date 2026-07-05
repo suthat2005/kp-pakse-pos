@@ -1142,56 +1142,46 @@ textarea.form-control {
     size: auto;
     margin: 0mm !important;
   }
-  #root {
-    height: 0 !important;
-    overflow: hidden !important;
-    position: absolute !important;
-    top: -9999px !important;
-    left: -9999px !important;
+  body > *:not(div[data-portal]) {
+    display: none !important;
   }
   body, html {
-    height: auto !important;
-    overflow: visible !important;
-  }
-
-  body {
-    background: white;
-    color: black;
+    background: white !important;
+    color: black !important;
     margin: 0 !important;
     padding: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
   }
   * {
     font-family: 'Phetsarath', 'Phetsarath OT', 'Noto Sans Lao', sans-serif !important;
   }
-  .app-header, .app-topbar, .app-sidebar, .main-layout, .bottom-nav, .no-print, .pos-container, .pos-grid, .kanban-board, .glass-card:not(.modal-content), .modal-overlay:not(.print-modal), .modal-header:not(.print-modal .modal-header), .modal-footer:not(.print-modal .modal-footer) {
-    display: none !important;
+  div[data-portal] {
+    display: block !important;
+    position: static !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   .modal-overlay.print-modal {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: auto;
-    background: white;
-    display: block;
-    z-index: 9999;
-    padding: 0;
-    margin: 0;
+    position: static !important;
+    display: block !important;
+    background: none !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: auto !important;
   }
   .modal-overlay.print-modal .modal-content {
-    border: none;
-    box-shadow: none;
-    background: white;
-    width: 80mm;
-    margin: 0;
-    padding: 0;
-    max-height: none;
-    overflow: visible;
-  }
-  .print-receipt-container {
-    width: 80mm;
-    padding: 0;
-    margin: 0;
+    position: static !important;
+    display: block !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    background: white !important;
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 }
 

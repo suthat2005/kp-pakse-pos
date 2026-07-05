@@ -2417,46 +2417,43 @@ export default function POS({
               size: auto;
               margin: 0mm !important;
             }
-            #root {
-              height: 0 !important;
-              overflow: hidden !important;
-              position: absolute !important;
-              top: -9999px !important;
-              left: -9999px !important;
+            body > *:not(div[data-portal]) {
+              display: none !important;
             }
             body, html {
-              height: auto !important;
-              overflow: visible !important;
-            }
-
-            body {
               background: white !important;
               color: black !important;
               margin: 0 !important;
               padding: 0 !important;
+              height: auto !important;
+              overflow: visible !important;
             }
-            .app-topbar, .app-sidebar, .main-layout, .bottom-nav, .no-print {
-              display: none !important;
-            }
-            .modal-overlay.print-modal {
-              background: none !important;
-              position: static !important;
+            div[data-portal] {
               display: block !important;
+              position: static !important;
+              margin: 0 !important;
               padding: 0 !important;
             }
+            .modal-overlay.print-modal {
+              position: static !important;
+              display: block !important;
+              background: none !important;
+              width: ${settings.receiptPaperWidth || '80mm'} !important;
+              max-width: ${settings.receiptPaperWidth || '80mm'} !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              z-index: auto !important;
+            }
             .modal-overlay.print-modal .modal-content {
+              position: static !important;
+              display: block !important;
               width: ${settings.receiptPaperWidth || '80mm'} !important;
               max-width: ${settings.receiptPaperWidth || '80mm'} !important;
               background: white !important;
               box-shadow: none !important;
               border: none !important;
-              padding: 0 !important;
               margin: 0 !important;
-            }
-            .modal-body {
               padding: 0 !important;
-              margin: 0 !important;
-              background: white !important;
             }
             .print-receipt-container {
               width: ${settings.receiptPaperWidth || '80mm'} !important;
@@ -2471,7 +2468,6 @@ export default function POS({
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
             }
-            /* Force pure black color for all text elements in print to prevent faint grey printing */
             .print-receipt-container *, 
             .print-receipt-totals, 
             .print-receipt-totals span, 
@@ -2482,9 +2478,8 @@ export default function POS({
             .print-receipt-subtitle,
             table, tr, td, th {
               color: #000 !important;
-              font-weight: 600 !important; /* Thicker font for thermal printer readability */
+              font-weight: 600 !important;
             }
-            /* Titles and headers should be extra bold */
             .print-receipt-title, 
             .print-receipt-totals[style*="font-weight: bold"],
             .print-receipt-totals span[style*="font-weight: bold"],
@@ -2494,13 +2489,12 @@ export default function POS({
               font-weight: 800 !important;
             }
             .print-receipt-divider {
-              border-top: 2px solid #000 !important; /* Solid divider line prints much cleaner than dashed */
+              border-top: 2px solid #000 !important;
               margin: 8px 0 !important;
               height: 0 !important;
             }
-            /* Optimize QR codes and images for crisp thermal printing */
             img {
-              filter: grayscale(1) contrast(2) !important; /* Force high contrast black and white */
+              filter: grayscale(1) contrast(2) !important;
               image-rendering: -webkit-optimize-contrast !important;
               image-rendering: crisp-edges !important;
               image-rendering: pixelated !important;
@@ -2521,7 +2515,7 @@ export default function POS({
             border-top: ${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} black !important;
           }
         `}
-      </style>
+            </style>
       
       {/* Sub-navigation for Slots Grid vs Kanban Framing Board */}
       {viewMode !== 'menu' && activeUser.role !== 'technician' && !initialViewMode && (
