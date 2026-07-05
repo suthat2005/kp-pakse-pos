@@ -2347,7 +2347,7 @@ export default function POS({
       )}
 
       {viewMode === 'slots' ? (
-        <div className="glass-card animate-fade-in" style={{ height: activeUser.role === 'technician' ? '100%' : 'calc(100% - 58px)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div className="glass-card animate-fade-in" style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '16px', background: 'none', border: 'none', padding: 0 } : { height: activeUser.role === 'technician' ? '100%' : 'calc(100% - 58px)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* Queue Board Header */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', borderBottom: '1px solid var(--border-color)', paddingBottom: '14px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: '10px' }}>
@@ -2391,7 +2391,7 @@ export default function POS({
             </div>
           </div>
 
-          <div style={{
+          <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '10px' } : {
             flex: 1,
             overflowY: 'auto',
             paddingRight: '4px',
