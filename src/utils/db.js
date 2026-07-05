@@ -3025,6 +3025,8 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     let totalCashThb = 0;
     let totalCashUsd = 0;
     let totalTransferLak = 0;
+    let totalTransferThb = 0;
+    let totalTransferUsd = 0;
     let totalSalesLak = 0;
     
     cashierOrders.forEach(o => {
@@ -3034,15 +3036,21 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
         if (currency === 'LAK') {
           totalCashLak += o.total;
         } else if (currency === 'THB') {
-          totalCashThb += o.currencyCashReceived - o.currencyChange;
+          totalCashThb += (o.currencyCashReceived || 0) - (o.currencyChange || 0);
         } else if (currency === 'USD') {
-          totalCashUsd += o.currencyCashReceived - o.currencyChange;
+          totalCashUsd += (o.currencyCashReceived || 0) - (o.currencyChange || 0);
         }
       } else if (o.paymentMethod === 'transfer') {
-        totalTransferLak += o.total;
+        const currency = o.payCurrency || 'LAK';
+        if (currency === 'LAK') {
+          totalTransferLak += o.total;
+        } else if (currency === 'THB') {
+          totalTransferThb += (o.currencyTransferAmount || o.currencyCashReceived || 0);
+        } else if (currency === 'USD') {
+          totalTransferUsd += (o.currencyTransferAmount || o.currencyCashReceived || 0);
+        }
       } else if (o.paymentMethod === 'split') {
         const currency = o.payCurrency || 'LAK';
-        const rate = currency === 'THB' ? (o.exchangeRateThb || 750) : currency === 'USD' ? (o.exchangeRateUsd || 26000) : 1;
         const cashKeptCurrency = (o.currencyCashReceived || 0) - (o.currencyChange || 0);
         const transKeptCurrency = o.currencyTransferAmount || 0;
         
@@ -3051,10 +3059,10 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
           totalTransferLak += transKeptCurrency;
         } else if (currency === 'THB') {
           totalCashThb += cashKeptCurrency;
-          totalTransferLak += transKeptCurrency * rate;
+          totalTransferThb += transKeptCurrency;
         } else if (currency === 'USD') {
           totalCashUsd += cashKeptCurrency;
-          totalTransferLak += transKeptCurrency * rate;
+          totalTransferUsd += transKeptCurrency;
         }
       }
     });
@@ -3087,6 +3095,8 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       totalCashThb,
       totalCashUsd,
       totalTransferLak,
+      totalTransferThb,
+      totalTransferUsd,
       totalDebtLak,
       totalExpenseLak,
       orders: cashierOrders,

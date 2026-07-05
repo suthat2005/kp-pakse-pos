@@ -1651,23 +1651,38 @@ export default function App() {
                   <span>- ເງິນທອນເລີ່ມຕົ້ນ (Opening Cash):</span>
                   <span>{(shiftReportData.openingCash || 0).toLocaleString()} ₭</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
-                  <span>- ໂອນຜ່ານ BCEL (LAK):</span>
-                  <span>{(shiftReportData.totalTransferLak || 0).toLocaleString()} ₭</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
-                  <span>- ເງິນສົດ (LAK):</span>
+                
+                {/* Cash portion */}
+                <div style={{ fontWeight: 'bold', fontSize: '12px', marginTop: '4px', paddingLeft: '4px' }}>💵 ລວມຮັບເງິນສົດ (Cash):</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '12px' }}>
+                  <span>• ເງິນສົດ LAK:</span>
                   <span>{(shiftReportData.totalCashLak || 0).toLocaleString()} ₭</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
-                  <span>- ເງິນສົດ (THB):</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '12px' }}>
+                  <span>• ເງິນສົດ THB:</span>
                   <span>{(shiftReportData.totalCashThb || 0).toLocaleString()} ฿</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
-                  <span>- ເງິນສົດ (USD):</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '12px' }}>
+                  <span>• ເງິນສົດ USD:</span>
                   <span>${(shiftReportData.totalCashUsd || 0).toLocaleString()}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', color: '#c0392b' }}>
+
+                {/* Transfer portion */}
+                <div style={{ fontWeight: 'bold', fontSize: '12px', marginTop: '4px', paddingLeft: '4px' }}>📱 ລວມຮັບເງິນໂອນ (Transfer):</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '12px' }}>
+                  <span>• ເງິນໂອນ LAK:</span>
+                  <span>{(shiftReportData.totalTransferLak || 0).toLocaleString()} ₭</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '12px' }}>
+                  <span>• ເງິນໂອນ THB:</span>
+                  <span>{(shiftReportData.totalTransferThb || 0).toLocaleString()} ฿</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '12px' }}>
+                  <span>• ເງິນໂອນ USD:</span>
+                  <span>${(shiftReportData.totalTransferUsd || 0).toLocaleString()}</span>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', color: '#c0392b', marginTop: '4px' }}>
                   <span>- ຍອດຕິດໜີ້ (Debts):</span>
                   <span>{(shiftReportData.totalDebtLak || 0).toLocaleString()} ₭</span>
                 </div>
