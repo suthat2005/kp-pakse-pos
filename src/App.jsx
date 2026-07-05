@@ -681,7 +681,148 @@ export default function App() {
         </div>
 
         <nav className="sidebar-nav">
-          {hasPermission(activeUser, 'pos') && (
+          {isMobile && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px 8px', borderBottom: '1px solid var(--border-color)', marginBottom: '8px' }}>
+              {/* Record Expense Button */}
+              <button
+                type="button"
+                className="btn"
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  fontSize: '0.85rem',
+                  borderRadius: '10px',
+                  background: 'rgba(229, 169, 59, 0.15)',
+                  color: 'var(--accent-amber)',
+                  border: '1px solid rgba(229, 169, 59, 0.3)',
+                  fontWeight: 'bold',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  justifyContent: 'center'
+                }}
+                onClick={() => {
+                  setExpenseFormData({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '' });
+                  setShowExpenseModal(true);
+                  setMobileSidebarOpen(false);
+                }}
+              >
+                💸 ບັນທຶກລາຍຈ່າຍ (Expense)
+              </button>
+
+              {/* Attendance Button */}
+              {!todayAttendance ? (
+                <button
+                  type="button"
+                  className="btn"
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    fontSize: '0.85rem',
+                    borderRadius: '10px',
+                    background: 'rgba(46, 204, 113, 0.15)',
+                    color: '#2ecc71',
+                    border: '1px solid rgba(46, 204, 113, 0.3)',
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    justifyContent: 'center'
+                  }}
+                  onClick={() => {
+                    setOpeningCashInput('');
+                    setShowClockInModal(true);
+                    setMobileSidebarOpen(false);
+                  }}
+                >
+                  🕒 ເຂົ້າງານ (Clock In)
+                </button>
+              ) : !todayAttendance.clockOut ? (
+                <button
+                  type="button"
+                  className="btn"
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    fontSize: '0.85rem',
+                    borderRadius: '10px',
+                    background: 'rgba(231, 76, 60, 0.15)',
+                    color: '#e74c3c',
+                    border: '1px solid rgba(231, 76, 60, 0.3)',
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    justifyContent: 'center'
+                  }}
+                  onClick={() => {
+                    handleClockOut();
+                    setMobileSidebarOpen(false);
+                  }}
+                >
+                  🕒 ອອກງານ (Clock Out)
+                </button>
+              ) : (
+                <div style={{
+                  padding: '8px',
+                  fontSize: '0.8rem',
+                  borderRadius: '10px',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  color: 'var(--text-secondary)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  fontWeight: 'bold',
+                  textAlign: 'center'
+                }}>
+                  ✓ ເຮັດວຽກແລ້ວ (Shift Done)
+                </div>
+              )}
+
+              {/* Reprint Shift Report for Cashier */}
+              {activeUser.role === 'cashier' && (
+                <button
+                  type="button"
+                  className="btn"
+                  style={{
+                    width: '100%',
+                    padding: '8px',
+                    fontSize: '0.8rem',
+                    borderRadius: '8px',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    color: 'var(--text-secondary)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    justifyContent: 'center'
+                  }}
+                  onClick={() => {
+                    const logs = db.getAttendance();
+                    const activeRecord = logs.find(l => l.userId === activeUser.id && !l.clockOut);
+                    const lastRecord = logs.find(l => l.userId === activeUser.id);
+                    const recordToUse = activeRecord || lastRecord;
+                    if (recordToUse) {
+                      const summary = db.getSalesSummary(activeUser.id, recordToUse.clockIn, recordToUse.clockOut || new Date().toISOString(), true);
+                      setShiftReportData({
+                        cashierName: activeUser.name,
+                        clockIn: recordToUse.clockIn,
+                        clockOut: recordToUse.clockOut || null,
+                        openingCash: recordToUse.openingCash || 0,
+                        ...summary
+                      });
+                      setShowShiftReportModal(true);
+                      setMobileSidebarOpen(false);
+                    } else {
+                      alert('ບໍ່ພົບຂໍ້ມູນກະການເຮັດວຽກ!');
+                    }
+                  }}
+                >
+                  🖨️ ສະຫຼຸບກະ (Shift Summary)
+                </button>
+              )}
+            </div>
+          )}
+          {hasPermission(activeUser, 'pos') && !isMobile && (
             <button
               type="button"
               className={`sidebar-item ${activeTab === 'pos' ? 'active' : ''}`}
@@ -700,7 +841,7 @@ export default function App() {
 
 
 
-          {hasPermission(activeUser, 'inventory') && (
+          {hasPermission(activeUser, 'inventory') && !isMobile && (
             <button
               type="button"
               className={`sidebar-item ${activeTab === 'inventory' ? 'active' : ''}`}
@@ -735,7 +876,7 @@ export default function App() {
 
 
 
-          {hasPermission(activeUser, 'reports') && (
+          {hasPermission(activeUser, 'reports') && !isMobile && (
             <button
               type="button"
               className={`sidebar-item ${activeTab === 'reports' ? 'active' : ''}`}
@@ -746,7 +887,7 @@ export default function App() {
             </button>
           )}
 
-          {(activeUser.role === 'owner' || activeUser.role === 'manager') && (
+          {(activeUser.role === 'owner' || activeUser.role === 'manager') && !isMobile && (
             <button
               type="button"
               className={`sidebar-item ${activeTab === 'online_orders' ? 'active' : ''}`}
@@ -757,7 +898,7 @@ export default function App() {
             </button>
           )}
 
-          {hasPermission(activeUser, 'debts') && (
+          {hasPermission(activeUser, 'debts') && !isMobile && (
             <button
               type="button"
               className={`sidebar-item ${activeTab === 'debts' ? 'active' : ''}`}
@@ -779,7 +920,7 @@ export default function App() {
             </button>
           )}
 
-          {hasPermission(activeUser, 'settings') && (
+          {hasPermission(activeUser, 'settings') && !isMobile && (
             <button
               type="button"
               className={`sidebar-item ${activeTab === 'settings' ? 'active' : ''}`}
@@ -895,30 +1036,32 @@ export default function App() {
             </button>
 
             {/* Quick-action Expense Logger */}
-            <button
-              type="button"
-              className="btn btn-secondary"
-              style={{
-                padding: '6px 12px',
-                fontSize: '0.75rem',
-                borderRadius: '12px',
-                cursor: 'pointer',
-                background: 'rgba(229, 169, 59, 0.12)',
-                color: 'var(--accent-amber)',
-                borderColor: 'rgba(229, 169, 59, 0.3)',
-                whiteSpace: 'nowrap',
-                fontWeight: 'bold'
-              }}
-              onClick={() => {
-                setExpenseFormData({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '' });
-                setShowExpenseModal(true);
-              }}
-            >
-              💸 ບັນທຶກລາຍຈ່າຍ
-            </button>
+            {!isMobile && (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{
+                  padding: '6px 12px',
+                  fontSize: '0.75rem',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  background: 'rgba(229, 169, 59, 0.12)',
+                  color: 'var(--accent-amber)',
+                  borderColor: 'rgba(229, 169, 59, 0.3)',
+                  whiteSpace: 'nowrap',
+                  fontWeight: 'bold'
+                }}
+                onClick={() => {
+                  setExpenseFormData({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '' });
+                  setShowExpenseModal(true);
+                }}
+              >
+                💸 ບັນທຶກລายຈ່າຍ
+              </button>
+            )}
 
             {/* Shift Report reprint button for active / last shift */}
-            {activeUser.role === 'cashier' && (
+            {activeUser.role === 'cashier' && !isMobile && (
               <button
                 type="button"
                 className="btn btn-secondary"
@@ -980,72 +1123,74 @@ export default function App() {
               </div>
               
               {/* Clock-In / Clock-Out Button */}
-              <div style={{ marginLeft: '6px', marginRight: '6px', display: 'flex', alignItems: 'center' }}>
-                {!todayAttendance ? (
-                  <button
-                    type="button"
-                    className="btn"
-                    style={{
-                      padding: '4px 10px',
-                      fontSize: '0.7rem',
-                      background: 'var(--success-green)',
-                      color: 'black',
-                      fontWeight: 'bold',
-                      borderColor: 'var(--success-green)',
-                      borderRadius: '12px',
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '4px'
-                    }}
-                    onClick={() => {
-                      setOpeningCashInput('');
-                      setShowClockInModal(true);
-                    }}
-                  >
-                    🕒 ເຂົ້າງານ
-                  </button>
-                ) : !todayAttendance.clockOut ? (
-                  <button
-                    type="button"
-                    className="btn"
-                    style={{
-                      padding: '4px 10px',
-                      fontSize: '0.7rem',
-                      background: 'var(--alert-red)',
-                      color: 'white',
-                      fontWeight: 'bold',
-                      borderColor: 'var(--alert-red)',
-                      borderRadius: '12px',
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '4px'
-                    }}
-                    onClick={() => {
-                      handleClockOut();
-                    }}
-                  >
-                    🕒 ອອກງານ
-                  </button>
-                ) : (
-                  <span
-                    style={{
-                      padding: '4px 10px',
-                      fontSize: '0.65rem',
-                      background: 'rgba(255, 255, 255, 0.08)',
-                      color: 'var(--text-secondary)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      borderRadius: '12px',
-                      fontWeight: 'bold',
-                      display: 'inline-flex',
-                      alignItems: 'center'
-                    }}
-                  >
-                    ✓ ເຮັດວຽກແລ້ວ
-                  </span>
-                )}
-              </div>
+              {!isMobile && (
+                <div style={{ marginLeft: '6px', marginRight: '6px', display: 'flex', alignItems: 'center' }}>
+                  {!todayAttendance ? (
+                    <button
+                      type="button"
+                      className="btn"
+                      style={{
+                        padding: '4px 10px',
+                        fontSize: '0.7rem',
+                        background: 'var(--success-green)',
+                        color: 'black',
+                        fontWeight: 'bold',
+                        borderColor: 'var(--success-green)',
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                      onClick={() => {
+                        setOpeningCashInput('');
+                        setShowClockInModal(true);
+                      }}
+                    >
+                      🕒 ເຂົ້າງານ
+                    </button>
+                  ) : !todayAttendance.clockOut ? (
+                    <button
+                      type="button"
+                      className="btn"
+                      style={{
+                        padding: '4px 10px',
+                        fontSize: '0.7rem',
+                        background: 'var(--alert-red)',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        borderColor: 'var(--alert-red)',
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                      onClick={() => {
+                        handleClockOut();
+                      }}
+                    >
+                      🕒 ອອກງານ
+                    </button>
+                  ) : (
+                    <span
+                      style={{
+                        padding: '4px 10px',
+                        fontSize: '0.65rem',
+                        background: 'rgba(255, 255, 255, 0.08)',
+                        color: 'var(--text-secondary)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '12px',
+                        fontWeight: 'bold',
+                        display: 'inline-flex',
+                        alignItems: 'center'
+                      }}
+                    >
+                      ✓ ເຮັດວຽກແລ້ວ
+                    </span>
+                  )}
+                </div>
+              )}
 
               <button className="logout-btn" onClick={handleLogout} title="ອອກຈາກລະບົບ">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
