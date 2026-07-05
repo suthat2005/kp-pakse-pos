@@ -50,7 +50,7 @@ const LotusIcon = ({ color = '#d4af37' }) => (
   </svg>
 );
 
-export default function Settings({ activeUser, onUpdate }) {
+export default function Settings({ activeUser, onUpdate, isMobile }) {
   const [scanTestResult, setScanTestResult] = useState('');
   const [labelsSearchQuery, setLabelsSearchQuery] = useState('');
   const [newFrameStyle, setNewFrameStyle] = useState('');
