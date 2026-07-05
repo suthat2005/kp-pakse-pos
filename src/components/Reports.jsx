@@ -973,24 +973,47 @@ export default function Reports({ activeUser, isMobile }) {
 
   // ─── Overview: merged payment method breakdown ─────────────────────────────
   // POS cash/transfer breakdown (re-computed for overview)
-  let ovCashLAK = 0, ovCashTHB = 0, ovCashUSD = 0, ovTransferLAK = 0;
+  let ovCashLAK = 0, ovCashTHB = 0, ovCashUSD = 0;
+  let ovTransferLAK = 0, ovTransferTHB = 0, ovTransferUSD = 0;
+  
   rangePayments.forEach(p => {
     const amt      = p.amount_paid;
     const currency = p.payCurrency || 'LAK';
+    
     if (p.payment_method === 'Cash') {
       if (currency === 'LAK')      ovCashLAK  += amt;
       else if (currency === 'THB') ovCashTHB  += (p.currencyCashReceived || 0) - (p.currencyChange || 0);
       else if (currency === 'USD') ovCashUSD  += (p.currencyCashReceived || 0) - (p.currencyChange || 0);
     } else if (p.payment_method === 'BCEL One') {
-      ovTransferLAK += amt;
+      if (currency === 'LAK')      ovTransferLAK += amt;
+      else if (currency === 'THB') ovTransferTHB += (p.currencyTransferAmount || p.currencyCashReceived || 0);
+      else if (currency === 'USD') ovTransferUSD += (p.currencyTransferAmount || p.currencyCashReceived || 0);
     } else if (p.payment_method === 'Split') {
-      ovTransferLAK += (p.transferAmount || 0);
-      if (currency === 'LAK')      ovCashLAK  += (p.cashReceived || 0) - (p.change || 0);
-      else if (currency === 'THB') ovCashTHB  += (p.currencyCashReceived || 0) - (p.currencyChange || 0);
-      else if (currency === 'USD') ovCashUSD  += (p.currencyCashReceived || 0) - (p.currencyChange || 0);
+      // Split payment has both cash and transfer portions
+      const transferAmt = p.transferAmount || 0;
+      const transferCurrAmt = p.currencyTransferAmount || 0;
+      
+      // Calculate Transfer Portion
+      if (currency === 'LAK') {
+        ovTransferLAK += transferAmt;
+      } else if (currency === 'THB') {
+        ovTransferTHB += transferCurrAmt;
+      } else if (currency === 'USD') {
+        ovTransferUSD += transferCurrAmt;
+      }
+      
+      // Calculate Cash Portion
+      if (currency === 'LAK') {
+        ovCashLAK += (p.cashReceived || 0) - (p.change || 0);
+      } else if (currency === 'THB') {
+        ovCashTHB += (p.currencyCashReceived || 0) - (p.currencyChange || 0);
+      } else if (currency === 'USD') {
+        ovCashUSD += (p.currencyCashReceived || 0) - (p.change || 0);
+      }
     }
   });
-  // Online paid orders COUNT AS bank-transfer
+  
+  // Online paid orders COUNT AS LAK bank-transfers
   ovTransferLAK += onlinePaidRevenue;
   const ovTotalRevenue = totalSales + onlinePaidRevenue;
   const ovNetProfit    = netProfit + onlinePaidRevenue; // rough: add online revenue on top
@@ -1645,6 +1668,52 @@ export default function Reports({ activeUser, isMobile }) {
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💰 ຍອດຂາຍລວມທຸກຊ່ອງທາງ</span>
               <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>{ovTotalRevenue.toLocaleString()} ₭</span>
               <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>POS {totalSales.toLocaleString()} + Online {onlinePaidRevenue.toLocaleString()}</span>
+              
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '4px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+                
+                {/* Cash portion */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingBottom: '2px', borderBottom: '1px dashed rgba(255,255,255,0.05)' }}>
+                  <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>💵 ລວມຮັບເງິນສົດ (Cash):</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                    <span>• ເງິນສົດ LAK:</span>
+                    <span style={{ color: 'white' }}>{ovCashLAK.toLocaleString()} ₭</span>
+                  </div>
+                  {(ovCashTHB > 0 || settings.exchangeRateThb) && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                      <span>• ເງິນສົດ THB:</span>
+                      <span style={{ color: 'white' }}>{ovCashTHB.toLocaleString()} ฿</span>
+                    </div>
+                  )}
+                  {(ovCashUSD > 0 || settings.exchangeRateUsd) && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                      <span>• ເງິນສົດ USD:</span>
+                      <span style={{ color: 'white' }}>${ovCashUSD.toFixed(2)}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Transfer portion */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <span style={{ fontWeight: 'bold', color: '#3498db' }}>📱 ລວມຮັບເງິນໂອນ (Transfer):</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                    <span>• ເງິນໂອນ LAK:</span>
+                    <span style={{ color: 'white' }}>{ovTransferLAK.toLocaleString()} ₭</span>
+                  </div>
+                  {(ovTransferTHB > 0 || settings.exchangeRateThb) && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                      <span>• ເງິນໂອນ THB:</span>
+                      <span style={{ color: 'white' }}>{ovTransferTHB.toLocaleString()} ฿</span>
+                    </div>
+                  )}
+                  {(ovTransferUSD > 0 || settings.exchangeRateUsd) && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                      <span>• ເງິນໂອນ USD:</span>
+                      <span style={{ color: 'white' }}>${ovTransferUSD.toFixed(2)}</span>
+                    </div>
+                  )}
+                </div>
+
+              </div>
             </div>
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #2ecc71' }}>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📈 ກຳໄລສຸດທິ (ປະເມີນ)</span>
