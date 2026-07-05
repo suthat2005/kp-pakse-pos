@@ -146,6 +146,34 @@ export default function Reports({ activeUser, isMobile }) {
   // Calculate statistics
   const totalSales = rangePayments.reduce((sum, p) => sum + p.amount_paid, 0);
   
+  // Calculate cash vs. transfer totals for the selected range
+  let rangeCashLAK = 0;
+  let rangeCashTHB = 0;
+  let rangeCashUSD = 0;
+  let rangeTransferLAK = 0;
+  
+  rangePayments.forEach(p => {
+    const amt = p.amount_paid;
+    const currency = p.payCurrency || 'LAK';
+    
+    if (p.payment_method === 'Cash') {
+      if (currency === 'LAK') rangeCashLAK += amt;
+      else if (currency === 'THB') rangeCashTHB += (p.currencyCashReceived || 0) - (p.currencyChange || 0);
+      else if (currency === 'USD') rangeCashUSD += (p.currencyCashReceived || 0) - (p.currencyChange || 0);
+    } else if (p.payment_method === 'BCEL One') {
+      rangeTransferLAK += amt;
+    } else if (p.payment_method === 'Split') {
+      rangeTransferLAK += (p.transferAmount || 0);
+      if (currency === 'LAK') {
+        rangeCashLAK += (p.cashReceived || 0) - (p.change || 0);
+      } else if (currency === 'THB') {
+        rangeCashTHB += (p.currencyCashReceived || 0) - (p.currencyChange || 0);
+      } else if (currency === 'USD') {
+        rangeCashUSD += (p.currencyCashReceived || 0) - (p.currencyChange || 0);
+      }
+    }
+  });
+  
   const productCostMap = {};
   allProducts.forEach(p => { productCostMap[p.id] = p.cost; });
   
@@ -1070,7 +1098,28 @@ export default function Reports({ activeUser, isMobile }) {
           <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
             {totalSales.toLocaleString()} ກີບ
           </span>
-          <span style={{ fontSize: '0.65rem', color: 'var(--success-green)' }}>ຍອດຂາຍໃນໄລຍະເວລາທີ່ເລືອກ</span>
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '4px', marginTop: '2px', display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>💵 ເງິນສົດ (Cash):</span>
+              <span style={{ color: 'white', fontWeight: '500' }}>{rangeCashLAK.toLocaleString()} ₭</span>
+            </div>
+            {rangeCashTHB > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>💵 ເງິນສົດ THB:</span>
+                <span style={{ color: 'white', fontWeight: '500' }}>{rangeCashTHB.toLocaleString()} ฿</span>
+              </div>
+            )}
+            {rangeCashUSD > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>💵 ເງິນສົດ USD:</span>
+                <span style={{ color: 'white', fontWeight: '500' }}>${rangeCashUSD.toFixed(2)}</span>
+              </div>
+            )}
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>📱 ໂອນທະນາຄານ (Transfer):</span>
+              <span style={{ color: 'white', fontWeight: '500' }}>{rangeTransferLAK.toLocaleString()} ₭</span>
+            </div>
+          </div>
         </div>
 
         {/* Card 2: Estimated Profit */}
