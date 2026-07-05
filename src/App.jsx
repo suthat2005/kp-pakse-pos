@@ -255,7 +255,7 @@ export default function App() {
         linkApple.rel = 'apple-touch-icon';
         document.getElementsByTagName('head')[0].appendChild(linkApple);
       }
-      linkApple.href = settings.shopLogo;
+      linkApple.href = '/logo.jpg';
 
       // Update apple-touch-icon-precomposed
       let linkApplePre = document.querySelector("link[rel='apple-touch-icon-precomposed']");
@@ -264,7 +264,7 @@ export default function App() {
         linkApplePre.rel = 'apple-touch-icon-precomposed';
         document.getElementsByTagName('head')[0].appendChild(linkApplePre);
       }
-      linkApplePre.href = settings.shopLogo;
+      linkApplePre.href = '/logo.jpg';
     }
   }, [settings.shopLogo]);
 
