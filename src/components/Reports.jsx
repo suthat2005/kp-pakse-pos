@@ -146,11 +146,14 @@ export default function Reports({ activeUser, isMobile }) {
   // Calculate statistics
   const totalSales = rangePayments.reduce((sum, p) => sum + p.amount_paid, 0);
   
-  // Calculate cash vs. transfer totals for the selected range
+  // Calculate cash vs. transfer totals for the selected range grouped by currency
   let rangeCashLAK = 0;
   let rangeCashTHB = 0;
   let rangeCashUSD = 0;
+  
   let rangeTransferLAK = 0;
+  let rangeTransferTHB = 0;
+  let rangeTransferUSD = 0;
   
   rangePayments.forEach(p => {
     const amt = p.amount_paid;
@@ -161,9 +164,24 @@ export default function Reports({ activeUser, isMobile }) {
       else if (currency === 'THB') rangeCashTHB += (p.currencyCashReceived || 0) - (p.currencyChange || 0);
       else if (currency === 'USD') rangeCashUSD += (p.currencyCashReceived || 0) - (p.currencyChange || 0);
     } else if (p.payment_method === 'BCEL One') {
-      rangeTransferLAK += amt;
+      if (currency === 'LAK') rangeTransferLAK += amt;
+      else if (currency === 'THB') rangeTransferTHB += (p.currencyTransferAmount || p.currencyCashReceived || 0);
+      else if (currency === 'USD') rangeTransferUSD += (p.currencyTransferAmount || p.currencyCashReceived || 0);
     } else if (p.payment_method === 'Split') {
-      rangeTransferLAK += (p.transferAmount || 0);
+      // Split payment has both cash and transfer portions
+      const transferAmt = p.transferAmount || 0;
+      const transferCurrAmt = p.currencyTransferAmount || 0;
+      
+      // Calculate Transfer Portion
+      if (currency === 'LAK') {
+        rangeTransferLAK += transferAmt;
+      } else if (currency === 'THB') {
+        rangeTransferTHB += transferCurrAmt;
+      } else if (currency === 'USD') {
+        rangeTransferUSD += transferCurrAmt;
+      }
+      
+      // Calculate Cash Portion
       if (currency === 'LAK') {
         rangeCashLAK += (p.cashReceived || 0) - (p.change || 0);
       } else if (currency === 'THB') {
@@ -1098,29 +1116,53 @@ export default function Reports({ activeUser, isMobile }) {
           <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
             {totalSales.toLocaleString()} ກີບ
           </span>
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '4px', marginTop: '2px', display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>💵 ເງິນສົດ (Cash):</span>
-              <span style={{ color: 'white', fontWeight: '500' }}>{rangeCashLAK.toLocaleString()} ₭</span>
-            </div>
-            {rangeCashTHB > 0 && (
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>💵 ເງິນສົດ THB:</span>
-                <span style={{ color: 'white', fontWeight: '500' }}>{rangeCashTHB.toLocaleString()} ฿</span>
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '4px', marginTop: '2px', display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+            
+            {/* Cash portion */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingBottom: '2px', borderBottom: '1px dashed rgba(255,255,255,0.05)' }}>
+              <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>💵 ລວມຮັບເງິນສົດ (Cash):</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                <span>• ເງິນສົດ LAK:</span>
+                <span style={{ color: 'white' }}>{rangeCashLAK.toLocaleString()} ₭</span>
               </div>
-            )}
-            {rangeCashUSD > 0 && (
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>💵 ເງິນສົດ USD:</span>
-                <span style={{ color: 'white', fontWeight: '500' }}>${rangeCashUSD.toFixed(2)}</span>
-              </div>
-            )}
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>📱 ໂອນທະນາຄານ (Transfer):</span>
-              <span style={{ color: 'white', fontWeight: '500' }}>{rangeTransferLAK.toLocaleString()} ₭</span>
+              {(rangeCashTHB > 0 || settings.exchangeRateThb) && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                  <span>• ເງິນສົດ THB:</span>
+                  <span style={{ color: 'white' }}>{rangeCashTHB.toLocaleString()} ฿</span>
+                </div>
+              )}
+              {(rangeCashUSD > 0 || settings.exchangeRateUsd) && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                  <span>• ເງິນສົດ USD:</span>
+                  <span style={{ color: 'white' }}>${rangeCashUSD.toFixed(2)}</span>
+                </div>
+              )}
             </div>
+
+            {/* Transfer portion */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              <span style={{ fontWeight: 'bold', color: '#3498db' }}>📱 ລວມຮັບເງິນໂອນ (Transfer):</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                <span>• ເງິນໂອນ LAK:</span>
+                <span style={{ color: 'white' }}>{rangeTransferLAK.toLocaleString()} ₭</span>
+              </div>
+              {(rangeTransferTHB > 0 || settings.exchangeRateThb) && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                  <span>• ເງິນໂອນ THB:</span>
+                  <span style={{ color: 'white' }}>{rangeTransferTHB.toLocaleString()} ฿</span>
+                </div>
+              )}
+              {(rangeTransferUSD > 0 || settings.exchangeRateUsd) && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                  <span>• ເງິນໂອນ USD:</span>
+                  <span style={{ color: 'white' }}>${rangeTransferUSD.toFixed(2)}</span>
+                </div>
+              )}
+            </div>
+
           </div>
         </div>
+        
 
         {/* Card 2: Estimated Profit */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
