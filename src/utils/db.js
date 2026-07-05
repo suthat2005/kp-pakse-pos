@@ -2981,8 +2981,25 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
   addExpense(expenseData) {
     const expenses = this.getExpenses();
     const activeUser = this.getActiveUser();
+    const settings = this.getSettings();
+    
+    const currency = expenseData.currency || 'LAK';
+    const amount = Number(expenseData.amount) || 0;
+    
+    // Calculate LAK converted amount
+    let convertedAmount = amount;
+    if (currency === 'THB') {
+      const rate = settings.exchangeRateThb || 750;
+      convertedAmount = Math.round(amount * rate);
+    } else if (currency === 'USD') {
+      const rate = settings.exchangeRateUsd || 26000;
+      convertedAmount = Math.round(amount * rate);
+    }
+    
     const newExpense = {
       ...expenseData,
+      currency,
+      convertedAmount,
       id: 'EXP-' + String(expenses.length + 10001).padStart(5, '0'),
       date: new Date().toISOString(),
       createdBy: activeUser ? activeUser.id : 'unknown',
@@ -2990,7 +3007,9 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     };
     expenses.unshift(newExpense);
     this.saveExpenses(expenses);
-    this.addAuditLog('expense_logged', `ບັນທຶກລາຍຈ່າຍ: ${newExpense.categoryName} ມູນຄ່າ ${newExpense.amount.toLocaleString()} ກີບ (${newExpense.notes})`);
+    
+    const currencySymbol = currency === 'LAK' ? '₭' : currency === 'THB' ? '฿' : '$';
+    this.addAuditLog('expense_logged', `ບັນທຶກລາຍຈ່າຍ: ${newExpense.categoryName} ມູນຄ່າ ${newExpense.amount.toLocaleString()} ${currencySymbol} (ແປງເປັນ ${convertedAmount.toLocaleString()} ກີບ) (${newExpense.notes})`);
     return newExpense;
   },
 
@@ -3068,7 +3087,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     });
 
     const totalDebtLak = cashierDebts.reduce((sum, d) => sum + d.total, 0);
-    const totalExpenseLak = filteredExpenses.reduce((sum, ex) => sum + ex.amount, 0);
+    const totalExpenseLak = filteredExpenses.reduce((sum, ex) => sum + (ex.convertedAmount || ex.amount), 0);
 
     // Calculate sold products list during this shift/range
     const productQtyMap = {};

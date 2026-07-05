@@ -80,7 +80,7 @@ export default function App() {
   
   // Expense Logging states
   const [showExpenseModal, setShowExpenseModal] = useState(false);
-  const [expenseFormData, setExpenseFormData] = useState({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '', paymentMethod: 'cash', supplier: '' });
+  const [expenseFormData, setExpenseFormData] = useState({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '', paymentMethod: 'cash', supplier: '', currency: 'LAK' });
   const [showExpenseHistory, setShowExpenseHistory] = useState(false);
   const [expensePrintId, setExpensePrintId] = useState(null);
 
@@ -702,7 +702,7 @@ export default function App() {
                   justifyContent: 'center'
                 }}
                 onClick={() => {
-                  setExpenseFormData({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '' });
+                  setExpenseFormData({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '', currency: 'LAK' });
                   setShowExpenseModal(true);
                   setMobileSidebarOpen(false);
                 }}
@@ -1052,7 +1052,7 @@ export default function App() {
                   fontWeight: 'bold'
                 }}
                 onClick={() => {
-                  setExpenseFormData({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '' });
+                  setExpenseFormData({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '', currency: 'LAK' });
                   setShowExpenseModal(true);
                 }}
               >
@@ -1301,7 +1301,10 @@ export default function App() {
                         </div>
                       </div>
                       <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontWeight: 'bold', color: '#e74c3c', fontSize: '1rem' }}>-{(ex.amount || 0).toLocaleString()} ກີບ</span>
+                        <span style={{ fontWeight: 'bold', color: '#e74c3c', fontSize: '1rem' }}>
+                          -{(ex.amount || 0).toLocaleString()} {ex.currency || 'LAK'}
+                          {ex.currency && ex.currency !== 'LAK' && ` (≈ ${ex.convertedAmount?.toLocaleString()} ₭)`}
+                        </span>
                         <button type="button" style={{ background: 'none', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '4px 8px', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: '0.75rem' }} onClick={() => {
                           setExpensePrintId(ex.id);
                           setTimeout(() => {
@@ -1344,7 +1347,10 @@ export default function App() {
                         </tbody>
                       </table>
                       <div className="dashed"></div>
-                      <div style={{ fontSize: '16px', fontWeight: 'bold', textAlign: 'center' }}>ມູນຄ່າ: {(ex.amount || 0).toLocaleString()} ກີບ</div>
+                      <div style={{ fontSize: '16px', fontWeight: 'bold', textAlign: 'center' }}>
+                        ມູນຄ່າ: {(ex.amount || 0).toLocaleString()} {ex.currency || 'LAK'}
+                        {ex.currency && ex.currency !== 'LAK' && ` (≈ ${ex.convertedAmount?.toLocaleString()} ₭)`}
+                      </div>
                       <div className="dashed"></div>
                       {ex.notes && <div><b>ໝາຍເຫດ:</b> {ex.notes}</div>}
                       <div style={{ fontSize: '11px', marginTop: '6px' }}>ຜູ້ບັນທຶກ: {ex.createdByName || 'N/A'}</div>
@@ -1367,10 +1373,11 @@ export default function App() {
                   amount: amountVal,
                   notes: expenseFormData.notes || '',
                   paymentMethod: expenseFormData.paymentMethod || 'cash',
-                  supplier: expenseFormData.supplier || ''
+                  supplier: expenseFormData.supplier || '',
+                  currency: expenseFormData.currency || 'LAK'
                 });
                 alert('✓ ບັນທຶກລາຍຈ່າຍສຳເລັດ!');
-                setExpenseFormData({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '', paymentMethod: 'cash', supplier: '' });
+                setExpenseFormData({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '', paymentMethod: 'cash', supplier: '', currency: 'LAK' });
                 handleSystemUpdate();
               }}>
                 {/* Row 1: Category & Supplier */}
@@ -1431,44 +1438,54 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Row 2: Amount & Payment Method */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+                {/* Row 2: Amount & Currency & Payment Method */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr 1fr', gap: '10px', marginBottom: '14px' }}>
                   <div>
-                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>💰 ຈຳນວນເງິນ (LAK) *</label>
+                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>💰 ຈຳນວນເງິນ *</label>
                     <input
                       type="number"
                       required
-                      placeholder="ປ້ອນຈຳນວນເງິນ..."
+                      placeholder="ຈຳນວນເງິນ..."
                       className="form-control"
-                      style={{ width: '100%', background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px', fontSize: '1.05rem', fontWeight: 'bold' }}
+                      style={{ width: '100%', background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px', fontSize: '1rem', fontWeight: 'bold' }}
                       value={expenseFormData.amount}
                       onChange={(e) => setExpenseFormData({ ...expenseFormData, amount: e.target.value })}
                     />
-                    {expenseFormData.amount && parseFloat(expenseFormData.amount) > 0 && (
-                      <div style={{ fontSize: '0.75rem', color: 'var(--gold-primary)', marginTop: '4px' }}>= {parseFloat(expenseFormData.amount).toLocaleString()} ກີບ</div>
-                    )}
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>💵 ສະກຸນເງິນ *</label>
+                    <select
+                      className="form-control"
+                      value={expenseFormData.currency || 'LAK'}
+                      onChange={(e) => setExpenseFormData({ ...expenseFormData, currency: e.target.value })}
+                      style={{ width: '100%', background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px', height: '41px' }}
+                    >
+                      <option value="LAK">₭ LAK</option>
+                      <option value="THB">฿ THB</option>
+                      <option value="USD">$ USD</option>
+                    </select>
                   </div>
                   <div>
                     <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>💳 ວິທີຊຳລະ *</label>
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div style={{ display: 'flex', gap: '4px' }}>
                       <button
                         type="button"
                         onClick={() => setExpenseFormData({ ...expenseFormData, paymentMethod: 'cash' })}
                         style={{
-                          flex: 1, padding: '10px', borderRadius: '8px', border: expenseFormData.paymentMethod === 'cash' ? '2px solid #2ecc71' : '1px solid var(--border-color)',
+                          flex: 1, padding: '10px 4px', borderRadius: '8px', border: expenseFormData.paymentMethod === 'cash' ? '2px solid #2ecc71' : '1px solid var(--border-color)',
                           background: expenseFormData.paymentMethod === 'cash' ? 'rgba(46,204,113,0.15)' : '#221e1a',
                           color: expenseFormData.paymentMethod === 'cash' ? '#2ecc71' : 'var(--text-secondary)',
-                          cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem', transition: 'all 0.2s'
+                          cursor: 'pointer', fontWeight: 'bold', fontSize: '0.78rem', transition: 'all 0.2s', whiteSpace: 'nowrap'
                         }}
-                      >💵 ເງິນສົດ</button>
+                      >💵 ສົດ</button>
                       <button
                         type="button"
                         onClick={() => setExpenseFormData({ ...expenseFormData, paymentMethod: 'transfer' })}
                         style={{
-                          flex: 1, padding: '10px', borderRadius: '8px', border: expenseFormData.paymentMethod === 'transfer' ? '2px solid #3498db' : '1px solid var(--border-color)',
+                          flex: 1, padding: '10px 4px', borderRadius: '8px', border: expenseFormData.paymentMethod === 'transfer' ? '2px solid #3498db' : '1px solid var(--border-color)',
                           background: expenseFormData.paymentMethod === 'transfer' ? 'rgba(52,152,219,0.15)' : '#221e1a',
                           color: expenseFormData.paymentMethod === 'transfer' ? '#3498db' : 'var(--text-secondary)',
-                          cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem', transition: 'all 0.2s'
+                          cursor: 'pointer', fontWeight: 'bold', fontSize: '0.78rem', transition: 'all 0.2s', whiteSpace: 'nowrap'
                         }}
                       >📱 ໂອນ</button>
                     </div>
@@ -1696,7 +1713,10 @@ export default function App() {
                 {shiftReportData.expenses && shiftReportData.expenses.length > 0 && (
                   <div style={{ paddingLeft: '8px', fontSize: '11px', color: '#555' }}>
                     {shiftReportData.expenses.map((ex, idx) => (
-                      <div key={idx}>• {ex.categoryName}: {ex.amount.toLocaleString()} ₭ ({ex.notes})</div>
+                      <div key={idx}>
+                        • {ex.categoryName}: {ex.amount.toLocaleString()} {ex.currency || 'LAK'} 
+                        {ex.currency && ex.currency !== 'LAK' && ` (≈ ${ex.convertedAmount?.toLocaleString()} ₭)`} ({ex.notes})
+                      </div>
                     ))}
                   </div>
                 )}
