@@ -5291,15 +5291,7 @@ export default function POS({
                         <tr key={idx} style={{ borderBottom: '1px dotted rgba(0,0,0,0.05)' }}>
                           <td style={{ paddingTop: '4px', paddingBottom: '6px', lineHeight: '1.2' }}>
                             <div style={{ fontWeight: 'bold' }}>{item.name}</div>
-                            {linkedJob && linkedJob.amulets && (
-                              <div style={{ fontSize: '0.75rem', color: '#555', paddingLeft: '8px', marginTop: '2px', lineHeight: '1.3' }}>
-                                {linkedJob.amulets.map((a, i) => (
-                                  <div key={i} style={{ marginBottom: '1px' }}>
-                                    {i + 1}. {a.description || 'ພຣະເຄື່ອງ'} ({a.frameStyle || 'ກອບໃສ'})
-                                  </div>
-                                ))}
-                              </div>
-                            )}
+
                           </td>
                           <td style={{ textAlign: 'center', paddingTop: '4px', verticalAlign: 'top' }}>{item.qty}</td>
                           <td style={{ textAlign: 'right', paddingTop: '4px', verticalAlign: 'top' }}>{item.total.toLocaleString()}</td>
