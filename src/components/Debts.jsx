@@ -12,6 +12,7 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
   const [cashReceived, setCashReceived] = useState('');
   const [bankTxRef, setBankTxRef] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [payCurrency, setPayCurrency] = useState('LAK');
 
   const settings = db.getSettings();
 
@@ -69,9 +70,12 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
   };
 
   const handleConfirmPayment = () => {
+    const rate = payCurrency === 'THB' ? (settings.exchangeRateThb || 750) : payCurrency === 'USD' ? (settings.exchangeRateUsd || 26000) : 1;
+    const debtTotalInCurrency = Math.ceil(selectedDebt.total / rate);
+    
+    let cashRcv = Number(cashReceived);
     if (paymentMethod === 'cash') {
-      const rcv = Number(cashReceived);
-      if (isNaN(rcv) || rcv < selectedDebt.total) {
+      if (isNaN(cashRcv) || cashRcv < debtTotalInCurrency) {
         alert('ຈຳນວນເງິນບໍ່ພຽງພໍ!');
         return;
       }
@@ -80,10 +84,16 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
         alert('ກະລຸນາປ້ອນເລກອ້າງອິງ (Reference)!');
         return;
       }
+      cashRcv = debtTotalInCurrency;
     }
+    
     db.payDebt(selectedDebt.id);
     const paidDebt = { ...selectedDebt, status: 'paid' };
     handlePrintReceipt(paidDebt);
+    
+    const lakCashReceived = paymentMethod === 'cash' ? Math.round(cashRcv * rate) : selectedDebt.total;
+    const lakChange = paymentMethod === 'cash' ? Math.max(0, lakCashReceived - selectedDebt.total) : 0;
+    
     const orderData = {
       cashierId: activeUser.id,
       cashierName: activeUser.name,
@@ -92,8 +102,11 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
       discount: 0,
       total: selectedDebt.total,
       paymentMethod,
-      cashReceived: paymentMethod === 'cash' ? Number(cashReceived) : selectedDebt.total,
-      change: paymentMethod === 'cash' ? Math.max(0, Number(cashReceived) - selectedDebt.total) : 0,
+      payCurrency,
+      currencyCashReceived: cashRcv,
+      currencyChange: paymentMethod === 'cash' ? Math.max(0, cashRcv - debtTotalInCurrency) : 0,
+      cashReceived: lakCashReceived,
+      change: lakChange,
       bankTxRef: paymentMethod === 'transfer' ? bankTxRef : '',
       notes: 'ຊຳລະໜີ້ຈາກ ' + selectedDebt.id + ' ໂດຍ ' + selectedDebt.customerName,
       skipStockReduction: true
@@ -330,47 +343,83 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
                 )}
               </div>
 
-              {/* RIGHT COLUMN: Payment Method & Inputs */}
-              <div className="checkout-right-col">
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label" style={{ fontWeight: 'bold', marginBottom: '10px', fontSize: '0.85rem' }}>{'ເລືອກວິທີຊຳລະ (Select Payment Method)'}</label>
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <button
-                      type="button"
-                      className={'btn ' + (paymentMethod === 'cash' ? 'btn-primary' : 'btn-secondary')}
-                      style={{ flex: 1, height: '44px', fontSize: '0.88rem', fontWeight: 'bold' }}
-                      onClick={() => setPaymentMethod('cash')}
-                    >{'💵 ເງິນສົດ (Cash)'}</button>
-                    <button
-                      type="button"
-                      className={'btn ' + (paymentMethod === 'transfer' ? 'btn-primary' : 'btn-secondary')}
-                      style={{ flex: 1, height: '44px', fontSize: '0.88rem', fontWeight: 'bold' }}
-                      onClick={() => setPaymentMethod('transfer')}
-                    >{'📱 ໂອນ (BCEL One)'}</button>
+{/* RIGHT COLUMN: Payment Method & Inputs */}
+              <div className="checkout-right-col" style={{ flex: 1.2, display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                
+                {/* Payment Method & Currency Selector */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '12px', marginBottom: '14px' }}>
+                  <div>
+                    <label className="form-label" style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>{'ເລືອກວິທີຊຳລະ'}</label>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <button
+                        type="button"
+                        className={'btn ' + (paymentMethod === 'cash' ? 'btn-primary' : 'btn-secondary')}
+                        style={{ flex: 1, height: '38px', fontSize: '0.78rem', fontWeight: 'bold' }}
+                        onClick={() => setPaymentMethod('cash')}
+                      >{'💵 ເງິນສົດ'}</button>
+                      <button
+                        type="button"
+                        className={'btn ' + (paymentMethod === 'transfer' ? 'btn-primary' : 'btn-secondary')}
+                        style={{ flex: 1, height: '38px', fontSize: '0.78rem', fontWeight: 'bold' }}
+                        onClick={() => setPaymentMethod('transfer')}
+                      >{'📱 ໂອນ'}</button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="form-label" style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>{'ສະກຸນເງິນ'}</label>
+                    <select
+                      className="form-control"
+                      value={payCurrency}
+                      onChange={(e) => {
+                        setPayCurrency(e.target.value);
+                        setCashReceived('');
+                      }}
+                      style={{ width: '100%', height: '38px', background: '#0e0d0b', color: 'white', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px' }}
+                    >
+                      <option value="LAK">₭ LAK</option>
+                      <option value="THB">฿ THB</option>
+                      <option value="USD">$ USD</option>
+                    </select>
                   </div>
                 </div>
 
                 {paymentMethod === 'cash' ? (
-                  <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                  <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label" style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>{'ຮັບເງິນສົດ (ກີບ)'}</label>
+                      <label className="form-label" style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>
+                        {'ຮັບເງິນສົດ (' + (payCurrency === 'LAK' ? 'ກີບ' : payCurrency === 'THB' ? 'ບາດ' : 'ໂດລາ') + ')'}
+                        <span style={{ float: 'right', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                          {(() => {
+                            const rate = payCurrency === 'THB' ? (settings.exchangeRateThb || 750) : payCurrency === 'USD' ? (settings.exchangeRateUsd || 26000) : 1;
+                            const debtTotalInCurrency = Math.ceil(selectedDebt.total / rate);
+                            return `ຍອດທີ່ຕ້ອງຊຳລະ: ${debtTotalInCurrency.toLocaleString()} ${payCurrency === 'LAK' ? '₭' : payCurrency === 'THB' ? '฿' : '$'}`;
+                          })()}
+                        </span>
+                      </label>
                       <input
                         type="number"
                         className="form-control"
                         value={cashReceived}
                         onChange={(e) => setCashReceived(e.target.value)}
-                        style={{ fontSize: '1.5rem', height: '52px', fontWeight: 'bold', color: 'var(--gold-primary)', background: '#0e0d0b', border: '1px solid rgba(255,255,255,0.12)' }}
+                        style={{ fontSize: '1.4rem', height: '48px', fontWeight: 'bold', color: 'var(--gold-primary)', background: '#0e0d0b', border: '1px solid rgba(255,255,255,0.12)' }}
                         placeholder="ປ້ອນຈຳນວນເງິນສົດ..."
                       />
                     </div>
-                    {Number(cashReceived) >= selectedDebt.total && (
-                      <div style={{ background: 'rgba(39, 174, 96, 0.08)', border: '1px solid var(--success-green)', padding: '16px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ color: 'var(--success-green)', fontWeight: 'bold', fontSize: '0.88rem' }}>{'ເງິນທອນ (Change)'}</span>
-                        <span style={{ fontSize: '1.6rem', fontWeight: 'bold', color: 'var(--success-green)' }}>
-                          {(Number(cashReceived) - selectedDebt.total).toLocaleString() + ' ກີບ'}
-                        </span>
-                      </div>
-                    )}
+                    {(() => {
+                      const rate = payCurrency === 'THB' ? (settings.exchangeRateThb || 750) : payCurrency === 'USD' ? (settings.exchangeRateUsd || 26000) : 1;
+                      const debtTotalInCurrency = Math.ceil(selectedDebt.total / rate);
+                      if (Number(cashReceived) >= debtTotalInCurrency) {
+                        return (
+                          <div style={{ background: 'rgba(39, 174, 96, 0.08)', border: '1px solid var(--success-green)', padding: '12px 16px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ color: 'var(--success-green)', fontWeight: 'bold', fontSize: '0.82rem' }}>{'ເງິນທອນ (Change)'}</span>
+                            <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'var(--success-green)' }}>
+                              {(Number(cashReceived) - debtTotalInCurrency).toLocaleString()} {payCurrency === 'LAK' ? '₭' : payCurrency === 'THB' ? '฿' : '$'}
+                            </span>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
                 ) : (
                   <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -392,9 +441,7 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
                     </div>
                   </div>
                 )}
-              </div>
-
-            </div>
+              </div>            </div>
 
             {/* Footer */}
             <div className="modal-footer" style={{
