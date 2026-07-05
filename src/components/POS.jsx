@@ -2413,32 +2413,76 @@ export default function POS({
       <style>
         {`
           @media print {
+            body {
+              background: white !important;
+              color: black !important;
+            }
+            .modal-overlay.print-modal {
+              background: none !important;
+              position: static !important;
+              display: block !important;
+              padding: 0 !important;
+            }
             .modal-overlay.print-modal .modal-content {
               width: ${settings.receiptPaperWidth || '80mm'} !important;
               max-width: ${settings.receiptPaperWidth || '80mm'} !important;
+              background: white !important;
+              box-shadow: none !important;
+              border: none !important;
+              padding: 0 !important;
+              margin: 0 !important;
+            }
+            .modal-body {
+              padding: 0 !important;
+              margin: 0 !important;
+              background: white !important;
             }
             .print-receipt-container {
               width: ${settings.receiptPaperWidth || '80mm'} !important;
               max-width: ${settings.receiptPaperWidth || '80mm'} !important;
               font-size: ${settings.receiptFontSize || '10pt'} !important;
-              padding: ${settings.receiptPadding || '5mm'} !important;
+              font-family: 'Phetsarath OT', 'Noto Sans Lao', Arial, sans-serif !important;
+              color: #000 !important;
+              background: #fff !important;
+              padding: ${settings.receiptPadding || '3mm'} !important;
               line-height: ${settings.receiptLineHeight || '1.3'} !important;
-              margin-left: ${settings.receiptMarginLeft || '0mm'} !important;
-              margin-right: ${settings.receiptMarginRight || '0mm'} !important;
-              margin-top: ${settings.receiptMarginTop || '0mm'} !important;
-              margin-bottom: ${settings.receiptMarginBottom || '0mm'} !important;
+              margin: 0 auto !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
             }
-            .print-receipt-item {
-              font-size: calc(${settings.receiptFontSize || '10pt'} - 1pt) !important;
+            /* Force pure black color for all text elements in print to prevent faint grey printing */
+            .print-receipt-container *, 
+            .print-receipt-totals, 
+            .print-receipt-totals span, 
+            .print-receipt-totals div,
+            .print-receipt-item, 
+            .print-receipt-footer, 
+            .print-receipt-header, 
+            .print-receipt-subtitle,
+            table, tr, td, th {
+              color: #000 !important;
+              font-weight: 600 !important; /* Thicker font for thermal printer readability */
             }
-            .print-receipt-totals {
-              font-size: ${settings.receiptFontSize || '10pt'} !important;
-            }
-            .print-receipt-footer {
-              font-size: calc(${settings.receiptFontSize || '10pt'} - 2pt) !important;
+            /* Titles and headers should be extra bold */
+            .print-receipt-title, 
+            .print-receipt-totals[style*="font-weight: bold"],
+            .print-receipt-totals span[style*="font-weight: bold"],
+            tr th, 
+            b, 
+            strong {
+              font-weight: 800 !important;
             }
             .print-receipt-divider {
-              border-top: ${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} black !important;
+              border-top: 2px solid #000 !important; /* Solid divider line prints much cleaner than dashed */
+              margin: 8px 0 !important;
+              height: 0 !important;
+            }
+            /* Optimize QR codes and images for crisp thermal printing */
+            img {
+              filter: grayscale(1) contrast(2) !important; /* Force high contrast black and white */
+              image-rendering: -webkit-optimize-contrast !important;
+              image-rendering: crisp-edges !important;
+              image-rendering: pixelated !important;
             }
           }
           /* Screen preview styling */
