@@ -2264,6 +2264,42 @@ export default function POS({
     setShowFramingEditModal(true);
   };
 
+  const handleDeleteFramingJob = (jobId) => {
+    if (window.confirm(`ທ່ານຕ້ອງການລຶບໃບສັ່ງອັດກອບພຣະ "${jobId}" ນີ້ແທ້ບໍ່?`)) {
+      try {
+        const allJobs = db.getFramingJobs();
+        const updatedJobs = allJobs.filter(j => j.id !== jobId);
+        
+        db.saveFramingJobs(updatedJobs);
+        setFramingJobs(updatedJobs);
+        
+        const updatedSlots = { ...slots };
+        let slotChanged = false;
+        Object.keys(updatedSlots).forEach(sid => {
+          const slot = updatedSlots[sid];
+          if (slot.items) {
+            const originalLength = slot.items.length;
+            slot.items = slot.items.filter(item => item.productId !== jobId);
+            if (slot.items.length !== originalLength) {
+              slotChanged = true;
+            }
+          }
+        });
+        if (slotChanged) {
+          db.saveSlots(updatedSlots);
+          setSlots(updatedSlots);
+        }
+        
+        setShowFramingEditModal(false);
+        setCurrentFramingJob(null);
+        alert('✓ ລຶບໃບບິນຮັບຝາກພຣະສຳເລັດແລ້ວ!');
+        if (onUpdate) onUpdate();
+      } catch (err) {
+        alert(err.message || 'ບໍ່ສາມາດລຶບໄດ້');
+      }
+    }
+  };
+
   const handleEditFramingSubmit = (e) => {
     e.preventDefault();
     const amulets = framingFormData.amulets || [];
@@ -6132,27 +6168,37 @@ export default function POS({
                 </div>
               </div>
 
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => {
-                  setShowFramingEditModal(false);
-                  setCurrentFramingJob(null);
-                  setFramingError('');
-                  setFramingFormData({
-                    customerName: '',
-                    customerPhone: '',
-                    amuletDescription: '',
-                    frameTypeId: 'S001',
-                    totalPrice: '',
-                    deposit: '',
-                    notes: '',
-                    pickupDate: '',
-                    status: 'pending',
-                    amuletImage: '',
-                    slotId: 'Walk-In',
-                    amulets: []
-                  });
-                }}>ຍົກເລີກ</button>
-                <button type="submit" className="btn btn-primary">💾 ບັນທຶກການແກ້ໄຂ</button>
+              <div className="modal-footer" style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ background: 'rgba(231,76,60,0.12)', border: '1px solid rgba(231,76,60,0.3)', color: '#e74c3c' }}
+                  onClick={() => handleDeleteFramingJob(currentFramingJob.id)}
+                >
+                  🗑️ ລຶບໃບສັ່ງ
+                </button>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button type="button" className="btn btn-secondary" onClick={() => {
+                    setShowFramingEditModal(false);
+                    setCurrentFramingJob(null);
+                    setFramingError('');
+                    setFramingFormData({
+                      customerName: '',
+                      customerPhone: '',
+                      amuletDescription: '',
+                      frameTypeId: 'S001',
+                      totalPrice: '',
+                      deposit: '',
+                      notes: '',
+                      pickupDate: '',
+                      status: 'pending',
+                      amuletImage: '',
+                      slotId: 'Walk-In',
+                      amulets: []
+                    });
+                  }}>ຍົກເລີກ</button>
+                  <button type="submit" className="btn btn-primary">💾 ບັນທຶກການແກ້ໄຂ</button>
+                </div>
               </div>
             </form>
           </div>

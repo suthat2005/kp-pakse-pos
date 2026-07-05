@@ -676,7 +676,7 @@
         "discountAmount": 0
       }
     },
-    "updatedAt": 1783095156788
+    "updatedAt": 1783273355601
   },
   "products": {
     "data": [
@@ -1020,48 +1020,6 @@
         "technicianId": "owner",
         "id": "JOB10002",
         "createdDate": "2026-06-30T19:38:15.402Z",
-        "balance": 180000
-      },
-      {
-        "customerName": "sang",
-        "customerPhone": "02023304555",
-        "deposit": 0,
-        "notes": "",
-        "pickupDate": "2026-07-02T02:51",
-        "status": "done",
-        "slotId": "10",
-        "amulets": [
-          {
-            "id": 1782849102973.185,
-            "description": "",
-            "frameTypeId": "S002",
-            "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-            "price": 90000,
-            "image": "",
-            "frameStyle": "ກອບໃສ",
-            "acrylicThickness": "2.0 mm",
-            "specialNotes": ""
-          },
-          {
-            "id": 1782849104359.2737,
-            "description": "",
-            "frameTypeId": "S002",
-            "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-            "price": 90000,
-            "image": "",
-            "frameStyle": "ກອບໃສ",
-            "acrylicThickness": "2.0 mm",
-            "specialNotes": ""
-          }
-        ],
-        "totalPrice": 180000,
-        "amuletDescription": "ອົງທີ 1: ບໍ່ມີລາຍລະອຽດ, ອົງທີ 2: ບໍ່ມີລາຍລະອຽດ",
-        "amuletImage": "",
-        "frameTypeId": "S002",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "technicianId": "owner",
-        "id": "JOB10003",
-        "createdDate": "2026-06-30T19:51:46.124Z",
         "balance": 180000
       },
       {
@@ -2248,7 +2206,7 @@
         "balance": 90000
       }
     ],
-    "updatedAt": 1783094413590
+    "updatedAt": 1783273355596
   },
   "attendance": {
     "data": [
