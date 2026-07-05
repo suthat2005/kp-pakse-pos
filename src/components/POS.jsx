@@ -2417,9 +2417,7 @@ export default function POS({
               size: auto;
               margin: 0mm !important;
             }
-            #root {
-              display: none !important;
-            }
+
             body {
               background: white !important;
               color: black !important;
@@ -5223,16 +5221,7 @@ export default function POS({
                 }}
               >
                 <div className="print-receipt-header">
-                  {/* Cashier Avatar (at top of printed receipt) */}
-                  {(() => {
-                    const cashierUser = db.getUsers().find(u => u.id === currentReceipt.cashierId || u.name === currentReceipt.cashierName);
-                    const cashierAvatar = cashierUser ? cashierUser.avatar : null;
-                    return settings.receiptShowCashier !== false && cashierAvatar ? (
-                      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
-                        <img src={cashierAvatar} alt="Cashier Avatar" style={{ width: '70px', height: '70px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #ddd' }} />
-                      </div>
-                    ) : null;
-                  })()}
+
 
                   {settings.receiptShowLogo !== false && (
                     settings.receiptLogoUrl ? (
