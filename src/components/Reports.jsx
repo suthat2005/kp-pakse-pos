@@ -954,6 +954,25 @@ export default function Reports({ activeUser, isMobile }) {
   });
   const onlinePaidOrders   = rangeOnlineOrders.filter(o => o.paymentStatus === 'paid');
   const onlinePaidRevenue  = onlinePaidOrders.reduce((s, o) => s + o.total, 0);
+  
+  // Calculate online transfer breakdown by currency
+  let onlineTransferLAK = 0;
+  let onlineTransferTHB = 0;
+  let onlineTransferUSD = 0;
+  
+  onlinePaidOrders.forEach(o => {
+    const currency = o.payCurrency || 'LAK';
+    const total = o.total || 0;
+    const currencyTotal = o.currencyTotal || o.total || 0;
+    
+    if (currency === 'LAK') {
+      onlineTransferLAK += total;
+    } else if (currency === 'THB') {
+      onlineTransferTHB += currencyTotal;
+    } else if (currency === 'USD') {
+      onlineTransferUSD += currencyTotal;
+    }
+  });
   const onlinePending      = rangeOnlineOrders.filter(o => o.paymentStatus === 'pending_verification').length;
   const onlineRejected     = rangeOnlineOrders.filter(o => o.paymentStatus === 'rejected').length;
   const onlineShipped      = rangeOnlineOrders.filter(o => o.shippingStatus === 'shipped' || o.shippingStatus === 'delivered').length;
@@ -1532,6 +1551,26 @@ export default function Reports({ activeUser, isMobile }) {
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🌐 ຍອດຂາຍ Online (ຊຳລະແລ້ວ)</span>
               <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#3498db' }}>{onlinePaidRevenue.toLocaleString()} ₭</span>
               <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>{onlinePaidOrders.length} ອໍເດີ້ຊຳລະສຳເລັດ</span>
+              
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '4px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+                <span style={{ fontWeight: 'bold', color: '#3498db' }}>📱 ລວມຮັບເງິນໂອນ (Transfer):</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                  <span>• ເງິນໂອນ LAK:</span>
+                  <span style={{ color: 'white' }}>{onlineTransferLAK.toLocaleString()} ₭</span>
+                </div>
+                {(onlineTransferTHB > 0 || settings.exchangeRateThb) && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                    <span>• ເງິນໂອນ THB:</span>
+                    <span style={{ color: 'white' }}>{onlineTransferTHB.toLocaleString()} ฿</span>
+                  </div>
+                )}
+                {(onlineTransferUSD > 0 || settings.exchangeRateUsd) && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                    <span>• ເງິນໂອນ USD:</span>
+                    <span style={{ color: 'white' }}>${onlineTransferUSD.toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #f1c40f' }}>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>⏳ ລໍຖ້ານວດສະລິບ</span>
