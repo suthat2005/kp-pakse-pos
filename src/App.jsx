@@ -235,9 +235,10 @@ export default function App() {
     };
   }, [activeUser]);
 
-  // Dynamic favicon update effect
+  // Dynamic favicon and apple-touch-icon update effect
   useEffect(() => {
     if (settings.shopLogo) {
+      // Update standard favicon
       let link = document.querySelector("link[rel~='icon']");
       if (!link) {
         link = document.createElement('link');
@@ -246,6 +247,24 @@ export default function App() {
       }
       link.href = settings.shopLogo;
       link.type = 'image/png';
+
+      // Update apple-touch-icon
+      let linkApple = document.querySelector("link[rel='apple-touch-icon']");
+      if (!linkApple) {
+        linkApple = document.createElement('link');
+        linkApple.rel = 'apple-touch-icon';
+        document.getElementsByTagName('head')[0].appendChild(linkApple);
+      }
+      linkApple.href = settings.shopLogo;
+
+      // Update apple-touch-icon-precomposed
+      let linkApplePre = document.querySelector("link[rel='apple-touch-icon-precomposed']");
+      if (!linkApplePre) {
+        linkApplePre = document.createElement('link');
+        linkApplePre.rel = 'apple-touch-icon-precomposed';
+        document.getElementsByTagName('head')[0].appendChild(linkApplePre);
+      }
+      linkApplePre.href = settings.shopLogo;
     }
   }, [settings.shopLogo]);
 
