@@ -2447,17 +2447,28 @@ export default function POS({
             .modal-overlay.print-modal .modal-content {
               position: static !important;
               display: block !important;
-              width: ${settings.receiptPaperWidth || '80mm'} !important;
-              max-width: ${settings.receiptPaperWidth || '80mm'} !important;
+              width: 72mm !important;
+              max-width: 72mm !important;
               background: white !important;
               box-shadow: none !important;
               border: none !important;
               margin: 0 !important;
               padding: 0 !important;
+              page-break-before: avoid !important;
+              break-before: avoid !important;
+            }
+            .modal-overlay.print-modal .modal-body {
+              display: block !important;
+              position: static !important;
+              padding: 0 !important;
+              margin: 0 !important;
+              background: white !important;
+              page-break-before: avoid !important;
+              break-before: avoid !important;
             }
             .print-receipt-container {
-              width: ${settings.receiptPaperWidth || '80mm'} !important;
-              max-width: ${settings.receiptPaperWidth || '80mm'} !important;
+              width: 72mm !important;
+              max-width: 72mm !important;
               font-size: ${settings.receiptFontSize || '10pt'} !important;
               font-family: 'Phetsarath OT', 'Noto Sans Lao', Arial, sans-serif !important;
               color: #000 !important;
