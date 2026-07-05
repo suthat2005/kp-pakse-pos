@@ -1142,6 +1142,17 @@ textarea.form-control {
     size: auto;
     margin: 0mm !important;
   }
+  #root {
+    height: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    top: -9999px !important;
+    left: -9999px !important;
+  }
+  body, html {
+    height: auto !important;
+    overflow: visible !important;
+  }
 
   body {
     background: white;
