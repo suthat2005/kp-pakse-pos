@@ -1464,7 +1464,8 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       image: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=200&auto=format&fit=crop&q=60',
       showOnline: !isService,
       priceOnline: '',
-      priceVip: ''
+      priceVip: '',
+      description: ''
     });
     setShowModal(true);
   };
@@ -1485,7 +1486,8 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       image: p.image,
       showOnline: p.showOnline !== undefined ? p.showOnline : !db.isServiceCategory(p.category),
       priceOnline: p.priceOnline !== undefined ? p.priceOnline : p.price,
-      priceVip: p.priceVip !== undefined ? p.priceVip : p.price
+      priceVip: p.priceVip !== undefined ? p.priceVip : p.price,
+      description: p.description || ''
     });
     setShowModal(true);
   };
@@ -2891,6 +2893,18 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       autoComplete="off"
                     />
                   </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">ລາຍລະອຽດສິນຄ້າ (Product Description)</label>
+                  <textarea
+                    className="form-control"
+                    rows="3"
+                    style={{ background: '#1c1916', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
+                    placeholder="ປ້ອນລາຍລະອຽດສິນຄ້າ..."
+                    value={formData.description || ''}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  />
                 </div>
 
                 <div className="form-group">

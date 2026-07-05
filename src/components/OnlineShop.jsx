@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
 import jsQR from 'jsqr';
 import { db } from '../utils/db';
+import Portal from './Portal';
 import OrderTracking from './OrderTracking';
 
 const accountConfig = {
@@ -59,6 +60,7 @@ const compressImage = (base64Str, maxWidth = 800, maxHeight = 800) => {
 
 export default function OnlineShop() {
   const [products, setProducts] = useState([]);
+  const [selectedDetailProduct, setSelectedDetailProduct] = useState(null);
   const [categories, setCategories] = useState([]);
   const [settings, setSettings] = useState({});
   const [activeTab, setActiveTab] = useState('catalog'); // catalog, cart, profile, tracking
@@ -783,11 +785,21 @@ export default function OnlineShop() {
                           </span>
                         )}
 
-                        <div style={{ width: '100%', height: '130px', overflow: 'hidden', background: '#000' }}>
+                        <div 
+                          style={{ width: '100%', height: '130px', overflow: 'hidden', background: '#000', cursor: 'pointer' }}
+                          onClick={() => setSelectedDetailProduct(p)}
+                          title="ຄລິກເພື່ອເບິ່ງລາຍລະອຽດ (Click to view details)"
+                        >
                           <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
                         <div style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '4px', flexGrow: 1 }}>
-                          <h4 style={{ fontSize: '0.8rem', margin: 0, fontWeight: 'bold', height: '36px', overflow: 'hidden', textOverflow: 'ellipsis', color: 'white' }}>{p.name}</h4>
+                          <h4 
+                            style={{ fontSize: '0.8rem', margin: 0, fontWeight: 'bold', height: '36px', overflow: 'hidden', textOverflow: 'ellipsis', color: 'white', cursor: 'pointer' }}
+                            onClick={() => setSelectedDetailProduct(p)}
+                            title="ຄລິກເພື່ອເບິ່ງລາຍລະອຽດ (Click to view details)"
+                          >
+                            {p.name}
+                          </h4>
                           
                           {/* Rating and review mockup */}
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.65rem', color: '#f1c40f' }}>
@@ -1426,6 +1438,94 @@ export default function OnlineShop() {
           <span>ໂປຣໄຟລ໌</span>
         </button>
       </nav>
+
+      {/* Product Detail Modal */}
+      {selectedDetailProduct && (
+        <Portal>
+        <div className="modal-overlay" style={{ zIndex: 1050 }}>
+          <div className="modal-content animate-fade-in" style={{ maxWidth: '450px', background: '#12100e', color: 'white', borderRadius: '16px', border: '1px solid rgba(212,175,55,0.2)', padding: '16px', position: 'relative' }}>
+            
+            {/* Close button */}
+            <button 
+              type="button"
+              className="btn-secondary" 
+              style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(0,0,0,0.6)', border: 'none', color: 'white', fontSize: '1.2rem', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }} 
+              onClick={() => setSelectedDetailProduct(null)}
+            >
+              ✕
+            </button>
+
+            {/* Product Image */}
+            <div style={{ width: '100%', height: '260px', overflow: 'hidden', borderRadius: '12px', background: '#000', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '16px' }}>
+              <img 
+                src={selectedDetailProduct.image} 
+                alt={selectedDetailProduct.name} 
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+              />
+            </div>
+
+            {/* Product Meta */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <h3 style={{ fontSize: '1.1rem', margin: 0, fontWeight: 'bold', color: 'white', lineHeight: '1.4' }}>
+                {selectedDetailProduct.name}
+              </h3>
+              
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <span style={{ fontSize: '1.25rem', color: 'var(--gold-primary)', fontWeight: 'bold' }}>
+                  {(selectedDetailProduct.priceOnline || selectedDetailProduct.price).toLocaleString()} ₭
+                </span>
+                {selectedDetailProduct.priceVip && selectedDetailProduct.priceVip !== (selectedDetailProduct.priceOnline || selectedDetailProduct.price) && (
+                  <span style={{ fontSize: '0.8rem', color: '#888', background: 'rgba(52,152,219,0.12)', padding: '2px 6px', borderRadius: '4px' }}>
+                    💎 VIP: <b style={{ color: '#3498db' }}>{selectedDetailProduct.priceVip.toLocaleString()} ₭</b>
+                  </span>
+                )}
+              </div>
+
+              <div style={{ fontSize: '0.8rem', color: '#aaa', display: 'flex', gap: '15px' }}>
+                <span>ຄົງເຫຼືອໃນສາງ: <b style={{ color: selectedDetailProduct.stock > 0 ? '#2ecc71' : '#e74c3c' }}>{selectedDetailProduct.stock} {selectedDetailProduct.unit || 'ອັນ'}</b></span>
+                <span>ໝວດໝູ່: <b>{categories.find(c => c.id === selectedDetailProduct.category)?.name || 'ທົ່ວໄປ'}</b></span>
+              </div>
+
+              {/* Divider */}
+              <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '8px 0' }} />
+
+              {/* Description */}
+              <div>
+                <h4 style={{ fontSize: '0.85rem', color: 'var(--gold-primary)', margin: '0 0 6px 0', fontWeight: 'bold' }}>
+                  📝 ລາຍລະອຽດສິນຄ້າ (Description):
+                </h4>
+                <p style={{ fontSize: '0.82rem', color: '#ccc', margin: 0, lineHeight: '1.5', whiteSpace: 'pre-wrap', maxHeight: '140px', overflowY: 'auto', paddingRight: '4px' }}>
+                  {selectedDetailProduct.description || 
+                    "ສິນຄ້າຄຸນນະພາບສູງຈາກຮ້ານ ຂອບພຣະ ປາກເຊ, ຜະລິດ ແລະ ອອກແບບດ້ວຍຄວາມປານີດ ຮັບປະກັນຄວາມເພິ່ງພໍໃຈ 100%."}
+                </p>
+              </div>
+
+              {/* Add to cart action */}
+              <div style={{ marginTop: '16px' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    addToCart(selectedDetailProduct);
+                    setSelectedDetailProduct(null);
+                  }}
+                  className="btn btn-primary"
+                  style={{ width: '100%', padding: '12px', fontSize: '0.9rem', borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                  disabled={selectedDetailProduct.stock <= 0}
+                >
+                  {selectedDetailProduct.stock > 0 ? (
+                    <>🛒 ໃສ່ຕະກ່າສິນຄ້າ</>
+                  ) : (
+                    <>🛑 ສິນຄ້າໝົດ</>
+                  )}
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+        </Portal>
+      )}
     </div>
   );
 }
