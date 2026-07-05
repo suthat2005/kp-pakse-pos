@@ -839,98 +839,314 @@ export default function Settings({ activeUser, onUpdate }) {
               {/* Deleted duplicate color theme selector */}
 
               <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '16px', marginTop: '8px' }}>
-                <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.95rem', marginBottom: '12px' }}>📱 ຕັ້ງຄ່າບັນຊີທະນາຄານ (ສຳລັບສ້າງ BCEL QR ຮັບເງິນ)</h4>
+                <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.95rem', marginBottom: '12px' }}>📱 ຕັ້ງຄ່າບັນຊີທະນາຄານຮັບເງິນ (Bank Accounts & QR Templates)</h4>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                  <div className="form-group">
-                    <label className="form-label">ຊື່ທະນາຄານ</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      required
-                      value={settings.bankName}
-                      onChange={(e) => setSettings({ ...settings, bankName: e.target.value })}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">ຊື່ບັນຊີທະນາຄານ</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      required
-                      value={settings.bankAccountName}
-                      onChange={(e) => setSettings({ ...settings, bankAccountName: e.target.value })}
-                    />
-                  </div>
+                {/* Currency Subtabs */}
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                  {['LAK', 'THB', 'USD'].map((cur) => (
+                    <button
+                      key={cur}
+                      type="button"
+                      onClick={() => setBankSettingsCurrency(cur)}
+                      className={`btn ${bankSettingsCurrency === cur ? 'btn-primary' : 'btn-secondary'}`}
+                      style={{
+                        padding: '6px 16px',
+                        fontSize: '0.8rem',
+                        fontWeight: 'bold',
+                        borderRadius: '8px',
+                        background: bankSettingsCurrency === cur ? 'var(--gold-primary)' : 'rgba(255,255,255,0.05)',
+                        borderColor: bankSettingsCurrency === cur ? 'var(--gold-primary)' : 'rgba(255,255,255,0.1)',
+                        color: bankSettingsCurrency === cur ? 'black' : 'white'
+                      }}
+                    >
+                      {cur === 'LAK' ? '🇱🇦 ກີບ (LAK)' : cur === 'THB' ? '🇹🇭 ບາດ (THB)' : '🇺🇸 ໂດລາ (USD)'}
+                    </button>
+                  ))}
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                  <div className="form-group">
-                    <label className="form-label">ເລກບັນຊີທະນາຄານ (Bank Account Number)</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      required
-                      value={settings.bankAccountNumber}
-                      onChange={(e) => setSettings({ ...settings, bankAccountNumber: e.target.value })}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">ອັບໂຫຼດຮູບ QR Code ທະນາຄານ (Bank QR Code Image)</label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="form-control"
-                      onChange={async (e) => {
-                        const file = e.target.files[0];
-                        if (file) {
-                          const { payload, dataUrl } = await decodeQrFromImage(file);
-                          setSettings(prev => ({
-                            ...prev,
-                            bankQrTemplate: payload,
-                            bankQrPreview: dataUrl,
-                          }));
-                        }
-                      }}
-                    />
-                    <div style={{ marginTop: '10px' }}>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ພຣີວິວ QR Code ທີ່ອັບໂຫຼດ:</p>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
-                        <img
-                          src={settings.bankQrPreview || settings.bankQrTemplate}
-                          alt="Bank QR Preview"
-                          style={{ width: '80px', height: '80px', objectFit: 'contain', border: '1px solid var(--border-color)' }}
+                {bankSettingsCurrency === 'LAK' && (
+                  <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div className="form-group">
+                        <label className="form-label">ชື່ທະນາຄານ (Bank Name)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          required
+                          value={settings.bankName || ''}
+                          onChange={(e) => setSettings({ ...settings, bankName: e.target.value })}
                         />
-                        {settings.bankQrTemplate && !settings.bankQrTemplate.startsWith('data:image/') && (
-                          <span style={{ fontSize: '0.65rem', color: '#2ecc71', background: 'rgba(46,204,113,0.1)', padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(46,204,113,0.3)' }}>
-                            ✅ ອ່ານ payload ໄດ້ — QR ຈະ embed ຍອດໄດ້
-                          </span>
-                        )}
-                        <button
-                          type="button"
-                          className="btn btn-secondary"
-                          style={{ padding: '4px 8px', fontSize: '0.75rem', color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }}
-                          onClick={() => setSettings({ ...settings, bankQrTemplate: '', bankQrPreview: '' })}
-                        >ລຶບຮູບ</button>
                       </div>
-                      {/* Status message */}
-                      {settings.bankQrTemplate && !settings.bankQrTemplate.startsWith('data:image/') && (
-                        <div style={{ marginTop: '8px', padding: '8px 12px', background: 'rgba(46,204,113,0.08)', border: '1px solid rgba(46,204,113,0.3)', borderRadius: '8px', fontSize: '0.73rem', color: '#2ecc71' }}>
-                          ✅ Decode ສຳເລັດ! QR ຈະ embed ຍອດ dynamic ໄດ້ (ບໍ່ pre-fill ລາຄາເຕັມ)<br/>
-                          <span style={{ color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
-                            {settings.bankQrTemplate.substring(0, 40)}...
-                          </span>
+                      <div className="form-group">
+                        <label className="form-label">ຊື່ບັນຊີທະນາຄານ (Account Name)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          required
+                          value={settings.bankAccountName || ''}
+                          onChange={(e) => setSettings({ ...settings, bankAccountName: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div className="form-group">
+                        <label className="form-label">ເລກບັນຊີທະນາຄານ (Account Number)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          required
+                          value={settings.bankAccountNumber || ''}
+                          onChange={(e) => setSettings({ ...settings, bankAccountNumber: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">ອັບໂຫຼດຮູບ QR Code (Bank QR Code Image)</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="form-control"
+                          onChange={async (e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              const { payload, dataUrl } = await decodeQrFromImage(file);
+                              setSettings(prev => ({
+                                ...prev,
+                                bankQrTemplate: payload,
+                                bankQrPreview: dataUrl,
+                              }));
+                            }
+                          }}
+                        />
+                        <div style={{ marginTop: '10px' }}>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ພຣີວິວ QR Code ທີ່ອັບໂຫຼດ:</p>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
+                            <img
+                              src={settings.bankQrPreview || settings.bankQrTemplate}
+                              alt="Bank QR Preview"
+                              style={{ width: '80px', height: '80px', objectFit: 'contain', border: '1px solid var(--border-color)' }}
+                            />
+                            {settings.bankQrTemplate && !settings.bankQrTemplate.startsWith('data:image/') && (
+                              <span style={{ fontSize: '0.65rem', color: '#2ecc71', background: 'rgba(46,204,113,0.1)', padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(46,204,113,0.3)' }}>
+                                ✅ ອ່ານ payload ໄດ້ — QR ຈະ embed ຍອດໄດ້
+                              </span>
+                            )}
+                            <button
+                              type="button"
+                              className="btn btn-secondary"
+                              style={{ padding: '4px 8px', fontSize: '0.75rem', color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }}
+                              onClick={() => setSettings({ ...settings, bankQrTemplate: '', bankQrPreview: '' })}
+                            >ລຶບຮູບ</button>
+                          </div>
+                          {settings.bankQrTemplate && !settings.bankQrTemplate.startsWith('data:image/') && (
+                            <div style={{ marginTop: '8px', padding: '8px 12px', background: 'rgba(46,204,113,0.08)', border: '1px solid rgba(46,204,113,0.3)', borderRadius: '8px', fontSize: '0.73rem', color: '#2ecc71' }}>
+                              ✅ Decode ສຳເລັດ! QR ຈະ embed ຍອດ dynamic ໄດ້<br/>
+                              <span style={{ color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
+                                {settings.bankQrTemplate.substring(0, 40)}...
+                              </span>
+                            </div>
+                          )}
+                          {settings.bankQrTemplate && settings.bankQrTemplate.startsWith('data:image/') && (
+                            <div style={{ marginTop: '8px', padding: '8px 12px', background: 'rgba(230,126,34,0.12)', border: '1px solid rgba(230,126,34,0.4)', borderRadius: '8px', fontSize: '0.75rem', color: '#e67e22' }}>
+                              ⚠️ Decode ບໍ່ໄດ້ — QR scan ໄດ້ຕາມປົກກະຕິ ແຕ່ບໍ່ມີຍອດເງິນ dynamic
+                            </div>
+                          )}
                         </div>
-                      )}
-                      {settings.bankQrTemplate && settings.bankQrTemplate.startsWith('data:image/') && (
-                        <div style={{ marginTop: '8px', padding: '8px 12px', background: 'rgba(230,126,34,0.12)', border: '1px solid rgba(230,126,34,0.4)', borderRadius: '8px', fontSize: '0.75rem', color: '#e67e22' }}>
-                          ⚠️ Decode ບໍ່ໄດ້ — QR scan ໄດ້ຕາມປົກກະຕິ ແຕ່ຈຳນວນ dynamic ຈຳຕ້ອງ upload ຄືນ.
-                        </div>
-                      )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
+
+                {bankSettingsCurrency === 'THB' && (
+                  <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div className="form-group">
+                        <label className="form-label">ຊື່ທະນາຄານ (Bank Name - THB)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          required
+                          value={settings.bankNameThb || ''}
+                          onChange={(e) => setSettings({ ...settings, bankNameThb: e.target.value })}
+                          placeholder="e.g. ກະສິກອນໄທ (KBank)"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">ຊື່ບັນຊີທະນາຄານ (Account Name - THB)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          required
+                          value={settings.bankAccountNameThb || ''}
+                          onChange={(e) => setSettings({ ...settings, bankAccountNameThb: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div className="form-group">
+                        <label className="form-label">ເລກບັນຊີທະນາຄານ (Account Number - THB)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          required
+                          value={settings.bankAccountNumberThb || ''}
+                          onChange={(e) => setSettings({ ...settings, bankAccountNumberThb: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">ອັບໂຫຼດຮູບ QR Code ບາດ (THB QR Code Image)</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="form-control"
+                          onChange={async (e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              const { payload, dataUrl } = await decodeQrFromImage(file);
+                              setSettings(prev => ({
+                                ...prev,
+                                bankQrTemplateThb: payload,
+                                bankQrPreviewThb: dataUrl,
+                              }));
+                            }
+                          }}
+                        />
+                        <div style={{ marginTop: '10px' }}>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ພຣີວິວ QR Code ທີ່ອັບໂຫຼດ:</p>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
+                            <img
+                              src={settings.bankQrPreviewThb || settings.bankQrTemplateThb}
+                              alt="THB Bank QR Preview"
+                              style={{ width: '80px', height: '80px', objectFit: 'contain', border: '1px solid var(--border-color)' }}
+                            />
+                            {settings.bankQrTemplateThb && !settings.bankQrTemplateThb.startsWith('data:image/') && (
+                              <span style={{ fontSize: '0.65rem', color: '#2ecc71', background: 'rgba(46,204,113,0.1)', padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(46,204,113,0.3)' }}>
+                                ✅ ອ່ານ payload ໄດ້ — QR ຈະ embed ຍອດໄດ້
+                              </span>
+                            )}
+                            <button
+                              type="button"
+                              className="btn btn-secondary"
+                              style={{ padding: '4px 8px', fontSize: '0.75rem', color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }}
+                              onClick={() => setSettings({ ...settings, bankQrTemplateThb: '', bankQrPreviewThb: '' })}
+                            >ລຶບຮູບ</button>
+                          </div>
+                          {settings.bankQrTemplateThb && !settings.bankQrTemplateThb.startsWith('data:image/') && (
+                            <div style={{ marginTop: '8px', padding: '8px 12px', background: 'rgba(46,204,113,0.08)', border: '1px solid rgba(46,204,113,0.3)', borderRadius: '8px', fontSize: '0.73rem', color: '#2ecc71' }}>
+                              ✅ Decode ສຳເລັດ! QR ຈະ embed ຍອດ dynamic ໄດ້<br/>
+                              <span style={{ color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
+                                {settings.bankQrTemplateThb.substring(0, 40)}...
+                              </span>
+                            </div>
+                          )}
+                          {settings.bankQrTemplateThb && settings.bankQrTemplateThb.startsWith('data:image/') && (
+                            <div style={{ marginTop: '8px', padding: '8px 12px', background: 'rgba(230,126,34,0.12)', border: '1px solid rgba(230,126,34,0.4)', borderRadius: '8px', fontSize: '0.75rem', color: '#e67e22' }}>
+                              ⚠️ Decode ບໍ່ໄດ້ — QR scan ໄດ້ຕາມປົກກະຕິ ແຕ່ບໍ່ມີຍອດເງິນ dynamic
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {bankSettingsCurrency === 'USD' && (
+                  <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div className="form-group">
+                        <label className="form-label">ຊື່ທະນາຄານ (Bank Name - USD)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          required
+                          value={settings.bankNameUsd || ''}
+                          onChange={(e) => setSettings({ ...settings, bankNameUsd: e.target.value })}
+                          placeholder="e.g. ທະນາຄານຮ່ວມພັດທະນາ (JDB)"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">ຊື່ບັນຊີທະນາຄານ (Account Name - USD)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          required
+                          value={settings.bankAccountNameUsd || ''}
+                          onChange={(e) => setSettings({ ...settings, bankAccountNameUsd: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div className="form-group">
+                        <label className="form-label">ເລກບັນຊີທະນາຄານ (Account Number - USD)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          required
+                          value={settings.bankAccountNumberUsd || ''}
+                          onChange={(e) => setSettings({ ...settings, bankAccountNumberUsd: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">ອັບໂຫຼດຮູບ QR Code ໂດລາ (USD QR Code Image)</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="form-control"
+                          onChange={async (e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              const { payload, dataUrl } = await decodeQrFromImage(file);
+                              setSettings(prev => ({
+                                ...prev,
+                                bankQrTemplateUsd: payload,
+                                bankQrPreviewUsd: dataUrl,
+                              }));
+                            }
+                          }}
+                        />
+                        <div style={{ marginTop: '10px' }}>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ພຣີວິວ QR Code ທີ່ອັບໂຫຼດ:</p>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
+                            <img
+                              src={settings.bankQrPreviewUsd || settings.bankQrTemplateUsd}
+                              alt="USD Bank QR Preview"
+                              style={{ width: '80px', height: '80px', objectFit: 'contain', border: '1px solid var(--border-color)' }}
+                            />
+                            {settings.bankQrTemplateUsd && !settings.bankQrTemplateUsd.startsWith('data:image/') && (
+                              <span style={{ fontSize: '0.65rem', color: '#2ecc71', background: 'rgba(46,204,113,0.1)', padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(46,204,113,0.3)' }}>
+                                ✅ ອ່ານ payload ໄດ້ — QR ຈະ embed ຍອດໄດ້
+                              </span>
+                            )}
+                            <button
+                              type="button"
+                              className="btn btn-secondary"
+                              style={{ padding: '4px 8px', fontSize: '0.75rem', color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }}
+                              onClick={() => setSettings({ ...settings, bankQrTemplateUsd: '', bankQrPreviewUsd: '' })}
+                            >ລຶບຮູບ</button>
+                          </div>
+                          {settings.bankQrTemplateUsd && !settings.bankQrTemplateUsd.startsWith('data:image/') && (
+                            <div style={{ marginTop: '8px', padding: '8px 12px', background: 'rgba(46,204,113,0.08)', border: '1px solid rgba(46,204,113,0.3)', borderRadius: '8px', fontSize: '0.73rem', color: '#2ecc71' }}>
+                              ✅ Decode ສຳເລັດ! QR ຈະ embed ຍອດ dynamic ໄດ້<br/>
+                              <span style={{ color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
+                                {settings.bankQrTemplateUsd.substring(0, 40)}...
+                              </span>
+                            </div>
+                          )}
+                          {settings.bankQrTemplateUsd && settings.bankQrTemplateUsd.startsWith('data:image/') && (
+                            <div style={{ marginTop: '8px', padding: '8px 12px', background: 'rgba(230,126,34,0.12)', border: '1px solid rgba(230,126,34,0.4)', borderRadius: '8px', fontSize: '0.75rem', color: '#e67e22' }}>
+                              ⚠️ Decode ບໍ່ໄດ້ — QR scan ໄດ້ຕາມປົກກະຕິ ແຕ່ບໍ່ມີຍອດເງິນ dynamic
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div style={{ display: 'flex', gap: '10px', alignSelf: 'flex-end', marginTop: '10px' }}>

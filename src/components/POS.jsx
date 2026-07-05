@@ -1181,10 +1181,21 @@ export default function POS({
     };
 
     const txAmt = Number(transferAmount) || 0;
-    generateQr(settings.bankQrTemplate, txAmt > 0 ? txAmt : grandTotal, setCheckoutQrUrl);
+    let activeQrTemplate = settings.bankQrTemplate;
+    let activeAmount = txAmt > 0 ? txAmt : targetRoundTotalLAK;
+
+    if (payCurrency === 'THB') {
+      activeQrTemplate = settings.bankQrTemplateThb || settings.bankQrTemplate;
+      activeAmount = txAmt > 0 ? txAmt : targetRoundTotalInCurrency;
+    } else if (payCurrency === 'USD') {
+      activeQrTemplate = settings.bankQrTemplateUsd || settings.bankQrTemplate;
+      activeAmount = txAmt > 0 ? txAmt : targetRoundTotalInCurrency;
+    }
+
+    generateQr(activeQrTemplate, activeAmount, setCheckoutQrUrl);
 
     const depAmt = Number(depositInputVal) || 0;
-    generateQr(settings.bankQrTemplate, depAmt > 0 ? depAmt : grandTotal, setDepositModalQrUrl);
+    generateQr(activeQrTemplate, depAmt > 0 ? depAmt : activeAmount, setDepositModalQrUrl);
 
     setCheckoutTransferQrUrl('');
 
@@ -1212,7 +1223,32 @@ export default function POS({
     } else {
       setDepositQrUrl('');
     }
-  }, [settings.bankQrTemplate, settings.trackingBaseUrl, serverIp, grandTotal, currentReceipt, currentFramingJob, transferAmount, depositInputVal]);
+  }, [settings.bankQrTemplate, settings.bankQrTemplateThb, settings.bankQrTemplateUsd, settings.trackingBaseUrl, serverIp, grandTotal, currentReceipt, currentFramingJob, transferAmount, depositInputVal, payCurrency, targetRoundTotalLAK, targetRoundTotalInCurrency]);
+
+  const getActiveBankInfo = () => {
+    if (payCurrency === 'THB') {
+      return {
+        name: settings.bankNameThb || settings.bankName || '—',
+        accountName: settings.bankAccountNameThb || settings.bankAccountName || '—',
+        accountNumber: settings.bankAccountNumberThb || settings.bankAccountNumber || '—',
+        qrTemplate: settings.bankQrTemplateThb || settings.bankQrTemplate || ''
+      };
+    }
+    if (payCurrency === 'USD') {
+      return {
+        name: settings.bankNameUsd || settings.bankName || '—',
+        accountName: settings.bankAccountNameUsd || settings.bankAccountName || '—',
+        accountNumber: settings.bankAccountNumberUsd || settings.bankAccountNumber || '—',
+        qrTemplate: settings.bankQrTemplateUsd || settings.bankQrTemplate || ''
+      };
+    }
+    return {
+      name: settings.bankName || '—',
+      accountName: settings.bankAccountName || '—',
+      accountNumber: settings.bankAccountNumber || '—',
+      qrTemplate: settings.bankQrTemplate || ''
+    };
+  };
 
   // Checkout pay confirmation
   const handlePayClick = () => {
@@ -3921,7 +3957,9 @@ export default function POS({
       )}
 
       {/* Checkout Modal - Premium Enterprise Redesign */}
-      {showCheckout && (
+      {showCheckout && (() => {
+        const activeBank = getActiveBankInfo();
+        return (
         <Portal>
         <div className="modal-overlay" style={{ backdropFilter: 'blur(8px)', background: 'rgba(0,0,0,0.75)' }}>
           <div className="modal-content animate-fade-in" style={{
@@ -4651,7 +4689,8 @@ export default function POS({
           </div>
         </div>
         </Portal>
-      )}
+        );
+      })()}
 
       {/* Admin PIN authentication modal (Anti-fraud) */}
       {showAdminPinModal && (

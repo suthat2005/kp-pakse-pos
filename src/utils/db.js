@@ -124,6 +124,16 @@ const DEFAULT_SETTINGS = {
   bankAccountNumber: '010-12-00-019284920',
   bankQrTemplate: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=bcelone://qr/transfer?acc=0101200019284920&amount=',
   bankQrPreview: '',
+  bankNameThb: '',
+  bankAccountNameThb: '',
+  bankAccountNumberThb: '',
+  bankQrTemplateThb: '',
+  bankQrPreviewThb: '',
+  bankNameUsd: '',
+  bankAccountNameUsd: '',
+  bankAccountNumberUsd: '',
+  bankQrTemplateUsd: '',
+  bankQrPreviewUsd: '',
   lowStockThreshold: 5,
   taxRate: 0,
   logoSvg: '',
@@ -185,89 +195,7 @@ const DEFAULT_SETTINGS = {
   barcodeStickerWidth: '40mm',
   barcodeStickerHeight: '25mm',
   barcodeFontSize: '10pt',
-  barcodeFormat: 'CODE128',
-  barcodeDirectPrint: false,
-  windowsBarcodePrinterName: 'Barcode Printer',
-  barcodePaperWidth: '40mm',
-  barcodePaperHeight: '25mm',
-  barcodeMarginLeft: '0mm',
-  barcodeMarginTop: '0mm',
-  barcodeColumns: 1,
-  barcodeGapX: '2mm',
-  barcodeGapY: '2mm',
-  barcodeProfile: '1_col_40_30',
-  barcodeHeight: 50,
-  barcodeWidth: 2,
-  barcodeMargin: 10,
-  barcodeShowCode: true,
-  barcodeShowName: true,
-  barcodeShowPrice: true,
-  barcodeShowDiscount: false,
-  barcodeTextBold: false,
-  barcodeTextItalic: false,
-  barcodeTextAlign: 'center',
-  barcodeCodeSize: 10,
-  barcodeNameSize: 10,
-  barcodePriceSize: 12,
-  barcodeTextSpacing: 5,
-  themeConfig: {
-    colors: {
-      primary: '#D4AF37',      // Gold
-      secondary: '#4A3B32',    // Dark brown
-      success: '#2ecc71',      // Emerald green
-      warning: '#f1c40f',      // Amber
-      danger: '#e74c3c',       // Crimson red
-      background: '#13110F',   // Jet dark bg
-      surface: '#1E1B18',      // Sidebar/Card surface
-      sidebar: '#1E1B18',
-      topbar: '#191613',
-      card: '#24201C',
-      table: '#1E1B18',
-      border: '#3D352E'
-    },
-    typography: {
-      fontFamily: 'Outfit, Phetsarath OT, sans-serif',
-      fontSizeBase: '14px',
-      lineHeight: '1.5',
-      fontWeightNormal: '400',
-      fontWeightBold: '700'
-    },
-    layout: {
-      sidebarWidth: '260px',
-      sidebarCollapsedWidth: '70px',
-      borderRadius: '8px',
-      spacing: '16px',
-      containerWidth: '1200px'
-    },
-    mode: 'dark'
-  },
-  uiControls: {
-    animationEnabled: true,
-    shadowsEnabled: true,
-    roundedCorners: true,
-    hoverEffects: true,
-    skeletonLoading: true,
-    toastNotifications: true,
-    autoRefreshDashboard: true,
-    soundEffects: false
-  },
-  dashboardBuilder: {
-    widgets: ['sales_today', 'revenue_chart', 'stock_valuation', 'capacity_widget', 'attendance_checklist'],
-    layout: [],
-    refreshInterval: 60
-  },
-  // Data Retention Settings
-  dataRetentionEnabled: false,
-  dataRetentionDaysBills: 365,
-  dataRetentionDaysOrders: 365,
-  dataRetentionDaysDebts: 365,
-  dataRetentionMaxPerRun: 10,
-  // Online Shop Settings
-  onlineShopThemeColor: '#3498db',
-  onlineShopAccentColor: '#f1c40f',
-  onlineShopBanner: 'ຍິນດີຕ້ອນຮັບສູ່ ຮ້ានອອນລາຍ KP Pakse!',
-  onlineShopLang: 'lo'
-};
+  };
 
 export const DEFAULT_LABEL_KEYS = [
   { key: 'tab_pos', defaultValue: "💵 ຂາຍໜ້າຮ້ານ (POS)", desc: 'ແທັບ ຂາຍໜ້າຮ້ານ (POS)', section: 'navigation' },

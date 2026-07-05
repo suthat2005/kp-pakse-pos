@@ -510,13 +510,25 @@ export default function OnlineShop() {
 
   return (
     <div style={{ maxWidth: '480px', margin: '0 auto', background: '#0e0c0a', minHeight: '100vh', paddingBottom: '90px', color: '#fff', fontFamily: 'Outfit, Phetsarath OT, sans-serif' }}>
+      <style>{`
+        :root {
+          --gold-primary: ${settings.onlineShopThemeColor || '#d4af37'} !important;
+          --accent-amber: ${settings.onlineShopAccentColor || '#f1c40f'} !important;
+        }
+      `}</style>
       
       {/* 1. TOP HEADER BRAND */}
       <header style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)', background: '#141210', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(212,175,55,0.1)', border: '1px solid var(--gold-primary)', display: 'flex', alignItems: 'center', justifySelf: 'center', justifyContent: 'center', fontSize: '1rem' }}>🪷</div>
+          {settings.onlineShopLogo ? (
+            <img src={settings.onlineShopLogo} style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid var(--gold-primary)' }} alt="Logo" />
+          ) : settings.shopLogo ? (
+            <img src={settings.shopLogo} style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid var(--gold-primary)' }} alt="Logo" />
+          ) : (
+            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(212,175,55,0.1)', border: '1px solid var(--gold-primary)', display: 'flex', alignItems: 'center', justifySelf: 'center', justifyContent: 'center', fontSize: '1rem' }}>🪷</div>
+          )}
           <div>
-            <h1 style={{ fontSize: '0.95rem', margin: 0, color: 'var(--gold-primary)', fontWeight: 'bold' }}>{settings.shopName || 'ຂອບພຣະຣັທເກຊ'}</h1>
+            <h1 style={{ fontSize: '0.95rem', margin: 0, color: 'var(--gold-primary)', fontWeight: 'bold' }}>{settings.onlineShopName || settings.shopName || 'ຂອບພຣະຣັທເກຊ'}</h1>
             <p style={{ fontSize: '0.6rem', color: '#888', margin: 0 }}>Online Store • Mobile First</p>
           </div>
         </div>
@@ -634,7 +646,7 @@ export default function OnlineShop() {
                     {settings.onlineShopBanner || 'ຮ້ານພຣະເຄື່ອງອອນລາຍ KP Pakse'}
                   </h2>
                   <p style={{ fontSize: '0.72rem', color: '#ccc', margin: 0 }}>
-                    ບູຊາພຣະເຄື່ອງແທ້, ກອບຄຸນນະພາບສູງ ຮັບປະກັນ 100%
+                    {settings.onlineShopSubtitle || 'ບູຊາພຣະເຄື່ອງແທ້, ກອບຄຸນນະພາບສູງ ຮັບປະກັນ 100%'}
                   </p>
                   <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '4px' }}>
                     <span style={{ fontSize: '0.65rem', padding: '2px 8px', borderRadius: '12px', background: 'rgba(255,255,255,0.08)' }}>⚡ ຈັດສົ່ງໄວ</span>
@@ -702,7 +714,12 @@ export default function OnlineShop() {
                         cursor: 'pointer'
                       }}
                     >
-                      {cat.icon} {cat.name}
+                      {cat.icon && (cat.icon.startsWith('data:image/') || cat.icon.startsWith('http')) ? (
+                        <img src={cat.icon} style={{ width: '16px', height: '16px', objectFit: 'contain', borderRadius: '2px', marginRight: '4px', verticalAlign: 'middle' }} alt="" />
+                      ) : (
+                        <span style={{ marginRight: '4px' }}>{cat.icon || '📦'}</span>
+                      )}
+                      {cat.name}
                     </button>
                   ))}
                 </div>
