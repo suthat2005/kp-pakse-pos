@@ -312,11 +312,29 @@ export default function OnlineShop() {
     }
   }, [customer]);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setAuthError('');
     try {
-      const user = db.authenticateOnlineCustomer(authPhone, authPassword);
+      let user;
+      try {
+        user = db.authenticateOnlineCustomer(authPhone, authPassword);
+      } catch (firstErr) {
+        // If local authentication fails, dynamically fetch latest customers from server
+        const baseUrl = window.location.protocol + '//' + window.location.host;
+        const res = await fetch(`${baseUrl}/api/db/sync?customers=0`);
+        const serverData = await res.json();
+        if (serverData && serverData.customers) {
+          const serverTable = serverData.customers;
+          localStorage.setItem('amulet_pos_customers', JSON.stringify(serverTable.data));
+          localStorage.setItem('amulet_pos_ts_customers', String(serverTable.updatedAt));
+          
+          user = db.authenticateOnlineCustomer(authPhone, authPassword);
+        } else {
+          throw firstErr;
+        }
+      }
+      
       setCustomer(user);
       localStorage.setItem('online_customer', JSON.stringify(user));
       setRecipientName(user.name);

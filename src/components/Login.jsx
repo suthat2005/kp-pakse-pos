@@ -52,10 +52,33 @@ export default function Login({ onLoginSuccess }) {
     setError('');
 
     const enteredHash = await hashPassword(password);
-    const foundUser = users.find(
+    let foundUser = users.find(
       (u) => u.email.toLowerCase() === email.toLowerCase().trim() && 
              (u.password === password || u.passwordHash === enteredHash)
     );
+
+    if (!foundUser) {
+      try {
+        const baseUrl = window.location.protocol + '//' + window.location.host;
+        const res = await fetch(`${baseUrl}/api/db/sync?users=0`);
+        const serverData = await res.json();
+        if (serverData && serverData.users) {
+          const serverTable = serverData.users;
+          localStorage.setItem('amulet_pos_users', JSON.stringify(serverTable.data));
+          localStorage.setItem('amulet_pos_ts_users', String(serverTable.updatedAt));
+          
+          const updatedUsers = db.getUsers();
+          setUsers(updatedUsers);
+          
+          foundUser = updatedUsers.find(
+            (u) => u.email.toLowerCase() === email.toLowerCase().trim() && 
+                   (u.password === password || u.passwordHash === enteredHash)
+          );
+        }
+      } catch (err) {
+        console.error('Login dynamic sync failed:', err);
+      }
+    }
 
     if (foundUser) {
       if (foundUser.forcePasswordChange) {

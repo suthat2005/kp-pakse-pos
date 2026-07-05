@@ -3444,7 +3444,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       'slots', 'products', 'categories', 'orders', 'debts', 'framing_jobs', 'settings',
       'attendance', 'expenses', 'audit_logs', 'raw_materials', 'production_history',
       'shifts', 'leaves', 'payrolls', 'users', 'promotions', 'cameras', 'cctv_alerts',
-      'online_orders',
+      'online_orders', 'customers',
       'deposits', 'deposit_transactions', 'payment_logs', 'payment_qr', 'payment_history', 'payment_audit', 'payment_events'
     ];
 
@@ -3551,7 +3551,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       'slots', 'products', 'categories', 'orders', 'debts', 'framing_jobs', 'settings',
       'attendance', 'expenses', 'audit_logs', 'raw_materials', 'production_history',
       'shifts', 'leaves', 'payrolls', 'users', 'promotions', 'cameras', 'cctv_alerts',
-      'online_orders',
+      'online_orders', 'customers',
       'deposits', 'deposit_transactions', 'payment_logs', 'payment_qr', 'payment_history', 'payment_audit', 'payment_events'
     ];
     const baseUrl = window.location.protocol + '//' + window.location.host;
