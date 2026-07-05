@@ -4362,7 +4362,21 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
   },
   registerOnlineCustomer(name, phone, password, addressData = null, email = '') {
     const list = this.getCustomers();
-    const existingIdx = list.findIndex(c => c.phone === phone);
+    
+    const inputPhoneDigits = String(phone || '').replace(/\D/g, '');
+    const inputPhoneLast8 = inputPhoneDigits.length >= 8 ? inputPhoneDigits.slice(-8) : null;
+    
+    const existingIdx = list.findIndex(c => {
+      if (email && c.email && c.email.trim().toLowerCase() === email.trim().toLowerCase()) return true;
+      if (phone && c.phone) {
+        const cPhoneDigits = String(c.phone).replace(/\D/g, '');
+        if (cPhoneDigits === inputPhoneDigits) return true;
+        const cPhoneLast8 = cPhoneDigits.length >= 8 ? cPhoneDigits.slice(-8) : null;
+        if (inputPhoneLast8 && cPhoneLast8 && inputPhoneLast8 === cPhoneLast8) return true;
+      }
+      return false;
+    });
+    
     const addresses = addressData ? [{ ...addressData, isDefault: true }] : [];
     if (existingIdx !== -1) {
       list[existingIdx].password = password;
@@ -4464,11 +4478,26 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     }
     return null;
   },
-  authenticateOnlineCustomer(phone, password) {
+  authenticateOnlineCustomer(phoneOrEmail, password) {
     const list = this.getCustomers();
-    const customer = list.find(c => c.phone === phone && c.password === password);
+    const inputCleaned = String(phoneOrEmail || '').trim().toLowerCase();
+    const inputPhoneDigits = inputCleaned.replace(/\D/g, '');
+    const inputPhoneLast8 = inputPhoneDigits.length >= 8 ? inputPhoneDigits.slice(-8) : null;
+
+    const customer = list.find(c => {
+      if (c.password !== password) return false;
+      if (c.email && c.email.trim().toLowerCase() === inputCleaned) return true;
+      if (c.phone) {
+        const cPhoneDigits = String(c.phone).replace(/\D/g, '');
+        if (cPhoneDigits === inputPhoneDigits) return true;
+        const cPhoneLast8 = cPhoneDigits.length >= 8 ? cPhoneDigits.slice(-8) : null;
+        if (inputPhoneLast8 && cPhoneLast8 && inputPhoneLast8 === cPhoneLast8) return true;
+      }
+      return false;
+    });
+
     if (!customer) {
-      throw new Error('ເບີໂທ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ!');
+      throw new Error('ເບີໂທ, ອີເມວ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ!');
     }
     return customer;
   },
