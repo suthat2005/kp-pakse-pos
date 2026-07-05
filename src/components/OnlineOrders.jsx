@@ -141,8 +141,8 @@ export default function OnlineOrders({ activeUser, isMobile }) {
       {(!isMobile || !selectedOrder) && (
         <div className="glass-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', height: '100%', overflowY: 'auto' }}>
         <div>
-          <h3 style={{ color: 'var(--gold-primary)', margin: '0 0 4px' }}>🛒 ອໍເດີ້ອອນລາຍ (Online Orders)</h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', margin: 0 }}>ຈັດการອໍເດີ້ ແລະ ກວດສອບສະລິບລູກຄ້າ</p>
+          <h3 style={{ color: 'var(--gold-primary)', margin: '0 0 4px', fontSize: isMobile ? '1.2rem' : '1.35rem' }}>🛒 ອໍເດີ້ອອນລາຍ (Online Orders)</h3>
+          {!isMobile && <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', margin: 0 }}>ຈັດການອໍເດີ້ ແລະ ກວດສອບສະລິບລູກຄ້າ</p>}
         </div>
 
         {/* Tab switcher active/archive */}

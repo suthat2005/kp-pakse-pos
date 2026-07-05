@@ -115,7 +115,7 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
 // ==========================================
 // 💎 RAW MATERIALS SUB-VIEW
 // ==========================================
-function RawMaterialsSubView() {
+function RawMaterialsSubView({ isMobile }) {
   const [materials, setMaterials] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editMaterial, setEditMaterial] = useState(null);
@@ -262,8 +262,8 @@ function RawMaterialsSubView() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', gap: '8px', flexGrow: 1, maxWidth: '400px' }}>
+      <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '8px' } : { display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '8px', flexGrow: 1, maxWidth: isMobile ? '100%' : '400px', width: '100%' }}>
           <input
             type="text"
             className="form-control"
@@ -272,10 +272,28 @@ function RawMaterialsSubView() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button className="btn btn-secondary" onClick={handleExportCsv}>📤 ສົ່ງອອກ CSV</button>
-          <button className="btn btn-secondary" onClick={() => setShowCsvModal(true)}>📥 ນຳເຂົ້າ CSV</button>
-          <button className="btn btn-primary" onClick={handleOpenAdd}>➕ ເພີ່ມວັດຖຸດິບໃໝ່</button>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', width: isMobile ? '100%' : 'auto' }}>
+          <button 
+            className="btn btn-secondary" 
+            style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
+            onClick={handleExportCsv}
+          >
+            📤 ສົ່ງອອກ CSV
+          </button>
+          <button 
+            className="btn btn-secondary" 
+            style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
+            onClick={() => setShowCsvModal(true)}
+          >
+            📥 ນຳເຂົ້າ CSV
+          </button>
+          <button 
+            className="btn btn-primary" 
+            style={isMobile ? { flex: '1 1 100%', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
+            onClick={handleOpenAdd}
+          >
+            ➕ ເພີ່ມວັດຖຸດິບໃໝ່
+          </button>
         </div>
       </div>
 
@@ -533,7 +551,7 @@ function RawMaterialsSubView() {
 // ==========================================
 // 🏭 BOM FORMULA & MANUFACTURING SUB-VIEW
 // ==========================================
-function ManufacturingSubView() {
+function ManufacturingSubView({ isMobile }) {
   const [products, setProducts] = useState([]);
   const [rawMaterials, setRawMaterials] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -789,7 +807,7 @@ function ManufacturingSubView() {
   };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '20px' }}>
+    <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '16px' } : { display: 'grid', gridTemplateColumns: '300px 1fr', gap: '20px' }}>
       
       <div className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -837,7 +855,7 @@ function ManufacturingSubView() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         {selectedProduct ? (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '16px' } : { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
               <div className="glass-card" style={{ padding: '20px' }}>
                 <h3 style={{ color: 'var(--gold-primary)', fontSize: '0.95rem', margin: '0 0 12px' }}>
                   🧪 ສູດການຜະລິດ (BOM Formula Recipe) - {selectedProduct.name}
@@ -952,7 +970,7 @@ function ManufacturingSubView() {
                 📐 ເຄື່ອງຄິດໄລ່ແຜ່ນອາຄຣີລິກ (Acrylic Sheet Cutting Solver)
               </h3>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '20px' }}>
+              <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '16px' } : { display: 'grid', gridTemplateColumns: '320px 1fr', gap: '20px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                     <div className="form-group" style={{ margin: 0 }}>
@@ -2187,11 +2205,11 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       </div>
 
       {activeSubTab === 'raw_materials' && (
-        <RawMaterialsSubView />
+        <RawMaterialsSubView isMobile={isMobile} />
       )}
 
       {activeSubTab === 'manufacturing' && (
-        <ManufacturingSubView />
+        <ManufacturingSubView isMobile={isMobile} />
       )}
 
       {activeSubTab === 'products' && (

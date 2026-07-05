@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../utils/db';
 import Portal from './Portal';
 
-export default function Debts({ activeUser, onUpdate }) {
+export default function Debts({ activeUser, onUpdate, isMobile }) {
   const [debts, setDebts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDebt, setSelectedDebt] = useState(null);
@@ -126,8 +126,12 @@ export default function Debts({ activeUser, onUpdate }) {
         )}
 
         <div>
-          <h2 style={{ color: 'var(--gold-primary)' }}>{db.getLabel('title_debts', '📒 ບັນຊີຕິດໜີ້ລູກຄ້າ (Customer Credit Ledger)')}</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{'ຕິດຕາມລູກຄ້າຕິດໜີ້, ຊຳລະໜີ້ຄ້າງ, ພິມໃບບິນ'}</p>
+          <h2 style={{ color: 'var(--gold-primary)', fontSize: isMobile ? '1.25rem' : '1.5rem', margin: 0 }}>
+            {db.getLabel('title_debts', '📒 ບັນຊີຕິດໜີ້ລູກຄ້າ (Customer Credit Ledger)')}
+          </h2>
+          {!isMobile && (
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0' }}>{'ຕິດຕາມລູກຄ້າຕິດໜີ້, ຊຳລະໜີ້ຄ້າງ, ພິມໃບບິນ'}</p>
+          )}
         </div>
 
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>

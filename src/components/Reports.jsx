@@ -953,26 +953,32 @@ export default function Reports({ activeUser, isMobile }) {
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
       {/* Header and Filter */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+      <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '8px' } : { display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <h2 style={{ color: 'var(--gold-primary)' }}>{db.getLabel('title_reports', '📊 ບົດລາຍງານຍອດຂາຍ & ການເງິນ (Sales & Finance Reports)')}</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>ເບິ່ງຍອດຂາຍ, ຄຳນວນກຳໄລ, ຕິດຕາມວິເຄາະ ແລະ ຄົ້ນຫາໃບບິນຍ້ອນຫຼັງ</p>
+          <h2 style={{ color: 'var(--gold-primary)', fontSize: isMobile ? '1.2rem' : '1.5rem', margin: 0 }}>
+            {db.getLabel('title_reports', '📊 ບົດລາຍງານຍອດຂາຍ & ການເງິນ (Sales & Finance Reports)')}
+          </h2>
+          {!isMobile && (
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0' }}>
+              ເບິ່ງຍອດຂາຍ, ຄຳນວນກຳໄລ, ຕິດຕາມວິເຄາະ ແລະ ຄົ້ນຫາໃບບິນຍ້ອນຫຼັງ
+            </p>
+          )}
         </div>
         
         {/* Advanced Date Range Selector */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'var(--bg-card, #161411)', padding: '12px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'var(--bg-card, #161411)', padding: '10px', borderRadius: '12px', border: '1px solid var(--border-color)', width: isMobile ? '100%' : 'auto' }}>
+          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
             {[
               { id: 'today', name: 'ມື້ນີ້' },
               { id: '7days', name: '7 ວັນຫຼ້າສຸດ' },
               { id: '30days', name: '30 ວັນຫຼ້າສຸດ' },
-              { id: 'year', name: '1 ປີຫຼ້າสุด' }
+              { id: 'year', name: '1 ປີຫຼ້າສຸດ' }
             ].map(opt => (
               <button
                 key={opt.id}
                 type="button"
                 className={`category-tab ${activePreset === opt.id ? 'active' : ''}`}
-                style={{ border: 'none', borderRadius: '20px', padding: '4px 12px', fontSize: '0.75rem', cursor: 'pointer' }}
+                style={{ border: 'none', borderRadius: '20px', padding: '4px 10px', fontSize: '0.72rem', cursor: 'pointer', margin: 0 }}
                 onClick={() => setDatePreset(opt.id)}
               >
                 {opt.name}
@@ -981,36 +987,40 @@ export default function Reports({ activeUser, isMobile }) {
             <button
               type="button"
               className="category-tab"
-              style={{ border: 'none', borderRadius: '20px', padding: '4px 12px', fontSize: '0.75rem', cursor: 'pointer', background: 'rgba(231,76,60,0.15)', color: 'var(--alert-red)' }}
+              style={{ border: 'none', borderRadius: '20px', padding: '4px 10px', fontSize: '0.72rem', cursor: 'pointer', background: 'rgba(231,76,60,0.15)', color: 'var(--alert-red)', margin: 0 }}
               onClick={handleClearFilters}
             >
-              🔄 ລ້າງຕົວຕອງ (Reset)
+              🔄 ຣີເຊັດ
             </button>
           </div>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem' }}>
-            <span style={{ color: 'var(--text-secondary)' }}>ແຕ່:</span>
-            <input
-              type="date"
-              className="form-control"
-              value={startDate}
-              onChange={(e) => {
-                setStartDate(e.target.value);
-                setActivePreset('custom');
-              }}
-              style={{ padding: '3px 8px', fontSize: '0.75rem', background: '#0c0b09', color: 'white', border: '1px solid var(--border-color)', borderRadius: '4px' }}
-            />
-            <span style={{ color: 'var(--text-secondary)' }}>ຫາ:</span>
-            <input
-              type="date"
-              className="form-control"
-              value={endDate}
-              onChange={(e) => {
-                setEndDate(e.target.value);
-                setActivePreset('custom');
-              }}
-              style={{ padding: '3px 8px', fontSize: '0.75rem', background: '#0c0b09', color: 'white', border: '1px solid var(--border-color)', borderRadius: '4px' }}
-            />
+          <div style={isMobile ? { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.8rem' } : { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>ແຕ່:</span>
+              <input
+                type="date"
+                className="form-control"
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                  setActivePreset('custom');
+                }}
+                style={{ width: '100%', padding: '4px 6px', fontSize: '0.75rem', background: '#0c0b09', color: 'white', border: '1px solid var(--border-color)', borderRadius: '4px', margin: 0 }}
+              />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>ຫາ:</span>
+              <input
+                type="date"
+                className="form-control"
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                  setActivePreset('custom');
+                }}
+                style={{ width: '100%', padding: '4px 6px', fontSize: '0.75rem', background: '#0c0b09', color: 'white', border: '1px solid var(--border-color)', borderRadius: '4px', margin: 0 }}
+              />
+            </div>
           </div>
         </div>
       </div>
