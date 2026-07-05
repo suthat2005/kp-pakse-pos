@@ -2395,9 +2395,22 @@ setStorage('debts', debts);
 },
 addDebt(debtData) {
 const debts = this.getDebts();
+let nextNum = 10001;
+if (debts.length > 0) {
+  const nums = debts.map(d => {
+    if (!d.id) return 0;
+    const match = d.id.match(/\d+/);
+    return match ? parseInt(match[0], 10) : 0;
+  });
+  const maxNum = Math.max(...nums);
+  if (maxNum >= 10001) {
+    nextNum = maxNum + 1;
+  }
+}
+const newId = 'DBT' + String(nextNum).padStart(5, '0');
 const newDebt = {
 ...debtData,
-id: 'DBT' + String(debts.length + 10001).padStart(5, '0'),
+id: newId,
 date: new Date().toISOString(),
 status: 'unpaid'
 };
@@ -2486,9 +2499,22 @@ setStorage('products', products);
 },
 addProduct(product) {
 const products = this.getProducts();
+let nextNum = 1;
+if (products.length > 0) {
+  const nums = products.map(p => {
+    if (!p.id) return 0;
+    const match = p.id.match(/\d+/);
+    return match ? parseInt(match[0], 10) : 0;
+  });
+  const maxNum = Math.max(...nums);
+  if (maxNum >= 1) {
+    nextNum = maxNum + 1;
+  }
+}
+const newId = 'P' + String(nextNum).padStart(3, '0');
 const newProduct = this.normalizeProductForCategory({
 ...product,
-id: 'P' + String(products.length + 1).padStart(3, '0'),
+id: newId,
 stock: Number(product.stock),
 minStock: Number(product.minStock),
 price: Number(product.price),
@@ -2617,9 +2643,22 @@ setStorage('orders', orders);
 },
   addOrder(orderData) {
     const orders = this.getOrders();
+    let nextNum = 10001;
+    if (orders.length > 0) {
+      const nums = orders.map(o => {
+        if (!o.id) return 0;
+        const match = o.id.match(/\d+/);
+        return match ? parseInt(match[0], 10) : 0;
+      });
+      const maxNum = Math.max(...nums);
+      if (maxNum >= 10001) {
+        nextNum = maxNum + 1;
+      }
+    }
+    const newId = 'TX' + String(nextNum).padStart(5, '0');
     const newOrder = {
       ...orderData,
-      id: 'TX' + String(orders.length + 10001).padStart(5, '0'),
+      id: newId,
       date: new Date().toISOString()
     };
     orders.push(newOrder);
@@ -2677,16 +2716,58 @@ setStorage('orders', orders);
 
 getFramingJobs() {
 this.init();
-return getStorage('framing_jobs', DEFAULT_FRAMING_JOBS);
+const jobs = getStorage('framing_jobs', DEFAULT_FRAMING_JOBS);
+// Deduplicate jobs by ID to prevent Kanban duplication bugs!
+const uniqueJobsMap = {};
+let hasDuplicates = false;
+jobs.forEach(job => {
+  if (!job.id) return;
+  if (uniqueJobsMap[job.id]) {
+    hasDuplicates = true;
+    const existing = uniqueJobsMap[job.id];
+    const statusPriority = { pending: 1, framing: 2, done: 3, picked_up: 4 };
+    const existingPriority = statusPriority[existing.status] || 0;
+    const currentPriority = statusPriority[job.status] || 0;
+    if (currentPriority > existingPriority) {
+      uniqueJobsMap[job.id] = job;
+    } else if (currentPriority === existingPriority) {
+      if (new Date(job.createdDate) > new Date(existing.createdDate)) {
+        uniqueJobsMap[job.id] = job;
+      }
+    }
+  } else {
+    uniqueJobsMap[job.id] = job;
+  }
+});
+if (hasDuplicates) {
+  const cleanJobs = Object.values(uniqueJobsMap);
+  // Using setStorage directly to bypass local getFramingJobs recursion
+  setStorage('framing_jobs', cleanJobs);
+  return cleanJobs;
+}
+return jobs;
 },
 saveFramingJobs(jobs) {
 setStorage('framing_jobs', jobs);
 },
 addFramingJob(job) {
 const jobs = this.getFramingJobs();
+let nextNum = 10001;
+if (jobs.length > 0) {
+  const nums = jobs.map(j => {
+    if (!j.id) return 0;
+    const match = j.id.match(/\d+/);
+    return match ? parseInt(match[0], 10) : 0;
+  });
+  const maxNum = Math.max(...nums);
+  if (maxNum >= 10001) {
+    nextNum = maxNum + 1;
+  }
+}
+const newId = 'JOB' + String(nextNum).padStart(5, '0');
 const newJob = {
 ...job,
-id: 'JOB' + String(jobs.length + 10001).padStart(5, '0'),
+id: newId,
 createdDate: new Date().toISOString(),
 deposit: Number(job.deposit || 0),
 totalPrice: Number(job.totalPrice),
@@ -2996,11 +3077,24 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       convertedAmount = Math.round(amount * rate);
     }
     
+    let nextNum = 10001;
+    if (expenses.length > 0) {
+      const nums = expenses.map(e => {
+        if (!e.id) return 0;
+        const match = e.id.match(/\d+/);
+        return match ? parseInt(match[0], 10) : 0;
+      });
+      const maxNum = Math.max(...nums);
+      if (maxNum >= 10001) {
+        nextNum = maxNum + 1;
+      }
+    }
+    const newId = 'EXP-' + String(nextNum).padStart(5, '0');
     const newExpense = {
       ...expenseData,
       currency,
       convertedAmount,
-      id: 'EXP-' + String(expenses.length + 10001).padStart(5, '0'),
+      id: newId,
       date: new Date().toISOString(),
       createdBy: activeUser ? activeUser.id : 'unknown',
       createdByName: activeUser ? activeUser.name : 'Unknown User'
