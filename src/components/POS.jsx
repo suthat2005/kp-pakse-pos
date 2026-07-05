@@ -2417,6 +2417,9 @@ export default function POS({
               size: auto;
               margin: 0mm !important;
             }
+            #root {
+              display: none !important;
+            }
             body {
               background: white !important;
               color: black !important;

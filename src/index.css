@@ -1142,6 +1142,9 @@ textarea.form-control {
     size: auto;
     margin: 0mm !important;
   }
+  #root {
+    display: none !important;
+  }
   body {
     background: white;
     color: black;
