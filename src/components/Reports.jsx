@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../utils/db';
 import Portal from './Portal';
 
-export default function Reports({ activeUser }) {
+export default function Reports({ activeUser, isMobile }) {
   const todayStr = new Date().toLocaleDateString('en-CA');
   
   // Interactive Chart Style States
