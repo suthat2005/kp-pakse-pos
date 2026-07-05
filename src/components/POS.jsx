@@ -2390,269 +2390,429 @@ export default function POS({
             </div>
           </div>
 
-          <div className="slots-grid" style={{
+          <div style={{
             flex: 1,
             overflowY: 'auto',
             paddingRight: '4px',
             paddingBottom: '4px'
           }}>
-            {slotList.filter(slot => {
-              if (!queueSearchQuery.trim()) return true;
-              const q = queueSearchQuery.toLowerCase();
-              const nameMatch = slot.customerName && slot.customerName.toLowerCase().includes(q);
-              const phoneMatch = slot.customerPhone && slot.customerPhone.includes(q);
-              const labelMatch = slot.label && slot.label.toLowerCase().includes(q);
-              return nameMatch || phoneMatch || labelMatch;
-            }).map(slot => {
-              const hasItems = slot.items.length > 0;
-              const isDebt = slot.isDebt;
-              const activeJob = framingJobs.find(j => j.slotId === slot.id && j.status !== 'picked_up');
-              const totalQty = slot.items.reduce((s, i) => s + i.qty, 0);
-              const totalValue = slot.items.reduce((s, i) => s + i.total, 0);
+            {isMobile ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {slotList.filter(slot => {
+                  if (!queueSearchQuery.trim()) return true;
+                  const q = queueSearchQuery.toLowerCase();
+                  const nameMatch = slot.customerName && slot.customerName.toLowerCase().includes(q);
+                  const phoneMatch = slot.customerPhone && slot.customerPhone.includes(q);
+                  const labelMatch = slot.label && slot.label.toLowerCase().includes(q);
+                  return nameMatch || phoneMatch || labelMatch;
+                }).map(slot => {
+                  const hasItems = slot.items.length > 0;
+                  const isDebt = slot.isDebt;
+                  const hasDeposit = slot.depositAmount > 0;
+                  const totalQty = slot.items.reduce((s, i) => s + i.qty, 0);
+                  const totalValue = slot.items.reduce((s, i) => s + i.total, 0);
+                  const activeJob = framingJobs.find(j => j.slotId === slot.id && j.status !== 'picked_up');
 
-              // Determine card style
-              let cardBg, cardBorder, cardGlow, statusColor;
-              const hasDeposit = slot.depositAmount > 0;
-              if (isDebt) {
-                cardBg = 'linear-gradient(145deg, rgba(231,76,60,0.18) 0%, rgba(192,57,43,0.08) 100%)';
-                cardBorder = 'rgba(231,76,60,0.6)';
-                cardGlow = '0 0 20px rgba(231,76,60,0.2), 0 4px 20px rgba(0,0,0,0.4)';
-                statusColor = 'var(--alert-red)';
-              } else if (hasItems && hasDeposit) {
-                cardBg = 'linear-gradient(145deg, rgba(52,152,219,0.18) 0%, rgba(41,128,185,0.08) 100%)';
-                cardBorder = 'rgba(52,152,219,0.6)';
-                cardGlow = '0 0 20px rgba(52,152,219,0.2), 0 4px 20px rgba(0,0,0,0.4)';
-                statusColor = '#3498db';
-              } else if (hasItems) {
-                cardBg = 'linear-gradient(145deg, rgba(39,174,96,0.18) 0%, rgba(27,120,66,0.08) 100%)';
-                cardBorder = 'rgba(46,204,113,0.6)';
-                cardGlow = '0 0 20px rgba(46,204,113,0.2), 0 4px 20px rgba(0,0,0,0.4)';
-                statusColor = 'var(--success-green)';
-              } else {
-                cardBg = 'linear-gradient(145deg, rgba(212,175,55,0.06) 0%, rgba(18,16,13,0.95) 100%)';
-                cardBorder = 'rgba(212,175,55,0.2)';
-                cardGlow = '0 4px 15px rgba(0,0,0,0.3)';
-                statusColor = 'rgba(212,175,55,0.5)';
-              }
+                  // Determine colors based on status
+                  let statusBg = 'rgba(255,255,255,0.03)';
+                  let statusColor = 'var(--gold-primary)';
+                  let statusText = 'ວ່າງ (Empty)';
+                  let borderStyle = '1px solid rgba(255,255,255,0.08)';
 
-              return (
-                <div
-                  key={slot.id}
-                  style={{
-                    minHeight: '150px',
-                    borderRadius: '14px',
-                    border: `1.5px solid ${cardBorder}`,
-                    background: cardBg,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                    position: 'relative',
-                    transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                    boxShadow: cardGlow,
-                    overflow: 'hidden',
-                    padding: '12px 8px 10px'
-                  }}
-                  onClick={() => handleSlotCardClick(slot)}
-                  className="product-card"
-                >
-                  {/* Decorative top accent line */}
-                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: `linear-gradient(90deg, transparent, ${cardBorder}, transparent)` }} />
+                  if (isDebt) {
+                    statusBg = 'rgba(231,76,60,0.15)';
+                    statusColor = '#e74c3c';
+                    statusText = 'ຕິດໜີ້ (Debt)';
+                    borderStyle = '1px solid rgba(231,76,60,0.3)';
+                  } else if (hasItems && hasDeposit) {
+                    statusBg = 'rgba(52,152,219,0.15)';
+                    statusColor = '#3498db';
+                    statusText = 'ມັດຈຳແລ້ວ';
+                    borderStyle = '1px solid rgba(52,152,219,0.3)';
+                  } else if (hasItems) {
+                    statusBg = 'rgba(46,204,113,0.15)';
+                    statusColor = '#2ecc71';
+                    statusText = 'ມີສິນຄ້າ';
+                    borderStyle = '1px solid rgba(46,204,113,0.3)';
+                  }
 
-                  {/* Delete slot button */}
-                  {slot.id !== 'Walk-In' && (
-                    <button
-                      className="no-print"
+                  return (
+                    <div
+                      key={slot.id}
                       style={{
-                        position: 'absolute',
-                        top: '8px',
-                        right: '8px',
-                        width: '24px',
-                        height: '24px',
-                        borderRadius: '50%',
-                        background: 'rgba(0,0,0,0.7)',
-                        border: '1.5px solid rgba(231,76,60,0.5)',
-                        color: 'rgba(231,76,60,0.8)',
+                        padding: '12px 14px',
+                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
+                        border: borderStyle,
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        fontSize: '0.7rem',
-                        zIndex: 10,
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
-                        transition: 'all 0.2s'
+                        justifyContent: 'space-between',
+                        gap: '12px',
+                        boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
                       }}
-                      onClick={(e) => handleDeleteSlotClick(e, slot)}
-                      title="ລຶບບັດຄິວ"
                     >
-                      ✕
-                    </button>
-                  )}
-
-                  {/* Edit button */}
-                  <button
-                    className="no-print"
-                    style={{
-                      position: 'absolute',
-                      top: '8px',
-                      left: '8px',
-                      width: '24px',
-                      height: '24px',
-                      borderRadius: '50%',
-                      background: 'rgba(0,0,0,0.7)',
-                      border: '1.5px solid rgba(212,175,55,0.5)',
-                      color: 'rgba(212,175,55,0.8)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      fontSize: '0.7rem',
-                      zIndex: 10,
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
-                      transition: 'all 0.2s'
-                    }}
-                    onClick={(e) => handleRenameClick(e, slot)}
-                    title="ແກ້ໄຂຊື່ຄິว"
-                  >
-                    ✏️
-                  </button>
-
-                  {/* 1. TOP SECTION: Icon / Image */}
-                  <div style={{ height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '4px', marginTop: '6px' }}>
-                    {slot.amuletImage ? (
-                      <img 
-                        src={slot.amuletImage} 
-                        alt="Amulet"
-                        style={{ 
-                          width: '42px', 
-                          height: '42px', 
-                          objectFit: 'cover', 
-                          borderRadius: '50%', 
-                          border: `2px solid ${cardBorder}`,
-                          boxShadow: `0 0 10px ${cardBorder}`
-                        }} 
-                      />
-                    ) : (
-                      <div style={{
-                        width: '42px',
-                        height: '42px',
-                        borderRadius: '50%',
-                        background: `radial-gradient(circle, rgba(212,175,55,0.12), rgba(12,10,8,0.8))`,
-                        border: `2px solid ${cardBorder}`,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '1.2rem'
-                      }}>
-                        {isDebt ? '🔴' : (hasItems && hasDeposit) ? '💰' : hasItems ? '🛍' : '📿'}
+                      {/* Left: Slot number badge */}
+                      <div
+                        onClick={() => handleSlotCardClick(slot)}
+                        style={{
+                          width: '46px',
+                          height: '46px',
+                          borderRadius: '10px',
+                          background: statusBg,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: 'bold',
+                          color: statusColor,
+                          fontSize: '1.25rem',
+                          border: `1.5px solid ${statusColor}`,
+                          cursor: 'pointer',
+                          flexShrink: 0
+                        }}
+                      >
+                        {slot.label === 'Walk-In' ? 'WI' : slot.label}
                       </div>
-                    )}
-                  </div>
-                  
-                  {/* 2. MIDDLE SECTION: Label & Customer Name */}
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, width: '100%', margin: '2px 0' }}>
-                    <span style={{ 
-                      fontSize: '0.9rem', 
-                      fontWeight: 'bold', 
-                      color: isDebt ? 'var(--alert-red)' : (hasItems && hasDeposit) ? '#3498db' : hasItems ? '#2ecc71' : 'white', 
-                      textAlign: 'center', 
-                      width: '90%', 
-                      overflow: 'hidden', 
-                      textOverflow: 'ellipsis', 
-                      whiteSpace: 'nowrap',
-                      lineHeight: '1.1'
-                    }}>
-                      {slot.label === 'Walk-In' ? db.getLabel('pos_walk_in', 'Walk-In') : slot.label}
-                    </span>
 
-                    {slot.customerName && (
-                      <span style={{ 
-                        fontSize: '0.64rem', 
-                        color: 'var(--text-secondary)', 
-                        marginTop: '1px', 
-                        textAlign: 'center', 
-                        width: '90%', 
-                        overflow: 'hidden', 
-                        textOverflow: 'ellipsis', 
-                        whiteSpace: 'nowrap',
-                        lineHeight: '1.1'
-                      }}>
-                        👤 {slot.customerName}
-                      </span>
-                    )}
-                  </div>
+                      {/* Center: Details */}
+                      <div
+                        onClick={() => handleSlotCardClick(slot)}
+                        style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2px', cursor: 'pointer', overflow: 'hidden' }}
+                      >
+                        <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {slot.customerName ? slot.customerName : `ຄິວເລກທີ ${slot.label}`}
+                        </span>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                          <span style={{ color: statusColor }}>{statusText}</span>
+                          {hasItems && (
+                            <>
+                              <span>•</span>
+                              <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{totalQty} ລາຍການ ({totalValue.toLocaleString()} ₭)</span>
+                            </>
+                          )}
+                          {activeJob && (
+                            <>
+                              <span>•</span>
+                              <span style={{
+                                color: activeJob.status === 'done' ? '#2ecc71' : activeJob.status === 'framing' ? '#f39c12' : '#e74c3c',
+                                fontWeight: 'bold'
+                              }}>
+                                {activeJob.status === 'done' ? '✅ ອັດສຳເລັດ' : activeJob.status === 'framing' ? '⚙️ ກຳລັງອັດ' : '⏳ ລໍຖ້າ'}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
 
-                  {/* 3. BOTTOM SECTION: Badges & Capsules */}
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', marginTop: 'auto', width: '100%' }}>
-                    {hasItems && (
-                      <span style={{ 
-                        fontSize: '0.68rem', 
-                        color: '#2ecc71', 
-                        fontWeight: 'bold',
-                        background: 'rgba(39,174,96,0.12)',
-                        padding: '1px 6px',
-                        borderRadius: '20px',
-                        border: '1px solid rgba(46,204,113,0.25)',
-                        lineHeight: '1.2',
-                        textAlign: 'center',
-                        maxWidth: '95%',
+                      {/* Right: Actions */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                        {/* Edit Button */}
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          style={{
+                            width: '38px',
+                            height: '38px',
+                            borderRadius: '8px',
+                            padding: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '1rem',
+                            border: '1px solid rgba(212,175,55,0.3)',
+                            background: 'rgba(212,175,55,0.05)',
+                            color: 'var(--gold-primary)'
+                          }}
+                          onClick={(e) => { e.stopPropagation(); handleRenameClick(e, slot); }}
+                        >
+                          ✏️
+                        </button>
+
+                        {/* Delete button (except Walk-In) */}
+                        {slot.id !== 'Walk-In' && (
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            style={{
+                              width: '38px',
+                              height: '38px',
+                              borderRadius: '8px',
+                              padding: 0,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '1rem',
+                              border: '1px solid rgba(231,76,60,0.3)',
+                              background: 'rgba(231,76,60,0.05)',
+                              color: '#e74c3c'
+                            }}
+                            onClick={(e) => { e.stopPropagation(); handleDeleteSlotClick(e, slot); }}
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="slots-grid">
+                {slotList.filter(slot => {
+                  if (!queueSearchQuery.trim()) return true;
+                  const q = queueSearchQuery.toLowerCase();
+                  const nameMatch = slot.customerName && slot.customerName.toLowerCase().includes(q);
+                  const phoneMatch = slot.customerPhone && slot.customerPhone.includes(q);
+                  const labelMatch = slot.label && slot.label.toLowerCase().includes(q);
+                  return nameMatch || phoneMatch || labelMatch;
+                }).map(slot => {
+                  const hasItems = slot.items.length > 0;
+                  const isDebt = slot.isDebt;
+                  const activeJob = framingJobs.find(j => j.slotId === slot.id && j.status !== 'picked_up');
+                  const totalQty = slot.items.reduce((s, i) => s + i.qty, 0);
+                  const totalValue = slot.items.reduce((s, i) => s + i.total, 0);
+
+                  // Determine card style
+                  let cardBg, cardBorder, cardGlow, statusColor;
+                  const hasDeposit = slot.depositAmount > 0;
+                  if (isDebt) {
+                    cardBg = 'linear-gradient(145deg, rgba(231,76,60,0.18) 0%, rgba(192,57,43,0.08) 100%)';
+                    cardBorder = 'rgba(231,76,60,0.6)';
+                    cardGlow = '0 0 20px rgba(231,76,60,0.2), 0 4px 20px rgba(0,0,0,0.4)';
+                    statusColor = 'var(--alert-red)';
+                  } else if (hasItems && hasDeposit) {
+                    cardBg = 'linear-gradient(145deg, rgba(52,152,219,0.18) 0%, rgba(41,128,185,0.08) 100%)';
+                    cardBorder = 'rgba(52,152,219,0.6)';
+                    cardGlow = '0 0 20px rgba(52,152,219,0.2), 0 4px 20px rgba(0,0,0,0.4)';
+                    statusColor = '#3498db';
+                  } else if (hasItems) {
+                    cardBg = 'linear-gradient(145deg, rgba(39,174,96,0.18) 0%, rgba(27,120,66,0.08) 100%)';
+                    cardBorder = 'rgba(46,204,113,0.6)';
+                    cardGlow = '0 0 20px rgba(46,204,113,0.2), 0 4px 20px rgba(0,0,0,0.4)';
+                    statusColor = 'var(--success-green)';
+                  } else {
+                    cardBg = 'linear-gradient(145deg, rgba(212,175,55,0.06) 0%, rgba(18,16,13,0.95) 100%)';
+                    cardBorder = 'rgba(212,175,55,0.2)';
+                    cardGlow = '0 4px 15px rgba(0,0,0,0.3)';
+                    statusColor = 'rgba(212,175,55,0.5)';
+                  }
+
+                  return (
+                    <div
+                      key={slot.id}
+                      style={{
+                        minHeight: '150px',
+                        borderRadius: '14px',
+                        border: `1.5px solid ${cardBorder}`,
+                        background: cardBg,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        cursor: 'pointer',
+                        position: 'relative',
+                        transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                        boxShadow: cardGlow,
                         overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }}>
-                        ₭{totalValue.toLocaleString()} ({totalQty} ລ.)
-                      </span>
-                    )}
+                        padding: '12px 8px 10px'
+                      }}
+                      onClick={() => handleSlotCardClick(slot)}
+                      className="product-card"
+                    >
+                      {/* Decorative top accent line */}
+                      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: `linear-gradient(90deg, transparent, ${cardBorder}, transparent)` }} />
 
-                    {activeJob && (
-                      <span style={{ 
-                        background: activeJob.status === 'done' ? 'rgba(46,204,113,0.15)' : activeJob.status === 'framing' ? 'rgba(243,156,18,0.15)' : 'rgba(231,76,60,0.15)',
-                        color: activeJob.status === 'done' ? '#2ecc71' : activeJob.status === 'framing' ? '#f39c12' : '#e74c3c',
-                        borderRadius: '20px', 
-                        padding: '1px 6px', 
-                        fontSize: '0.6rem', 
-                        fontWeight: 'bold',
-                        border: '1px solid ' + (activeJob.status === 'done' ? 'rgba(46,204,113,0.3)' : activeJob.status === 'framing' ? 'rgba(243,156,18,0.3)' : 'rgba(231,76,60,0.3)'),
-                        lineHeight: '1.2'
-                      }}>
-                        {activeJob.status === 'done' ? '✅ ' : activeJob.status === 'framing' ? '⚙️ ' : '⏳ '}
-                        {activeJob.status === 'done' ? db.getLabel('job_status_done', 'ອັດສຳເລັດ') : activeJob.status === 'framing' ? db.getLabel('job_status_framing', 'ກຳລັງອັດ') : db.getLabel('job_status_waiting', 'ລໍຖ້າ')}
-                      </span>
-                    )}
+                      {/* Delete slot button */}
+                      {slot.id !== 'Walk-In' && (
+                        <button
+                          className="no-print"
+                          style={{
+                            position: 'absolute',
+                            top: '8px',
+                            right: '8px',
+                            width: '24px',
+                            height: '24px',
+                            borderRadius: '50%',
+                            background: 'rgba(0,0,0,0.7)',
+                            border: '1.5px solid rgba(231,76,60,0.5)',
+                            color: 'rgba(231,76,60,0.8)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            fontSize: '0.7rem',
+                            zIndex: 10,
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                            transition: 'all 0.2s'
+                          }}
+                          onClick={(e) => handleDeleteSlotClick(e, slot)}
+                          title="ລຶບບັດຄິວ"
+                        >
+                          ✕
+                        </button>
+                      )}
 
-                    {hasDeposit && (
-                      <span style={{ 
-                        background: 'rgba(52,152,219,0.15)', 
-                        color: '#3498db', 
-                        borderRadius: '20px', 
-                        padding: '1px 6px', 
-                        fontSize: '0.6rem', 
-                        fontWeight: 'bold',
-                        border: '1px solid rgba(52,152,219,0.3)',
-                        lineHeight: '1.2'
-                      }}>
-                        💰 ມັດຈຳແລ້ວ: ₭{slot.depositAmount.toLocaleString()}
-                      </span>
-                    )}
+                      {/* Edit button */}
+                      <button
+                        className="no-print"
+                        style={{
+                          position: 'absolute',
+                          top: '8px',
+                          left: '8px',
+                          width: '24px',
+                          height: '24px',
+                          borderRadius: '50%',
+                          background: 'rgba(0,0,0,0.7)',
+                          border: '1.5px solid rgba(212,175,55,0.5)',
+                          color: 'rgba(212,175,55,0.8)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          fontSize: '0.7rem',
+                          zIndex: 10,
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                          transition: 'all 0.2s'
+                        }}
+                        onClick={(e) => handleRenameClick(e, slot)}
+                        title="ແກ້ໄຂຊື່ຄິວ"
+                      >
+                        ✏️
+                      </button>
 
-                    {isDebt && (
-                      <span style={{ 
-                        background: 'rgba(231,76,60,0.15)', 
-                        color: '#e74c3c', 
-                        borderRadius: '20px', 
-                        padding: '1px 6px', 
-                        fontSize: '0.6rem', 
-                        fontWeight: 'bold',
-                        border: '1px solid rgba(231,76,60,0.3)',
-                        lineHeight: '1.2'
-                      }}>
-                        ⚠️ ຕິດໜີ້
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );;
-            })}
+                      {/* 1. TOP SECTION: Icon / Image */}
+                      <div style={{ height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '4px', marginTop: '6px' }}>
+                        {slot.amuletImage ? (
+                          <img 
+                            src={slot.amuletImage} 
+                            alt="Amulet"
+                            style={{ 
+                              width: '42px', 
+                              height: '42px', 
+                              objectFit: 'cover', 
+                              borderRadius: '50%', 
+                              border: `2px solid ${cardBorder}`,
+                              boxShadow: `0 0 10px ${cardBorder}`
+                            }} 
+                          />
+                        ) : (
+                          <div style={{
+                            width: '42px',
+                            height: '42px',
+                            borderRadius: '50%',
+                            background: `radial-gradient(circle, rgba(212,175,55,0.12), rgba(12,10,8,0.8))`,
+                            border: `2px solid ${cardBorder}`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '1.2rem'
+                          }}>
+                            {isDebt ? '🔴' : (hasItems && hasDeposit) ? '💰' : hasItems ? '🛍' : '📿'}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* 2. MIDDLE SECTION: Label & Customer Name */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, width: '100%', margin: '2px 0' }}>
+                        <span style={{ 
+                          fontSize: '0.9rem', 
+                          fontWeight: 'bold', 
+                          color: isDebt ? 'var(--alert-red)' : (hasItems && hasDeposit) ? '#3498db' : hasItems ? '#2ecc71' : 'white', 
+                          textAlign: 'center', 
+                          width: '90%', 
+                          overflow: 'hidden', 
+                          textOverflow: 'ellipsis', 
+                          whiteSpace: 'nowrap',
+                          lineHeight: '1.1'
+                        }}>
+                          {slot.label === 'Walk-In' ? db.getLabel('pos_walk_in', 'Walk-In') : slot.label}
+                        </span>
+
+                        {slot.customerName && (
+                          <span style={{ 
+                            fontSize: '0.64rem', 
+                            color: 'var(--text-secondary)', 
+                            marginTop: '1px', 
+                            textAlign: 'center', 
+                            width: '90%', 
+                            overflow: 'hidden', 
+                            textOverflow: 'ellipsis', 
+                            whiteSpace: 'nowrap',
+                            lineHeight: '1.1'
+                          }}>
+                            👤 {slot.customerName}
+                          </span>
+                        )}
+
+                        {hasItems && (
+                          <span style={{ 
+                            fontSize: '0.68rem', 
+                            color: '#2ecc71', 
+                            fontWeight: 'bold',
+                            background: 'rgba(39,174,96,0.12)',
+                            padding: '1px 6px',
+                            borderRadius: '20px',
+                            border: '1px solid rgba(46,204,113,0.25)',
+                            lineHeight: '1.2',
+                            textAlign: 'center',
+                            maxWidth: '95%',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            ₭{totalValue.toLocaleString()} ({totalQty} ລ.)
+                          </span>
+                        )}
+
+                        {activeJob && (
+                          <span style={{ 
+                            background: activeJob.status === 'done' ? 'rgba(46,204,113,0.15)' : activeJob.status === 'framing' ? 'rgba(243,156,18,0.15)' : 'rgba(231,76,60,0.15)',
+                            color: activeJob.status === 'done' ? '#2ecc71' : activeJob.status === 'framing' ? '#f39c12' : '#e74c3c',
+                            borderRadius: '20px', 
+                            padding: '1px 6px', 
+                            fontSize: '0.6rem', 
+                            fontWeight: 'bold',
+                            border: '1px solid ' + (activeJob.status === 'done' ? 'rgba(46,204,113,0.3)' : activeJob.status === 'framing' ? 'rgba(243,156,18,0.3)' : 'rgba(231,76,60,0.3)'),
+                            lineHeight: '1.2'
+                          }}>
+                            {activeJob.status === 'done' ? '✅ ' : activeJob.status === 'framing' ? '⚙️ ' : '⏳ '}
+                            {activeJob.status === 'done' ? db.getLabel('job_status_done', 'ອັດສຳເລັດ') : activeJob.status === 'framing' ? db.getLabel('job_status_framing', 'ກຳລັງອັດ') : db.getLabel('job_status_waiting', 'ລໍຖ້າ')}
+                          </span>
+                        )}
+
+                        {hasDeposit && (
+                          <span style={{ 
+                            background: 'rgba(52,152,219,0.15)', 
+                            color: '#3498db', 
+                            borderRadius: '20px', 
+                            padding: '1px 6px', 
+                            fontSize: '0.6rem', 
+                            fontWeight: 'bold',
+                            border: '1px solid rgba(52,152,219,0.3)',
+                            lineHeight: '1.2'
+                          }}>
+                            💰 ມັດຈຳແລ້ວ: ₭{slot.depositAmount.toLocaleString()}
+                          </span>
+                        )}
+
+                        {isDebt && (
+                          <span style={{ 
+                            background: 'rgba(231,76,60,0.15)', 
+                            color: '#e74c3c', 
+                            borderRadius: '20px', 
+                            padding: '1px 6px', 
+                            fontSize: '0.6rem', 
+                            fontWeight: 'bold',
+                            border: '1px solid rgba(231,76,60,0.3)',
+                            lineHeight: '1.2'
+                          }}>
+                            ⚠️ ຕິດໜີ້
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       ) : viewMode === 'framing' ? (

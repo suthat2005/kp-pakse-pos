@@ -828,8 +828,8 @@ export default function App() {
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              marginLeft: '12px',
-              padding: '4px 10px',
+              marginLeft: isMobile ? '6px' : '12px',
+              padding: isMobile ? '4px 6px' : '4px 10px',
               borderRadius: '12px',
               background: isOnline ? 'rgba(46, 204, 113, 0.1)' : 'rgba(231, 76, 60, 0.15)',
               border: `1px solid ${isOnline ? 'rgba(46, 204, 113, 0.2)' : 'rgba(231, 76, 60, 0.3)'}`,
@@ -846,7 +846,7 @@ export default function App() {
                 background: isOnline ? '#2ecc71' : '#e74c3c',
                 display: 'inline-block'
               }} />
-              <span className="no-select">{isOnline ? 'Online' : 'Offline'}</span>
+              {!isMobile && <span className="no-select">{isOnline ? 'Online' : 'Offline'}</span>}
             </div>
           </div>
 
@@ -869,7 +869,7 @@ export default function App() {
                   cursor: 'pointer'
                 }}
               >
-                ⚠️ ສະຕັອກໃກ້ໝົດ!
+                {isMobile ? '⚠️ ສະຕັອກ' : '⚠️ ສະຕັອກໃກ້ໝົດ!'}
               </div>
             )}
 
@@ -891,7 +891,7 @@ export default function App() {
               }}
               onClick={() => setShowOnlineShopQrModal(true)}
             >
-              🌐 QR ເບິ່ງສິນຄ້າ
+              {isMobile ? '🌐 QR' : '🌐 QR ເບິ່ງສິນຄ້າ'}
             </button>
 
             {/* Quick-action Expense Logger */}
