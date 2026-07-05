@@ -32,7 +32,8 @@ export default function POS({
   setViewMode: propSetViewMode,
   selectedSlotId: propSelectedSlotId,
   setSelectedSlotId: propSetSelectedSlotId,
-  onTrackJob
+  onTrackJob,
+  isMobile
 }) {
   const [localViewMode, setLocalViewMode] = useState(initialViewMode || (activeUser.role === 'technician' ? 'framing' : 'slots'));
   const viewMode = propViewMode !== undefined ? propViewMode : localViewMode;
