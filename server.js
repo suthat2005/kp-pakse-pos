@@ -136,6 +136,63 @@ async function cleanupDuplicateProducts() {
 }
 
 
+
+// LAN Printer Auto-Discovery Helper
+function getLocalSubnetPrefix() {
+  const interfaces = os.networkInterfaces();
+  for (const devName in interfaces) {
+    const iface = interfaces[devName];
+    for (let i = 0; i < iface.length; i++) {
+      const alias = iface[i];
+      if (alias.family === 'IPv4' && !alias.internal) {
+        const ip = alias.address;
+        const parts = ip.split('.');
+        if (parts[0] === '192' || parts[0] === '10' || parts[0] === '172') {
+          return parts.slice(0, 3).join('.');
+        }
+      }
+    }
+  }
+  return null;
+}
+
+async function discoverLanPrinters() {
+  const prefix = getLocalSubnetPrefix();
+  if (!prefix) return [];
+  
+  const scanPromises = [];
+  const activePrinters = [];
+  
+  // Scan IP range 1 to 254 on port 9100 in parallel
+  for (let i = 1; i <= 254; i++) {
+    const ip = `${prefix}.${i}`;
+    const promise = new Promise((resolve) => {
+      const socket = new net.Socket();
+      socket.setTimeout(250); // Fast timeout for local network
+      
+      socket.connect(9100, ip, () => {
+        socket.destroy();
+        activePrinters.push(ip);
+        resolve();
+      });
+      
+      socket.on('error', () => {
+        socket.destroy();
+        resolve();
+      });
+      
+      socket.on('timeout', () => {
+        socket.destroy();
+        resolve();
+      });
+    });
+    scanPromises.push(promise);
+  }
+  
+  await Promise.all(scanPromises);
+  return activePrinters;
+}
+
 const MIME_TYPES = {
   '.html': 'text/html',
   '.css': 'text/css',
@@ -168,6 +225,21 @@ const server = http.createServer(async (req, res) => {
 
   const parsedUrl = new URL(req.url, `http://localhost:${PORT}`);
   const pathname = parsedUrl.pathname;
+
+  // API: Auto-Discover LAN Printers on subnet (port 9100)
+  if (pathname === '/api/discover-printers' && req.method === 'GET') {
+    res.setHeader('Content-Type', 'application/json');
+    discoverLanPrinters()
+      .then(printers => {
+        res.statusCode = 200;
+        res.end(JSON.stringify({ success: true, printers }));
+      })
+      .catch(err => {
+        res.statusCode = 500;
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      });
+    return;
+  }
 
   // API: Get server network IP
   if (pathname === '/api/server-ip' && req.method === 'GET') {

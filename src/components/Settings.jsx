@@ -2293,21 +2293,60 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       {settings.printerConnectionType === 'lan' ? (
                         <div className="form-group" style={{ marginBottom: '12px' }}>
                           <label className="form-label">ທີ່ຢູ່ IP ຂອງເຄື່ອງພິມ LAN (LAN Printer IP Address)</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={settings.lanPrinterIp || ''}
-                            onChange={(e) => {
-                              const ip = e.target.value;
-                              setSettings({ 
-                                ...settings, 
-                                lanPrinterIp: ip,
-                                windowsPrinterName: ip
-                              });
-                            }}
-                            placeholder="e.g. 192.168.1.100"
-                          />
-                          <small style={{ color: 'var(--text-secondary)' }}>ປ້ອນ IP ຂອງເຄື່ອງພິມ LAN ເຊັ່ນ 192.168.1.100 (ພອດມາດຕະຖານ: 9100)</small>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={settings.lanPrinterIp || ''}
+                              onChange={(e) => {
+                                const ip = e.target.value;
+                                setSettings({ 
+                                  ...settings, 
+                                  lanPrinterIp: ip,
+                                  windowsPrinterName: ip
+                                });
+                              }}
+                              placeholder="e.g. 192.168.1.100"
+                              style={{ flex: 1 }}
+                            />
+                            <button
+                              type="button"
+                              className="btn btn-secondary"
+                              style={{ padding: '0 12px', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
+                              onClick={async (e) => {
+                                try {
+                                  const baseUrl = settings.printServerUrl || 'http://localhost:5173';
+                                  const btn = e.currentTarget;
+                                  const origText = btn.innerText;
+                                  btn.innerText = '🔍 ກຳລັງຄົ້ນຫາ...';
+                                  btn.disabled = true;
+                                  
+                                  const res = await fetch(`${baseUrl}/api/discover-printers`);
+                                  const data = await res.json();
+                                  
+                                  btn.innerText = origText;
+                                  btn.disabled = false;
+
+                                  if (data.success && data.printers && data.printers.length > 0) {
+                                    const detectedIp = data.printers[0];
+                                    setSettings({ 
+                                      ...settings, 
+                                      lanPrinterIp: detectedIp,
+                                      windowsPrinterName: detectedIp
+                                    });
+                                    alert(`✓ ພົບເຄື່ອງພິມ LAN ທີ່ IP: ${detectedIp}`);
+                                  } else {
+                                    alert('⚠️ ບໍ່ພົບເຄື່ອງພິມ LAN ໃດໆໃນເຄືອຂ່າຍ (ກະລຸນາກວດສອບການເຊື່ອມຕໍ່ສາຍ LAN)');
+                                  }
+                                } catch (err) {
+                                  alert('❌ ບໍ່ສາມາດເຊື່ອມຕໍ່ກັບເຊີເວີການພິມເພື່ອຄົ້ນຫາໄດ້: ' + err.message);
+                                }
+                              }}
+                            >
+                              🔍 ຄົ້ນຫາອັດຕະໂນມັດ
+                            </button>
+                          </div>
+                          <small style={{ color: 'var(--text-secondary)' }}>ປ້ອນ IP ຂອງເຄື່ອງພິມ LAN ເຊັ່ນ 192.168.1.100 ຫຼື ກົດປຸ່ມຄົ້ນຫາອັດຕະໂນມັດ (ພອດມາດຕະຖານ: 9100)</small>
                         </div>
                       ) : (
                         <div className="form-group" style={{ marginBottom: '12px' }}>
