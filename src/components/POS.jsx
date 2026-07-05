@@ -2413,9 +2413,15 @@ export default function POS({
       <style>
         {`
           @media print {
+            @page {
+              size: auto;
+              margin: 0mm !important;
+            }
             body {
               background: white !important;
               color: black !important;
+              margin: 0 !important;
+              padding: 0 !important;
             }
             .modal-overlay.print-modal {
               background: none !important;

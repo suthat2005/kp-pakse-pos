@@ -1138,9 +1138,15 @@ textarea.form-control {
 
 /* Print View Styles (Hide Dashboard UI when printing bill) */
 @media print {
+  @page {
+    size: auto;
+    margin: 0mm !important;
+  }
   body {
     background: white;
     color: black;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   * {
     font-family: 'Phetsarath', 'Phetsarath OT', 'Noto Sans Lao', sans-serif !important;
