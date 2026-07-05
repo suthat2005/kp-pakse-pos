@@ -777,6 +777,18 @@ export default function POS({
 
   const handleDeleteSlotClick = (e, slot) => {
     e.stopPropagation(); // prevent selecting the slot card
+    if (slot.id === 'Walk-In') {
+      if (window.confirm('ທ່ານຕ້ອງການລ້າງຂໍ້ມູນ ແລະ ຕັ້ງຄ່າຄິວນີ້ກັບເປັນ Walk-In ຄືເກົ່າແທ້ບໍ່?')) {
+        try {
+          db.clearSlot('Walk-In');
+          db.renameSlot('Walk-In', 'Walk-In');
+          setSlots(db.getSlots());
+        } catch (err) {
+          alert(err.message || 'ບໍ່ສາມາດລ້າງຂໍ້ມູນໄດ້');
+        }
+      }
+      return;
+    }
     if (window.confirm(`ທ່ານຕ້ອງການລຶບບັດຄິວ "${slot.label}" ແທ້ບໍ່?`)) {
       try {
         db.deleteSlot(slot.id);
@@ -2529,7 +2541,7 @@ export default function POS({
                         </button>
 
                         {/* Delete button (except Walk-In) */}
-                        {slot.id !== 'Walk-In' && (
+                        {(slot.id !== 'Walk-In' || slot.label !== 'Walk-In') && (
                           <button
                             type="button"
                             className="btn btn-secondary"
@@ -2622,7 +2634,7 @@ export default function POS({
                       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: `linear-gradient(90deg, transparent, ${cardBorder}, transparent)` }} />
 
                       {/* Delete slot button */}
-                      {slot.id !== 'Walk-In' && (
+                      {(slot.id !== 'Walk-In' || slot.label !== 'Walk-In') && (
                         <button
                           className="no-print"
                           style={{
