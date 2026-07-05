@@ -1152,7 +1152,7 @@ textarea.form-control {
   * {
     font-family: 'Phetsarath', 'Phetsarath OT', 'Noto Sans Lao', sans-serif !important;
   }
-  .app-header, .no-print, .pos-container, .pos-grid, .kanban-board, .glass-card:not(.modal-content), .modal-overlay:not(.print-modal), .modal-header:not(.print-modal .modal-header), .modal-footer:not(.print-modal .modal-footer) {
+  .app-header, .app-topbar, .app-sidebar, .main-layout, .no-print, .pos-container, .pos-grid, .kanban-board, .glass-card:not(.modal-content), .modal-overlay:not(.print-modal), .modal-header:not(.print-modal .modal-header), .modal-footer:not(.print-modal .modal-footer) {
     display: none !important;
   }
   .modal-overlay.print-modal {
