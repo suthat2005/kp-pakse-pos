@@ -2424,7 +2424,7 @@ export default function POS({
               margin: 0 !important;
               padding: 0 !important;
             }
-            .app-topbar, .app-sidebar, .main-layout, .no-print {
+            .app-topbar, .app-sidebar, .main-layout, .bottom-nav, .no-print {
               display: none !important;
             }
             .modal-overlay.print-modal {
