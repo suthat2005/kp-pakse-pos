@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../utils/db';
 import Portal from './Portal';
 
-export default function OnlineOrders({ activeUser }) {
+export default function OnlineOrders({ activeUser, isMobile }) {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [filterPayment, setFilterPayment] = useState('all');
@@ -136,9 +136,10 @@ export default function OnlineOrders({ activeUser }) {
   };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: '24px', height: 'calc(100vh - 120px)' }}>
+    <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '16px' } : { display: 'grid', gridTemplateColumns: '360px 1fr', gap: '24px', height: 'calc(100vh - 120px)' }}>
       {/* LEFT PANEL: Orders List */}
-      <div className="glass-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', height: '100%', overflowY: 'auto' }}>
+      {(!isMobile || !selectedOrder) && (
+        <div className="glass-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', height: '100%', overflowY: 'auto' }}>
         <div>
           <h3 style={{ color: 'var(--gold-primary)', margin: '0 0 4px' }}>🛒 ອໍເດີ້ອອນລາຍ (Online Orders)</h3>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', margin: 0 }}>ຈັດการອໍເດີ້ ແລະ ກວດສອບສະລິບລູກຄ້າ</p>
@@ -265,9 +266,21 @@ export default function OnlineOrders({ activeUser }) {
           )}
         </div>
       </div>
+      )}
 
       {/* RIGHT PANEL: Order Details View */}
-      <div className="glass-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', height: '100%', overflowY: 'auto' }}>
+      {(!isMobile || selectedOrder) && (
+        <div className="glass-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', height: '100%', overflowY: 'auto' }}>
+          {isMobile && selectedOrder && (
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setSelectedOrder(null)}
+              style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', marginBottom: '16px' }}
+            >
+              ⬅️ ກັບຄືນ (Back to List)
+            </button>
+          )}
         {selectedOrder ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {/* Header info */}
@@ -482,6 +495,7 @@ export default function OnlineOrders({ activeUser }) {
           </div>
         )}
       </div>
+      )}
 
       {/* ZOOM SLIP MODAL OVERLAY */}
       {zoomSlip && selectedOrder?.slipImage && (

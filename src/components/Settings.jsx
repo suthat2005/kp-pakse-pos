@@ -179,7 +179,14 @@ export default function Settings({ activeUser, onUpdate }) {
 
 
 
-  const [activeSubTab, setActiveSubTab] = useState('shop');
+  const [activeSubTab, setActiveSubTab] = useState(isMobile ? '' : 'shop');
+  const [bankSettingsCurrency, setBankSettingsCurrency] = useState('LAK');
+
+  useEffect(() => {
+    if (!isMobile && activeSubTab === '') {
+      setActiveSubTab('shop');
+    }
+  }, [isMobile, activeSubTab]);
   const [successMsg, setSuccessMsg] = useState('');
   const [expenseCategories, setExpenseCategories] = useState(db.getExpenseCategories());
   const [newCatRawName, setNewCatRawName] = useState('');
@@ -605,10 +612,11 @@ export default function Settings({ activeUser, onUpdate }) {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '24px', alignItems: 'start' }}>
+      <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '16px' } : { display: 'grid', gridTemplateColumns: '220px 1fr', gap: '24px', alignItems: 'start' }}>
         
         {/* Settings Tab Sidebar */}
-        <div className="glass-card" style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {(!isMobile || activeSubTab === '') && (
+          <div className="glass-card" style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <button
             className={`nav-tab ${activeSubTab === 'shop' ? 'active' : ''}`}
             style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
@@ -721,9 +729,21 @@ export default function Settings({ activeUser, onUpdate }) {
             ⚙️ ເຄື່ອງມືລະບົບ (Production Tools)
           </button>
         </div>
+      )}
 
-        {/* Settings Tab Main Panel */}
-        <div className="glass-card">
+      {/* Settings Tab Main Panel */}
+      {(!isMobile || activeSubTab !== '') && (
+        <div className="glass-card" style={isMobile ? { padding: '16px' } : undefined}>
+          {isMobile && (
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setActiveSubTab('')}
+              style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem' }}
+            >
+              ⬅️ ກັບຄືນ (Back to Menu)
+            </button>
+          )}
           
           {/* Shop and Bank details settings */}
           {activeSubTab === 'shop' && (
@@ -3919,6 +3939,7 @@ export default function Settings({ activeUser, onUpdate }) {
           )}
 
         </div>
+      )}
 
       </div>
 

@@ -1287,54 +1287,31 @@ export default function Reports({ activeUser }) {
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.05rem' }}>📒 ບັນຊີລູກຄ້າຕິດໜີ້ຊ່ວງນີ້ (Period Debts Table)</h3>
           
+          
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                  <th style={{ padding: '12px' }}>ເລກໃບບິນໜີ້</th>
-                  <th style={{ padding: '12px' }}>ວັນທີຄ້າງຊຳລະ</th>
-                  <th style={{ padding: '12px' }}>ຊື່ລູກຄ້າ</th>
-                  <th style={{ padding: '12px' }}>ເບີໂທຕິດຕໍ່</th>
-                  <th style={{ padding: '12px' }}>ລາຍການສິນຄ້າ</th>
-                  <th style={{ padding: '12px', textAlign: 'right' }}>ຍອດຕິດໜີ້</th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>ສະຖານະ</th>
-                </tr>
-              </thead>
-              <tbody>
+            {isMobile ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {filteredDebts.length === 0 ? (
-                  <tr>
-                    <td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
-                      ບໍ່ມີລາຍການຕິດໜີ້ໃນຊ່ວງເວลานີ້
-                    </td>
-                  </tr>
+                  <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
+                    ບໍ່ມີລາຍການຕິດໜີ້ໃນຊ່ວງເວລານີ້
+                  </div>
                 ) : (
                   filteredDebts.map(debt => (
-                    <tr
-                      key={debt.id}
-                      style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', fontSize: '0.85rem' }}
-                    >
-                      <td style={{ padding: '12px', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
-                        {debt.id}
-                      </td>
-                      <td style={{ padding: '12px' }}>
-                        {new Date(debt.date).toLocaleDateString('lo-LA')}
-                      </td>
-                      <td style={{ padding: '12px', fontWeight: '500' }}>
-                        {debt.customerName}
-                      </td>
-                      <td style={{ padding: '12px', fontFamily: 'monospace' }}>
-                        {debt.customerPhone}
-                      </td>
-                      <td style={{ padding: '12px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {debt.items.map(item => `${item.name} (x${item.qty})`).join(', ')}
-                      </td>
-                      <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold', color: 'var(--alert-red)' }}>
-                        {debt.total.toLocaleString()} ₭
-                      </td>
-                      <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <div key={debt.id} className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{debt.id}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{new Date(debt.date).toLocaleDateString('lo-LA')}</span>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem' }}>
+                        <div><b>ລູກຄ້າ:</b> {debt.customerName} ({debt.customerPhone || 'ບໍ່ມີເບີໂທ'})</div>
+                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                          <b>ລາຍການ:</b> {debt.items.map(item => `${item.name} (x${item.qty})`).join(', ')}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '8px', marginTop: '4px' }}>
                         <span
                           style={{
-                            fontSize: '0.75rem',
+                            fontSize: '0.72rem',
                             padding: '2px 8px',
                             borderRadius: '10px',
                             background: debt.status === 'unpaid' ? 'rgba(231, 76, 60, 0.15)' : 'rgba(39, 174, 96, 0.15)',
@@ -1344,12 +1321,76 @@ export default function Reports({ activeUser }) {
                         >
                           {debt.status === 'unpaid' ? '🔴 ຕິດໜີ້ຄ້າງຊຳລະ' : '🟢 ຊຳລະໜີ້ແລ້ວ'}
                         </span>
-                      </td>
-                    </tr>
+                        <span style={{ fontWeight: 'bold', color: 'var(--alert-red)' }}>{debt.total.toLocaleString()} ₭</span>
+                      </div>
+                    </div>
                   ))
                 )}
-              </tbody>
-            </table>
+              </div>
+            ) : (
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                    <th style={{ padding: '12px' }}>ເລກໃບບິນໜີ້</th>
+                    <th style={{ padding: '12px' }}>ວັນທີຄ້າງຊຳລະ</th>
+                    <th style={{ padding: '12px' }}>ຊື່ລູกຄ້າ</th>
+                    <th style={{ padding: '12px' }}>ເບີໂທຕິດຕໍ່</th>
+                    <th style={{ padding: '12px' }}>ລາຍການສິນຄ້າ</th>
+                    <th style={{ padding: '12px', textAlign: 'right' }}>ຍົດຕິດໜີ້</th>
+                    <th style={{ padding: '12px', textAlign: 'center' }}>ສະຖານະ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredDebts.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
+                        ບໍ່ມີລາຍການຕິດໜີ້ໃນຊ່ວງເວລານີ້
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredDebts.map(debt => (
+                      <tr
+                        key={debt.id}
+                        style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', fontSize: '0.85rem' }}
+                      >
+                        <td style={{ padding: '12px', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
+                          {debt.id}
+                        </td>
+                        <td style={{ padding: '12px' }}>
+                          {new Date(debt.date).toLocaleDateString('lo-LA')}
+                        </td>
+                        <td style={{ padding: '12px', fontWeight: '500' }}>
+                          {debt.customerName}
+                        </td>
+                        <td style={{ padding: '12px', fontFamily: 'monospace' }}>
+                          {debt.customerPhone}
+                        </td>
+                        <td style={{ padding: '12px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {debt.items.map(item => `${item.name} (x${item.qty})ixed`).join(', ')}
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold', color: 'var(--alert-red)' }}>
+                          {debt.total.toLocaleString()} ₭
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                          <span
+                            style={{
+                              fontSize: '0.75rem',
+                              padding: '2px 8px',
+                              borderRadius: '10px',
+                              background: debt.status === 'unpaid' ? 'rgba(231, 76, 60, 0.15)' : 'rgba(39, 174, 96, 0.15)',
+                              color: debt.status === 'unpaid' ? 'var(--alert-red)' : 'var(--success-green)',
+                              border: `1px solid ${debt.status === 'unpaid' ? 'rgba(231, 76, 60, 0.3)' : 'rgba(39, 174, 96, 0.3)'}`
+                            }}
+                          >
+                            {debt.status === 'unpaid' ? '🔴 ຕິດໜີ້ຄ້າງຊຳລະ' : '🟢 ຊຳລະໜີ້ແລ້ວ'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
 

@@ -45,6 +45,13 @@ export default function App() {
   const [settings, setSettings] = useState({ shopName: '', shopSubtitle: '', appTheme: 'gold', themeColors: {}, shopLogo: '' });
   const [lowStockWarning, setLowStockWarning] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -1061,6 +1068,7 @@ export default function App() {
               clearRedirectedCartItem={() => setRedirectedCartItem(null)}
               onTabChange={setActiveTab}
               onTrackJob={setTrackingJobId}
+              isMobile={isMobile}
             />
           )}
           
@@ -1070,35 +1078,36 @@ export default function App() {
               onUpdate={handleSystemUpdate}
               initialFilter={inventoryFilter}
               onFilterChange={setInventoryFilter}
+              isMobile={isMobile}
             />
           )}
 
           {activeTab === 'hrm' && hasPermission(activeUser, 'hrm') && (
-            <HRM activeUser={activeUser} onUpdate={handleSystemUpdate} />
+            <HRM activeUser={activeUser} onUpdate={handleSystemUpdate} isMobile={isMobile} />
           )}
           
           {activeTab === 'reports' && hasPermission(activeUser, 'reports') && (
-            <Reports activeUser={activeUser} />
+            <Reports activeUser={activeUser} isMobile={isMobile} />
           )}
           
           {activeTab === 'ai' && hasPermission(activeUser, 'ai') && (
-            <AIDetector activeUser={activeUser} />
+            <AIDetector activeUser={activeUser} isMobile={isMobile} />
           )}
 
           {activeTab === 'debts' && hasPermission(activeUser, 'debts') && (
-            <Debts activeUser={activeUser} onUpdate={handleSystemUpdate} />
+            <Debts activeUser={activeUser} onUpdate={handleSystemUpdate} isMobile={isMobile} />
           )}
 
           {activeTab === 'customers' && hasPermission(activeUser, 'customers') && (
-            <Customers activeUser={activeUser} onUpdate={handleSystemUpdate} />
+            <Customers activeUser={activeUser} onUpdate={handleSystemUpdate} isMobile={isMobile} />
           )}
 
           {activeTab === 'settings' && hasPermission(activeUser, 'settings') && (
-            <Settings activeUser={activeUser} onUpdate={handleSystemUpdate} />
+            <Settings activeUser={activeUser} onUpdate={handleSystemUpdate} isMobile={isMobile} />
           )}
 
           {activeTab === 'online_orders' && (activeUser.role === 'owner' || activeUser.role === 'manager') && (
-            <OnlineOrders activeUser={activeUser} />
+            <OnlineOrders activeUser={activeUser} isMobile={isMobile} />
           )}
         </main>
       </div>
