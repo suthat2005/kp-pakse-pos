@@ -782,13 +782,58 @@ export default function POS({
         try {
           db.clearSlot('Walk-In');
           db.renameSlot('Walk-In', 'Walk-In');
+          
+          // Detach any framing jobs linked to Walk-In to prevent auto-loading loop
+          const allJobs = db.getFramingJobs();
+          let changed = false;
+          allJobs.forEach(j => {
+            if (j.slotId === 'Walk-In' && j.status !== 'picked_up') {
+              j.slotId = 'Walk-In-Detached-' + Date.now();
+              db.updateFramingJob(j);
+              changed = true;
+            }
+          });
+          
           setSlots(db.getSlots());
+          if (changed) setFramingJobs(db.getFramingJobs());
         } catch (err) {
           alert(err.message || 'ບໍ່ສາມາດລ້າງຂໍ້ມູນໄດ້');
         }
       }
       return;
     }
+    
+    const activeJob = framingJobs.find(j => j.slotId === slot.id && j.status !== 'picked_up');
+    const hasItems = slot.items && slot.items.length > 0;
+    
+    if (activeJob || hasItems) {
+      if (window.confirm('ຄິວນີ້ມີລາຍການສິນຄ້າ ຫຼື ໃບສັ່ງອັດກອບພຣະຄ້າງຢູ່. ທ່ານຕ້ອງການລຶບຄິວນີ້ ແລະ ຍ້າຍໃບສັ່ງອັດກອບພຣະອອກເພື່ອລຶບຄິວແທ້ບໍ່?')) {
+        try {
+          // Detach the job
+          const allJobs = db.getFramingJobs();
+          allJobs.forEach(j => {
+            if (j.slotId === slot.id && j.status !== 'picked_up') {
+              j.slotId = 'Detached-' + Date.now();
+              db.updateFramingJob(j);
+            }
+          });
+          
+          // Clear the slot items
+          db.clearSlot(slot.id);
+          
+          // Delete the slot
+          db.deleteSlot(slot.id);
+          
+          setSlots(db.getSlots());
+          setFramingJobs(db.getFramingJobs());
+          alert('✓ ລຶບບັດຄິວສຳເລັດແລ້ວ!');
+        } catch (err) {
+          alert(err.message || 'ບໍ່ສາມາດລຶບໄດ້');
+        }
+      }
+      return;
+    }
+
     if (window.confirm(`ທ່ານຕ້ອງການລຶບບັດຄິວ "${slot.label}" ແທ້ບໍ່?`)) {
       try {
         db.deleteSlot(slot.id);
