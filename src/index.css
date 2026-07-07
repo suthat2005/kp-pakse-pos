@@ -1200,6 +1200,9 @@ textarea.form-control {
     padding: 0 !important;
     margin: 0 !important;
   }
+  .no-print {
+    display: none !important;
+  }
 }
 
 /* Slots Grid Responsive Classes */

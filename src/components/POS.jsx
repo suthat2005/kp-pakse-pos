@@ -2510,6 +2510,9 @@ export default function POS({
               image-rendering: crisp-edges !important;
               image-rendering: pixelated !important;
             }
+            .no-print {
+              display: none !important;
+            }
           }
           /* Screen preview styling */
           .print-receipt-container {
