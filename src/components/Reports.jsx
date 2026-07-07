@@ -3,6 +3,12 @@ import { db } from '../utils/db';
 import Portal from './Portal';
 
 export default function Reports({ activeUser, isMobile }) {
+  const hasReportsPermission = (subKey) => {
+    if (!activeUser) return false;
+    if (activeUser.role === 'owner') return true;
+    if (activeUser.permissions?.admin) return true;
+    return !!activeUser.permissions?.[subKey];
+  };
   const todayStr = new Date().toLocaleDateString('en-CA');
   
   // Interactive Chart Style States
@@ -356,7 +362,7 @@ export default function Reports({ activeUser, isMobile }) {
           <div style="font-size: calc(${fontSize} - 1pt); margin-top: 4px;">
             <div style="display:flex; justify-content:space-between;">
               <span>ຍອດຂາຍທັງໝົດ:</span>
-              <span><b>${totalSales.toLocaleString()} ກີບ</b></span>
+              <span><b>${hasReportsPermission('reportsRevenue') ? totalSales.toLocaleString() + " ກີບ" : "*** ກີບ"}</b></span>
             </div>
             <div style="display:flex; justify-content:space-between; padding-left: 10px; font-size: calc(${fontSize} - 2pt); color: #444;">
               <span>• ຮັບເງິນສົດ LAK:</span>
@@ -1156,7 +1162,7 @@ export default function Reports({ activeUser, isMobile }) {
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💵 ຍອດຂາຍທັງໝົດ (Revenue)</span>
           <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
-            {totalSales.toLocaleString()} ກີບ
+            {hasReportsPermission('reportsRevenue') ? totalSales.toLocaleString() + " ກີບ" : "*** ກີບ"}
           </span>
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '4px', marginTop: '2px', display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
             
@@ -1210,7 +1216,7 @@ export default function Reports({ activeUser, isMobile }) {
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📈 ກຳໄລສຸດທິ (Est. Profit)</span>
           <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--success-green)' }}>
-            {Math.round(netProfit).toLocaleString()} ກີບ
+            {hasReportsPermission('reportsProfit') ? Math.round(netProfit).toLocaleString() + " ກີບ" : "*** ກີບ"}
           </span>
           <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>*ຫັກຕົ້ນທຶນ ແລະ ຄ່າໃຊ້ຈ່າຍແລ້ວ</span>
         </div>
@@ -1259,6 +1265,7 @@ export default function Reports({ activeUser, isMobile }) {
       {/* (Online channel quick-stats removed – see Online tab) */}
 
       {/* Print summary button trigger */}
+      {hasReportsPermission('reportsExport') && (
       <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
         <button
           type="button"
@@ -1269,6 +1276,7 @@ export default function Reports({ activeUser, isMobile }) {
           🖨️ ພິມລາຍງານສະຫຼຸບຍອດຂາຍ (Print Sales Summary)
         </button>
       </div>
+      )}
 
       {/* Custom interactive charts panel */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
@@ -1791,17 +1799,17 @@ export default function Reports({ activeUser, isMobile }) {
             </div>
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #2ecc71' }}>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📈 ກຳໄລສຸດທິ (ປະເມີນ)</span>
-              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#2ecc71' }}>{Math.round(ovNetProfit).toLocaleString()} ₭</span>
+              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#2ecc71' }}>{hasReportsPermission('reportsProfit') ? Math.round(ovNetProfit).toLocaleString() + " ₭" : "*** ₭"}</span>
               <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>*ຫັກຕົ້ນທຶນ + ລາຍຈ່າຍ</span>
             </div>
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #9b59b6' }}>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🏪 ຍອດ POS ໜ້າຮ້ານ</span>
-              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#9b59b6' }}>{totalSales.toLocaleString()} ₭</span>
+              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#9b59b6' }}>{hasReportsPermission('reportsRevenue') ? totalSales.toLocaleString() + " ₭" : "*** ₭"}</span>
               <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>{rangeOrders.length} ໃບບິນ</span>
             </div>
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #3498db' }}>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🌐 ຍອດ Online Shop</span>
-              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#3498db' }}>{onlinePaidRevenue.toLocaleString()} ₭</span>
+              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#3498db' }}>{hasReportsPermission('reportsRevenue') ? onlinePaidRevenue.toLocaleString() + " ₭" : "*** ₭"}</span>
               <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>{onlinePaidOrders.length} ອໍເດີ້ຊຳລະ</span>
             </div>
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #e74c3c' }}>

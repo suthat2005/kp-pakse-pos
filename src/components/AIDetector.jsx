@@ -195,6 +195,12 @@ function CameraFeed({ cam, idx, currentTime }) {
 }
 
 export default function AIDetector({ activeUser }) {
+  const hasAiPermission = (subKey) => {
+    if (!activeUser) return false;
+    if (activeUser.role === 'owner') return true;
+    if (activeUser.permissions?.admin) return true;
+    return !!activeUser.permissions?.[subKey];
+  };
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState(null);
   const [selectedMockImg, setSelectedMockImg] = useState('');
@@ -208,6 +214,15 @@ export default function AIDetector({ activeUser }) {
 
   // Audit tab states
   const [activeTab, setActiveTab] = useState('scanner'); // 'scanner', 'forecasts', 'audit', 'cctv'
+  useEffect(() => {
+    if (activeTab === 'scanner' && !hasAiPermission('aiChat')) {
+      if (hasAiPermission('aiAnalyze')) setActiveTab('forecasts');
+      else if (hasAiPermission('aiChat')) setActiveTab('cctv');
+    }
+    if ((activeTab === 'forecasts' || activeTab === 'audit') && !hasAiPermission('aiAnalyze')) {
+      if (hasAiPermission('aiChat')) setActiveTab('scanner');
+    }
+  }, [activeUser, activeTab]);
   const [auditLogs, setAuditLogs] = useState([]);
   const [auditSearch, setAuditSearch] = useState('');
   const [reAnalyzing, setReAnalyzing] = useState(false);
@@ -743,6 +758,7 @@ export default function AIDetector({ activeUser }) {
 
       {/* Main Tabs */}
       <div className="nav-tabs" style={{ display: 'flex', gap: '10px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px', flexWrap: 'wrap' }}>
+        {hasAiPermission('aiChat') && (
         <button
           className={`nav-tab ${activeTab === 'scanner' ? 'active' : ''}`}
           style={{ fontSize: '0.85rem', padding: '6px 16px', borderRadius: '20px' }}
@@ -750,6 +766,8 @@ export default function AIDetector({ activeUser }) {
         >
           📷 ສະແກນພຣະເຄື່ອງ
         </button>
+        )}
+        {hasAiPermission('aiAnalyze') && (
         <button
           className={`nav-tab ${activeTab === 'forecasts' ? 'active' : ''}`}
           style={{ fontSize: '0.85rem', padding: '6px 16px', borderRadius: '20px' }}
@@ -757,6 +775,8 @@ export default function AIDetector({ activeUser }) {
         >
           📊 ແຈ້ງເຕືອນ & ຄາດການຍອດຂາຍ
         </button>
+        )}
+        {hasAiPermission('aiAnalyze') && (
         <button
           className={`nav-tab ${activeTab === 'audit' ? 'active' : ''}`}
           style={{ fontSize: '0.85rem', padding: '6px 16px', borderRadius: '20px' }}
@@ -764,6 +784,8 @@ export default function AIDetector({ activeUser }) {
         >
           🛡️ ກວດສອບພະນັກງານ & ຄວາມສ່ຽງໂກງ
         </button>
+        )}
+        {hasAiPermission('aiChat') && (
         <button
           className={`nav-tab ${activeTab === 'cctv' ? 'active' : ''}`}
           style={{ fontSize: '0.85rem', padding: '6px 16px', borderRadius: '20px' }}
@@ -771,6 +793,7 @@ export default function AIDetector({ activeUser }) {
         >
           📹 ກ້ອງວົງຈອນປິດ & ເຕືອນໄພ (CCTV)
         </button>
+        )}
       </div>
 
       {/* TAB 1: AMULET CAMERA SCANNER */}

@@ -3,6 +3,12 @@ import { db } from '../utils/db';
 import Portal from './Portal';
 
 export default function Debts({ activeUser, onUpdate, isMobile }) {
+  const hasDebtsPermission = (subKey) => {
+    if (!activeUser) return false;
+    if (activeUser.role === 'owner') return true;
+    if (activeUser.permissions?.admin) return true;
+    return !!activeUser.permissions?.[subKey];
+  };
   const [debts, setDebts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDebt, setSelectedDebt] = useState(null);
@@ -63,6 +69,10 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
   const handleSearch = (e) => setSearchQuery(e.target.value);
 
   const handlePayClick = (debt) => {
+    if (!hasDebtsPermission('debtsCollect')) {
+      alert('🔒 ທ່ານບໍ່ມີສິດໃນການຮັບຊຳລະໜີ້!');
+      return;
+    }
     setSelectedDebt(debt);
     setCashReceived(debt.total);
     setPaymentMethod('cash');
@@ -208,10 +218,12 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
                         <button className="btn btn-secondary" style={{ padding: '4px 10px', fontSize: '0.75rem' }} onClick={() => handlePrintReceipt(debt)}>
                           {'🖨️ ພິມບິນ'}
                         </button>
-                        {debt.status === 'unpaid' ? (
+                        {debt.status === 'unpaid' && hasDebtsPermission('debtsCollect') ? (
                           <button className="btn btn-primary" style={{ padding: '4px 10px', fontSize: '0.75rem' }} onClick={() => handlePayClick(debt)}>
                             {'💵 ຊຳລະໜີ້'}
                           </button>
+                        ) : debt.status === 'unpaid' ? (
+                          <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', alignSelf: 'center' }}>{'🔒 ຊຳລະໜີ້'}</span>
                         ) : (
                           <span style={{ color: 'var(--success-green)', fontSize: '0.75rem', alignSelf: 'center' }}>{'✅ ຊຳລະແລ້ວ'}</span>
                         )}
@@ -248,8 +260,10 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
                   </div>
                   <div style={{ display: 'flex', gap: '6px' }}>
                     <button type="button" className="btn btn-secondary btn-sm" style={{ padding: '0 10px', height: '36px' }} onClick={() => handlePrintReceipt(debt)}>{'🖨️ ພິມ'}</button>
-                    {debt.status === 'unpaid' ? (
+                    {debt.status === 'unpaid' && hasDebtsPermission('debtsCollect') ? (
                       <button type="button" className="btn btn-primary btn-sm" style={{ padding: '0 12px', height: '36px' }} onClick={() => handlePayClick(debt)}>{'💵 ຊຳລະ'}</button>
+                    ) : debt.status === 'unpaid' ? (
+                      <span style={{ color: 'var(--text-secondary)', fontSize: '0.78rem', alignSelf: 'center', fontWeight: 'bold' }}>{'🔒 ຊຳລະ'}</span>
                     ) : (
                       <span style={{ color: 'var(--success-green)', fontSize: '0.78rem', alignSelf: 'center', fontWeight: 'bold' }}>{'✅ ຊຳລະແລ້ວ'}</span>
                     )}

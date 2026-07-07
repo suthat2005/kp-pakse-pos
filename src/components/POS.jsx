@@ -74,6 +74,12 @@ export default function POS({
   onTrackJob,
   isMobile
 }) {
+  const hasPosPermission = (subKey) => {
+    if (!activeUser) return false;
+    if (activeUser.role === 'owner') return true;
+    if (activeUser.permissions?.admin) return true;
+    return !!activeUser.permissions?.[subKey];
+  };
   const [localViewMode, setLocalViewMode] = useState(initialViewMode || (activeUser.role === 'technician' ? 'framing' : 'slots'));
   const viewMode = propViewMode !== undefined ? propViewMode : localViewMode;
   const setViewMode = propSetViewMode !== undefined ? propSetViewMode : setLocalViewMode;
@@ -694,6 +700,10 @@ export default function POS({
 
   // 3. Request Admin Passcode PIN for deleting cart items (anti-fraud)
   const handleDeleteCartItemClick = (idx) => {
+    if (!hasPosPermission('posDeleteOrder')) {
+      alert('🔒 ທ່ານບໍ່ມີສິດໃນການລຶບລາຍການສິນຄ້າ!');
+      return;
+    }
     setPendingDeleteIndex(idx);
     setAdminPinInput('');
     setPinError('');
@@ -817,6 +827,11 @@ export default function POS({
   };
 
   const handleDeleteSlotClick = (e, slot) => {
+    e.stopPropagation();
+    if (!hasPosPermission('posDeleteOrder')) {
+      alert('🔒 ທ່ານບໍ່ມີສິດໃນການລຶບຄິວ/ລ້າງຄິວ!');
+      return;
+    }
     e.stopPropagation(); // prevent selecting the slot card
     if (slot.id === 'Walk-In') {
       if (window.confirm('ທ່ານຕ້ອງການລ້າງຂໍ້ມູນ ແລະ ຕັ້ງຄ່າຄິວນີ້ກັບເປັນ Walk-In ຄືເກົ່າແທ້ບໍ່?')) {
@@ -1351,6 +1366,10 @@ export default function POS({
 
   // Checkout pay confirmation
   const handlePayClick = () => {
+    if (!hasPosPermission('posCheckout')) {
+      alert('🔒 ທ່ານບໍ່ມີສິດໃນການຊຳລະເງິນ (Checkout)!');
+      return;
+    }
     if (activeSlot.items.length === 0) {
       alert('ກະລຸນາເລືອກສິນຄ້າໃສ່ກະຕ່າກ່ອນ!');
       return;
@@ -3382,6 +3401,7 @@ export default function POS({
               {/* Bottom Actions under cart (Image 2 style) */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '4px', marginTop: '10px' }}>
 
+                {hasPosPermission('posOpenDrawer') && (
                 <button
                   className="btn btn-secondary"
                   style={{ padding: '8px 1px', fontSize: '0.7rem', background: '#34495e', borderColor: '#2c3e50', color: 'white' }}
@@ -3392,6 +3412,8 @@ export default function POS({
                 >
                   💸 ເປີດລິ້ນຊັກ
                 </button>
+                )}
+                {hasPosPermission('posDiscount') && (
                 <button
                   className="btn btn-secondary"
                   style={{ padding: '8px 1px', fontSize: '0.7rem', background: '#d35400', borderColor: '#e67e22', color: 'white' }}
@@ -3409,6 +3431,8 @@ export default function POS({
                 >
                   🏷️ ສ່ວນຫຼຸດ: {activeSlot.discountType === 'fixed' ? `${(activeSlot.discountAmount || 0).toLocaleString()} ₭` : `${activeSlot.discountPercent || 0}%`}
                 </button>
+                )}
+                {hasPosPermission('posDeposit') && (
                 <button
                   type="button"
                   className="btn btn-secondary"
@@ -3430,6 +3454,7 @@ export default function POS({
                 >
                   💰 ມັດຈຳ
                 </button>
+                )}
                 <button
                   className="btn btn-secondary"
                   style={{ padding: '8px 1px', fontSize: '0.7rem', background: '#34495e', borderColor: '#5d6d7e', color: 'white' }}
@@ -5788,7 +5813,7 @@ export default function POS({
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '8px', alignItems: 'center' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                             <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ລາຄາ:</span>
-                            <input
+                            <input disabled={!hasPosPermission('posChangePrice')}
                               type="number"
                               className="form-control"
                               style={{ padding: '4px 6px', fontSize: '0.8rem', height: '30px' }}
@@ -6103,7 +6128,7 @@ export default function POS({
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '8px', alignItems: 'center' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                             <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ລາຄາ:</span>
-                            <input
+                            <input disabled={!hasPosPermission('posChangePrice')}
                               type="number"
                               className="form-control"
                               style={{ padding: '4px 6px', fontSize: '0.8rem', height: '30px' }}

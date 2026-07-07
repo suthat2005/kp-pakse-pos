@@ -3,6 +3,12 @@ import { db } from '../utils/db';
 import Portal from './Portal';
 
 export default function HRM({ activeUser, onUpdate }) {
+  const hasHrmPermission = (subKey) => {
+    if (!activeUser) return false;
+    if (activeUser.role === 'owner') return true;
+    if (activeUser.permissions?.admin) return true;
+    return !!activeUser.permissions?.[subKey];
+  };
   const [activeSubTab, setActiveSubTab] = useState('employees'); // employees | shifts | attendance | leaves | payroll
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -141,6 +147,10 @@ export default function HRM({ activeUser, onUpdate }) {
 
   // Employee Profile Handlers
   const handleEditUserClick = (user) => {
+    if (!hasHrmPermission('hrmEditUser')) {
+      alert('🔒 ທ່ານບໍ່ມີສິດໃນການແກ້ໄຂພະນັກງານ!');
+      return;
+    }
     setEditingUser(user);
     setUserFormData({
       name: user.name,
@@ -258,6 +268,10 @@ export default function HRM({ activeUser, onUpdate }) {
   };
 
   const handleDeleteUser = (id, name) => {
+    if (!hasHrmPermission('hrmDeleteUser')) {
+      alert('🔒 ທ່ານບໍ່ມີສິດໃນການລຶບພະນັກງານ!');
+      return;
+    }
     if (id === 'owner') {
       showNotification('ຂໍອະໄພ: ບໍ່ສາມາດລຶບບັນຊີເຈົ້າຂອງຮ້ານຫຼັກໄດ້!', true);
       return;
@@ -581,6 +595,7 @@ export default function HRM({ activeUser, onUpdate }) {
 
         {/* Sub-tab Selectors */}
         <div className="nav-tabs" style={{ margin: 0, border: 'none' }}>
+          {hasHrmPermission('hrmView') && (
           <button
             type="button"
             className={`nav-tab ${activeSubTab === 'employees' ? 'active' : ''}`}
@@ -588,6 +603,7 @@ export default function HRM({ activeUser, onUpdate }) {
           >
             {db.getLabel('hrm_tab_employees', '👥 ພະນັກງານ')}
           </button>
+          )}
           <button
             type="button"
             className={`nav-tab ${activeSubTab === 'shifts' ? 'active' : ''}`}
@@ -609,6 +625,7 @@ export default function HRM({ activeUser, onUpdate }) {
           >
             {db.getLabel('hrm_tab_leaves', '📝 ການລາພັກ')}
           </button>
+          {hasHrmPermission('hrmPayroll') && (
           <button
             type="button"
             className={`nav-tab ${activeSubTab === 'payroll' ? 'active' : ''}`}
@@ -616,6 +633,7 @@ export default function HRM({ activeUser, onUpdate }) {
           >
             {db.getLabel('hrm_tab_payroll', '💵 ບັນຊີເງິນເດືອນ')}
           </button>
+          )}
         </div>
       </div>
 
@@ -637,9 +655,11 @@ export default function HRM({ activeUser, onUpdate }) {
             <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.1rem', margin: 0 }}>
               👥 ຈັດການບັນຊີ ແລະ ລະຫັດຜ່ານຂອງພະນັກງານ
             </h3>
+            {hasHrmPermission('hrmAddUser') && (
             <button className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => setShowAddUserModal(true)}>
               ➕ ເພີ່ມພະນັກງານໃໝ່
             </button>
+            )}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -677,6 +697,7 @@ export default function HRM({ activeUser, onUpdate }) {
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
+                  {hasHrmPermission('hrmEditUser') && (
                   <button
                     className="btn btn-secondary"
                     style={{ padding: '6px 12px', fontSize: '0.8rem' }}
@@ -684,6 +705,8 @@ export default function HRM({ activeUser, onUpdate }) {
                   >
                     ✏️ ແກ້ໄຂ
                   </button>
+                  )}
+                  {hasHrmPermission('hrmDeleteUser') && (
                   <button
                     className="btn btn-danger"
                     style={{ padding: '6px 12px', fontSize: '0.8rem', background: 'rgba(231,76,60,0.1)', color: 'var(--alert-red)', borderColor: 'rgba(231,76,60,0.2)' }}
@@ -692,6 +715,7 @@ export default function HRM({ activeUser, onUpdate }) {
                   >
                     🗑️ ລຶບ
                   </button>
+                  )}
                 </div>
               </div>
             ))}

@@ -397,6 +397,12 @@ function CustomerDetailModal({ show, customer, onClose }) {
 }
 
 export default function Customers({ activeUser, onUpdate }) {
+  const hasCustomersPermission = (subKey) => {
+    if (!activeUser) return false;
+    if (activeUser.role === 'owner') return true;
+    if (activeUser.permissions?.admin) return true;
+    return !!activeUser.permissions?.[subKey];
+  };
   const [customersList, setCustomersList] = useState([]);
   const [showCustModal, setShowCustModal] = useState(false);
   const [editingCust, setEditingCust] = useState(null);
@@ -465,11 +471,19 @@ export default function Customers({ activeUser, onUpdate }) {
   };
 
   const handleEditCustomerClick = (c) => {
+    if (!hasCustomersPermission('membersEdit')) {
+      alert('🔒 ທ່ານບໍ່ມີສິດໃນການແກ້ໄຂສະມາຊິກ!');
+      return;
+    }
     setEditingCust(c);
     setShowCustModal(true);
   };
 
   const handleDeleteCustomerClick = (id, name) => {
+    if (!hasCustomersPermission('membersDelete')) {
+      alert('🔒 ທ່ານບໍ່ມີສິດໃນການລຶບສະມາຊິກ!');
+      return;
+    }
     if (window.confirm(`ຕ້ອງການລົບສະມາຊິກ "${name}" ແທ້ບໍ່?`)) {
       db.deleteCustomer(id);
       loadCustomers();
@@ -518,6 +532,7 @@ export default function Customers({ activeUser, onUpdate }) {
             ຈັດການຖານຂໍ້ມູນລູກຄ້າປະຈຳ, ສ່ວນຫຼຸດສະມາຊິກ ແລະ ການສະໝັກສະມາຊິກໃຫມ່
           </p>
         </div>
+      {hasCustomersPermission('membersAdd') && (
         <button
           type="button"
           className="btn btn-primary"
@@ -529,6 +544,7 @@ export default function Customers({ activeUser, onUpdate }) {
         >
           ➕ {db.getLabel('pos_register_member_btn', '＋ ສະໝັກສະມາຊິກໃໝ່')}
         </button>
+      )}
       </div>
 
       {/* Content Section */}
@@ -620,6 +636,7 @@ export default function Customers({ activeUser, onUpdate }) {
                       >
                         👁️
                       </button>
+                      {hasCustomersPermission('membersEdit') && (
                       <button
                         type="button"
                         onClick={() => handleEditCustomerClick(c)}
@@ -628,6 +645,8 @@ export default function Customers({ activeUser, onUpdate }) {
                       >
                         ✏️
                       </button>
+                      )}
+                      {hasCustomersPermission('membersDelete') && (
                       <button
                         type="button"
                         onClick={() => handleDeleteCustomerClick(c.id, c.name)}
@@ -636,6 +655,7 @@ export default function Customers({ activeUser, onUpdate }) {
                       >
                         🗑️
                       </button>
+                      )}
                     </div>
                   </td>
                 </tr>
