@@ -1125,6 +1125,7 @@ export default function Reports({ activeUser, isMobile }) {
           { id: 'pos',      icon: '🏪', label: 'ໜ້າຮ້ານ POS' },
           { id: 'online',   icon: '🌐', label: 'ອອນລາຍ Shop' },
           { id: 'overview', icon: '📊', label: 'ພາບລວມທຸລະກິດ' },
+          { id: 'treats',   icon: '🎁', label: 'ລາຍການລ້ຽງແຂກ (Treats)' },
         ].map(tab => (
           <button
             key={tab.id}
@@ -1138,12 +1139,12 @@ export default function Reports({ activeUser, isMobile }) {
               fontWeight: reportTab === tab.id ? 'bold' : 'normal',
               fontSize: '0.82rem',
               background: reportTab === tab.id
-                ? (tab.id === 'online' ? 'rgba(52,152,219,0.18)' : tab.id === 'overview' ? 'rgba(212,175,55,0.18)' : 'rgba(39,174,96,0.18)')
+                ? (tab.id === 'online' ? 'rgba(52,152,219,0.18)' : tab.id === 'overview' ? 'rgba(212,175,55,0.18)' : tab.id === 'treats' ? 'rgba(230,126,34,0.18)' : 'rgba(39,174,96,0.18)')
                 : 'rgba(255,255,255,0.04)',
               color: reportTab === tab.id
-                ? (tab.id === 'online' ? '#3498db' : tab.id === 'overview' ? 'var(--gold-primary)' : 'var(--success-green)')
+                ? (tab.id === 'online' ? '#3498db' : tab.id === 'overview' ? 'var(--gold-primary)' : tab.id === 'treats' ? '#e67e22' : 'var(--success-green)')
                 : 'var(--text-secondary)',
-              borderBottom: reportTab === tab.id ? `2px solid ${tab.id === 'online' ? '#3498db' : tab.id === 'overview' ? 'var(--gold-primary)' : 'var(--success-green)'}` : '2px solid transparent',
+              borderBottom: reportTab === tab.id ? `2px solid ${tab.id === 'online' ? '#3498db' : tab.id === 'overview' ? 'var(--gold-primary)' : tab.id === 'treats' ? '#e67e22' : 'var(--success-green)'}` : '2px solid transparent',
               transition: 'all 0.2s',
             }}
           >
@@ -1390,6 +1391,11 @@ export default function Reports({ activeUser, isMobile }) {
                     >
                       <td style={{ padding: '12px', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
                         {order.id}
+                        {order.treatRemark && (
+                          <div style={{ fontSize: '0.72rem', color: '#e67e22', fontStyle: 'italic', marginTop: '2px' }}>
+                            💬 {order.treatRemark}
+                          </div>
+                        )}
                       </td>
                       <td style={{ padding: '12px' }}>
                         {new Date(order.date).toLocaleString('lo-LA')}
@@ -1409,12 +1415,12 @@ export default function Reports({ activeUser, isMobile }) {
                             fontSize: '0.75rem',
                             padding: '2px 8px',
                             borderRadius: '10px',
-                            background: order.paymentMethod === 'cash' ? 'rgba(243, 156, 18, 0.15)' : order.paymentMethod === 'split' ? 'rgba(155, 89, 182, 0.15)' : 'rgba(52, 152, 219, 0.15)',
-                            color: order.paymentMethod === 'cash' ? '#f39c12' : order.paymentMethod === 'split' ? '#9b59b6' : '#3498db',
-                            border: `1px solid ${order.paymentMethod === 'cash' ? 'rgba(243, 156, 18, 0.3)' : order.paymentMethod === 'split' ? 'rgba(155, 89, 182, 0.3)' : 'rgba(52, 152, 219, 0.3)'}`
+                            background: order.paymentMethod === 'cash' ? 'rgba(243, 156, 18, 0.15)' : order.paymentMethod === 'split' ? 'rgba(155, 89, 182, 0.15)' : order.paymentMethod === 'treat' ? 'rgba(230, 126, 34, 0.15)' : 'rgba(52, 152, 219, 0.15)',
+                            color: order.paymentMethod === 'cash' ? '#f39c12' : order.paymentMethod === 'split' ? '#9b59b6' : order.paymentMethod === 'treat' ? '#e67e22' : '#3498db',
+                            border: `1px solid ${order.paymentMethod === 'cash' ? 'rgba(243, 156, 18, 0.3)' : order.paymentMethod === 'split' ? 'rgba(155, 89, 182, 0.3)' : order.paymentMethod === 'treat' ? 'rgba(230, 126, 34, 0.3)' : 'rgba(52, 152, 219, 0.3)'}`
                           }}
                         >
-                          {order.paymentMethod === 'cash' ? '💵 ເງິນສົດ' : order.paymentMethod === 'split' ? '🔀 ເງິນສົດ + ໂອນ' : '📱 ໂອນທະນາຄານ'}
+                          {order.paymentMethod === 'cash' ? '💵 ເງິນສົດ' : order.paymentMethod === 'split' ? '🔀 ເງິນສົດ + ໂອນ' : order.paymentMethod === 'treat' ? '🎁 ລ້ຽງແຂກ (Treat)' : '📱 ໂອນທະນາຄານ'}
                         </span>
                       </td>
                       <td style={{ padding: '12px', textAlign: 'center' }}>
@@ -1955,7 +1961,7 @@ export default function Reports({ activeUser, isMobile }) {
                   <div><b>ເລກບິນ:</b> {selectedReceipt.id}</div>
                   <div><b>ວັນທີ:</b> {new Date(selectedReceipt.date).toLocaleString('lo-LA')}</div>
                   <div><b>ພະນັກງານຂາຍ:</b> {selectedReceipt.cashierName || 'Online Shop'}</div>
-                  <div><b>ການຊຳລະ:</b> {selectedReceipt.id.startsWith('ONL-') ? 'ໂອນທະນາຄານ (Online BCEL)' : (selectedReceipt.paymentMethod === 'cash' ? 'ເງິນສົດ (Cash)' : selectedReceipt.paymentMethod === 'split' ? 'ເງິນສົດ + ໂອນ (Split)' : 'ໂອນທະນາຄານ (BCEL)')}</div>
+                  <div><b>ການຊຳລະ:</b> {selectedReceipt.id.startsWith('ONL-') ? 'ໂອນທະນາຄານ (Online BCEL)' : (selectedReceipt.paymentMethod === 'treat' ? '🎁 ລ້ຽງແຂກ (Owner Treat)' : (selectedReceipt.paymentMethod === 'cash' ? 'ເງິນສົດ (Cash)' : selectedReceipt.paymentMethod === 'split' ? 'ເງິນສົດ + ໂອນ (Split)' : 'ໂອນທະນາຄານ (BCEL)'))}</div>
                   {selectedReceipt.bankTxRef && <div><b>ເລກອ້າງອີງ:</b> {selectedReceipt.bankTxRef}</div>}
                   {selectedReceipt.id.startsWith('ONL-') && selectedReceipt.shippingAddress && (
                     <div style={{ marginTop: '4px', borderTop: '0.5px solid #ccc', paddingTop: '4px', fontSize: '7.5pt' }}>
@@ -2069,6 +2075,11 @@ export default function Reports({ activeUser, isMobile }) {
                     {selectedReceipt.bankTxRef && <div>Ref: {selectedReceipt.bankTxRef}</div>}
                   </div>
                 )}
+                {selectedReceipt.treatRemark && (
+                  <div style={{ marginTop: '8px', padding: '6px', borderTop: '1px dashed #ccc', fontSize: '11px', color: '#555', fontStyle: 'italic', textAlign: 'center' }}>
+                    ໝາຍເຫດ: {selectedReceipt.treatRemark}
+                  </div>
+                )}
 
                 <div style={{ marginTop: '12px', textAlign: 'center', fontSize: '7.5pt', borderTop: '1px dotted black', paddingTop: '8px' }}>
                   <p style={{ fontWeight: 'bold', marginBottom: '2px' }}>ຊ່ອງທາງການຊຳລະເງິນຮ້ານ (BCEL One QR)</p>
@@ -2100,6 +2111,80 @@ export default function Reports({ activeUser, isMobile }) {
         </Portal>
       )}
 
+      {reportTab === 'treats' && (() => {
+        const treatOrders = rangeOrders.filter(o => o.paymentMethod === 'treat');
+        const totalTreatValue = treatOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+        return (
+          <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+              <div className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>🎁 ຈຳນວນຄັ້ງທີ່ລ້ຽງແຂກ (Total Treats)</span>
+                <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#e67e22' }}>
+                  {treatOrders.length} ຄັ້ງ
+                </span>
+              </div>
+              <div className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>💰 ມູນຄ່າລວມທີ່ລ້ຽງ (Estimated Value)</span>
+                <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--alert-red)' }}>
+                  {totalTreatValue.toLocaleString()} ₭
+                </span>
+              </div>
+            </div>
+
+            <div className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.02rem', margin: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+                📋 ລາຍລະອຽດການລ້ຽງແຂກ (Treat History & Logs)
+              </h3>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                      <th style={{ padding: '12px' }}>ເລກບິນ (ID)</th>
+                      <th style={{ padding: '12px' }}>ວັນທີ / ເວລາ</th>
+                      <th style={{ padding: '12px' }}>ຜູ້ອະນຸມັດ/ຫົວໜ້າ (Treated By)</th>
+                      <th style={{ padding: '12px' }}>ລາຍການສິນຄ້າ</th>
+                      <th style={{ padding: '12px', textAlign: 'right' }}>ມູນຄ່າ (Value)</th>
+                      <th style={{ padding: '12px' }}>ໝາຍເຫດ/ເຫດຜົນ (Remark)</th>
+                      <th style={{ padding: '12px', textAlign: 'center' }}>ບິນ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {treatOrders.length === 0 ? (
+                      <tr>
+                        <td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
+                          ບໍ່ມີລາຍການລ້ຽງແຂກໃນຊ່ວງເວລានີ້
+                        </td>
+                      </tr>
+                    ) : (
+                      treatOrders.map(order => (
+                        <tr key={order.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', fontSize: '0.85rem' }}>
+                          <td style={{ padding: '12px', fontWeight: 'bold', color: 'var(--gold-primary)' }}>{order.id}</td>
+                          <td style={{ padding: '12px' }}>{new Date(order.date).toLocaleString('lo-LA')}</td>
+                          <td style={{ padding: '12px', fontWeight: 'bold', color: '#e67e22' }}>{order.cashierName || 'ເຈົ້າຂອງຮ້ານ'}</td>
+                          <td style={{ padding: '12px', maxWidth: '250px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {(order.items || []).map(i => `${i.name} (x${i.qty})`).join(', ')}
+                          </td>
+                          <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>{order.total.toLocaleString()} ₭</td>
+                          <td style={{ padding: '12px', color: '#e67e22', fontStyle: 'italic' }}>{order.treatRemark || 'ບໍ່ມີໝາຍເຫດ'}</td>
+                          <td style={{ padding: '12px', textAlign: 'center' }}>
+                            <button
+                              className="btn btn-secondary"
+                              style={{ padding: '3px 8px', fontSize: '0.75rem' }}
+                              onClick={() => handleReprint(order)}
+                            >
+                              🖨️ ເປີດເບິ່ງ
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

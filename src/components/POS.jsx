@@ -212,6 +212,7 @@ export default function POS({
   const [showCheckout, setShowCheckout] = useState(false);
   const [showDebtModal, setShowDebtModal] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [treatRemark, setTreatRemark] = useState('');
   const [payCurrency, setPayCurrency] = useState('LAK');
   const [cashReceived, setCashReceived] = useState('');
   const [transferAmount, setTransferAmount] = useState('');
@@ -1123,11 +1124,20 @@ export default function POS({
       ? 0
       : Math.max(0, grandTotal - (activeSlot.depositAmount || 0));
     
+    if (paymentMethod === 'treat') {
+      setCheckoutAmountPaid('0');
+      return;
+    }
     if (checkoutIsDepositMode) {
       // In deposit mode, they define the deposit amount on the fly
       let computedLAK = 0;
       const rate = payCurrency === 'THB' ? (settings.exchangeRateThb || 750) : payCurrency === 'USD' ? (settings.exchangeRateUsd || 26000) : 1;
-      if (paymentMethod === 'cash') {
+      if (paymentMethod === 'treat') {
+      if (!treatRemark.trim()) {
+        alert('ກະລຸນາປ້ອນໝາຍເຫດ/ເຫດຜົນການລ້ຽງແຂກ!');
+        return;
+      }
+    } else if (paymentMethod === 'cash') {
         computedLAK = Math.round(Number(cashReceived || 0) * rate);
       } else if (paymentMethod === 'transfer') {
         computedLAK = Math.round(Number(transferAmount || 0) * rate);
@@ -1140,6 +1150,9 @@ export default function POS({
     }
   }, [cashReceived, transferAmount, paymentMethod, payCurrency, grandTotal, activeSlot, settings, checkoutIsDepositMode]);
   const isCheckoutDisabled = (() => {
+    if (paymentMethod === 'treat') {
+      return !treatRemark.trim();
+    }
     if (checkoutIsDepositMode) {
       const amt = paymentMethod === 'cash' ? Number(cashReceived || 0)
                 : paymentMethod === 'transfer' ? Number(transferAmount || 0)
@@ -1573,9 +1586,10 @@ export default function POS({
     const historyEntry = {
       date: new Date().toISOString(),
       amount: finalLAKAmountToPay,
-      method: paymentMethod === 'cash' ? 'Cash' : (paymentMethod === 'transfer' ? 'BCEL One' : 'Split'),
+      method: paymentMethod === 'cash' ? 'Cash' : (paymentMethod === 'transfer' ? 'BCEL One' : (paymentMethod === 'treat' ? 'Treat' : 'Split')),
       cashier: activeUser.name,
-      bankTxRef: bankTxRef
+      bankTxRef: bankTxRef,
+      treatRemark: paymentMethod === 'treat' ? treatRemark.trim() : ''
     };
 
     const isBalancePayment = adjustedCartItems.some(item => {
@@ -1613,8 +1627,9 @@ export default function POS({
       paidAmount: finalLAKAmountToPay,
       remainingAmount: Math.max(0, grandTotal - finalLAKAmountToPay),
       depositAmount: activeSlot.depositAmount || finalLAKAmountToPay,
-      financialStatus: finalLAKAmountToPay === 0 ? 'Pending' : (Math.max(0, grandTotal - finalLAKAmountToPay) > 0 ? 'PartialPaid' : 'Paid'),
+      financialStatus: paymentMethod === 'treat' ? 'Paid' : (finalLAKAmountToPay === 0 ? 'Pending' : (Math.max(0, grandTotal - finalLAKAmountToPay) > 0 ? 'PartialPaid' : 'Paid')),
       pickupStatus: 'WaitingPickup',
+      treatRemark: paymentMethod === 'treat' ? treatRemark.trim() : '',
       paymentHistory: [historyEntry],
       // Multi-currency details
       payCurrency,
@@ -1681,6 +1696,7 @@ export default function POS({
     }
 
     const savedOrder = db.addOrder(orderData);
+    setTreatRemark('');
     
     // Log audit events
     if (paymentMethod === 'cash') {
@@ -4576,6 +4592,7 @@ export default function POS({
                   <label style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 'bold', display: 'block', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{db.getLabel('chk_pay_method', 'ຊ່ອງທາງຊຳລະ')}</label>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {[
+                      { key: 'treat', icon: '🎁', label: 'ລ້ຽງແຂກ (Owner Treat)', color: '#e67e22' },
                       { key: 'cash', icon: '💵', label: db.getLabel('chk_cash', 'ເງິນສົດ (Cash)'), color: '#27ae60' },
                       { key: 'transfer', icon: '📱', label: db.getLabel('chk_transfer', 'ໂອນ BCEL One'), color: '#3498db' },
                       { key: 'split', icon: '🔀', label: 'ເງິນສົດ + ໂອນ (Split)', color: '#9b59b6' }
@@ -4623,6 +4640,21 @@ export default function POS({
                       </button>
                     ))}
                   </div>
+                  {paymentMethod === 'treat' && (
+                    <div style={{ marginTop: '12px' }}>
+                      <label style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>
+                        ໝາຍເຫດ / ລາຍລະອຽດການລ້ຽງແຂກ (Reason / Guest details) *
+                      </label>
+                      <textarea
+                        className="form-control"
+                        rows="2"
+                        placeholder="ຕົວຢ່າງ: ລ້ຽງລູກຄ້າ VIP, ໝູ່ເຈົ້າຂອງຮ້ານ..."
+                        value={treatRemark}
+                        onChange={(e) => setTreatRemark(e.target.value)}
+                        style={{ fontSize: '0.85rem', width: '100%', margin: 0, padding: '8px' }}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* Currency */}
@@ -5342,6 +5374,7 @@ export default function POS({
                   {settings.receiptShowPaymentMethod !== false && (
                     <div>
                       <b>ການຊຳລະ:</b> {
+                        currentReceipt.paymentMethod === 'treat' ? '🎁 ລ້ຽງແຂກ (Owner Treat)' :
                         currentReceipt.paymentMethod === 'cash' ? 'ເງິນສົດ (Cash)' :
                         currentReceipt.paymentMethod === 'draft' ? 'ຍັງບໍ່ທັນຊຳລະ (Temporary Bill)' :
                         currentReceipt.paymentMethod === 'split' ? 'ເງິນສົດ + ໂອນ (Split)' :
@@ -5553,6 +5586,11 @@ export default function POS({
                       <span>{currentReceipt.bankTxRef}</span>
                     </div>
                   )
+                )}
+                {currentReceipt.treatRemark && (
+                  <div style={{ marginTop: '8px', padding: '6px', borderTop: '1px dashed #ccc', fontSize: '11px', color: '#555', fontStyle: 'italic', textAlign: 'center' }}>
+                    ໝາຍເຫດ: {currentReceipt.treatRemark}
+                  </div>
                 )}
 
                 {/* Exchange Rates and Equivalent conversions at bottom */}
