@@ -127,6 +127,7 @@ export default function POS({
   const [checkoutQrUrl, setCheckoutQrUrl] = useState('');
   const [receiptQrUrl, setReceiptQrUrl] = useState('');
   const [depositQrUrl, setDepositQrUrl] = useState('');
+  const [showDrawerKickPrint, setShowDrawerKickPrint] = useState(false);
   
   // Product Search / Filter (Always visible in left panel of 'menu' mode)
   const [searchQuery, setSearchQuery] = useState('');
@@ -1440,41 +1441,17 @@ export default function POS({
     return false;
   };
 
-  const handleOpenDrawer = async () => {
+  const handleOpenDrawer = () => {
     playSound('cash');
     setDrawerOpen(true);
     setTimeout(() => setDrawerOpen(false), 2000);
 
-    // 1. Try local server backend API first (PowerShell raw spooler kick)
-    // This is the absolute best method: no print dialog, no paper wasted, works with standard driver!
-    try {
-      const printerName = settings.windowsPrinterName || 'GP-L80250 Series';
-      const baseUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-        ? ''
-        : (settings.printServerUrl || 'http://localhost:5173');
-      const response = await fetch(`${baseUrl}/api/kick-drawer?printer=${encodeURIComponent(printerName)}`);
-      const resData = await response.json();
-      if (resData && resData.success) {
-        console.log('Drawer kicked successfully via local server API');
-        return;
-      }
-    } catch (e) {
-      console.warn('Local server drawer kick failed, trying fallback WebUSB/Serial...', e);
-    }
-
-    // 2. Try WebUSB/Web Serial as fallback
-    const kicked = await kickPhysicalDrawer();
-    if (kicked) {
-      return;
-    }
-
-    // 3. Fallback alert if everything fails
-    alert(
-      "⚠️ ບໍ່ພົບການເຊື່ອມຕໍ່ກັບເຄື່ອງພິມ!\n\n" +
-      "ກະລຸນາກວດສອບວ່າ:\n" +
-      "1. ໄດ້ເປີດໃຊ້ງານໂປຣແກຣມຜ່ານ 'Start-POS-Silent-Print.bat' (ໂໝດ Auto-Print) ຫຼື ບໍ່?\n" +
-      "2. ໄດ້ໃສ່ຊື່ເຄື່ອງພິມຖືກຕ້ອງໃນໜ້າຕັ້ງຄ່າ ຫຼື ບໍ່? (ປັດຈຸບັນ: " + (settings.windowsPrinterName || 'GP-L80250 Series') + ")"
-    );
+    // Trigger zero-height print job to open cash drawer via printer driver kick
+    setShowDrawerKickPrint(true);
+    setTimeout(() => {
+      window.print();
+      setShowDrawerKickPrint(false);
+    }, 100);
   };
 
   const handleProcessPayment = () => {
@@ -2463,6 +2440,20 @@ export default function POS({
               padding: 0 !important;
               margin: 0 !important;
               background: white !important;
+              page-break-before: avoid !important;
+              break-before: avoid !important;
+            }
+            .drawer-kick-only, 
+            .drawer-kick-only .modal-content, 
+            .drawer-kick-only .modal-body {
+              height: 0 !important;
+              max-height: 0 !important;
+              overflow: hidden !important;
+              padding: 0 !important;
+              margin: 0 !important;
+              border: none !important;
+              background: none !important;
+              display: block !important;
               page-break-before: avoid !important;
               break-before: avoid !important;
             }
@@ -6627,6 +6618,16 @@ export default function POS({
             </div>
           </div>
         </div>
+        </Portal>
+      )}
+
+      {showDrawerKickPrint && (
+        <Portal>
+          <div className="modal-overlay print-modal drawer-kick-only">
+            <div className="modal-content" style={{ height: '0', overflow: 'hidden', padding: '0', margin: '0', border: 'none' }}>
+              <div style={{ height: '0px', overflow: 'hidden' }}></div>
+            </div>
+          </div>
         </Portal>
       )}
     </div>

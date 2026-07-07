@@ -1194,6 +1194,20 @@ textarea.form-control {
     page-break-before: avoid !important;
     break-before: avoid !important;
   }
+  .drawer-kick-only, 
+  .drawer-kick-only .modal-content, 
+  .drawer-kick-only .modal-body {
+    height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    background: none !important;
+    display: block !important;
+    page-break-before: avoid !important;
+    break-before: avoid !important;
+  }
   .print-receipt-container {
     width: 72mm !important;
     max-width: 72mm !important;
