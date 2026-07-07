@@ -29,6 +29,12 @@ export default function HRM({ activeUser, onUpdate }) {
       posZoneB: false,
       framing: false,
       inventory: false,
+      inventoryViewCost: false,
+      inventoryAddProduct: false,
+      inventoryEditProduct: false,
+      inventoryDeleteProduct: false,
+      inventoryAddStock: false,
+      inventoryDeleteStock: false,
       hrm: false,
       reports: false,
       debts: false,
@@ -1640,26 +1646,82 @@ export default function HRM({ activeUser, onUpdate }) {
                         { key: 'ai', label: '🤖 ລະບົບ AI' },
                         { key: 'settings', label: '⚙️ ຕັ້ງຄ່າ (Settings)' }
                       ].map(item => (
-                        <div key={item.key} style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: userFormData.permissions?.admin ? 0.5 : 1 }}>
-                          <input
-                            type="checkbox"
-                            id={`perm-${item.key}`}
-                            style={{ width: '15px', height: '15px', cursor: 'pointer' }}
-                            disabled={userFormData.permissions?.admin}
-                            checked={userFormData.permissions?.admin || userFormData.permissions?.[item.key] || false}
-                            onChange={(e) => {
-                              setUserFormData(prev => ({
-                                ...prev,
-                                permissions: {
-                                  ...prev.permissions,
-                                  [item.key]: e.target.checked
-                                }
-                              }));
-                            }}
-                          />
-                          <label htmlFor={`perm-${item.key}`} style={{ margin: 0, fontSize: '0.8rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>
-                            {item.label}
-                          </label>
+                        <div key={item.key} style={{ gridColumn: item.key === 'inventory' ? 'span 2' : 'auto' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: userFormData.permissions?.admin ? 0.5 : 1 }}>
+                            <input
+                              type="checkbox"
+                              id={`perm-${item.key}`}
+                              style={{ width: '15px', height: '15px', cursor: 'pointer' }}
+                              disabled={userFormData.permissions?.admin}
+                              checked={userFormData.permissions?.admin || userFormData.permissions?.[item.key] || false}
+                              onChange={(e) => {
+                                const val = e.target.checked;
+                                setUserFormData(prev => ({
+                                  ...prev,
+                                  permissions: {
+                                    ...prev.permissions,
+                                    [item.key]: val,
+                                    ...(item.key === 'inventory' ? {
+                                      inventoryViewCost: val,
+                                      inventoryAddProduct: val,
+                                      inventoryEditProduct: val,
+                                      inventoryDeleteProduct: val,
+                                      inventoryAddStock: val,
+                                      inventoryDeleteStock: val
+                                    } : {})
+                                  }
+                                }));
+                              }}
+                            />
+                            <label htmlFor={`perm-${item.key}`} style={{ margin: 0, fontSize: '0.8rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                              {item.label}
+                            </label>
+                          </div>
+                          
+                          {item.key === 'inventory' && (userFormData.permissions?.admin || userFormData.permissions?.inventory) && (
+                            <div style={{
+                              display: 'grid',
+                              gridTemplateColumns: '1fr 1fr',
+                              gap: '6px 8px',
+                              marginLeft: '20px',
+                              marginTop: '6px',
+                              padding: '8px',
+                              background: 'rgba(255,255,255,0.01)',
+                              border: '1px dashed rgba(255,255,255,0.05)',
+                              borderRadius: '4px'
+                            }}>
+                              {[
+                                { key: 'inventoryViewCost', label: '👁️ ເບິ່ງຕົ້ນທຶນ (View Cost)' },
+                                { key: 'inventoryAddProduct', label: '➕ ເພີ່ມສິນຄ້າ (Add Product)' },
+                                { key: 'inventoryEditProduct', label: '✏️ ແກ້ໄຂສິນຄ້າ (Edit Product)' },
+                                { key: 'inventoryDeleteProduct', label: '🗑️ ລຶບສິນຄ້າ (Delete Product)' },
+                                { key: 'inventoryAddStock', label: '📈 ເພີ່ມສະຕັອກ (Add Stock)' },
+                                { key: 'inventoryDeleteStock', label: '📉 ຫຼຸດສະຕັອກ (Decrease Stock)' }
+                              ].map(sub => (
+                                <div key={sub.key} style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: userFormData.permissions?.admin ? 0.5 : 1 }}>
+                                  <input
+                                    type="checkbox"
+                                    id={`perm-${sub.key}`}
+                                    style={{ width: '13px', height: '13px', cursor: 'pointer' }}
+                                    disabled={userFormData.permissions?.admin}
+                                    checked={userFormData.permissions?.admin || userFormData.permissions?.[sub.key] || false}
+                                    onChange={(e) => {
+                                      setUserFormData(prev => ({
+                                        ...prev,
+                                        permissions: {
+                                          ...prev.permissions,
+                                          [sub.key]: e.target.checked
+                                        }
+                                      }));
+                                    }}
+                                  />
+                                  <label htmlFor={`perm-${sub.key}`} style={{ margin: 0, fontSize: '0.75rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                                    {sub.label}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -1731,6 +1793,12 @@ export default function HRM({ activeUser, onUpdate }) {
                       posZoneB: false,
                       framing: false,
                       inventory: false,
+                      inventoryViewCost: false,
+                      inventoryAddProduct: false,
+                      inventoryEditProduct: false,
+                      inventoryDeleteProduct: false,
+                      inventoryAddStock: false,
+                      inventoryDeleteStock: false,
                       hrm: false,
                       reports: false,
                       debts: false,
@@ -1869,7 +1937,6 @@ export default function HRM({ activeUser, onUpdate }) {
                         id="edit-perm-admin"
                         style={{ width: '16px', height: '16px', cursor: 'pointer' }}
                         checked={userFormData.permissions?.admin || false}
-                        disabled={editingUser.id === 'owner'} // Owner must remain admin
                         onChange={(e) => {
                           const val = e.target.checked;
                           setUserFormData(prev => ({
@@ -1912,28 +1979,128 @@ export default function HRM({ activeUser, onUpdate }) {
                         { key: 'ai', label: '🤖 ລະບົບ AI' },
                         { key: 'settings', label: '⚙️ ຕັ້ງຄ່າ (Settings)' }
                       ].map(item => (
-                        <div key={item.key} style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: (userFormData.permissions?.admin || editingUser.id === 'owner') ? 0.5 : 1 }}>
-                          <input
-                            type="checkbox"
-                            id={`edit-perm-${item.key}`}
-                            style={{ width: '15px', height: '15px', cursor: 'pointer' }}
-                            disabled={userFormData.permissions?.admin || editingUser.id === 'owner'}
-                            checked={userFormData.permissions?.admin || editingUser.id === 'owner' || userFormData.permissions?.[item.key] || false}
-                            onChange={(e) => {
-                              setUserFormData(prev => ({
-                                ...prev,
-                                permissions: {
-                                  ...prev.permissions,
-                                  [item.key]: e.target.checked
-                                }
-                              }));
-                            }}
-                          />
-                          <label htmlFor={`edit-perm-${item.key}`} style={{ margin: 0, fontSize: '0.8rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>
-                            {item.label}
-                          </label>
+                        <div key={item.key} style={{ gridColumn: item.key === 'inventory' ? 'span 2' : 'auto' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: userFormData.permissions?.admin ? 0.5 : 1 }}>
+                            <input
+                              type="checkbox"
+                              id={`edit-perm-${item.key}`}
+                              style={{ width: '15px', height: '15px', cursor: 'pointer' }}
+                              disabled={userFormData.permissions?.admin}
+                              checked={userFormData.permissions?.admin || userFormData.permissions?.[item.key] || false}
+                              onChange={(e) => {
+                                const val = e.target.checked;
+                                setUserFormData(prev => ({
+                                  ...prev,
+                                  permissions: {
+                                    ...prev.permissions,
+                                    [item.key]: val,
+                                    ...(item.key === 'inventory' ? {
+                                      inventoryViewCost: val,
+                                      inventoryAddProduct: val,
+                                      inventoryEditProduct: val,
+                                      inventoryDeleteProduct: val,
+                                      inventoryAddStock: val,
+                                      inventoryDeleteStock: val
+                                    } : {})
+                                  }
+                                }));
+                              }}
+                            />
+                            <label htmlFor={`edit-perm-${item.key}`} style={{ margin: 0, fontSize: '0.8rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                              {item.label}
+                            </label>
+                          </div>
+                          
+                          {item.key === 'inventory' && (userFormData.permissions?.admin || userFormData.permissions?.inventory) && (
+                            <div style={{
+                              display: 'grid',
+                              gridTemplateColumns: '1fr 1fr',
+                              gap: '6px 8px',
+                              marginLeft: '20px',
+                              marginTop: '6px',
+                              padding: '8px',
+                              background: 'rgba(255,255,255,0.01)',
+                              border: '1px dashed rgba(255,255,255,0.05)',
+                              borderRadius: '4px'
+                            }}>
+                              {[
+                                { key: 'inventoryViewCost', label: '👁️ ເບິ່ງຕົ້ນທຶນ (View Cost)' },
+                                { key: 'inventoryAddProduct', label: '➕ ເພີ່ມສິນຄ້າ (Add Product)' },
+                                { key: 'inventoryEditProduct', label: '✏️ ແກ້ໄຂສິນຄ້າ (Edit Product)' },
+                                { key: 'inventoryDeleteProduct', label: '🗑️ ລຶບສິນຄ້າ (Delete Product)' },
+                                { key: 'inventoryAddStock', label: '📈 ເພີ່ມສະຕັອກ (Add Stock)' },
+                                { key: 'inventoryDeleteStock', label: '📉 ຫຼຸດສະຕັອກ (Decrease Stock)' }
+                              ].map(sub => (
+                                <div key={sub.key} style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: userFormData.permissions?.admin ? 0.5 : 1 }}>
+                                  <input
+                                    type="checkbox"
+                                    id={`edit-perm-${sub.key}`}
+                                    style={{ width: '13px', height: '13px', cursor: 'pointer' }}
+                                    disabled={userFormData.permissions?.admin}
+                                    checked={userFormData.permissions?.admin || userFormData.permissions?.[sub.key] || false}
+                                    onChange={(e) => {
+                                      setUserFormData(prev => ({
+                                        ...prev,
+                                        permissions: {
+                                          ...prev.permissions,
+                                          [sub.key]: e.target.checked
+                                        }
+                                      }));
+                                    }}
+                                  />
+                                  <label htmlFor={`edit-perm-${sub.key}`} style={{ margin: 0, fontSize: '0.75rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                                    {sub.label}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ marginTop: '15px' }}>
+                  <label className="form-label">ຮູບພາບພະນັກງານ (Profile Photo / Avatar)</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginTop: '5px' }}>
+                    {userFormData.avatar ? (
+                      <img 
+                        src={userFormData.avatar} 
+                        alt="Avatar Preview" 
+                        style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '50%', border: '1px solid var(--border-color)', background: '#111' }} 
+                      />
+                    ) : (
+                      <div style={{ width: '60px', height: '60px', borderRadius: '50%', border: '1px solid var(--border-color)', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
+                        👤
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setUserFormData(prev => ({ ...prev, avatar: reader.result }));
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}
+                      />
+                      {userFormData.avatar && (
+                        <button 
+                          type="button" 
+                          className="btn btn-secondary" 
+                          style={{ padding: '4px 8px', fontSize: '0.75rem', color: 'var(--alert-red)', borderColor: 'var(--alert-red)', alignSelf: 'flex-start' }} 
+                          onClick={() => setUserFormData(prev => ({ ...prev, avatar: '' }))}
+                        >
+                          ລຶບຮູບ (Remove Photo)
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1959,6 +2126,12 @@ export default function HRM({ activeUser, onUpdate }) {
                       posZoneB: false,
                       framing: false,
                       inventory: false,
+                      inventoryViewCost: false,
+                      inventoryAddProduct: false,
+                      inventoryEditProduct: false,
+                      inventoryDeleteProduct: false,
+                      inventoryAddStock: false,
+                      inventoryDeleteStock: false,
                       hrm: false,
                       reports: false,
                       debts: false,

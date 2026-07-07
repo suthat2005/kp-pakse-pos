@@ -115,7 +115,13 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
 // ==========================================
 // 💎 RAW MATERIALS SUB-VIEW
 // ==========================================
-function RawMaterialsSubView({ isMobile }) {
+function RawMaterialsSubView({ isMobile, activeUser }) {
+  const hasInventoryPermission = (subKey) => {
+    if (!activeUser) return false;
+    if (activeUser.role === 'owner') return true;
+    if (activeUser.permissions?.admin) return true;
+    return !!activeUser.permissions?.[subKey];
+  };
   const [materials, setMaterials] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editMaterial, setEditMaterial] = useState(null);
@@ -273,6 +279,7 @@ function RawMaterialsSubView({ isMobile }) {
           />
         </div>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', width: isMobile ? '100%' : 'auto' }}>
+{hasInventoryPermission('inventoryViewCost') && (
           <button 
             className="btn btn-secondary" 
             style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
@@ -280,6 +287,8 @@ function RawMaterialsSubView({ isMobile }) {
           >
             📤 ສົ່ງອອກ CSV
           </button>
+)}
+{hasInventoryPermission('inventoryAddProduct') && (
           <button 
             className="btn btn-secondary" 
             style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
@@ -287,6 +296,8 @@ function RawMaterialsSubView({ isMobile }) {
           >
             📥 ນຳເຂົ້າ CSV
           </button>
+)}
+{hasInventoryPermission('inventoryAddProduct') && (
           <button 
             className="btn btn-primary" 
             style={isMobile ? { flex: '1 1 100%', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
@@ -294,6 +305,7 @@ function RawMaterialsSubView({ isMobile }) {
           >
             ➕ ເພີ່ມວັດຖຸດິບໃໝ່
           </button>
+)}
         </div>
       </div>
 
@@ -321,12 +333,16 @@ function RawMaterialsSubView({ isMobile }) {
                   {m.stock_qty.toLocaleString()}
                 </td>
                 <td style={{ padding: '12px', textAlign: 'right', color: 'var(--text-secondary)' }}>{m.min_stock}</td>
-                <td style={{ padding: '12px', textAlign: 'right' }}>{m.cost_price.toLocaleString()} ₭</td>
+                <td style={{ padding: '12px', textAlign: 'right' }}>{hasInventoryPermission('inventoryViewCost') ? `${m.cost_price.toLocaleString()} ₭` : '*** ₭'}</td>
                 <td style={{ padding: '12px', color: 'var(--text-secondary)' }}>{m.supplier || '-'}</td>
                 <td style={{ padding: '12px', textAlign: 'center' }}>
                   <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+{hasInventoryPermission('inventoryEditProduct') && (
                     <button className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '0.75rem', height: '30px' }} onClick={() => handleOpenEdit(m)}>✏️ ແກ້ໄຂ</button>
+)}
+{hasInventoryPermission('inventoryDeleteProduct') && (
                     <button className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '0.75rem', height: '30px', color: 'var(--alert-red)', borderColor: 'rgba(231,76,60,0.1)' }} onClick={() => handleDelete(m.id)}>🗑️ ລຶບ</button>
+)}
                   </div>
                 </td>
               </tr>
@@ -353,7 +369,7 @@ function RawMaterialsSubView({ isMobile }) {
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)' }}>ຕົ້ນທຶນ: </span>
-                <span>{m.cost_price.toLocaleString()} ₭</span>
+                <span>{hasInventoryPermission('inventoryViewCost') ? `${m.cost_price.toLocaleString()} ₭` : '*** ₭'}</span>
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)' }}>ຜູ້ສະໜອງ: </span>
@@ -361,8 +377,12 @@ function RawMaterialsSubView({ isMobile }) {
               </div>
             </div>
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
+{hasInventoryPermission('inventoryEditProduct') && (
               <button className="btn btn-secondary btn-sm" onClick={() => handleOpenEdit(m)}>✏️ ແກ້ໄຂ</button>
+)}
+{hasInventoryPermission('inventoryDeleteProduct') && (
               <button className="btn btn-secondary btn-sm" style={{ color: 'var(--alert-red)', borderColor: 'rgba(231,76,60,0.1)' }} onClick={() => handleDelete(m.id)}>🗑️ ລຶບ</button>
+)}
             </div>
           </div>
         ))}
@@ -439,10 +459,12 @@ function RawMaterialsSubView({ isMobile }) {
                       </div>
                     </div>
 
+{hasInventoryPermission('inventoryViewCost') && (
                     <div className="form-group">
                       <label className="form-label">ລາຄາຊື້ / ຕົ້ນທຶນ (LAK) *</label>
                       <input type="number" className="form-control" required value={formData.cost_price} onChange={(e) => setFormData({ ...formData, cost_price: e.target.value })} />
                     </div>
+)}
 
                     <div className="form-group">
                       <label className="form-label">ຮູບພາບວັດຖຸດິບ (Ingredient Photo)</label>
@@ -556,7 +578,13 @@ function RawMaterialsSubView({ isMobile }) {
 // ==========================================
 // 🏭 BOM FORMULA & MANUFACTURING SUB-VIEW
 // ==========================================
-function ManufacturingSubView({ isMobile }) {
+function ManufacturingSubView({ isMobile, activeUser }) {
+  const hasInventoryPermission = (subKey) => {
+    if (!activeUser) return false;
+    if (activeUser.role === 'owner') return true;
+    if (activeUser.permissions?.admin) return true;
+    return !!activeUser.permissions?.[subKey];
+  };
   const [products, setProducts] = useState([]);
   const [rawMaterials, setRawMaterials] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -817,6 +845,7 @@ function ManufacturingSubView({ isMobile }) {
       <div className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ color: 'var(--gold-primary)', fontSize: '0.95rem', margin: 0 }}>📦 ເລືອກສິນຄ້າເພື່ອຈັດການ</h3>
+{hasInventoryPermission('inventoryAddProduct') && (
           <button
             type="button"
             className="btn btn-primary"
@@ -825,6 +854,7 @@ function ManufacturingSubView({ isMobile }) {
           >
             ➕ ເພີ່ມສິນຄ້າໃໝ່
           </button>
+)}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '450px', overflowY: 'auto' }}>
           {products.map(p => {
@@ -1004,10 +1034,12 @@ function ManufacturingSubView({ isMobile }) {
                     <input type="number" step="0.1" className="form-control" value={margin} onChange={(e) => setMargin(e.target.value)} />
                   </div>
 
+{hasInventoryPermission('inventoryViewCost') && (
                   <div className="form-group" style={{ margin: 0 }}>
                     <label className="form-label" style={{ fontSize: '0.75rem' }}>ຕົ້ນທຶນແຜ່ນອາຄຣີລິກ (Sheet Cost - LAK)</label>
                     <input type="number" className="form-control" value={sheetCost} onChange={(e) => setSheetCost(e.target.value)} />
                   </div>
+)}
 
                   <div style={{ background: 'rgba(0,0,0,0.15)', borderRadius: '6px', padding: '12px', marginTop: '10px', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -1022,10 +1054,12 @@ function ManufacturingSubView({ isMobile }) {
                       <span>ອັດຕາເສຍເສດ (Waste):</span>
                       <b style={{ color: 'var(--alert-red)' }}>{solverResult.waste}%</b>
                     </div>
+{hasInventoryPermission('inventoryViewCost') && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', borderTop: '1px solid var(--border-color)', paddingTop: '6px', marginTop: '4px' }}>
                       <span>ຕົ້ນທຶນສະເລ່ຍ:</span>
                       <b style={{ color: 'white' }}>{solverResult.costPerUnit.toLocaleString()} ₭ / ຊິ້ນ</b>
                     </div>
+)}
                   </div>
                 </div>
 
@@ -1104,8 +1138,8 @@ function ManufacturingSubView({ isMobile }) {
                         <td style={{ padding: '8px' }}>{new Date(h.createdAt).toLocaleDateString('lo-LA')}</td>
                         <td style={{ padding: '8px', fontWeight: 'bold' }}>{h.productName}</td>
                         <td style={{ padding: '8px', textAlign: 'right', color: 'var(--success-green)', fontWeight: 'bold' }}>+{h.qty}</td>
-                        <td style={{ padding: '8px', textAlign: 'right' }}>{h.costPerUnit.toLocaleString()} ₭</td>
-                        <td style={{ padding: '8px', textAlign: 'right' }}>{h.totalCost.toLocaleString()} ₭</td>
+                        <td style={{ padding: '8px', textAlign: 'right' }}>{hasInventoryPermission('inventoryViewCost') ? `${h.costPerUnit.toLocaleString()} ₭` : '*** ₭'}</td>
+                        <td style={{ padding: '8px', textAlign: 'right' }}>{hasInventoryPermission('inventoryViewCost') ? `${h.totalCost.toLocaleString()} ₭` : '*** ₭'}</td>
                         <td style={{ padding: '8px', color: 'var(--text-secondary)' }}>{h.createdByName}</td>
                       </tr>
                     ))}
@@ -1320,6 +1354,12 @@ const compressImage = (file, maxWidth = 800, maxHeight = 800, quality = 0.7) => 
 };
 
 export default function Inventory({ activeUser, onUpdate, initialFilter, onFilterChange, isMobile }) {
+  const hasInventoryPermission = (subKey) => {
+    if (!activeUser) return false;
+    if (activeUser.role === 'owner') return true;
+    if (activeUser.permissions?.admin) return true;
+    return !!activeUser.permissions?.[subKey];
+  };
   const [activeSubTab, setActiveSubTab] = useState('products');
   const [products, setProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -2251,11 +2291,11 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       </div>
 
       {activeSubTab === 'raw_materials' && (
-        <RawMaterialsSubView isMobile={isMobile} />
+        <RawMaterialsSubView isMobile={isMobile} activeUser={activeUser} />
       )}
 
       {activeSubTab === 'manufacturing' && (
-        <ManufacturingSubView isMobile={isMobile} />
+        <ManufacturingSubView isMobile={isMobile} activeUser={activeUser} />
       )}
 
       {activeSubTab === 'products' && (
@@ -2294,6 +2334,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
           >
             🗂️ ຈັດການໝວດໝູ່
           </button>
+{hasInventoryPermission('inventoryAddProduct') && (
           <button 
             className="btn btn-primary" 
             style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
@@ -2301,6 +2342,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
           >
             ➕ ເພີ່ມສິນຄ້າໃໝ່
           </button>
+)}
         </div>
       </div>
 
@@ -2315,7 +2357,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--accent-amber, #e67e22)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>💰 ມູນຄ່າຕົ້ນທຶນສະຕັອກລວມ</span>
           <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'white' }}>
-            {totalCostValue.toLocaleString()} <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>ກີບ</span>
+            {hasInventoryPermission('inventoryViewCost') ? `${totalCostValue.toLocaleString()} ກີບ` : '*** ກີບ'}
           </span>
         </div>
         <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--success-green, #27ae60)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -2327,7 +2369,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--blue-primary, #3498db)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>✨ ກຳໄລຄາດຄະເນທັງໝົດ</span>
           <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
-            {totalPotentialProfit.toLocaleString()} <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>ກີບ</span>
+            {hasInventoryPermission('inventoryViewCost') ? `${totalPotentialProfit.toLocaleString()} ກີບ` : '*** ກີບ'}
           </span>
         </div>
       </div>
@@ -2345,6 +2387,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                 style={{ background: 'rgba(20, 10, 10, 0.5)', border: '1px solid rgba(231, 76, 60, 0.3)', padding: '8px 12px', borderRadius: '8px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '10px' }}
               >
                 <span>{p.name} (<b>ຄົງເຫຼືອ: {p.stock} {p.unit}</b>)</span>
+{hasInventoryPermission('inventoryEditProduct') && (
                 <button
                   className="btn btn-primary"
                   style={{ padding: '2px 8px', fontSize: '0.75rem', borderRadius: '4px' }}
@@ -2352,6 +2395,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                 >
                   ຕື່ມສະຕັອກ
                 </button>
+)}
               </div>
             ))}
           </div>
@@ -2563,6 +2607,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       >
                         🏷️ ບາໂຄ້ດ
                       </button>
+{hasInventoryPermission('inventoryEditProduct') && (
                       <button
                         className="btn btn-primary"
                         style={{ padding: '4px 8px', fontSize: '0.8rem' }}
@@ -2570,6 +2615,8 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       >
                         📝 ແກ້ໄຂ
                       </button>
+)}
+{hasInventoryPermission('inventoryDeleteProduct') && (
                       <button
                         className="btn"
                         style={{ padding: '4px 8px', fontSize: '0.8rem', background: '#c0392b', color: 'white', border: 'none' }}
@@ -2577,6 +2624,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       >
                         🗑️ ລົບ
                       </button>
+)}
                     </div>
                   </td>
                 </tr>
@@ -2607,7 +2655,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.85rem' }}>
                 <div>
                   <span style={{ color: 'var(--text-secondary)' }}>ຕົ້ນທຶน: </span>
-                  <span>{p.cost.toLocaleString()} ₭</span>
+                  <span>{hasInventoryPermission('inventoryViewCost') ? `${p.cost.toLocaleString()} ₭` : '*** ₭'}</span>
                 </div>
                 <div>
                   <span style={{ color: 'var(--text-secondary)' }}>ລາຄາຂາຍ: </span>
@@ -2645,8 +2693,12 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
                 <button type="button" className="btn btn-secondary btn-sm" onClick={() => handleOpenBarcodeGen(p)}>🏷️ ບາໂຄ້ດ</button>
+{hasInventoryPermission('inventoryEditProduct') && (
                 <button type="button" className="btn btn-primary btn-sm" onClick={() => handleOpenEdit(p)}>📝 ແກ້ໄຂ</button>
+)}
+{hasInventoryPermission('inventoryDeleteProduct') && (
                 <button type="button" className="btn btn-sm" style={{ background: '#c0392b', color: 'white', border: 'none' }} onClick={() => handleDeleteProduct(p)}>🗑️ ລົບ</button>
+)}
               </div>
             </div>
           );
@@ -2780,6 +2832,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       autoComplete="off"
                     />
                   </div>
+{hasInventoryPermission('inventoryViewCost') && (
                   <div className="form-group">
                     <label className="form-label">ລາຄาຕົ້ນທຶນ (ກີບ)</label>
                     <input
@@ -2792,6 +2845,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       placeholder="0"
                     />
                   </div>
+)}
                 </div>
 
                 {!db.isServiceCategory(formData.category) ? (

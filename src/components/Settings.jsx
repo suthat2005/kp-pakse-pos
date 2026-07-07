@@ -54,6 +54,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
   const [scanTestResult, setScanTestResult] = useState('');
   const [labelsSearchQuery, setLabelsSearchQuery] = useState('');
   const [newFrameStyle, setNewFrameStyle] = useState('');
+  const [isMainTerminalLocal, setIsMainTerminalLocal] = useState(() => localStorage.getItem('isMainTerminal') !== 'false');
 
   const handleResetShopInfo = () => {
     if (!window.confirm('ຕ້ອງການລ້າງຂໍ້ມູນຮ້านຄ້າທັງໝົດແທ້ບໍ່?')) return;

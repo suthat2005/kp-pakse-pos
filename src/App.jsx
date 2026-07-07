@@ -1139,7 +1139,7 @@ export default function App() {
                 <div className="user-info-text">
                   <div className="user-name">{activeUser.name}</div>
                   <div className="user-role">
-                    {activeUser.roleName.split(' ')[0]}
+                    {activeUser.roleName?.split(' ')[0] || (activeUser.role === 'owner' ? 'ເຈົ້າຂອງຮ້ານ' : activeUser.role === 'cashier' ? 'ພະນັກງານຂາຍ' : 'ຊ່າງອັດກອບ')}
                     {todayAttendance && !todayAttendance.clockOut && (
                       <span style={{ color: 'var(--success-green)', fontWeight: 'bold', marginLeft: '6px' }}>
                         (ກະ: {db.getShiftSales(activeUser.id).toLocaleString()} ₭)
