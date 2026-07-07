@@ -14,6 +14,14 @@ export default function FramingBoard({
 }) {
   // Notification Modal States
   const [showNotifyModal, setShowNotifyModal] = useState(false);
+
+  const hasFramingPermission = (subKey) => {
+    if (!activeUser) return false;
+    if (activeUser.role === 'owner') return true;
+    if (activeUser.permissions?.admin) return true;
+    return !!activeUser.permissions?.[subKey];
+  };
+
   const [notifyJob, setNotifyJob] = useState(null);
   const [notifyLang, setNotifyLang] = useState('lao');
   const [serverIp, setServerIp] = useState('127.0.0.1');
@@ -155,15 +163,21 @@ export default function FramingBoard({
                 <div className="job-deposit-pill">ມັດຈຳ: {job.deposit.toLocaleString()} ກີບ</div>
                 
                 <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+                  {hasFramingPermission('framingPrintJob') && (
                   <button className="btn btn-secondary" style={{ padding: '4px', fontSize: '0.7rem' }} onClick={() => onPrintJobClick(job)}>
                     🖨️ ບິນ
                   </button>
+                  )}
+                  {hasFramingPermission('framingEditJob') && (
                   <button className="btn btn-secondary" style={{ padding: '4px', fontSize: '0.7rem' }} onClick={() => onEditJobClick(job)}>
-                    ✏️ ແກ้ໄຂ
+                    ✏️ ແກ້ໄຂ
                   </button>
+                  )}
+                  {hasFramingPermission('framingUpdateStatus') && (
                   <button className="btn btn-primary" style={{ flex: 1, padding: '4px', fontSize: '0.7rem' }} onClick={() => onStatusChange(job.id, 'framing')}>
                     ເລີ່ມເຮັດ ➔
                   </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -205,15 +219,21 @@ export default function FramingBoard({
                 <div style={{ fontSize: '0.7rem', fontStyle: 'italic', color: 'var(--text-secondary)' }}>Note: {job.notes || 'ບໍ່ມີ'}</div>
                 
                 <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+                  {hasFramingPermission('framingUpdateStatus') && (
                   <button className="btn btn-secondary" style={{ padding: '4px 6px', fontSize: '0.7rem' }} onClick={() => onStatusChange(job.id, 'pending')}>
                     ↞ ຖອຍ
                   </button>
+                  )}
+                  {hasFramingPermission('framingEditJob') && (
                   <button className="btn btn-secondary" style={{ padding: '4px 6px', fontSize: '0.7rem' }} onClick={() => onEditJobClick(job)}>
                     ✏️ ແກ້
                   </button>
+                  )}
+                  {hasFramingPermission('framingUpdateStatus') && (
                   <button className="btn btn-primary" style={{ flex: 1, padding: '4px', fontSize: '0.7rem', background: 'var(--success-green)' }} onClick={() => onStatusChange(job.id, 'done')}>
                     ສຳເລັດ ➔
                   </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -255,13 +275,17 @@ export default function FramingBoard({
                 <div style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>ຄ້າງຊຳລະ: <span style={{ color: 'var(--gold-primary)' }}>{job.balance.toLocaleString()} ກີບ</span></div>
                 
                 <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+                  {hasFramingPermission('framingUpdateStatus') && (
                   <button className="btn btn-secondary" style={{ padding: '4px 6px', fontSize: '0.7rem' }} onClick={() => onStatusChange(job.id, 'framing')}>
                     ↞ ແກ້
                   </button>
+                  )}
+                  {hasFramingPermission('framingNotifyCustomer') && (
                   <button className="btn btn-secondary" style={{ padding: '4px 6px', fontSize: '0.7rem', borderColor: 'var(--success-green)', color: 'var(--success-green)' }} onClick={() => handleNotifyClick(job)}>
                     🔔 ແຈ້ງ
                   </button>
-                  {activeUser.role !== 'technician' ? (
+                  )}
+                  {hasFramingPermission('framingCollectPayment') ? (
                     <button className="btn btn-primary" style={{ flex: 1, padding: '4px', fontSize: '0.7rem', background: 'var(--gold-primary)', color: 'var(--bg-main)', fontWeight: 'bold' }} onClick={() => onCollectPayment(job)}>
                       ມອບພຣະ ➔
                     </button>
