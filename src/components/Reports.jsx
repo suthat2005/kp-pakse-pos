@@ -1554,7 +1554,12 @@ export default function Reports({ activeUser, isMobile }) {
                   {[...rangeExpenses].sort((a, b) => new Date(b.date) - new Date(a.date)).map((ex, i) => (
                     <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
                       <td style={{ padding: '10px' }}>{new Date(ex.date).toLocaleDateString('lo-LA')}</td>
-                      <td style={{ padding: '10px' }}>{ex.description || ex.category || '-'}</td>
+                      <td style={{ padding: '10px' }}>
+                        <div style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{ex.categoryName || ex.category || '-'}</div>
+                        {ex.notes && <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>📝 {ex.notes}</div>}
+                        {ex.supplier && <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>🏢 ຜູ້ສະໜອງ: {ex.supplier}</div>}
+                        {ex.createdByName && <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', marginTop: '1px' }}>👤 ຜູ້ບັນທຶກ: {ex.createdByName}</div>}
+                      </td>
                       <td style={{ padding: '10px', textAlign: 'right', color: '#e74c3c', fontWeight: 'bold' }}>
                         -{ex.amount.toLocaleString()} {ex.currency || 'LAK'}
                         {ex.currency && ex.currency !== 'LAK' && <small style={{ display: 'block', fontSize: '0.65rem', color: 'var(--text-secondary)' }}>(≈ {ex.convertedAmount?.toLocaleString()} ₭)</small>}
@@ -1889,7 +1894,12 @@ export default function Reports({ activeUser, isMobile }) {
                     {[...rangeExpenses].sort((a, b) => new Date(b.date) - new Date(a.date)).map((ex, i) => (
                       <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
                         <td style={{ padding: '10px' }}>{new Date(ex.date).toLocaleDateString('lo-LA')}</td>
-                        <td style={{ padding: '10px' }}>{ex.description || ex.category || '-'}</td>
+                        <td style={{ padding: '10px' }}>
+                          <div style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{ex.categoryName || ex.category || '-'}</div>
+                          {ex.notes && <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>📝 {ex.notes}</div>}
+                          {ex.supplier && <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>🏢 ຜູ້ສະໜອງ: {ex.supplier}</div>}
+                          {ex.createdByName && <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', marginTop: '1px' }}>👤 ຜູ້ບັນທຶກ: {ex.createdByName}</div>}
+                        </td>
                         <td style={{ padding: '10px', textAlign: 'right', color: '#e74c3c', fontWeight: 'bold' }}>
                           -{ex.amount.toLocaleString()} {ex.currency || 'LAK'}
                           {ex.currency && ex.currency !== 'LAK' && <small style={{ display: 'block', fontSize: '0.65rem', color: 'var(--text-secondary)' }}>(≈ {ex.convertedAmount?.toLocaleString()} ₭)</small>}
