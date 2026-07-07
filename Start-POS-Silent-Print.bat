@@ -14,7 +14,7 @@ set "TARGET_URL=https://kp-pakse-suthatpospos.shop/pos"
 echo Target URL: %TARGET_URL%
 echo.
 echo Starting local print helper server...
-start /min "" node server.js --prod
+start /min "" node print-helper.js
 timeout /t 3 /nobreak >nul
 echo.
 echo IMPORTANT:

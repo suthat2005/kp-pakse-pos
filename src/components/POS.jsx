@@ -1441,12 +1441,28 @@ export default function POS({
     return false;
   };
 
-  const handleOpenDrawer = () => {
+  const handleOpenDrawer = async () => {
     playSound('cash');
     setDrawerOpen(true);
     setTimeout(() => setDrawerOpen(false), 2000);
 
-    // Trigger zero-height print job to open cash drawer via printer driver kick
+    // 1. Try local helper server API (PowerShell / TCP raw connection)
+    try {
+      const printerName = settings.windowsPrinterName || 'GP-L80250 Series';
+      const baseUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? ''
+        : (settings.printServerUrl || 'http://localhost:5173');
+      const response = await fetch(`${baseUrl}/api/kick-drawer?printer=${encodeURIComponent(printerName)}`);
+      const resData = await response.json();
+      if (resData && resData.success) {
+        console.log('Drawer kicked successfully via local print helper');
+        return;
+      }
+    } catch (e) {
+      console.warn('Local print helper failed, falling back to zero-height print job...', e);
+    }
+
+    // 2. Fallback to zero-height print job to open cash drawer via printer driver kick
     setShowDrawerKickPrint(true);
     setTimeout(() => {
       window.print();
