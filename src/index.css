@@ -1197,8 +1197,8 @@ textarea.form-control {
   .drawer-kick-only, 
   .drawer-kick-only .modal-content, 
   .drawer-kick-only .modal-body {
-    height: 0 !important;
-    max-height: 0 !important;
+    height: 1px !important;
+    max-height: 1px !important;
     overflow: hidden !important;
     padding: 0 !important;
     margin: 0 !important;

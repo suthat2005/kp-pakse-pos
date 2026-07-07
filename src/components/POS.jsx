@@ -2462,8 +2462,8 @@ export default function POS({
             .drawer-kick-only, 
             .drawer-kick-only .modal-content, 
             .drawer-kick-only .modal-body {
-              height: 0 !important;
-              max-height: 0 !important;
+              height: 1px !important;
+              max-height: 1px !important;
               overflow: hidden !important;
               padding: 0 !important;
               margin: 0 !important;
@@ -6640,8 +6640,8 @@ export default function POS({
       {showDrawerKickPrint && (
         <Portal>
           <div className="modal-overlay print-modal drawer-kick-only">
-            <div className="modal-content" style={{ height: '0', overflow: 'hidden', padding: '0', margin: '0', border: 'none' }}>
-              <div style={{ height: '0px', overflow: 'hidden' }}></div>
+            <div className="modal-content" style={{ height: '1px', overflow: 'hidden', padding: '0', margin: '0', border: 'none', background: 'white' }}>
+              <div style={{ fontSize: '1px', color: 'white', lineHeight: '1px', height: '1px', overflow: 'hidden' }}>.</div>
             </div>
           </div>
         </Portal>
