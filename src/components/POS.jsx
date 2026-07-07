@@ -375,6 +375,7 @@ export default function POS({
   const barcodeBufferRef = useRef('');
   const lastKeyTimeRef = useRef(0);
   const scannerLogRef = useRef([]);
+  const lastProcessedKickTimeRef = useRef(Date.now());
 
   // WebUSB / WebSerial references for physical Cash Drawer trigger
   const usbDeviceRef = useRef(null);
@@ -1446,7 +1447,17 @@ export default function POS({
     setDrawerOpen(true);
     setTimeout(() => setDrawerOpen(false), 2000);
 
-    // Try local helper server API (PowerShell / TCP raw connection)
+    const isMain = localStorage.getItem('isMainTerminal') === 'true';
+    if (!isMain) {
+      console.log('📱 Phone/Remote device detected. Broad-casting remote drawer kick request...');
+      const currentSettings = db.getSettings();
+      currentSettings.remoteDrawerKick = Date.now();
+      db.saveSettings(currentSettings);
+      onUpdate(); // Save & sync to server
+      return;
+    }
+
+    // Otherwise, this is the main terminal, so trigger local print server kick
     try {
       const printerName = settings.windowsPrinterName || 'GP-L80250 Series';
       const baseUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
@@ -1457,6 +1468,31 @@ export default function POS({
       console.warn('Local print helper failed silently:', e);
     }
   };
+
+  // Real-time remote drawer kick listener for phone sales
+  useEffect(() => {
+    const checkRemoteKick = () => {
+      const currentSettings = db.getSettings();
+      if (currentSettings.remoteDrawerKick && currentSettings.remoteDrawerKick > lastProcessedKickTimeRef.current) {
+        const oldTime = lastProcessedKickTimeRef.current;
+        lastProcessedKickTimeRef.current = currentSettings.remoteDrawerKick;
+        
+        // Only trigger kick on the main terminal connected to the printer
+        const isMain = localStorage.getItem('isMainTerminal') === 'true';
+        if (isMain) {
+          console.log(`⚡ Remote drawer kick received via sync (Old: ${oldTime}, New: ${currentSettings.remoteDrawerKick})`);
+          handleOpenDrawer();
+        }
+      }
+    };
+    
+    // Check on startup and on every database update sync event
+    checkRemoteKick();
+    window.addEventListener('db-updated', checkRemoteKick);
+    return () => {
+      window.removeEventListener('db-updated', checkRemoteKick);
+    };
+  }, [settings]);
 
   const handleProcessPayment = () => {
     const rate = payCurrency === 'THB' ? (settings.exchangeRateThb || 750) : payCurrency === 'USD' ? (settings.exchangeRateUsd || 26000) : 1;

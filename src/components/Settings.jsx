@@ -2269,6 +2269,27 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                                         {/* General Printer & Hardware Settings */}
                     <div className="glass-card" style={{ padding: '16px', background: 'rgba(255,255,255,0.01)', marginTop: '16px', borderLeft: '4px solid var(--gold-primary)' }}>
                       <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.9rem', marginBottom: '12px' }}>📠 ຕັ້ງຄ່າເຄື່ອງພິມ & ອຸປະກອນເຊື່ອມຕໍ່ (Printer & Hardware Settings)</h4>
+
+                      {/* Main Terminal Local Toggle */}
+                      <div className="form-group" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <input
+                          type="checkbox"
+                          id="local-is-main-terminal"
+                          checked={isMainTerminalLocal}
+                          onChange={(e) => {
+                            const val = e.target.checked;
+                            localStorage.setItem('isMainTerminal', val ? 'true' : 'false');
+                            setIsMainTerminalLocal(val);
+                          }}
+                          style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                        />
+                        <label htmlFor="local-is-main-terminal" style={{ fontSize: '0.85rem', color: 'white', cursor: 'pointer', userSelect: 'none' }}>
+                          💻 <strong>ເຄື່ອງນີ້ແມ່ນເຄື່ອງຫຼັກທີ່ຕໍ່ເຄື່ອງພິມ (Main Terminal)</strong>
+                          <span style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                            (ເປີດສະເພาະເຄື່ອງຄອມພິວເຕີທີ່ຕໍ່ກັບເຄື່ອງພິມຢູ່ໜ້າຮ້ານ, ສ່ວນໃນໂທລະສັບໃຫ້ປິດໄວ້ ເພື່ອໃຫ້ກົດເປີດລິ້ນຊັກຈາກທາງໄກໄດ້)
+                          </span>
+                        </label>
+                      </div>
                       
                       <div className="form-group" style={{ marginBottom: '12px' }}>
                         <label className="form-label">ຮູບແບບການເຊື່ອມຕໍ່ເຄື່ອງພິມ (Printer Connection Type)</label>
