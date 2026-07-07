@@ -1463,9 +1463,21 @@ export default function POS({
       const baseUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? ''
         : (settings.printServerUrl || 'http://localhost:5173');
-      await fetch(`${baseUrl}/api/kick-drawer?printer=${encodeURIComponent(printerName)}`);
+      const response = await fetch(`${baseUrl}/api/kick-drawer?printer=${encodeURIComponent(printerName)}`);
+      const resData = await response.json();
+      if (resData && resData.success) {
+        console.log('Drawer kicked successfully via local print helper');
+        return;
+      }
+      throw new Error('Not successful');
     } catch (e) {
-      console.warn('Local print helper failed silently:', e);
+      console.warn('Local print helper failed, falling back to 1px print job...', e);
+      // Fallback: Trigger 1px print job to open cash drawer via printer driver kick
+      setShowDrawerKickPrint(true);
+      setTimeout(() => {
+        window.print();
+        setShowDrawerKickPrint(false);
+      }, 100);
     }
   };
 
@@ -6658,6 +6670,16 @@ export default function POS({
             </div>
           </div>
         </div>
+        </Portal>
+      )}
+
+      {showDrawerKickPrint && (
+        <Portal>
+          <div className="modal-overlay print-modal drawer-kick-only">
+            <div className="modal-content" style={{ height: '1px', overflow: 'hidden', padding: '0', margin: '0', border: 'none', background: 'white' }}>
+              <div style={{ fontSize: '1px', color: 'white', lineHeight: '1px', height: '1px', overflow: 'hidden' }}>.</div>
+            </div>
+          </div>
         </Portal>
       )}
     </div>
