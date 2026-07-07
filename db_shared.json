@@ -2460,11 +2460,11 @@
     "data": [
       {
         "id": "owner",
-        "name": "dev",
+        "name": "ທ້າວ ຂຸນຊ້າງ",
         "role": "owner",
-        "passcode": "0000",
-        "email": "dev@gmail.com",
-        "password": "dev",
+        "passcode": "1111",
+        "email": "owner@gmail.com",
+        "password": "owner123",
         "roleName": "ເຈົ້າຂອງຮ້ານ (Owner)",
         "payType": "daily",
         "baseWage": 150000,

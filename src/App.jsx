@@ -19,10 +19,9 @@ import Portal from './components/Portal';
 const hasPermission = (user, tabKey) => {
   if (!user) return false;
 
-  // Protect Settings: ONLY allow user with email 'dev@...' or name 'dev'
+  // Protect Settings: ONLY allow the owner (owner@gmail.com)
   if (tabKey === 'settings') {
-    const isDev = user.email && user.email.toLowerCase().startsWith('dev');
-    return !!isDev;
+    return user.role === 'owner' && user.email === 'owner@gmail.com';
   }
 
   if (user.role === 'owner') return true;
