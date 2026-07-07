@@ -4392,21 +4392,12 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
         name,
         phone,
         email,
+        password, // Pass password directly to avoid race condition!
         discountType: 'percent',
         discountValue: 2,
         tier: 'Bronze',
         addresses: addresses
       });
-      
-      const updatedList = this.getCustomers();
-      const newIdx = updatedList.findIndex(c => c.id === newCust.id);
-      if (newIdx !== -1) {
-        updatedList[newIdx].password = password;
-        updatedList[newIdx].totalSpend = 0;
-        updatedList[newIdx].addresses = addresses;
-        this.saveCustomers(updatedList);
-        return updatedList[newIdx];
-      }
       return newCust;
     }
   },
@@ -4479,6 +4470,9 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     return null;
   },
   authenticateOnlineCustomer(phoneOrEmail, password) {
+    if (!phoneOrEmail || !password || !String(phoneOrEmail).trim() || !String(password).trim()) {
+      throw new Error('ກະລຸນາປ້ອນເບີໂທ/ອີເມວ ແລະ ລະຫັດຜ່ານ!');
+    }
     const list = this.getCustomers();
     const inputCleaned = String(phoneOrEmail || '').trim().toLowerCase();
     const inputPhoneDigits = inputCleaned.replace(/\D/g, '');
@@ -4486,8 +4480,8 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
 
     const customer = list.find(c => {
       if (c.password !== password) return false;
-      if (c.email && c.email.trim().toLowerCase() === inputCleaned) return true;
-      if (c.phone) {
+      if (inputCleaned && c.email && c.email.trim().toLowerCase() === inputCleaned) return true;
+      if (inputPhoneDigits && c.phone) {
         const cPhoneDigits = String(c.phone).replace(/\D/g, '');
         if (cPhoneDigits === inputPhoneDigits) return true;
         const cPhoneLast8 = cPhoneDigits.length >= 8 ? cPhoneDigits.slice(-8) : null;

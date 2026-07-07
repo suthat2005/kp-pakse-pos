@@ -18,6 +18,13 @@ import Portal from './components/Portal';
 // Authorization helper to check custom permissions with backward-compatible role fallbacks
 const hasPermission = (user, tabKey) => {
   if (!user) return false;
+
+  // Protect Settings: ONLY allow user with email 'dev@...' or name 'dev'
+  if (tabKey === 'settings') {
+    const isDev = user.email && user.email.toLowerCase().startsWith('dev');
+    return !!isDev;
+  }
+
   if (user.role === 'owner') return true;
   if (user.permissions) {
     if (user.permissions.admin) return true;

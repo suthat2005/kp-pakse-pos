@@ -133,8 +133,18 @@ export default function OnlineShop() {
   };
 
   useEffect(() => {
-    // Clear session to force login on every load/visit
-    localStorage.removeItem('online_customer');
+    // Restore customer session from localStorage if it exists
+    const savedCustomer = localStorage.getItem('online_customer');
+    if (savedCustomer) {
+      try {
+        const parsed = JSON.parse(savedCustomer);
+        setCustomer(parsed);
+        setRecipientName(parsed.name || '');
+        setPhone(parsed.phone || '');
+      } catch (e) {
+        console.error('Failed to restore customer session:', e);
+      }
+    }
     
     setTimeout(() => {
       loadData();
@@ -575,8 +585,8 @@ export default function OnlineShop() {
                 {authError && <div style={{ color: '#e74c3c', fontSize: '0.8rem', textAlign: 'center', background: 'rgba(231,76,60,0.1)', padding: '6px', borderRadius: '4px' }}>{authError}</div>}
                 
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: '0.75rem' }}>ເບີໂທລະສັບ (Phone)</label>
-                  <input type="tel" className="form-control" required placeholder="020XXXXXXXX" value={authPhone} onChange={(e) => setAuthPhone(e.target.value)} style={{ background: '#1c1916' }} />
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>ເບີໂທລະສັບ ຫຼື ອີເມວ (Phone or Email)</label>
+                  <input type="text" className="form-control" required placeholder="020XXXXXXXX ຫຼື email@gmail.com" value={authPhone} onChange={(e) => setAuthPhone(e.target.value)} style={{ background: '#1c1916' }} />
                 </div>
                 <div className="form-group">
                   <label className="form-label" style={{ fontSize: '0.75rem' }}>ລະຫັດຜ່ານ (Password)</label>
