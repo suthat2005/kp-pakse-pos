@@ -19,9 +19,9 @@ import Portal from './components/Portal';
 const hasPermission = (user, tabKey) => {
   if (!user) return false;
 
-  // Protect Settings: ONLY allow the owner (owner@gmail.com)
+  // Protect Settings: ONLY allow owners/admins to manage hardware configurations
   if (tabKey === 'settings') {
-    return user.role === 'owner' && user.email === 'owner@gmail.com';
+    return user.role === 'owner' || (user.permissions && user.permissions.settings);
   }
 
   if (user.role === 'owner') return true;
