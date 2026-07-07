@@ -217,7 +217,7 @@ export default function AIDetector({ activeUser }) {
   useEffect(() => {
     if (activeTab === 'scanner' && !hasAiPermission('aiChat')) {
       if (hasAiPermission('aiAnalyze')) setActiveTab('forecasts');
-      else if (hasAiPermission('aiChat')) setActiveTab('cctv');
+      else if (hasAiPermission('aiCctv')) setActiveTab('cctv');
     }
     if ((activeTab === 'forecasts' || activeTab === 'audit') && !hasAiPermission('aiAnalyze')) {
       if (hasAiPermission('aiChat')) setActiveTab('scanner');
