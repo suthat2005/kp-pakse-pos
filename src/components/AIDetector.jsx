@@ -94,13 +94,16 @@ function CameraFeed({ cam, idx, currentTime }) {
 
   // NVR / DVR: show web UI iframe or RTSP stream
   if (cam.type === 'nvr' || cam.type === 'dvr') {
-    if (cam.url && (cam.url.startsWith('http://') || cam.url.startsWith('https://'))) {
-      // Embed the NVR/DVR web interface in an iframe
+    const isLiveMode = cam.streamMode === 'live';
+    const isHttpHost = cam.host && (cam.host.startsWith('http://') || cam.host.startsWith('https://'));
+    const webUrl = isHttpHost ? cam.host : `http://${cam.host}:${cam.port || '80'}`;
+
+    if (!isLiveMode) {
       return (
         <>
           {overlays}
           <iframe
-            src={cam.url}
+            src={webUrl}
             title={cam.name}
             style={{ width: '100%', height: '100%', border: 'none', background: '#000' }}
             sandbox="allow-scripts allow-same-origin allow-forms"
@@ -111,45 +114,53 @@ function CameraFeed({ cam, idx, currentTime }) {
           </span>
         </>
       );
+    } else {
+      const isHttpStream = cam.url && (cam.url.startsWith('http://') || cam.url.startsWith('https://'));
+      if (isHttpStream) {
+        return (
+          <>
+            {overlays}
+            <img
+              src={cam.url}
+              alt={cam.name}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', background: '#000' }}
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
+            <span style={{ position: 'absolute', bottom: '6px', left: '6px', fontSize: '0.6rem', color: 'rgba(255,255,255,0.4)', zIndex: 3, background: 'rgba(0,0,0,0.5)', padding: '1px 4px', borderRadius: '3px' }}>
+              {(cam.type || 'DVR').toUpperCase()} LIVE STREAM
+            </span>
+          </>
+        );
+      } else {
+        return (
+          <>
+            {overlays}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', padding: '8px', textAlign: 'center', width: '100%', justifyContent: 'center', height: '100%' }}>
+              <span style={{ fontSize: '1.2rem', margin: 0 }}>{cam.type === 'nvr' ? '💾' : '📼'}</span>
+              <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: cam.type === 'nvr' ? '#3498db' : '#9b59b6' }}>
+                {(cam.type || '').toUpperCase()} — {cam.brand ? cam.brand.toUpperCase() : 'Hikvision'} (CH {cam.channel || 1})
+              </span>
+              <div style={{ fontSize: '0.58rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.3, textAlign: 'left', background: 'rgba(0,0,0,0.2)', padding: '4px 6px', borderRadius: '4px', width: '90%' }}>
+                <div><b>Host:</b> {cam.host || 'N/A'}</div>
+                <div><b>RTSP:</b> {cam.url ? cam.url.substring(0, 40) + '...' : 'Not Set'}</div>
+              </div>
+              <button
+                className="btn btn-secondary"
+                style={{ padding: '2px 8px', fontSize: '0.6rem', marginTop: '2px', cursor: 'pointer' }}
+                onClick={() => {
+                  navigator.clipboard.writeText(cam.url);
+                  alert('✓ ຄັດລອກ RTSP URL ສຳເລັດ!');
+                }}
+              >
+                📋 Copy RTSP URL
+              </button>
+            </div>
+          </>
+        );
+      }
     }
-    if (cam.url && cam.url.startsWith('rtsp://')) {
-      // RTSP — browsers can't play directly; show guidance
-      return (
-        <>
-          {overlays}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '12px', textAlign: 'center' }}>
-            <span style={{ fontSize: '1.8rem' }}>{cam.type === 'nvr' ? '💾' : '📼'}</span>
-            <span style={{ fontSize: '0.72rem', fontWeight: 'bold', color: cam.type === 'nvr' ? '#3498db' : '#9b59b6' }}>
-              {(cam.type || '').toUpperCase()} — RTSP Stream
-            </span>
-            <span style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.4)', lineHeight: 1.4 }}>
-              {cam.url.substring(0, 35)}...
-            </span>
-            <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)', marginTop: '4px' }}>
-              ⚠️ Browser ບໍ່ລອງຮັບ RTSP ໂດຍຕ່ອງ—
-              ໃຊ້ VLC ຫຼື NVR Web UI (ໃສ່ http://)
-            </span>
-          </div>
-        </>
-      );
-    }
-    // No URL configured yet
-    return (
-      <>
-        {overlays}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '12px', textAlign: 'center' }}>
-          <span style={{ fontSize: '2rem' }}>{cam.type === 'nvr' ? '💾' : '📼'}</span>
-          <span style={{ fontSize: '0.78rem', fontWeight: 'bold', color: cam.type === 'nvr' ? '#3498db' : '#9b59b6' }}>
-            {cam.type === 'nvr' ? 'NVR' : 'DVR'} — ວິຘີເຊື່ອມຕ່ອ:
-          </span>
-          <div style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, textAlign: 'left' }}>
-            <div>🔵 <b>Web UI:</b> http://192.168.x.x</div>
-            <div>🟡 <b>RTSP:</b> rtsp://user:pass@ip:port/ch</div>
-            <div>🟢 ໃສ່ URL ພາຍຫຼັງ ແລ້ວກດ Edit ⚙️</div>
-          </div>
-        </div>
-      </>
-    );
   }
 
   if (cam.url && (cam.url.startsWith('http://') || cam.url.startsWith('https://') || cam.url.startsWith('rtsp://'))) {
@@ -240,6 +251,21 @@ export default function AIDetector({ activeUser }) {
   const [editCamUrl, setEditCamUrl] = useState('');
   const [newCamType, setNewCamType] = useState('ip');
   const [editCamType, setEditCamType] = useState('ip');
+  const [newCamHost, setNewCamHost] = useState('');
+  const [newCamPort, setNewCamPort] = useState('554');
+  const [newCamUser, setNewCamUser] = useState('admin');
+  const [newCamPass, setNewCamPass] = useState('');
+  const [newCamChannel, setNewCamChannel] = useState('1');
+  const [newCamBrand, setNewCamBrand] = useState('hikvision');
+  const [newCamStreamMode, setNewCamStreamMode] = useState('live');
+
+  const [editCamHost, setEditCamHost] = useState('');
+  const [editCamPort, setEditCamPort] = useState('554');
+  const [editCamUser, setEditCamUser] = useState('admin');
+  const [editCamPass, setEditCamPass] = useState('');
+  const [editCamChannel, setEditCamChannel] = useState('1');
+  const [editCamBrand, setEditCamBrand] = useState('hikvision');
+  const [editCamStreamMode, setEditCamStreamMode] = useState('live');
 
   // Amulet Scanner States
   const [scannerMode, setScannerMode] = useState('upload'); // 'upload', 'webcam'
@@ -355,15 +381,39 @@ export default function AIDetector({ activeUser }) {
   const handleAddCamera = (e) => {
     e.preventDefault();
     if (!newCamName.trim()) return;
+    let url = newCamUrl.trim();
+    if (newCamType === 'nvr' || newCamType === 'dvr') {
+      if (newCamBrand === 'hikvision') {
+        url = `rtsp://${newCamUser}:${newCamPass}@${newCamHost}:${newCamPort}/Streaming/Channels/${newCamChannel}01`;
+      } else if (newCamBrand === 'dahua') {
+        url = `rtsp://${newCamUser}:${newCamPass}@${newCamHost}:${newCamPort}/cam/realmonitor?channel=${newCamChannel}&subtype=0`;
+      } else {
+        url = `rtsp://${newCamUser}:${newCamPass}@${newCamHost}:${newCamPort}/h264/ch${newCamChannel}/main`;
+      }
+    }
     db.addCamera({
       name: newCamName.trim(),
-      url: newCamUrl.trim(),
+      url: url,
       type: newCamType,
-      checks: newCamChecks
+      checks: newCamChecks,
+      host: newCamHost.trim(),
+      port: newCamPort.trim(),
+      username: newCamUser.trim(),
+      password: newCamPass.trim(),
+      channel: newCamChannel,
+      brand: newCamBrand,
+      streamMode: newCamStreamMode
     });
     setNewCamName('');
     setNewCamUrl('');
     setNewCamType('ip');
+    setNewCamHost('');
+    setNewCamPort('554');
+    setNewCamUser('admin');
+    setNewCamPass('');
+    setNewCamChannel('1');
+    setNewCamBrand('hikvision');
+    setNewCamStreamMode('live');
     setNewCamChecks({ intruder: true, cashierAudit: false, slacking: false });
     setCameras(db.getCameras());
     db.addAuditLog('add_camera', `ເພີ່ມກ້ອງວົງຈອນປິດໃໝ່: "${newCamName.trim()}"`);
@@ -373,21 +423,8 @@ export default function AIDetector({ activeUser }) {
     if (confirm('ທ່ານຕ້ອງການລຶບກ້ອງວົງຈອນປິດນີ້ແທ້ບໍ່?')) {
       db.deleteCamera(id);
       setCameras(db.getCameras());
-      db.addAuditLog('delete_camera', `ລຶບກ້ອງວົງຈອນປິດ: "${name}"`, 'warning');
+      db.addAuditLog('delete_camera', `ລຶບກ້ອງວົງจອນປິດ: "${name}"`, 'warning');
     }
-  };
-
-  const handleToggleCamera = (cam) => {
-    const updated = { ...cam, active: !cam.active };
-    db.updateCamera(updated);
-    setCameras(db.getCameras());
-    db.addAuditLog('toggle_camera', `ປ່ຽນສະຖານະກ້ອງ "${cam.name}" ເປັນ ${updated.active ? 'ເປີດ' : 'ປິດ'}`);
-  };
-
-  const handleResolveAlert = (id, typeName) => {
-    db.resolveCctvAlert(id);
-    setCctvAlerts(db.getCctvAlerts());
-    db.addAuditLog('resolve_cctv_alert', `ແກ້ໄຂການເຕືອນໄພ: "${typeName}"`);
   };
 
   const handleStartEdit = (cam) => {
@@ -395,22 +432,45 @@ export default function AIDetector({ activeUser }) {
     setEditCamName(cam.name);
     setEditCamUrl(cam.url || '');
     setEditCamType(cam.type || 'ip');
+    setEditCamHost(cam.host || '');
+    setEditCamPort(cam.port || '554');
+    setEditCamUser(cam.username || 'admin');
+    setEditCamPass(cam.password || '');
+    setEditCamChannel(cam.channel || '1');
+    setEditCamBrand(cam.brand || 'hikvision');
+    setEditCamStreamMode(cam.streamMode || 'live');
   };
 
   const handleSaveEdit = (cam) => {
     if (!editCamName.trim()) return;
+    let url = editCamUrl.trim();
+    if (editCamType === 'nvr' || editCamType === 'dvr') {
+      if (editCamBrand === 'hikvision') {
+        url = `rtsp://${editCamUser}:${editCamPass}@${editCamHost}:${editCamPort}/Streaming/Channels/${editCamChannel}01`;
+      } else if (editCamBrand === 'dahua') {
+        url = `rtsp://${editCamUser}:${editCamPass}@${editCamHost}:${editCamPort}/cam/realmonitor?channel=${editCamChannel}&subtype=0`;
+      } else {
+        url = `rtsp://${editCamUser}:${editCamPass}@${editCamHost}:${editCamPort}/h264/ch${editCamChannel}/main`;
+      }
+    }
     const updated = {
       ...cam,
       name: editCamName.trim(),
-      url: editCamUrl.trim(),
-      type: editCamType
+      url: url,
+      type: editCamType,
+      host: editCamHost.trim(),
+      port: editCamPort.trim(),
+      username: editCamUser.trim(),
+      password: editCamPass.trim(),
+      channel: editCamChannel,
+      brand: editCamBrand,
+      streamMode: editCamStreamMode
     };
     db.updateCamera(updated);
     setCameras(db.getCameras());
     setEditingCameraId(null);
     db.addAuditLog('edit_camera', `ແກ້ໄຂການຕັ້ງຄ່າກ້ອງວົງຈອນປິດ: "${editCamName.trim()}"`);
   };
-
   // Scanner Webcams & Snaps
   const startScannerWebcam = async () => {
     setScannerMode('webcam');
@@ -1294,16 +1354,7 @@ export default function AIDetector({ activeUser }) {
                           style={{ fontSize: '0.8rem', padding: '4px 8px', width: '100%', margin: 0 }}
                         />
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <label style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>URL / IP Stream (ພິມ 'webcam' ເພື່ອໃຊ້ກ້ອງຈິງ):</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={editCamUrl}
-                          onChange={(e) => setEditCamUrl(e.target.value)}
-                          style={{ fontSize: '0.8rem', padding: '4px 8px', width: '100%', margin: 0 }}
-                        />
-                      </div>
+                      
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <label style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>ປະເພດກ້ອງ (Camera Type):</label>
                         <select
@@ -1317,6 +1368,122 @@ export default function AIDetector({ activeUser }) {
                           <option value="dvr">📼 DVR</option>
                         </select>
                       </div>
+
+                      {editCamType === 'ip' ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <label style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>URL / IP Stream (ພິມ 'webcam' ເພື່ອໃຊ້ກ້ອງຈິງ):</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={editCamUrl}
+                            onChange={(e) => setEditCamUrl(e.target.value)}
+                            style={{ fontSize: '0.8rem', padding: '4px 8px', width: '100%', margin: 0 }}
+                          />
+                        </div>
+                      ) : (
+                        <>
+                          <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: '8px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <label style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>Host / IP Address:</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                placeholder="192.168.1.100"
+                                value={editCamHost}
+                                onChange={(e) => setEditCamHost(e.target.value)}
+                                style={{ fontSize: '0.8rem', padding: '4px 8px', width: '100%', margin: 0 }}
+                              />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <label style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>Port:</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                placeholder="554"
+                                value={editCamPort}
+                                onChange={(e) => setEditCamPort(e.target.value)}
+                                style={{ fontSize: '0.8rem', padding: '4px 8px', width: '100%', margin: 0 }}
+                              />
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <label style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>Username:</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                value={editCamUser}
+                                onChange={(e) => setEditCamUser(e.target.value)}
+                                style={{ fontSize: '0.8rem', padding: '4px 8px', width: '100%', margin: 0 }}
+                              />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <label style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>Password:</label>
+                              <input
+                                type="password"
+                                className="form-control"
+                                value={editCamPass}
+                                onChange={(e) => setEditCamPass(e.target.value)}
+                                style={{ fontSize: '0.8rem', padding: '4px 8px', width: '100%', margin: 0 }}
+                              />
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <label style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>Channel:</label>
+                              <input
+                                type="number"
+                                min="1"
+                                max="32"
+                                className="form-control"
+                                value={editCamChannel}
+                                onChange={(e) => setEditCamChannel(e.target.value)}
+                                style={{ fontSize: '0.8rem', padding: '4px 8px', width: '100%', margin: 0 }}
+                              />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <label style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>Brand:</label>
+                              <select
+                                className="form-control"
+                                value={editCamBrand}
+                                onChange={(e) => setEditCamBrand(e.target.value)}
+                                style={{ fontSize: '0.8rem', padding: '4px 8px', width: '100%', margin: 0, background: '#191613', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px' }}
+                              >
+                                <option value="hikvision">Hikvision</option>
+                                <option value="dahua">Dahua</option>
+                                <option value="general">General</option>
+                              </select>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <label style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>View Mode:</label>
+                              <select
+                                className="form-control"
+                                value={editCamStreamMode}
+                                onChange={(e) => setEditCamStreamMode(e.target.value)}
+                                style={{ fontSize: '0.8rem', padding: '4px 8px', width: '100%', margin: 0, background: '#191613', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px' }}
+                              >
+                                <option value="live">Live (MJPEG)</option>
+                                <option value="webui">Web UI (Iframe)</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <label style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>Live Stream URL Override (Option):</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="http://192.168.1.100/mjpeg_stream"
+                              value={editCamUrl}
+                              onChange={(e) => setEditCamUrl(e.target.value)}
+                              style={{ fontSize: '0.8rem', padding: '4px 8px', width: '100%', margin: 0 }}
+                            />
+                          </div>
+                        </>
+                      )}
+
                       <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                         <button
                           className="btn btn-primary"
@@ -1532,19 +1699,6 @@ export default function AIDetector({ activeUser }) {
                     style={{ fontSize: '0.8rem', padding: '8px', margin: 0 }}
                   />
                 </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label className="form-label" style={{ fontSize: '0.8rem' }}>URL / IP Stream (ຫຼື ພິມ 'webcam' ເພື່ອໃຊ້ກ້ອງເວັບແຄມຈິງ)</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="ຕົວຢ່າງ: webcam ຫຼື http://192.168.1.100:8080/video"
-                    value={newCamUrl}
-                    onChange={(e) => setNewCamUrl(e.target.value)}
-                    style={{ fontSize: '0.8rem', padding: '8px', margin: 0 }}
-                  />
-                </div>
-
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <label className="form-label" style={{ fontSize: '0.8rem' }}>ປະເພດກ້ອງ (Camera Type)</label>
                   <select
@@ -1558,6 +1712,123 @@ export default function AIDetector({ activeUser }) {
                     <option value="dvr">📼 DVR</option>
                   </select>
                 </div>
+
+                {newCamType === 'ip' ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label className="form-label" style={{ fontSize: '0.8rem' }}>URL / IP Stream (ຫຼື ພິມ 'webcam' ເພື່ອໃຊ້ກ້ອງເວັບແຄມຈິງ)</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="ຕົວຢ່າງ: webcam ຫຼື http://192.168.1.100:8080/video"
+                      value={newCamUrl}
+                      onChange={(e) => setNewCamUrl(e.target.value)}
+                      style={{ fontSize: '0.8rem', padding: '8px', margin: 0 }}
+                    />
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: '10px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label className="form-label" style={{ fontSize: '0.8rem' }}>Host / IP Address</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="ຕົວຢ່າງ: 192.168.1.200"
+                          value={newCamHost}
+                          onChange={(e) => setNewCamHost(e.target.value)}
+                          style={{ fontSize: '0.8rem', padding: '8px', margin: 0 }}
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label className="form-label" style={{ fontSize: '0.8rem' }}>Port</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="ຕົວຢ່າງ: 554"
+                          value={newCamPort}
+                          onChange={(e) => setNewCamPort(e.target.value)}
+                          style={{ fontSize: '0.8rem', padding: '8px', margin: 0 }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label className="form-label" style={{ fontSize: '0.8rem' }}>Username</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="admin"
+                          value={newCamUser}
+                          onChange={(e) => setNewCamUser(e.target.value)}
+                          style={{ fontSize: '0.8rem', padding: '8px', margin: 0 }}
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label className="form-label" style={{ fontSize: '0.8rem' }}>Password</label>
+                        <input
+                          type="password"
+                          className="form-control"
+                          value={newCamPass}
+                          onChange={(e) => setNewCamPass(e.target.value)}
+                          style={{ fontSize: '0.8rem', padding: '8px', margin: 0 }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label className="form-label" style={{ fontSize: '0.8rem' }}>Channel</label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="32"
+                          className="form-control"
+                          value={newCamChannel}
+                          onChange={(e) => setNewCamChannel(e.target.value)}
+                          style={{ fontSize: '0.8rem', padding: '8px', margin: 0 }}
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label className="form-label" style={{ fontSize: '0.8rem' }}>Brand</label>
+                        <select
+                          className="form-control"
+                          value={newCamBrand}
+                          onChange={(e) => setNewCamBrand(e.target.value)}
+                          style={{ fontSize: '0.8rem', padding: '8px', margin: 0, background: '#191613', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px' }}
+                        >
+                          <option value="hikvision">Hikvision</option>
+                          <option value="dahua">Dahua</option>
+                          <option value="general">General</option>
+                        </select>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label className="form-label" style={{ fontSize: '0.8rem' }}>View Mode</label>
+                        <select
+                          className="form-control"
+                          value={newCamStreamMode}
+                          onChange={(e) => setNewCamStreamMode(e.target.value)}
+                          style={{ fontSize: '0.8rem', padding: '8px', margin: 0, background: '#191613', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px' }}
+                        >
+                          <option value="live">Live (MJPEG)</option>
+                          <option value="webui">Web UI (Iframe)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <label className="form-label" style={{ fontSize: '0.8rem' }}>Live Stream URL Override (Option)</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="http://192.168.1.100/video_stream"
+                        value={newCamUrl}
+                        onChange={(e) => setNewCamUrl(e.target.value)}
+                        style={{ fontSize: '0.8rem', padding: '8px', margin: 0 }}
+                      />
+                    </div>
+                  </>
+                )}
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label className="form-label" style={{ fontSize: '0.8rem' }}>ເລື໅ກລະບູບ AI ກວດຈັບອັດສຽລິຍະ (AI Detection System)</label>
