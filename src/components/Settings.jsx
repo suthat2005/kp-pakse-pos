@@ -187,25 +187,36 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
 
 
   const [activeSubTab, setActiveSubTab] = useState(isMobile ? '' : 'shop');
+  const allSubTabs = [
+    { key: 'shop', perm: 'settingsShopInfo' },
+    { key: 'receipt', perm: 'settingsReceipt' },
+    { key: 'barcode', perm: 'settingsBarcode' },
+    { key: 'theme', perm: 'settingsTheme' },
+    { key: 'labels', perm: 'settingsLabels' },
+    { key: 'notifications', perm: 'settingsNotifications' },
+    { key: 'general', perm: 'settingsRules' },
+    { key: 'promotions', perm: 'settingsPromotions' },
+    { key: 'framing_specs', perm: 'settingsFraming' },
+    { key: 'expenses', perm: 'settingsExpenses' },
+    { key: 'tracking', perm: 'settingsTracking' },
+    { key: 'data_retention', perm: 'settingsBackup' },
+    { key: 'online_shop_settings', perm: 'settingsOnlineShop' },
+    { key: 'system', perm: 'settingsSystem' },
+    { key: 'production_tools', perm: 'settingsProductionTools' }
+  ];
+
   useEffect(() => {
     if (isMobile) return;
-    if (activeSubTab === 'shop' && !hasSettingsPermission('settingsShopInfo')) {
-      if (hasSettingsPermission('settingsTheme')) setActiveSubTab('theme');
-      else if (hasSettingsPermission('settingsHardware')) setActiveSubTab('system');
-      else if (hasSettingsPermission('settingsBackup')) setActiveSubTab('data_retention');
-      else setActiveSubTab('general');
+    const currentTabObj = allSubTabs.find(t => t.key === activeSubTab);
+    if (currentTabObj && !hasSettingsPermission(currentTabObj.perm)) {
+      const firstAllowed = allSubTabs.find(t => hasSettingsPermission(t.perm));
+      if (firstAllowed) {
+        setActiveSubTab(firstAllowed.key);
+      } else {
+        setActiveSubTab('');
+      }
     }
-    if (activeSubTab === 'theme' && !hasSettingsPermission('settingsTheme')) {
-      if (hasSettingsPermission('settingsShopInfo')) setActiveSubTab('shop');
-      else if (hasSettingsPermission('settingsHardware')) setActiveSubTab('system');
-      else setActiveSubTab('general');
-    }
-    if (activeSubTab === 'system' && !hasSettingsPermission('settingsHardware')) {
-      if (hasSettingsPermission('settingsShopInfo')) setActiveSubTab('shop');
-      else if (hasSettingsPermission('settingsTheme')) setActiveSubTab('theme');
-      else setActiveSubTab('general');
-    }
-  }, [activeUser, activeSubTab]);
+  }, [activeUser, activeSubTab, isMobile]);
   const [bankSettingsCurrency, setBankSettingsCurrency] = useState('LAK');
 
   useEffect(() => {
@@ -652,7 +663,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
             {db.getLabel('settings_tab_shop', '🏪 ຂໍ້ມູນຮ້ານ (Shop Info)')}
           </button>
           )}
-          {hasSettingsPermission('settingsShopInfo') && (
+          {hasSettingsPermission('settingsReceipt') && (
           <button
             className={`nav-tab ${activeSubTab === 'receipt' ? 'active' : ''}`}
             style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
@@ -661,6 +672,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
             {db.getLabel('settings_tab_receipt', '🖨️ ຮູບແບບໃບບິນ (Receipt Design)')}
           </button>
           )}
+          {hasSettingsPermission('settingsBarcode') && (
           <button
             className={`nav-tab ${activeSubTab === 'barcode' ? 'active' : ''}`}
             style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
@@ -668,6 +680,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
           >
             {db.getLabel('settings_tab_barcode', '🔌 ບາໂຄດ & ສະແກນ (Barcode/Scanner)')}
           </button>
+          )}
           {hasSettingsPermission('settingsTheme') && (
           <button
             className={`nav-tab ${activeSubTab === 'theme' ? 'active' : ''}`}
@@ -677,7 +690,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
             {db.getLabel('settings_tab_theme', '🎨 ສີ & ຄວາມໂຄ້ງ (Theme/Borders)')}
           </button>
           )}
-          {hasSettingsPermission('settingsTheme') && (
+          {hasSettingsPermission('settingsLabels') && (
           <button
             className={`nav-tab ${activeSubTab === 'labels' ? 'active' : ''}`}
             style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
@@ -686,6 +699,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
             {db.getLabel('settings_tab_labels', '📝 ປັບແຕ່ງພາສາ (Translate Labels)')}
           </button>
           )}
+          {hasSettingsPermission('settingsNotifications') && (
           <button
             className={`nav-tab ${activeSubTab === 'notifications' ? 'active' : ''}`}
             style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
@@ -693,6 +707,8 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
           >
             {db.getLabel('settings_tab_notifications', '🔔 ແຈ້ງເຕືອນໂທລະສັບ (Phone Alerts)')}
           </button>
+          )}
+          {hasSettingsPermission('settingsRules') && (
           <button
             className={`nav-tab ${activeSubTab === 'general' ? 'active' : ''}`}
             style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
@@ -700,6 +716,8 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
           >
             {db.getLabel('settings_tab_rules', '⚙️ ກົດລະບຽບ (Rules)')}
           </button>
+          )}
+          {hasSettingsPermission('settingsPromotions') && (
           <button
             className={`nav-tab ${activeSubTab === 'promotions' ? 'active' : ''}`}
             style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
@@ -707,6 +725,8 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
           >
             {db.getLabel('settings_tab_coupons', '🏷️ ໂປຣໂມຊັ່ນ (Coupons)')}
           </button>
+          )}
+          {hasSettingsPermission('settingsFraming') && (
           <button
             className={`nav-tab ${activeSubTab === 'framing_specs' ? 'active' : ''}`}
             style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
@@ -714,6 +734,8 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
           >
             {db.getLabel('settings_tab_framing_specs', '🛠️ ຕົວເລືອກງານເລ່ຽມ (Framing Options)')}
           </button>
+          )}
+          {hasSettingsPermission('settingsExpenses') && (
           <button
             className={`nav-tab ${activeSubTab === 'expenses' ? 'active' : ''}`}
             style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
@@ -721,8 +743,8 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
           >
             {db.getLabel('settings_tab_expenses', '💸 ປະເພດລາຍຈ່າຍ (Expense Categories)')}
           </button>
-
-
+          )}
+          {hasSettingsPermission('settingsTracking') && (
           <button
             className={`nav-tab ${activeSubTab === 'tracking' ? 'active' : ''}`}
             style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
@@ -730,7 +752,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
           >
             {db.getLabel('settings_tab_tracking', '🔍 ຕິດຕາມພຣະ (Amulet Tracking)')}
           </button>
-
+          )}
           {hasSettingsPermission('settingsBackup') && (
           <button
             className={`nav-tab ${activeSubTab === 'data_retention' ? 'active' : ''}`}
@@ -740,8 +762,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
             🧹 ການຈັດການຂໍ້ມູນ (Data Retention)
           </button>
           )}
-
-          {hasSettingsPermission('settingsShopInfo') && (
+          {hasSettingsPermission('settingsOnlineShop') && (
           <button
             className={`nav-tab ${activeSubTab === 'online_shop_settings' ? 'active' : ''}`}
             style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
@@ -750,8 +771,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
             🌐 ຕັ້ງຄ່າຮ້ານອອນລາຍ (Online Shop)
           </button>
           )}
-
-          {hasSettingsPermission('settingsHardware') && (
+          {hasSettingsPermission('settingsSystem') && (
           <button
             className={`nav-tab ${activeSubTab === 'system' ? 'active' : ''}`}
             style={{ width: '100%', justifyContent: 'flex-start', border: 'none', color: 'var(--alert-red)' }}
@@ -760,8 +780,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
             {db.getLabel('settings_tab_system', '⚠️ ຄວບຄຸມລະບົບ (System)')}
           </button>
           )}
-
-          {hasSettingsPermission('settingsHardware') && (
+          {hasSettingsPermission('settingsProductionTools') && (
           <button
             className={`nav-tab ${activeSubTab === 'production_tools' ? 'active' : ''}`}
             style={{ width: '100%', justifyContent: 'flex-start', border: 'none', color: '#3498db' }}

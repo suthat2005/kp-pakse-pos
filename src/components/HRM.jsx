@@ -55,10 +55,21 @@ const SUB_PERMS = {
     { key: 'aiCctv', label: '📹 ກ້ອງວົງຈອນປິດ (CCTV)' }
   ],
   settings: [
-    { key: 'settingsBackup', label: '💾 ແບັກອັບ & ກູ້ຄືນ (Backup/Restore)' },
     { key: 'settingsShopInfo', label: '🏪 ຂໍ້ມູນຮ້ານ & ບັນຊີ (Shop Info/Bank)' },
-    { key: 'settingsHardware', label: '🔌 ຕັ້ງຄ່າເຄື່ອງພິມ (Printer Config)' },
-    { key: 'settingsTheme', label: '🎨 ຕັ້ງຄ່າສີ & ພາສາ (Theme/Labels)' }
+    { key: 'settingsReceipt', label: '🖨️ ຮູບແບບໃບບິນ (Receipt Design)' },
+    { key: 'settingsBarcode', label: '🔌 ບາໂຄດ & ສະແກນ (Barcode/Scanner)' },
+    { key: 'settingsTheme', label: '🎨 ສີ & ຄວາມໂຄ້ງ (Theme/Borders)' },
+    { key: 'settingsLabels', label: '📝 ປັບແຕ່ງພາສາ (Translate Labels)' },
+    { key: 'settingsNotifications', label: '🔔 ແຈ້ງເຕືອນໂທລະສັບ (Phone Alerts)' },
+    { key: 'settingsRules', label: '⚙️ ກົດລະບຽບ (Rules)' },
+    { key: 'settingsPromotions', label: '🏷️ ໂປຣໂມຊັ່ນ (Coupons)' },
+    { key: 'settingsFraming', label: '🛠️ ຕົວເລືອກງານເລ່ຽມ (Framing Options)' },
+    { key: 'settingsExpenses', label: '💸 ປະເພດລາຍຈ່າຍ (Expense Categories)' },
+    { key: 'settingsTracking', label: '🔍 ຕິດຕາມພຣະ (Amulet Tracking)' },
+    { key: 'settingsBackup', label: '🧹 ການຈັດການຂໍ້ມູນ & ແບັກອັບ (Data Retention/Backup)' },
+    { key: 'settingsOnlineShop', label: '🌐 ຕັ້ງຄ່າຮ້ານອອນລາຍ (Online Shop)' },
+    { key: 'settingsSystem', label: '⚠️ ຄວບຄຸມລະບົບ (System Control)' },
+    { key: 'settingsProductionTools', label: '⚙️ ເຄື່ອງມືລະບົບ (Production Tools)' }
   ]
 };
 
@@ -1751,7 +1762,7 @@ export default function HRM({ activeUser, onUpdate }) {
                                   debts: ['debtsCollect', 'debtsAddDebt', 'debtsDelete'],
                                   reports: ['reportsRevenue', 'reportsProfit', 'reportsExport'],
                                   ai: ['aiChat', 'aiAnalyze', 'aiCctv'],
-                                  settings: ['settingsBackup', 'settingsShopInfo', 'settingsHardware', 'settingsTheme']
+                                  settings: ['settingsShopInfo', 'settingsReceipt', 'settingsBarcode', 'settingsTheme', 'settingsLabels', 'settingsNotifications', 'settingsRules', 'settingsPromotions', 'settingsFraming', 'settingsExpenses', 'settingsTracking', 'settingsBackup', 'settingsOnlineShop', 'settingsSystem', 'settingsProductionTools']
                                 }[item.key] || [];
 
                                 const updatedSubPerms = {};
@@ -2088,7 +2099,7 @@ export default function HRM({ activeUser, onUpdate }) {
                                   debts: ['debtsCollect', 'debtsAddDebt', 'debtsDelete'],
                                   reports: ['reportsRevenue', 'reportsProfit', 'reportsExport'],
                                   ai: ['aiChat', 'aiAnalyze', 'aiCctv'],
-                                  settings: ['settingsBackup', 'settingsShopInfo', 'settingsHardware', 'settingsTheme']
+                                  settings: ['settingsShopInfo', 'settingsReceipt', 'settingsBarcode', 'settingsTheme', 'settingsLabels', 'settingsNotifications', 'settingsRules', 'settingsPromotions', 'settingsFraming', 'settingsExpenses', 'settingsTracking', 'settingsBackup', 'settingsOnlineShop', 'settingsSystem', 'settingsProductionTools']
                                 }[item.key] || [];
 
                                 const updatedSubPerms = {};
