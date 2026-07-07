@@ -752,6 +752,27 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                 🏪 ຕັ້ງຄ່າຂໍ້ມູນຮ້ານ ແລະ ບັນຊີທະນາຄານຮັບເງິນ
               </h3>
 
+              {/* Main Terminal Local Toggle (Always Visible in first tab) */}
+              <div className="form-group" style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(212,175,55,0.05)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(212,175,55,0.2)' }}>
+                <input
+                  type="checkbox"
+                  id="local-is-main-terminal-shop"
+                  checked={isMainTerminalLocal}
+                  onChange={(e) => {
+                    const val = e.target.checked;
+                    localStorage.setItem('isMainTerminal', val ? 'true' : 'false');
+                    setIsMainTerminalLocal(val);
+                  }}
+                  style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--gold-primary)' }}
+                />
+                <label htmlFor="local-is-main-terminal-shop" style={{ fontSize: '0.88rem', color: 'white', cursor: 'pointer', userSelect: 'none' }}>
+                  💻 <strong>ເຄື່ອງນີ້ແມ່ນເຄື່ອງຫຼັກທີ່ຕໍ່ເຄື່ອງພິມ (Main Terminal)</strong>
+                  <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                    (ເປີດສະເພາະເຄື່ອງຄອມພິວເຕີທີ່ຕໍ່ກັບເຄື່ອງພິມຢູ່ໜ້າຮ້ານ, ສ່ວນໃນໂທລະສັບໃຫ້ປິດໄວ້ ເພື່ອໃຫ້ກົດເປີດລິ້ນຊັກຈາກທາງໄກໄດ້)
+                  </span>
+                </label>
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div className="form-group">
                   <label className="form-label">ຊື່ຮ້ານ (Shop Name)</label>
