@@ -1537,6 +1537,36 @@ export default function Reports({ activeUser, isMobile }) {
           </div>
         </div>
 
+        {/* Expenses summary list for POS tab */}
+        {rangeExpenses.length > 0 && (
+          <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '16px' }}>
+            <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.05rem', margin: 0 }}>💸 ບັນທຶກລາຍຈ່າຍຊ່ວງນີ້ (Period Expenses Table)</h3>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.83rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
+                    <th style={{ padding: '10px', textAlign: 'left' }}>ວັນທີ</th>
+                    <th style={{ padding: '10px', textAlign: 'left' }}>ລາຍການ</th>
+                    <th style={{ padding: '10px', textAlign: 'right' }}>ຈຳນວນ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...rangeExpenses].sort((a, b) => new Date(b.date) - new Date(a.date)).map((ex, i) => (
+                    <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+                      <td style={{ padding: '10px' }}>{new Date(ex.date).toLocaleDateString('lo-LA')}</td>
+                      <td style={{ padding: '10px' }}>{ex.description || ex.category || '-'}</td>
+                      <td style={{ padding: '10px', textAlign: 'right', color: '#e74c3c', fontWeight: 'bold' }}>
+                        -{ex.amount.toLocaleString()} {ex.currency || 'LAK'}
+                        {ex.currency && ex.currency !== 'LAK' && <small style={{ display: 'block', fontSize: '0.65rem', color: 'var(--text-secondary)' }}>(≈ {ex.convertedAmount?.toLocaleString()} ₭)</small>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
       </div>
 
       </> /* end POS tab */}
