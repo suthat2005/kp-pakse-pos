@@ -4074,6 +4074,156 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                 </div>
               </div>
 
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="form-group">
+                  <label className="form-label">ຊື່ຮ້ານອອນລາຍ (Online Shop Title)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={settings.onlineShopTitle || ''}
+                    onChange={(e) => setSettings({ ...settings, onlineShopTitle: e.target.value })}
+                    placeholder="ຂອບພຣະຣັທເກຊ Online"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">ຄຳອະທິບາຍ/ປະກາດ (Announcement Description)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={settings.onlineShopDescription || ''}
+                    onChange={(e) => setSettings({ ...settings, onlineShopDescription: e.target.value })}
+                    placeholder="ຍິນດີຕ້ອນຮັບສູ່ ຮ້ານອອນລາຍ..."
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="form-group">
+                  <label className="form-label">ເບີໂທຕິດຕໍ່ (Contact Phone/WhatsApp)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={settings.onlineShopPhone || ''}
+                    onChange={(e) => setSettings({ ...settings, onlineShopPhone: e.target.value })}
+                    placeholder="02023304555"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">ທີ່ຢູ່ຮ້ាន (Shop Address)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={settings.onlineShopAddress || ''}
+                    onChange={(e) => setSettings({ ...settings, onlineShopAddress: e.target.value })}
+                    placeholder="ປາກເຊ, ແຂວງຈຳປາສັກ"
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="form-group">
+                  <label className="form-label">ລິ້ງ Facebook (Facebook Link)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={settings.onlineShopFacebook || ''}
+                    onChange={(e) => setSettings({ ...settings, onlineShopFacebook: e.target.value })}
+                    placeholder="https://facebook.com/yourpage"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">ລິ້ງ Telegram (Telegram Link)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={settings.onlineShopTelegram || ''}
+                    onChange={(e) => setSettings({ ...settings, onlineShopTelegram: e.target.value })}
+                    placeholder="https://t.me/username"
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="form-group">
+                  <label className="form-label">ຄ່າຈັດສົ່ງເລີ່ມຕົ້ນ (Default Shipping Fee - ກີບ)</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    value={settings.onlineShopShippingFee !== undefined ? settings.onlineShopShippingFee : 15000}
+                    onChange={(e) => setSettings({ ...settings, onlineShopShippingFee: Number(e.target.value) })}
+                    placeholder="15000"
+                  />
+                </div>
+
+                <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px', justifyContent: 'center' }}>
+                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', margin: 0 }}>
+                    <input
+                      type="checkbox"
+                      checked={settings.onlineShopEnablePickup !== false}
+                      onChange={(e) => setSettings({ ...settings, onlineShopEnablePickup: e.target.checked })}
+                      style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                    />
+                    <span>🏪 ເປີດໃຊ້ງານຕົວເລືອກ ຮັບຢູ່ໜ້າຮ້ານ (Enable Store Pickup)</span>
+                  </label>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>ອະນຸຍາດໃຫ້ລູກຄ້າເລືອກຮັບເຄື່ອງຢູ່ໜ້າຮ້ານໂດຍບໍ່ມີຄ່າຈັດສົ່ງ</span>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="form-group">
+                  <label className="form-label">ໂລໂກ້ຮ້ານອອນລາຍ (Online Shop Logo)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="form-control"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setSettings(prev => ({ ...prev, onlineShopLogo: reader.result }));
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                  {settings.onlineShopLogo && (
+                    <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <img src={settings.onlineShopLogo} alt="Shop Logo" style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--border-color)' }} />
+                      <button type="button" className="btn btn-secondary btn-sm" style={{ color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }} onClick={() => setSettings({ ...settings, onlineShopLogo: '' })}>ລຶບຮູບ (Delete)</button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">ຮູບແບນເນີຫົວເວັບ (Shop Header Banner Image)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="form-control"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setSettings(prev => ({ ...prev, onlineShopBannerImg: reader.result }));
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                  {settings.onlineShopBannerImg && (
+                    <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <img src={settings.onlineShopBannerImg} alt="Shop Banner" style={{ width: '120px', height: '50px', borderRadius: '4px', objectFit: 'cover', border: '1px solid var(--border-color)' }} />
+                      <button type="button" className="btn btn-secondary btn-sm" style={{ color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }} onClick={() => setSettings({ ...settings, onlineShopBannerImg: '' })}>ລຶບຮູບ (Delete)</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div className="form-group">
                 <label className="form-label">ຂໍ້ຄວາມຕ້ອນຮັບ / ແບນເນີຫົວຂໍ້ (Welcome Banner Text) *</label>
                 <input

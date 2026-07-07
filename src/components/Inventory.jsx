@@ -1502,6 +1502,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       unit: isService ? 'ຄັ້ງ' : 'ອັນ',
       barcode: String(Math.floor(100000 + Math.random() * 900000)),
       image: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=200&auto=format&fit=crop&q=60',
+      images: [],
       showOnline: !isService,
       priceOnline: '',
       priceVip: '',
@@ -1524,6 +1525,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       unit: p.unit,
       barcode: p.barcode,
       image: p.image,
+      images: p.images || (p.image ? [p.image] : []),
       showOnline: p.showOnline !== undefined ? p.showOnline : !db.isServiceCategory(p.category),
       priceOnline: p.priceOnline !== undefined ? p.priceOnline : p.price,
       priceVip: p.priceVip !== undefined ? p.priceVip : p.price,
@@ -2962,31 +2964,80 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">ຮູບພາບສິນຄ້າ (Product Photo)</label>
+                  <label className="form-label">ຮູບພາບສິນຄ້າ (Product Photos - ອັບໂຫຼດໄດ້ຫຼາຍຮູບ)</label>
                   <input
                     type="file"
                     accept="image/*"
+                    multiple
                     className="form-control"
                     onChange={(e) => {
-                      const file = e.target.files[0];
-                      if (file) {
-                        compressImage(file).then(compressedBase64 => {
-                          setFormData(prev => ({ ...prev, image: compressedBase64 }));
-                        }).catch(err => {
-                          console.error('Compression failed, falling back:', err);
-                          const reader = new FileReader();
-                          reader.onloadend = () => {
-                            setFormData(prev => ({ ...prev, image: reader.result }));
-                          };
-                          reader.readAsDataURL(file);
+                      const files = Array.from(e.target.files);
+                      if (files.length > 0) {
+                        const promises = files.map(file => {
+                          return compressImage(file).catch(err => {
+                            console.error('Compression failed, falling back:', err);
+                            return new Promise((resolve) => {
+                              const reader = new FileReader();
+                              reader.onloadend = () => resolve(reader.result);
+                              reader.readAsDataURL(file);
+                            });
+                          });
+                        });
+                        Promise.all(promises).then(base64s => {
+                          setFormData(prev => {
+                            const newImages = [...(prev.images || []), ...base64s];
+                            return {
+                              ...prev,
+                              images: newImages,
+                              image: prev.image || base64s[0]
+                            };
+                          });
                         });
                       }
                     }}
                   />
-                  {formData.image && (
-                    <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <img src={formData.image} alt="Product Preview" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border-color)' }} />
-                      <button type="button" className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '0.75rem', color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }} onClick={() => setFormData(prev => ({ ...prev, image: '' }))}>ລຶບຮູບ</button>
+                  {formData.images && formData.images.length > 0 && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(60px, 1fr))', gap: '10px', marginTop: '10px' }}>
+                      {formData.images.map((img, idx) => (
+                        <div key={idx} style={{ position: 'relative', width: '60px', height: '60px', borderRadius: '6px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+                          <img src={img} alt={`Preview ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updatedImages = formData.images.filter((_, i) => i !== idx);
+                              setFormData(prev => ({
+                                ...prev,
+                                images: updatedImages,
+                                image: updatedImages.length > 0 ? updatedImages[0] : ''
+                              }));
+                            }}
+                            style={{
+                              position: 'absolute',
+                              top: '2px',
+                              right: '2px',
+                              background: 'rgba(231,76,60,0.85)',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '50%',
+                              width: '16px',
+                              height: '16px',
+                              fontSize: '10px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              lineHeight: 1
+                            }}
+                          >
+                            ✕
+                          </button>
+                          {idx === 0 && (
+                            <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(212,175,55,0.85)', color: 'black', fontSize: '8px', textAlign: 'center', fontWeight: 'bold' }}>
+                              Primary
+                            </span>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>

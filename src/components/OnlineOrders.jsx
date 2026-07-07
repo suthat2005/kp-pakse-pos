@@ -260,6 +260,15 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                   }}>
                     {getShippingStatusText(o.shippingStatus)}
                   </span>
+                  <span style={{
+                    fontSize: '0.65rem',
+                    padding: '2px 8px',
+                    borderRadius: '8px',
+                    background: (o.shippingMethod === 'pickup' || (o.shippingAddress && o.shippingAddress.province && o.shippingAddress.province.includes('ຮັບຢູ່ໜ້າຮ້ານ'))) ? 'rgba(52,152,219,0.15)' : 'rgba(155,89,182,0.15)',
+                    color: (o.shippingMethod === 'pickup' || (o.shippingAddress && o.shippingAddress.province && o.shippingAddress.province.includes('ຮັບຢູ່ໜ້າຮ້ານ'))) ? '#3498db' : '#9b59b6'
+                  }}>
+                    {(o.shippingMethod === 'pickup' || (o.shippingAddress && o.shippingAddress.province && o.shippingAddress.province.includes('ຮັບຢູ່ໜ້າຮ້ານ'))) ? '🏪 ຮັບຢູ່ໜ້າຮ້ານ' : '🚚 ຈັດສົ່ງ'}
+                  </span>
                 </div>
               </div>
             ))
@@ -346,18 +355,33 @@ export default function OnlineOrders({ activeUser, isMobile }) {
 
                 {/* 2. Customer delivery address */}
                 <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                  <h4 style={{ color: 'var(--gold-primary)', margin: '0 0 10px' }}>🚚 ຂໍ້ມູນການຈັດສົ່ງພັດສະດຸ:</h4>
-                  {selectedOrder.shippingAddress ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem' }}>
-                      <div><b>ຊື່ຜູ້ຮັບ:</b> {selectedOrder.shippingAddress.recipientName}</div>
-                      <div><b>ເບີໂທຕິດຕໍ່:</b> {selectedOrder.shippingAddress.phone}</div>
-                      <div><b>ທີ່ຢູ່:</b> ບ້ານ {selectedOrder.shippingAddress.village || 'N/A'}, ເມືອງ {selectedOrder.shippingAddress.city || 'N/A'}, ແຂວງ {selectedOrder.shippingAddress.province || 'N/A'} ({selectedOrder.shippingAddress.country || 'N/A'})</div>
-                      {selectedOrder.shippingAddress.addressLine && <div><b>ລາຍລະອຽດເພີ່ມເຕີມ:</b> {selectedOrder.shippingAddress.addressLine}</div>}
-                      {selectedOrder.shippingAddress.notes && <div style={{ color: 'var(--accent-amber)', marginTop: '4px' }}><b>📝 ໝາຍເຫດຈາກລູກຄ້າ:</b> {selectedOrder.shippingAddress.notes}</div>}
-                    </div>
-                  ) : (
-                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>ບໍ່ມີຂໍ້ມູນທີ່ຢູ່ຈັດສົ່ງ</div>
-                  )}
+                  {(() => {
+                    const isPickup = selectedOrder.shippingMethod === 'pickup' || (selectedOrder.shippingAddress && selectedOrder.shippingAddress.province && selectedOrder.shippingAddress.province.includes('ຮັບຢູ່ໜ້າຮ້ານ'));
+                    return (
+                      <>
+                        <h4 style={{ color: 'var(--gold-primary)', margin: '0 0 10px' }}>
+                          {isPickup ? '🏪 ຂໍ້ມູນການຮັບເຄື່ອງຢູ່ໜ້າຮ້ານ:' : '🚚 ຂໍ້ມູນການຈັດສົ່ງພັດສະດຸ:'}
+                        </h4>
+                        {selectedOrder.shippingAddress ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem' }}>
+                            <div><b>ຊື່ຜູ້ຮັບ/ມາຮັບ:</b> {selectedOrder.shippingAddress.recipientName}</div>
+                            <div><b>ເບີໂທຕິດຕໍ່:</b> {selectedOrder.shippingAddress.phone}</div>
+                            {isPickup ? (
+                              <div><b>ວັນທີ/ເວລາ ທີ່ຈະມາຮັບ:</b> <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{selectedOrder.shippingAddress.addressLine || 'N/A'}</span></div>
+                            ) : (
+                              <>
+                                <div><b>ທີ່ຢູ່:</b> ບ້ານ {selectedOrder.shippingAddress.village || 'N/A'}, ເມືອງ {selectedOrder.shippingAddress.city || 'N/A'}, ແຂວງ {selectedOrder.shippingAddress.province || 'N/A'} ({selectedOrder.shippingAddress.country || 'N/A'})</div>
+                                {selectedOrder.shippingAddress.addressLine && <div><b>ລາຍລະອຽດເພີ່ມເຕີມ:</b> {selectedOrder.shippingAddress.addressLine}</div>}
+                              </>
+                            )}
+                            {selectedOrder.shippingAddress.notes && <div style={{ color: 'var(--accent-amber)', marginTop: '4px' }}><b>📝 ໝາຍເຫດຈາກລູກຄ້າ:</b> {selectedOrder.shippingAddress.notes}</div>}
+                          </div>
+                        ) : (
+                          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>ບໍ່ມີຂໍ້ມູນການຈັດສົ່ງ</div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
 
                 {/* 3. Shipping info editing form */}

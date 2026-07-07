@@ -189,6 +189,16 @@ const DEFAULT_SETTINGS = {
   lineNotifyToken: '',
   // Barcode / Scanner settings
   onlineShopUrl: '',
+  onlineShopTitle: 'ຂອບພຣະຣັທເກຊ Online',
+  onlineShopLogo: '',
+  onlineShopBannerImg: '',
+  onlineShopDescription: 'ຍິນດີຕ້ອນຮັບສູ່ ຮ້ានອອນລາຍ KP Pakse! ເລືອກຊື້ຂອບພຣະ ແລະ ພຣະເຄື່ອງຄຸນນະພາບດີ.',
+  onlineShopAddress: 'ປາກເຊ, ແຂວງຈຳປາສັກ',
+  onlineShopPhone: '02023304555',
+  onlineShopFacebook: 'https://facebook.com',
+  onlineShopTelegram: 'https://t.me',
+  onlineShopShippingFee: 15000,
+  onlineShopEnablePickup: true,
   onlineShopLabel: 'ສະແກນເບິ່ງເມນູອອນລາຍ (Scan Menu Online)',
   barcodeBeep: true,
   barcodeDelay: 50,
@@ -2490,7 +2500,8 @@ return products.map(p => {
     ...p,
     showOnline: p.showOnline !== undefined ? p.showOnline : !isService,
     priceOnline: p.priceOnline !== undefined ? Number(p.priceOnline) : Number(p.price),
-    priceVip: p.priceVip !== undefined ? Number(p.priceVip) : Number(p.price)
+    priceVip: p.priceVip !== undefined ? Number(p.priceVip) : Number(p.price),
+    images: p.images || (p.image ? [p.image] : [])
   };
 });
 },

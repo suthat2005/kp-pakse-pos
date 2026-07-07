@@ -60,6 +60,8 @@ const compressImage = (base64Str, maxWidth = 800, maxHeight = 800) => {
 
 export default function OnlineShop() {
   const [products, setProducts] = useState([]);
+  const [activeImageIdx, setActiveImageIdx] = useState(0);
+  const [shippingMethod, setShippingMethod] = useState('delivery');
   const [selectedDetailProduct, setSelectedDetailProduct] = useState(null);
   const [categories, setCategories] = useState([]);
   const [settings, setSettings] = useState({});
@@ -437,14 +439,22 @@ export default function OnlineShop() {
   // Dynamic member discount %
   const discountPercent = customer ? (customer.discountValue || 0) : 0;
   const discountAmount = Math.round(cartSubtotal * (discountPercent / 100));
-  const cartTotal = Math.max(0, cartSubtotal - discountAmount);
+  const shippingFee = shippingMethod === 'pickup' ? 0 : (settings.onlineShopShippingFee !== undefined ? Number(settings.onlineShopShippingFee) : 15000);
+  const cartTotal = Math.max(0, cartSubtotal - discountAmount + shippingFee);
 
   const handlePlaceOrder = (e) => {
     e.preventDefault();
     if (cart.length === 0) return;
-    if (!recipientName.trim() || !phone.trim() || !province.trim() || !city.trim() || !village.trim()) {
-      alert('ກະລຸນາປ້ອນຂໍ້ມູນທີ່ຢູ່ຈັດສົ່ງໃຫ້ຄົບຖ້ວນ!');
-      return;
+    if (shippingMethod === 'delivery') {
+      if (!recipientName.trim() || !phone.trim() || !province.trim() || !city.trim() || !village.trim()) {
+        alert('ກະລຸນາປ້ອນຂໍ້ມູນທີ່ຢູ່ຈັດສົ່ງໃຫ້ຄົບຖ້ວນ!');
+        return;
+      }
+    } else {
+      if (!recipientName.trim() || !phone.trim() || !addressLine.trim()) {
+        alert('ກະລຸນາປ້ອນຊື່, ເບີໂທ ແລະ ວັນທີ/ເວລາທີ່ຈະມາຮັບເຄື່ອງ!');
+        return;
+      }
     }
     if (!slipImage) {
       alert('ກະລຸນາອັບໂຫຼດສະລິບການໂອນເງິນເພື່ອແນບຫຼັກຖານຊຳລະ!');
@@ -467,13 +477,14 @@ export default function OnlineShop() {
         total: cartTotal,
         paymentStatus: 'pending_verification',
         slipImage: slipImage,
+        shippingMethod: shippingMethod,
         shippingAddress: {
           recipientName: recipientName.trim(),
           phone: phone.trim(),
           country: 'Laos',
-          province: province.trim(),
-          city: city.trim(),
-          village: village.trim(),
+          province: shippingMethod === 'pickup' ? 'ຮັບຢູ່ໜ້າຮ້ານ (Store Pickup)' : province.trim(),
+          city: shippingMethod === 'pickup' ? 'ຮັບຢູ່ໜ້າຮ້ານ' : city.trim(),
+          village: shippingMethod === 'pickup' ? 'ຮັບຢູ່ໜ້າຮ້ານ' : village.trim(),
           addressLine: addressLine.trim(),
           notes: notes.trim()
         }
@@ -659,7 +670,9 @@ export default function OnlineShop() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {/* Hero Promotion Banner */}
                 <div style={{
-                  background: 'linear-gradient(135deg, rgba(212,175,55,0.2) 0%, rgba(52,152,219,0.1) 100%)',
+                  background: settings.onlineShopBannerImg ? `linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url(${settings.onlineShopBannerImg})` : 'linear-gradient(135deg, rgba(212,175,55,0.2) 0%, rgba(52,152,219,0.1) 100%)',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
                   border: '1.5px solid rgba(212,175,55,0.3)',
                   borderRadius: '16px',
                   padding: '20px',
@@ -861,6 +874,26 @@ export default function OnlineShop() {
                     );
                   })}
                 </div>
+                {/* Store Footer / Contact Block */}
+                <div className="glass-card" style={{ padding: '16px', background: '#141210', border: '1px solid rgba(255,255,255,0.05)', marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.8rem', textAlign: 'center' }}>
+                  <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.9rem' }}>📞 ຕິດຕໍ່ພວກເຮົາ (Contact Us)</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', color: '#ccc' }}>
+                    <div><b>🏢 ທີ່ຢູ່ຮ້ານ:</b> {settings.onlineShopAddress || settings.shopAddress || 'ປາກເຊ, ແຂວງຈຳປາສັກ'}</div>
+                    <div><b>📞 ເບີໂທຕິດຕໍ່:</b> {settings.onlineShopPhone || settings.shopPhone || '02023304555'}</div>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '4px' }}>
+                    {(settings.onlineShopFacebook || settings.facebook) && (
+                      <a href={settings.onlineShopFacebook || settings.facebook} target="_blank" rel="noopener noreferrer" style={{ color: '#3498db', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        🔵 Facebook
+                      </a>
+                    )}
+                    {(settings.onlineShopTelegram || settings.telegram) && (
+                      <a href={settings.onlineShopTelegram || settings.telegram} target="_blank" rel="noopener noreferrer" style={{ color: '#2ecc71', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        🟢 Telegram
+                      </a>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
 
@@ -947,35 +980,87 @@ export default function OnlineShop() {
                     </div>
                   )}
                   
+                  {/* Shipping Method Selector */}
+                  {settings.onlineShopEnablePickup !== false && (
+                    <div className="form-group">
+                      <label className="form-label" style={{ fontSize: '0.8rem', color: 'var(--gold-primary)' }}>🚚 ວິທີການຮັບສິນຄ້າ (Delivery Method):</label>
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        <button
+                          type="button"
+                          className="btn"
+                          style={{
+                            flex: 1,
+                            padding: '8px',
+                            fontSize: '0.85rem',
+                            background: shippingMethod === 'delivery' ? 'var(--gold-primary)' : 'rgba(255,255,255,0.05)',
+                            color: shippingMethod === 'delivery' ? 'black' : 'white',
+                            fontWeight: 'bold',
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => setShippingMethod('delivery')}
+                        >
+                          🚚 ຈັດສົ່ງດ່ວນ
+                        </button>
+                        <button
+                          type="button"
+                          className="btn"
+                          style={{
+                            flex: 1,
+                            padding: '8px',
+                            fontSize: '0.85rem',
+                            background: shippingMethod === 'pickup' ? 'var(--gold-primary)' : 'rgba(255,255,255,0.05)',
+                            color: shippingMethod === 'pickup' ? 'black' : 'white',
+                            fontWeight: 'bold',
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => setShippingMethod('pickup')}
+                        >
+                          🏪 ຮັບຢູ່ໜ້າຮ້ານ
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="form-group">
-                    <label className="form-label" style={{ fontSize: '0.75rem' }}>ຊື່ຜູ້ຮັບພັດສະດຸ *</label>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>ຊື່ຜູ້ຮັບສິນຄ້າ *</label>
                     <input type="text" className="form-control" required value={recipientName} onChange={(e) => setRecipientName(e.target.value)} style={{ background: '#1c1916' }} />
                   </div>
                   <div className="form-group">
                     <label className="form-label" style={{ fontSize: '0.75rem' }}>ເບີໂທລະສັບຕິດຕໍ່ *</label>
                     <input type="tel" className="form-control" required value={phone} onChange={(e) => setPhone(e.target.value)} style={{ background: '#1c1916' }} />
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+
+                  {shippingMethod === 'delivery' ? (
+                    <>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        <div className="form-group">
+                          <label className="form-label" style={{ fontSize: '0.75rem' }}>ແຂວງ *</label>
+                          <input type="text" className="form-control" placeholder="ຈຳປາສັກ" required value={province} onChange={(e) => setProvince(e.target.value)} style={{ background: '#1c1916' }} />
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label" style={{ fontSize: '0.75rem' }}>ເມືອງ *</label>
+                          <input type="text" className="form-control" placeholder="ປາກເຊ" required value={city} onChange={(e) => setCity(e.target.value)} style={{ background: '#1c1916' }} />
+                        </div>
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label" style={{ fontSize: '0.75rem' }}>ບ້ານ *</label>
+                        <input type="text" className="form-control" required value={village} onChange={(e) => setVillage(e.target.value)} style={{ background: '#1c1916' }} />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label" style={{ fontSize: '0.75rem' }}>ລາຍລະອຽດທີ່ຢູ່ເພີ່ມເຕີມ</label>
+                        <input type="text" className="form-control" placeholder="ຮ່ອມ, ເລກທີເຮືອນ,..." value={addressLine} onChange={(e) => setAddressLine(e.target.value)} style={{ background: '#1c1916' }} />
+                      </div>
+                    </>
+                  ) : (
                     <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.75rem' }}>ແຂວງ *</label>
-                      <input type="text" className="form-control" placeholder="ຈຳປາສັກ" required value={province} onChange={(e) => setProvince(e.target.value)} style={{ background: '#1c1916' }} />
+                      <label className="form-label" style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>📅 ວັນທີ ແລະ ເວລາທີ່ຈະມາຮັບສິນຄ້າ *</label>
+                      <input type="text" className="form-control" required placeholder="ຕົວຢ່າງ: ວັນເສົາ 10:00 ໂມງເຊົ້າ" value={addressLine} onChange={(e) => setAddressLine(e.target.value)} style={{ background: '#1c1916' }} />
                     </div>
-                    <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.75rem' }}>ເມືອງ *</label>
-                      <input type="text" className="form-control" placeholder="ປາກເຊ" required value={city} onChange={(e) => setCity(e.target.value)} style={{ background: '#1c1916' }} />
-                    </div>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" style={{ fontSize: '0.75rem' }}>ບ້ານ *</label>
-                    <input type="text" className="form-control" required value={village} onChange={(e) => setVillage(e.target.value)} style={{ background: '#1c1916' }} />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" style={{ fontSize: '0.75rem' }}>ລາຍລະອຽດທີ່ຢູ່ເພີ່ມເຕີມ</label>
-                    <input type="text" className="form-control" placeholder="ຮ່ອມ, ເລກທີເຮືອນ,..." value={addressLine} onChange={(e) => setAddressLine(e.target.value)} style={{ background: '#1c1916' }} />
-                  </div>
+                  )}
+
                   <div className="form-group">
                     <label className="form-label" style={{ fontSize: '0.75rem' }}>ໝາຍເຫດເຖິງຮ້ານ</label>
-                    <input type="text" className="form-control" placeholder="ຝາກຂົນສົ່ງອະນຸສິດ, ຝາກ HAL,..." value={notes} onChange={(e) => setNotes(e.target.value)} style={{ background: '#1c1916' }} />
+                    <input type="text" className="form-control" placeholder="ຝากຂົນສົ່ງອະນຸສິດ, ຝາກ HAL,..." value={notes} onChange={(e) => setNotes(e.target.value)} style={{ background: '#1c1916' }} />
                   </div>
 
                   {/* BCEL ONE QR CODE DISPLAY */}
@@ -1484,12 +1569,53 @@ export default function OnlineShop() {
             </button>
 
             {/* Product Image */}
-            <div style={{ width: '100%', height: '260px', overflow: 'hidden', borderRadius: '12px', background: '#000', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '16px' }}>
-              <img 
-                src={selectedDetailProduct.image} 
-                alt={selectedDetailProduct.name} 
-                style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
-              />
+            <div style={{ width: '100%', height: '280px', overflow: 'hidden', borderRadius: '12px', background: '#000', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '16px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {(() => {
+                const imgs = selectedDetailProduct.images && selectedDetailProduct.images.length > 0
+                  ? selectedDetailProduct.images
+                  : [selectedDetailProduct.image];
+                const currentImg = imgs[activeImageIdx] || selectedDetailProduct.image;
+                
+                return (
+                  <>
+                    <img 
+                      src={currentImg} 
+                      alt={selectedDetailProduct.name} 
+                      style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+                    />
+                    
+                    {imgs.length > 1 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setActiveImageIdx(prev => (prev - 1 + imgs.length) % imgs.length)}
+                          style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.6)', border: 'none', color: 'white', width: '28px', height: '28px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.9rem', zIndex: 5 }}
+                        >
+                          ‹
+                        </button>
+                        
+                        <button
+                          type="button"
+                          onClick={() => setActiveImageIdx(prev => (prev + 1) % imgs.length)}
+                          style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.6)', border: 'none', color: 'white', width: '28px', height: '28px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.9rem', zIndex: 5 }}
+                        >
+                          ›
+                        </button>
+                        
+                        <div style={{ position: 'absolute', bottom: '8px', display: 'flex', gap: '6px', zIndex: 5 }}>
+                          {imgs.map((_, i) => (
+                            <span
+                              key={i}
+                              onClick={() => setActiveImageIdx(i)}
+                              style={{ width: '6px', height: '6px', borderRadius: '50%', background: i === activeImageIdx ? 'var(--gold-primary)' : 'rgba(255,255,255,0.4)', cursor: 'pointer', display: 'inline-block' }}
+                            />
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </>
+                );
+              })()}
             </div>
 
             {/* Product Meta */}
