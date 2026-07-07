@@ -7,12 +7,15 @@ echo ===================================================
 echo.
 
 :: -------------------------------------------------------------------
-:: CONFIGURATION: Set your live web URL or local URL here.
-:: You can change this to your HostAtom live domain (e.g., http://yourdomain.com)
+:: CONFIGURATION: Set your live web URL here.
 :: -------------------------------------------------------------------
-set "TARGET_URL=http://localhost:5173/pos"
+set "TARGET_URL=https://kp-pakse-suthatpospos.shop/pos"
 
 echo Target URL: %TARGET_URL%
+echo.
+echo Starting local print helper server...
+start /min "" node server.js --prod
+timeout /t 3 /nobreak >nul
 echo.
 echo IMPORTANT:
 echo 1. Ensure your receipt printer (GP-L80250 Series) is set as the
