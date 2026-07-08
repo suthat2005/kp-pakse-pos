@@ -1270,55 +1270,107 @@ export default function App() {
 
         {/* Main Workspace Tabs Renderer */}
         <main className="dashboard-content">
-          {activeTab === 'pos' && hasPermission(activeUser, 'pos') && (
-            <POS
-              key={activeUser.id}
-              activeUser={activeUser}
-              onUpdate={handleSystemUpdate}
-              redirectedCartItem={redirectedCartItem}
-              clearRedirectedCartItem={() => setRedirectedCartItem(null)}
-              onTabChange={setActiveTab}
-              onTrackJob={setTrackingJobId}
-              isMobile={isMobile}
-            />
-          )}
-          
-          {activeTab === 'inventory' && hasPermission(activeUser, 'inventory') && (
-            <Inventory
-              activeUser={activeUser}
-              onUpdate={handleSystemUpdate}
-              initialFilter={inventoryFilter}
-              onFilterChange={setInventoryFilter}
-              isMobile={isMobile}
-            />
-          )}
+          {!todayAttendance ? (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              minHeight: '60vh',
+              padding: '40px 24px',
+              textAlign: 'center',
+              background: 'rgba(22, 20, 17, 0.45)',
+              backdropFilter: 'blur(16px)',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid rgba(255, 255, 255, 0.06)',
+              margin: '20px',
+              boxShadow: 'var(--shadow-premium)',
+              gap: '16px'
+            }}>
+              <div style={{ fontSize: '4.5rem', marginBottom: '8px' }}>🔒</div>
+              <h2 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '1.6rem', fontWeight: 'bold' }}>
+                ລະບົບປິດລັອກຊົ່ວຄາວ (Shift Locked)
+              </h2>
+              <p style={{ color: 'var(--text-secondary)', maxWidth: '520px', margin: 0, fontSize: '0.92rem', lineHeight: '1.6' }}>
+                ກະລຸນາກົດປຸ່ມ **"🕒 ເຂົ້າງານ"** ຢູ່ແຖບເມນູດ້ານເທິງ ຫຼື ກົດປຸ່ມດ້ານລຸ່ມນີ້ ເພື່ອເປີດກະລິ້ນຊັກເງິນສົດ ແລະ ເປີດໃຊ້ງານລະບົບການຂາຍ ແລະ ຈັດການສິນຄ້າ.
+              </p>
+              <button
+                type="button"
+                className="btn"
+                style={{
+                  marginTop: '8px',
+                  padding: '12px 32px',
+                  fontSize: '1rem',
+                  fontWeight: 'bold',
+                  background: 'var(--success-green)',
+                  color: 'black',
+                  borderColor: 'var(--success-green)',
+                  borderRadius: '30px',
+                  cursor: 'pointer',
+                  boxShadow: '0 0 15px rgba(46, 204, 113, 0.4)'
+                }}
+                onClick={() => {
+                  setOpeningCashInput('');
+                  setShowClockInModal(true);
+                }}
+              >
+                🕒 ກົດເຂົ້າງານດຽວນີ້ (Clock In Shift)
+              </button>
+            </div>
+          ) : (
+            <>
+              {activeTab === 'pos' && hasPermission(activeUser, 'pos') && (
+                <POS
+                  key={activeUser.id}
+                  activeUser={activeUser}
+                  onUpdate={handleSystemUpdate}
+                  redirectedCartItem={redirectedCartItem}
+                  clearRedirectedCartItem={() => setRedirectedCartItem(null)}
+                  onTabChange={setActiveTab}
+                  onTrackJob={setTrackingJobId}
+                  isMobile={isMobile}
+                />
+              )}
+              
+              {activeTab === 'inventory' && hasPermission(activeUser, 'inventory') && (
+                <Inventory
+                  activeUser={activeUser}
+                  onUpdate={handleSystemUpdate}
+                  initialFilter={inventoryFilter}
+                  onFilterChange={setInventoryFilter}
+                  isMobile={isMobile}
+                />
+              )}
 
-          {activeTab === 'hrm' && hasPermission(activeUser, 'hrm') && (
-            <HRM activeUser={activeUser} onUpdate={handleSystemUpdate} isMobile={isMobile} />
-          )}
-          
-          {activeTab === 'reports' && hasPermission(activeUser, 'reports') && (
-            <Reports activeUser={activeUser} isMobile={isMobile} />
-          )}
-          
-          {activeTab === 'ai' && hasPermission(activeUser, 'ai') && (
-            <AIDetector activeUser={activeUser} isMobile={isMobile} />
-          )}
+              {activeTab === 'hrm' && hasPermission(activeUser, 'hrm') && (
+                <HRM activeUser={activeUser} onUpdate={handleSystemUpdate} isMobile={isMobile} />
+              )}
+              
+              {activeTab === 'reports' && hasPermission(activeUser, 'reports') && (
+                <Reports activeUser={activeUser} isMobile={isMobile} />
+              )}
+              
+              {activeTab === 'ai' && hasPermission(activeUser, 'ai') && (
+                <AIDetector activeUser={activeUser} isMobile={isMobile} />
+              )}
 
-          {activeTab === 'debts' && hasPermission(activeUser, 'debts') && (
-            <Debts activeUser={activeUser} onUpdate={handleSystemUpdate} isMobile={isMobile} />
-          )}
+              {activeTab === 'debts' && hasPermission(activeUser, 'debts') && (
+                <Debts activeUser={activeUser} onUpdate={handleSystemUpdate} isMobile={isMobile} />
+              )}
 
-          {activeTab === 'customers' && hasPermission(activeUser, 'customers') && (
-            <Customers activeUser={activeUser} onUpdate={handleSystemUpdate} isMobile={isMobile} />
-          )}
+              {activeTab === 'customers' && hasPermission(activeUser, 'customers') && (
+                <Customers activeUser={activeUser} onUpdate={handleSystemUpdate} isMobile={isMobile} />
+              )}
 
-          {activeTab === 'settings' && hasPermission(activeUser, 'settings') && (
-            <Settings activeUser={activeUser} onUpdate={handleSystemUpdate} isMobile={isMobile} />
-          )}
+              {activeTab === 'settings' && hasPermission(activeUser, 'settings') && (
+                <Settings activeUser={activeUser} onUpdate={handleSystemUpdate} isMobile={isMobile} />
+              )}
 
-          {activeTab === 'online_orders' && (activeUser.role === 'owner' || activeUser.role === 'manager') && (
-            <OnlineOrders activeUser={activeUser} isMobile={isMobile} />
+              {activeTab === 'online_orders' && (activeUser.role === 'owner' || activeUser.role === 'manager') && (
+                <OnlineOrders activeUser={activeUser} isMobile={isMobile} />
+              )}
+            </>
           )}
         </main>
       </div>
