@@ -2280,18 +2280,38 @@ this.runDataRetention();
     this.init();
     const settings = getStorage('settings', DEFAULT_SETTINGS);
 
-    // Auto-migrate old layout values to safe defaults
+    // Auto-migrate and force perfect, non-clipping layout defaults automatically
     let migrated = false;
-    if (!settings.receiptQtyColWidth || settings.receiptQtyColWidth === '22px' || settings.receiptQtyColWidth === '12px' || settings.receiptQtyColWidth === '25px') {
+    if (settings.receiptPadding !== '3mm') {
+      settings.receiptPadding = '3mm';
+      migrated = true;
+    }
+    if (settings.receiptQtyColWidth !== '35px') {
       settings.receiptQtyColWidth = '35px';
       migrated = true;
     }
-    if (!settings.receiptPriceColWidth || settings.receiptPriceColWidth === '65px' || settings.receiptPriceColWidth === '70px' || settings.receiptPriceColWidth === '75px') {
+    if (settings.receiptPriceColWidth !== '95px') {
       settings.receiptPriceColWidth = '95px';
       migrated = true;
     }
-    if (!settings.receiptPadding || settings.receiptPadding === '5mm') {
-      settings.receiptPadding = '3mm';
+    if (settings.receiptMarginLeft !== '0mm') {
+      settings.receiptMarginLeft = '0mm';
+      migrated = true;
+    }
+    if (settings.receiptMarginRight !== '0mm') {
+      settings.receiptMarginRight = '0mm';
+      migrated = true;
+    }
+    if (settings.receiptMarginTop !== '0mm') {
+      settings.receiptMarginTop = '0mm';
+      migrated = true;
+    }
+    if (settings.receiptMarginBottom !== '0mm') {
+      settings.receiptMarginBottom = '0mm';
+      migrated = true;
+    }
+    if (settings.receiptFeedPadding !== '8mm') {
+      settings.receiptFeedPadding = '8mm';
       migrated = true;
     }
     if (migrated) {
