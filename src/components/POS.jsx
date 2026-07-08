@@ -1636,7 +1636,7 @@ export default function POS({
       customerPhone: activeSlot.customerPhone || '',
       paidAmount: finalLAKAmountToPay,
       remainingAmount: Math.max(0, grandTotal - finalLAKAmountToPay),
-      depositAmount: activeSlot.depositAmount || finalLAKAmountToPay,
+      depositAmount: checkoutIsDepositMode ? finalLAKAmountToPay : (activeSlot.depositAmount || 0),
       financialStatus: paymentMethod === 'treat' ? 'Paid' : (finalLAKAmountToPay === 0 ? 'Pending' : (Math.max(0, grandTotal - finalLAKAmountToPay) > 0 ? 'PartialPaid' : 'Paid')),
       pickupStatus: 'WaitingPickup',
       treatRemark: paymentMethod === 'treat' ? treatRemark.trim() : '',
