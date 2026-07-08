@@ -5395,8 +5395,8 @@ export default function POS({
                   <thead>
                     <tr style={{ borderBottom: '1px solid black', textAlign: 'left' }}>
                       <th style={{ paddingBottom: '4px' }}>ລາຍການ</th>
-                      <th style={{ width: settings.receiptQtyColWidth || '22px', textAlign: 'center', paddingBottom: '4px' }}>{db.getLabel('rcpt_header_qty', 'ຈຳນວນ')}</th>
-                      <th style={{ width: settings.receiptPriceColWidth || '65px', textAlign: 'right', paddingBottom: '4px' }}>{db.getLabel('rcpt_header_price', 'ລາຄາ')}</th>
+                      <th style={{ width: settings.receiptQtyColWidth || '25px', textAlign: 'center', paddingBottom: '4px' }}>{db.getLabel('rcpt_header_qty', 'ຈຳນວນ')}</th>
+                      <th style={{ width: settings.receiptPriceColWidth || '75px', textAlign: 'right', paddingBottom: '4px' }}>{db.getLabel('rcpt_header_price', 'ລາຄາ')}</th>
                     </tr>
                   </thead>
                   <tbody>

@@ -2279,6 +2279,25 @@ this.runDataRetention();
   getSettings() {
     this.init();
     const settings = getStorage('settings', DEFAULT_SETTINGS);
+
+    // Auto-migrate old layout values to safe defaults
+    let migrated = false;
+    if (!settings.receiptQtyColWidth || settings.receiptQtyColWidth === '22px' || settings.receiptQtyColWidth === '12px') {
+      settings.receiptQtyColWidth = '25px';
+      migrated = true;
+    }
+    if (!settings.receiptPriceColWidth || settings.receiptPriceColWidth === '65px' || settings.receiptPriceColWidth === '70px') {
+      settings.receiptPriceColWidth = '75px';
+      migrated = true;
+    }
+    if (!settings.receiptPadding || settings.receiptPadding === '5mm') {
+      settings.receiptPadding = '3mm';
+      migrated = true;
+    }
+    if (migrated) {
+      setStorage('settings', settings);
+    }
+
     const labels = { ...DEFAULT_SETTINGS.labels, ...(settings.labels || {}) };
     Object.keys(labels).forEach(key => {
       if (typeof labels[key] === 'string') {
@@ -2319,17 +2338,17 @@ this.saveSettings(settings);
 },
   getPaperPrintWidths(widthSetting) {
     const mapping = {
-      '58mm': { paper: '58mm', printable: '48mm' },
-      '76mm': { paper: '76mm', printable: '63mm' },
-      '80mm': { paper: '80mm', printable: '72mm' },
-      '82mm': { paper: '82mm', printable: '76mm' },
-      '100mm': { paper: '100mm', printable: '92mm' },
-      '110mm': { paper: '110mm', printable: '100mm' },
+      '58mm': { paper: '58mm', printable: '46mm' },
+      '76mm': { paper: '76mm', printable: '60mm' },
+      '80mm': { paper: '80mm', printable: '66mm' },
+      '82mm': { paper: '82mm', printable: '70mm' },
+      '100mm': { paper: '100mm', printable: '88mm' },
+      '110mm': { paper: '110mm', printable: '94mm' },
       'A5': { paper: 'A5', printable: '140mm' },
       'A5-landscape': { paper: 'A5-landscape', printable: '200mm' },
       'A4': { paper: 'A4', printable: '200mm' }
     };
-    return mapping[widthSetting] || { paper: '80mm', printable: '72mm' };
+    return mapping[widthSetting] || { paper: '80mm', printable: '66mm' };
   },
 
 getSlots() {
