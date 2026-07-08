@@ -129,9 +129,15 @@ export default function Reports({ activeUser, isMobile }) {
 
       const filtered = orders.filter(o => o.id !== deleteTarget.id);
       db.saveOrders(filtered);
+
+      // Clean up corresponding payments to correct sales stats
+      const payments = db.getOrderPayments();
+      const filteredPayments = payments.filter(p => p.order_id !== deleteTarget.id);
+      db.saveOrderPayments(filteredPayments);
+
       db.addAuditLog(
         'success_pin',
-        `ລຶບບິນຂາຍໜ້າຮ້ານ ID: ${deleteTarget.id} (ຄືນສະຕັອກສິນຄ້າອໍໂຕ້, ອະນຸມັດໂດຍ Admin PIN)`,
+        `ລຶບບິນຂາຍໜ້າຮ້ານ ID: ${deleteTarget.id} (ຄືນສະຕັອກສິນຄ້າອໍໂຕ້, ປັບປຸງຍອດເງິນ, ອະນຸມັດໂດຍ Admin PIN)`,
         'warning'
       );
     } else if (deleteTarget.type === 'debt') {
