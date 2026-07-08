@@ -729,6 +729,17 @@ export default function POS({
           `ລົບສິນຄ້າ "${targetItem.name}" (ຈຳນວນ: ${targetItem.qty}) ອອກຈາກບັດຄິວ ${selectedSlotId} (ອະນຸມັດໂດຍ Admin PIN)`,
           'info'
         );
+
+        // If the item is a framing job, detach it from this slot to prevent auto-loading loop
+        if (targetItem.productId && targetItem.productId.startsWith('JOB')) {
+          const allJobs = db.getFramingJobs();
+          const linkedJob = allJobs.find(j => j.id === targetItem.productId);
+          if (linkedJob) {
+            linkedJob.slotId = 'Detached-' + Date.now();
+            db.updateFramingJob(linkedJob);
+            setFramingJobs(db.getFramingJobs());
+          }
+        }
       }
       
       items.splice(pendingDeleteIndex, 1);
@@ -736,6 +747,7 @@ export default function POS({
       updatedSlots[selectedSlotId].items = items;
       db.saveSlots(updatedSlots);
       setSlots(updatedSlots);
+      if (onUpdate) onUpdate();
       
       setShowAdminPinModal(false);
       setPendingDeleteIndex(-1);

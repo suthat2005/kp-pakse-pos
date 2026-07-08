@@ -307,13 +307,33 @@ export default function App() {
       }
 
       if (matchedKey) {
-        const currentVal = labels[matchedKey] || matchedDefault;
-        const newVal = prompt(`ແກ້ໄຂຂໍ້ຄວາມພາສາລາວສຳລັບ [${matchedKey}]:\n\nຄ່າເກົ່າ: "${currentVal}"\n\nປ້ອນຂໍ້ຄວາມໃໝ່ທີ່ຕ້ອງການສະແດງ:`, currentVal);
-        if (newVal !== null) {
-          const updatedLabels = { ...labels, [matchedKey]: newVal };
-          db.saveLabels(updatedLabels);
-          alert(`✓ ແກ້ໄຂຂໍ້ຄວາມສຳເລັດ! ລະບົບຈະໂຫຼດໜ້າຈໍຄືນໃໝ່ເພື່ອປັບປຸງ.`);
-          window.location.reload();
+        const currentUser = db.getActiveUser();
+        const settings = db.getSettings();
+        let isAuthorized = currentUser && (currentUser.role === 'owner' || (currentUser.permissions && currentUser.permissions.admin));
+        
+        if (!isAuthorized) {
+          const pin = prompt('🔒 ປ້ອງກັນການແກ້ໄຂ: ກະລຸນາໃສ່ລະຫັດ PIN ຂອງ Admin/ເຈົ້າຂອງຮ້ານ ເພື່ອອະນຸມັດ:');
+          if (!pin) return;
+          const users = db.getUsers();
+          const matchedOwner = users.find(u => u.role === 'owner' && u.passcode === pin);
+          const isMasterPin = pin === settings.masterAdminPin;
+          if (matchedOwner || isMasterPin) {
+            isAuthorized = true;
+          } else {
+            alert('❌ ລະຫັດ PIN ບໍ່ຖືກຕ້ອງ! ທ່ານບໍ່ມີສິດແກ້ໄຂ.');
+            return;
+          }
+        }
+
+        if (isAuthorized) {
+          const currentVal = labels[matchedKey] || matchedDefault;
+          const newVal = prompt(`ແກ້ໄຂຂໍ້ຄວາມພາສາລາວສຳລັບ [${matchedKey}]:\n\nຄ່າເກົ່າ: "${currentVal}"\n\nປ້ອນຂໍ້ຄວາມໃໝ່ທີ່ຕ້ອງການສະແດງ:`, currentVal);
+          if (newVal !== null) {
+            const updatedLabels = { ...labels, [matchedKey]: newVal };
+            db.saveLabels(updatedLabels);
+            alert(`✓ ແກ້ໄຂຂໍ້ຄວາມສຳເລັດ! ລະບົບຈະໂຫຼດໜ້າຈໍຄືນໃໝ່ເພື່ອປັບປຸງ.`);
+            window.location.reload();
+          }
         }
       }
     };
