@@ -3428,6 +3428,95 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
               )}
 
               {settings.notifyProvider !== 'none' && (
+                <div className="glass-card" style={{ padding: '20px', background: 'rgba(255,255,255,0.01)', borderLeft: '4px solid var(--gold-primary)', marginTop: '16px', marginBottom: '16px', width: '100%' }}>
+                  <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.92rem', marginBottom: '12px', marginTop: 0 }}>⚙️ ເລືອກຫົວຂໍ້ການແຈ້ງເຕືອນ (Notification Toggle Rules)</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+                    
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.82rem', color: 'var(--text-primary)' }}>
+                      <input
+                        type="checkbox"
+                        checked={settings.notifyNewSale !== false}
+                        onChange={(e) => setSettings({ ...settings, notifyNewSale: e.target.checked })}
+                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: 'var(--gold-primary)' }}
+                      />
+                      🏪 ຍອດຂາຍໜ້າຮ້ານ (POS Sales)
+                    </label>
+
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.82rem', color: 'var(--text-primary)' }}>
+                      <input
+                        type="checkbox"
+                        checked={settings.notifyDeposit !== false}
+                        onChange={(e) => setSettings({ ...settings, notifyDeposit: e.target.checked })}
+                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: 'var(--gold-primary)' }}
+                      />
+                      📥 ຮັບເງິນມັດຈຳ (Deposit Payments)
+                    </label>
+
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.82rem', color: 'var(--text-primary)' }}>
+                      <input
+                        type="checkbox"
+                        checked={settings.notifyNewJob !== false}
+                        onChange={(e) => setSettings({ ...settings, notifyNewJob: e.target.checked })}
+                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: 'var(--gold-primary)' }}
+                      />
+                      🛠️ ງານອັດກອບໃໝ່ (New Framing Jobs)
+                    </label>
+
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.82rem', color: 'var(--text-primary)' }}>
+                      <input
+                        type="checkbox"
+                        checked={settings.notifyJobStatus !== false}
+                        onChange={(e) => setSettings({ ...settings, notifyJobStatus: e.target.checked })}
+                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: 'var(--gold-primary)' }}
+                      />
+                      🔄 ອັບເດດສະຖານະງານ (Job Status)
+                    </label>
+
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.82rem', color: 'var(--text-primary)' }}>
+                      <input
+                        type="checkbox"
+                        checked={settings.notifyDebt !== false}
+                        onChange={(e) => setSettings({ ...settings, notifyDebt: e.target.checked })}
+                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: 'var(--gold-primary)' }}
+                      />
+                      📒 ບັນຊີຕິດໜີ້ (Debt Records/Payments)
+                    </label>
+
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.82rem', color: 'var(--text-primary)' }}>
+                      <input
+                        type="checkbox"
+                        checked={settings.notifyExpense !== false}
+                        onChange={(e) => setSettings({ ...settings, notifyExpense: e.target.checked })}
+                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: 'var(--gold-primary)' }}
+                      />
+                      💸 ບັນທຶກລາຍຈ່າຍ (Expenses)
+                    </label>
+
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.82rem', color: 'var(--text-primary)' }}>
+                      <input
+                        type="checkbox"
+                        checked={settings.notifyClockInOut !== false}
+                        onChange={(e) => setSettings({ ...settings, notifyClockInOut: e.target.checked })}
+                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: 'var(--gold-primary)' }}
+                      />
+                      🕒 ພະນັກງານເຂົ້າ-ອອກງານ (Clock In/Out)
+                    </label>
+
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.82rem', color: 'var(--text-primary)' }}>
+                      <input
+                        type="checkbox"
+                        checked={settings.notifyLowStock !== false}
+                        onChange={(e) => setSettings({ ...settings, notifyLowStock: e.target.checked })}
+                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: 'var(--gold-primary)' }}
+                      />
+                      ⚠️ ສິນຄ້າໃກ້ໝົດສະຕັອກ (Low Stock Warnings)
+                    </label>
+
+                  </div>
+                </div>
+              )}
+
+              {settings.notifyProvider !== 'none' && (
                 <div style={{ display: 'flex', gap: '10px', alignSelf: 'flex-end', marginTop: '10px' }}>
                   <button
                     type="button"
