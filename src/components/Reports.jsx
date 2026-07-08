@@ -1377,7 +1377,7 @@ export default function Reports({ activeUser, isMobile }) {
       {/* Analytics Summary Row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
         
-        {/* Card 1: Product Sales */}
+        {/* 1. Product Sales */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🛍️ ມູນຄ່າຂາຍສິນຄ້າ (Product Sales)</span>
           <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#3498db' }}>
@@ -1386,16 +1386,38 @@ export default function Reports({ activeUser, isMobile }) {
           <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ຍອດຂາຍສິນຄ້າທົ່ວໄປ</span>
         </div>
 
-        {/* Card 2: Framing Sales */}
+        {/* 2. Framing Sales */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🛠️ ມູນຄ່າງານອັດກອບ (Framing Sales)</span>
           <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--accent-amber)' }}>
             {hasReportsPermission('reportsRevenue') ? Math.round(posJobsValue).toLocaleString() + " ກີບ" : "*** ກີບ"}
           </span>
-          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ຍອດຂາຍສະເພາະງານອັດກອບ</span>
+          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ຍອດຂາຍສະເພາะງານອັດກອບ</span>
         </div>
 
-        {/* Card 3: Total Revenue */}
+        {/* 3. Total Bills */}
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🛒 ຈຳນວນໃບບິນຂາຍ (Total Bills)</span>
+          <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'white' }}>
+            {rangeOrders.length} ບິນ
+          </span>
+          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>
+            ສະເລ່ຍ: {rangeOrders.length > 0 ? Math.round(totalSales / rangeOrders.length).toLocaleString() : 0} ₭/ບິນ
+          </span>
+        </div>
+
+        {/* 4. Outstanding Debt */}
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📒 ມູນຄ່າໜີ້ຄ້າງຊຳລະທັງໝົດ (Outstanding Debt)</span>
+          <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--alert-red)' }}>
+            {totalOutstandingDebt.toLocaleString()} ກີບ
+          </span>
+          <span style={{ fontSize: '0.65rem', color: 'var(--alert-red)', fontWeight: '500' }}>
+            ມີລູກຄ້າຄ້າງຊຳລະ: {totalDebtors} ລາຍ
+          </span>
+        </div>
+
+        {/* 5. Revenue (Combined POS Sales / Total Revenue) */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💵 ຍອດຂາຍທັງໝົດ (Revenue)</span>
           <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
@@ -1447,45 +1469,23 @@ export default function Reports({ activeUser, isMobile }) {
 
           </div>
         </div>
-        
-        {/* Card 4: Orders count */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🛒 ຈຳນວນໃບບິນຂາຍ</span>
-          <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'white' }}>
-            {rangeOrders.length} ບິນ
-          </span>
-          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>
-            ສະເລ່ຍ: {rangeOrders.length > 0 ? Math.round(totalSales / rangeOrders.length).toLocaleString() : 0} ₭/ບິນ
-          </span>
-        </div>
 
-        {/* Card 5: Outstanding Debt Ledger */}
+        {/* 6. Total Expenses */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📒 ມູນຄ່າໜີ້ຄ້າງຊຳລະທັງໝົດ</span>
-          <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--alert-red)' }}>
-            {totalOutstandingDebt.toLocaleString()} ກີບ
-          </span>
-          <span style={{ fontSize: '0.65rem', color: 'var(--alert-red)', fontWeight: '500' }}>
-            ມີລູກຄ້າຄ້າງຊຳລະ: {totalDebtors} ລາຍ
-          </span>
-        </div>
-
-        {/* Card 6: Expenses (Second-to-last) */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💸 ລາຍຈ່າຍທັງໝົດ</span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💸 ລາຍຈ່າຍທັງໝົດ (Total Expenses)</span>
           <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#e74c3c' }}>
             {totalExpenses.toLocaleString()} ກີບ
           </span>
           <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ລາຍຈ່າຍໃນໄລຍະເວລາທີ່ເລືອກ</span>
         </div>
 
-        {/* Card 7: Estimated Profit (Absolute Last) */}
+        {/* 7. Estimated Profit (Absolute Last) */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📈 ກຳໄລສຸດທິ (Est. Profit)</span>
           <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--success-green)' }}>
             {hasReportsPermission('reportsProfit') ? Math.round(netProfit).toLocaleString() + " ກີບ" : "*** ກີບ"}
           </span>
-          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>*ຫັກຕົ້ນທຶນ ແລະ ຄ່າໃຊ້ຈ่ายແລ້ວ</span>
+          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>*ຫັກຕົ້ນທຶນ ແລະ ຄ່າໃຊ້ຈ່າຍແລ້ວ</span>
         </div>
       </div>
 
