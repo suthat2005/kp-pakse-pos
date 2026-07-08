@@ -55,16 +55,30 @@ export default function Reports({ activeUser, isMobile }) {
 
   // Load database items on start and when database events fire
   const loadData = () => {
-    setAllOrders(db.getOrders());
-    setAllDebts(db.getDebts());
-    setAllJobs(db.getFramingJobs());
+    const orders = db.getOrders();
+    const debts = db.getDebts();
+    const onlineOrders = typeof db.getOnlineOrders === 'function' ? db.getOnlineOrders() : [];
+    const jobs = db.getFramingJobs();
+    
+    // Filter out jobs that are picked_up/completed but their associated bill does not exist
+    const activeJobs = jobs.filter(j => {
+      if (j.status === 'picked_up') {
+        const inPOS = orders.some(o => o.items.some(item => item.productId === j.id));
+        const inDebt = debts.some(d => d.items.some(item => item.productId === j.id));
+        const inOnline = onlineOrders.some(o => o.items.some(item => item.productId === j.id));
+        return inPOS || inDebt || inOnline;
+      }
+      return true; // keep pending/ready jobs in queue
+    });
+
+    setAllOrders(orders);
+    setAllDebts(debts);
+    setAllJobs(activeJobs);
     setAllExpenses(db.getExpenses());
     setAllProducts(db.getProducts());
     setCategories(db.getCategories());
     setSettings(db.getSettings());
-    if (typeof db.getOnlineOrders === 'function') {
-      setAllOnlineOrders(db.getOnlineOrders());
-    }
+    setAllOnlineOrders(onlineOrders);
   };
 
   useEffect(() => {
@@ -135,6 +149,16 @@ export default function Reports({ activeUser, isMobile }) {
       const filteredPayments = payments.filter(p => p.order_id !== deleteTarget.id);
       db.saveOrderPayments(filteredPayments);
 
+      // Clean up corresponding framing jobs if any
+      if (order) {
+        const jobs = db.getFramingJobs();
+        const jobIds = new Set(order.items.filter(i => i.productId && i.productId.startsWith('JOB')).map(i => i.productId));
+        if (jobIds.size > 0) {
+          const filteredJobs = jobs.filter(j => !jobIds.has(j.id));
+          db.saveFramingJobs(filteredJobs);
+        }
+      }
+
       db.addAuditLog(
         'success_pin',
         `ລຶບບິນຂາຍໜ້າຮ້ານ ID: ${deleteTarget.id} (ຄືນສະຕັອກສິນຄ້າອໍໂຕ້, ປັບປຸງຍອດເງິນ, ອະນຸມັດໂດຍ Admin PIN)`,
@@ -162,6 +186,17 @@ export default function Reports({ activeUser, isMobile }) {
 
       const filtered = debts.filter(d => d.id !== deleteTarget.id);
       db.saveDebts(filtered);
+
+      // Clean up corresponding framing jobs if any
+      if (debt) {
+        const jobs = db.getFramingJobs();
+        const jobIds = new Set(debt.items.filter(i => i.productId && i.productId.startsWith('JOB')).map(i => i.productId));
+        if (jobIds.size > 0) {
+          const filteredJobs = jobs.filter(j => !jobIds.has(j.id));
+          db.saveFramingJobs(filteredJobs);
+        }
+      }
+
       db.addAuditLog(
         'success_pin',
         `ລຶບບິນຕິດໜີ້ ID: ${deleteTarget.id} (ຄືນສະຕັອກສິນຄ້າອໍໂຕ້, ອະນຸມັດໂດຍ Admin PIN)`,
@@ -189,6 +224,17 @@ export default function Reports({ activeUser, isMobile }) {
 
       const filtered = online.filter(o => o.id !== deleteTarget.id);
       db.saveOnlineOrders(filtered);
+
+      // Clean up corresponding framing jobs if any
+      if (order) {
+        const jobs = db.getFramingJobs();
+        const jobIds = new Set(order.items.filter(i => i.productId && i.productId.startsWith('JOB')).map(i => i.productId));
+        if (jobIds.size > 0) {
+          const filteredJobs = jobs.filter(j => !jobIds.has(j.id));
+          db.saveFramingJobs(filteredJobs);
+        }
+      }
+
       db.addAuditLog(
         'success_pin',
         `ລຶບບິນຂາຍອອນລາຍ ID: ${deleteTarget.id} (ຄືນສະຕັອກສິນຄ້າອໍໂຕ້, ອະນຸມັດໂດຍ Admin PIN)`,
