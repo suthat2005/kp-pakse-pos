@@ -47,6 +47,12 @@ export default function Reports({ activeUser, isMobile }) {
   const [selectedReceipt, setSelectedReceipt] = useState(null);
   const [showReprintModal, setShowReprintModal] = useState(false);
 
+  // Delete Bill PIN Modal States
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null); // { type: 'pos' | 'debt' | 'online', id: string, label: string }
+  const [deletePin, setDeletePin] = useState('');
+  const [deleteError, setDeleteError] = useState('');
+
   // Load database items on start and when database events fire
   const loadData = () => {
     setAllOrders(db.getOrders());
@@ -80,6 +86,60 @@ export default function Reports({ activeUser, isMobile }) {
 
   const executePrint = () => {
     window.print();
+  };
+
+  const handleRequestDelete = (type, id, label) => {
+    setDeleteTarget({ type, id, label });
+    setDeletePin('');
+    setDeleteError('');
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = (e) => {
+    e.preventDefault();
+    const users = db.getUsers();
+    const currentSettings = db.getSettings();
+    const matchedOwner = users.find(u => u.role === 'owner' && u.passcode === deletePin);
+    const isMasterPin = deletePin === currentSettings.masterAdminPin;
+
+    if (!matchedOwner && !isMasterPin) {
+      setDeleteError('🔒 ລະຫັດ PIN ບໍ່ຖືກຕ້ອງ! ບໍ່ມີສິດລຶບ.');
+      return;
+    }
+
+    if (deleteTarget.type === 'pos') {
+      const orders = db.getOrders();
+      const filtered = orders.filter(o => o.id !== deleteTarget.id);
+      db.saveOrders(filtered);
+      db.addAuditLog(
+        'success_pin',
+        `ລຶບບິນຂາຍໜ້າຮ້ານ ID: ${deleteTarget.id} (ອະນຸມັດໂດຍ Admin PIN)`,
+        'warning'
+      );
+    } else if (deleteTarget.type === 'debt') {
+      const debts = db.getDebts();
+      const filtered = debts.filter(d => d.id !== deleteTarget.id);
+      db.saveDebts(filtered);
+      db.addAuditLog(
+        'success_pin',
+        `ລຶບບິນຕິດໜີ້ ID: ${deleteTarget.id} (ອະນຸມັດໂດຍ Admin PIN)`,
+        'warning'
+      );
+    } else if (deleteTarget.type === 'online') {
+      const online = db.getOnlineOrders();
+      const filtered = online.filter(o => o.id !== deleteTarget.id);
+      db.saveOnlineOrders(filtered);
+      db.addAuditLog(
+        'success_pin',
+        `ລຶບບິນຂາຍອອນລາຍ ID: ${deleteTarget.id} (ອະນຸມັດໂດຍ Admin PIN)`,
+        'warning'
+      );
+    }
+
+    alert('✓ ລຶບໃບບິນສຳເລັດ!');
+    setShowDeleteModal(false);
+    setDeleteTarget(null);
+    loadData();
   };
 
   // Preset setter
@@ -1427,13 +1487,20 @@ export default function Reports({ activeUser, isMobile }) {
                           {order.paymentMethod === 'cash' ? '💵 ເງິນສົດ' : order.paymentMethod === 'split' ? '🔀 ເງິນສົດ + ໂອນ' : order.paymentMethod === 'treat' ? '🎁 ລ້ຽງແຂກ (Treat)' : '📱 ໂອນທະນາຄານ'}
                         </span>
                       </td>
-                      <td style={{ padding: '12px', textAlign: 'center' }}>
+                      <td style={{ padding: '12px', textAlign: 'center', display: 'flex', gap: '6px', justifyContent: 'center', alignItems: 'center' }}>
                         <button
                           className="btn btn-secondary"
                           style={{ padding: '3px 8px', fontSize: '0.75rem' }}
                           onClick={() => handleReprint(order)}
                         >
-                          🖨️ ເປີດເບິ່ງ/ປຣິນ
+                          🖨️ ເປີດເບິ່ງ
+                        </button>
+                        <button
+                          className="btn btn-danger"
+                          style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231, 76, 60, 0.2)', border: '1px solid rgba(231, 76, 60, 0.4)', color: '#e74c3c' }}
+                          onClick={() => handleRequestDelete('pos', order.id, order.paymentMethod === 'treat' ? 'ລ້ຽງແຂກ' : 'ຂາຍໜ້າຮ້ານ')}
+                        >
+                          🗑️ ລຶບ
                         </button>
                       </td>
                     </tr>
@@ -1482,7 +1549,16 @@ export default function Reports({ activeUser, isMobile }) {
                         >
                           {debt.status === 'unpaid' ? '🔴 ຕິດໜີ້ຄ້າງຊຳລະ' : '🟢 ຊຳລະໜີ້ແລ້ວ'}
                         </span>
-                        <span style={{ fontWeight: 'bold', color: 'var(--alert-red)' }}>{debt.total.toLocaleString()} ₭</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontWeight: 'bold', color: 'var(--alert-red)' }}>{debt.total.toLocaleString()} ₭</span>
+                          <button
+                            className="btn btn-danger"
+                            style={{ padding: '2px 6px', fontSize: '0.7rem', background: 'rgba(231, 76, 60, 0.2)', border: '1px solid rgba(231, 76, 60, 0.4)', color: '#e74c3c' }}
+                            onClick={() => handleRequestDelete('debt', debt.id, 'ຕິດໜີ້')}
+                          >
+                            🗑️
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))
@@ -1499,6 +1575,7 @@ export default function Reports({ activeUser, isMobile }) {
                     <th style={{ padding: '12px' }}>ລາຍການສິນຄ້າ</th>
                     <th style={{ padding: '12px', textAlign: 'right' }}>ຍົດຕິດໜີ້</th>
                     <th style={{ padding: '12px', textAlign: 'center' }}>ສະຖານະ</th>
+                    <th style={{ padding: '12px', textAlign: 'center' }}>ຈັດການ</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1545,6 +1622,15 @@ export default function Reports({ activeUser, isMobile }) {
                           >
                             {debt.status === 'unpaid' ? '🔴 ຕິດໜີ້ຄ້າງຊຳລະ' : '🟢 ຊຳລະໜີ້ແລ້ວ'}
                           </span>
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                          <button
+                            className="btn btn-danger"
+                            style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231, 76, 60, 0.2)', border: '1px solid rgba(231, 76, 60, 0.4)', color: '#e74c3c' }}
+                            onClick={() => handleRequestDelete('debt', debt.id, 'ຕິດໜີ້')}
+                          >
+                            🗑️ ລຶບ
+                          </button>
                         </td>
                       </tr>
                     ))
@@ -1730,13 +1816,20 @@ export default function Reports({ activeUser, isMobile }) {
                             {o.shippingStatus === 'delivered' ? '🏠 ສົ່ງຮອດແລ້ວ' : o.shippingStatus === 'shipped' ? '🚚 ກຳລັງສົ່ງ' : o.shippingStatus === 'packing' ? '📦 ກຳລັງແພັກ' : '🕐 ລໍຖ້າ'}
                           </span>
                         </td>
-                        <td style={{ padding: '10px', textAlign: 'center' }}>
+                        <td style={{ padding: '10px', textAlign: 'center', display: 'flex', gap: '6px', justifyContent: 'center', alignItems: 'center' }}>
                           <button
                             className="btn btn-secondary"
                             style={{ padding: '3px 8px', fontSize: '0.72rem' }}
                             onClick={() => handleReprint(o)}
                           >
-                            🖨️ ເປີດເບິ່ງ/ປຣິນ
+                            🖨️ ເປີດເບິ່ງ
+                          </button>
+                          <button
+                            className="btn btn-danger"
+                            style={{ padding: '3px 8px', fontSize: '0.72rem', background: 'rgba(231, 76, 60, 0.2)', border: '1px solid rgba(231, 76, 60, 0.4)', color: '#e74c3c' }}
+                            onClick={() => handleRequestDelete('online', o.id, 'ຂາຍອອນລາຍ')}
+                          >
+                            🗑️ ລຶບ
                           </button>
                         </td>
                       </tr>
@@ -1935,7 +2028,66 @@ export default function Reports({ activeUser, isMobile }) {
 
       {/* ─── Invoice Reprint Modal (shared, always rendered) ─────────────────── */}
       {/* Invoice Reprint / Lookup Detail Modal */}
-      {showReprintModal && selectedReceipt && (
+
+      {/* ─── Delete Confirmation PIN Modal ─────────────────── */}
+      {showDeleteModal && deleteTarget && (
+        <Portal>
+          <div className="modal-overlay" style={{ zIndex: 1100 }}>
+            <div className="modal-content animate-fade-in" style={{ maxWidth: '360px', padding: '24px' }}>
+              <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                <span style={{ fontSize: '2.5rem' }}>🔒</span>
+                <h3 style={{ color: 'var(--gold-primary)', margin: '10px 0 6px 0', fontSize: '1.1rem' }}>ຢືນຢັນການລຶບໃບບິນ</h3>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
+                  ກະລຸນາໃສ່ລະຫັດ Admin PIN ເພື່ອລຶບໃບບິນ <b>{deleteTarget.id}</b> ({deleteTarget.label})
+                </p>
+              </div>
+
+              <form onSubmit={handleConfirmDelete} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div className="form-group">
+                  <input
+                    type="password"
+                    className="form-control text-center"
+                    placeholder="ໃສ່ລະຫັດ PIN"
+                    value={deletePin}
+                    onChange={(e) => setDeletePin(e.target.value)}
+                    autoFocus
+                    required
+                    style={{ fontSize: '1.25rem', letterSpacing: '6px', background: 'rgba(255,255,255,0.05)', borderColor: 'var(--gold-primary)', color: 'white' }}
+                  />
+                </div>
+
+                {deleteError && (
+                  <div style={{ color: 'var(--alert-red)', fontSize: '0.78rem', textAlign: 'center' }}>
+                    {deleteError}
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    style={{ flex: 1 }}
+                    onClick={() => {
+                      setShowDeleteModal(false);
+                      setDeleteTarget(null);
+                    }}
+                  >
+                    ຍົກເລີກ
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-danger"
+                    style={{ flex: 1, background: '#e74c3c', color: 'white', border: 'none' }}
+                  >
+                    🗑️ ຢືນຢັນລຶບ
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </Portal>
+      )}
+        {showReprintModal && selectedReceipt && (
         <Portal>
         <div className="modal-overlay print-modal">
           <div className="modal-content animate-fade-in" style={{ maxWidth: '400px' }}>
@@ -2170,13 +2322,20 @@ export default function Reports({ activeUser, isMobile }) {
                           </td>
                           <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>{order.total.toLocaleString()} ₭</td>
                           <td style={{ padding: '12px', color: '#e67e22', fontStyle: 'italic' }}>{order.treatRemark || 'ບໍ່ມີໝາຍເຫດ'}</td>
-                          <td style={{ padding: '12px', textAlign: 'center' }}>
+                          <td style={{ padding: '12px', textAlign: 'center', display: 'flex', gap: '6px', justifyContent: 'center', alignItems: 'center' }}>
                             <button
                               className="btn btn-secondary"
                               style={{ padding: '3px 8px', fontSize: '0.75rem' }}
                               onClick={() => handleReprint(order)}
                             >
                               🖨️ ເປີດເບິ່ງ
+                            </button>
+                            <button
+                              className="btn btn-danger"
+                              style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231, 76, 60, 0.2)', border: '1px solid rgba(231, 76, 60, 0.4)', color: '#e74c3c' }}
+                              onClick={() => handleRequestDelete('pos', order.id, 'ລ້ຽງແຂກ')}
+                            >
+                              🗑️ ລຶບ
                             </button>
                           </td>
                         </tr>
