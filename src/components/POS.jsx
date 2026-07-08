@@ -5446,7 +5446,17 @@ export default function POS({
                   });
 
                   const isDraft = currentReceipt.paymentMethod === 'draft';
-                  
+                  const discVal = currentReceipt.discount || 0;
+                  const depVal = hasJob
+                    ? (isDraft ? (currentReceipt.depositAmount || totalJobDeposit || 0) : totalJobDeposit)
+                    : (currentReceipt.depositAmount || 0);
+
+                  const remainingBalanceFinal = hasJob
+                    ? (isDraft 
+                        ? Math.max(0, totalJobPrice - discVal - depVal)
+                        : Math.max(0, currentReceipt.remainingAmount !== undefined ? currentReceipt.remainingAmount : (totalJobPrice - discVal - depVal - (currentReceipt.paidAmount || currentReceipt.total))))
+                    : (currentReceipt.remainingAmount !== undefined ? currentReceipt.remainingAmount : Math.max(0, currentReceipt.total - depVal));
+
                   // Fallback to standard layout if no job item exists in the receipt
                   if (!hasJob) {
                     return (
@@ -5469,19 +5479,24 @@ export default function POS({
                             <span>{currentReceipt.total.toLocaleString()} ກີບ</span>
                           </div>
                         )}
+                        {settings.receiptShowDeposit !== false && depVal > 0 && (
+                          <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: 'green' }}>
+                            <span>{isDraft ? 'ມັດຈຳ / Deposit:' : 'ຫັກມັດຈຳ / Deposit Offset:'}</span>
+                            <span>-{depVal.toLocaleString()} ກີບ</span>
+                          </div>
+                        )}
+                        {settings.receiptShowDeposit !== false && remainingBalanceFinal > 0 && (
+                          <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: '#e74c3c', fontStyle: 'italic', fontWeight: 'bold' }}>
+                            <span>ຄ້າງຊຳລະ / Balance:</span>
+                            <span>{remainingBalanceFinal.toLocaleString()} ກີບ</span>
+                          </div>
+                        )}
                       </div>
                     );
                   }
 
-                  const discVal = currentReceipt.discount || 0;
-                  const depVal = isDraft ? (currentReceipt.depositAmount || totalJobDeposit || 0) : totalJobDeposit;
                   const printedSubtotal = totalJobPrice;
-                  
                   const printedTotal = printedSubtotal - discVal;
-
-                  const remainingBalanceFinal = isDraft 
-                    ? Math.max(0, printedSubtotal - discVal - depVal)
-                    : Math.max(0, currentReceipt.remainingAmount !== undefined ? currentReceipt.remainingAmount : (printedSubtotal - discVal - depVal - (currentReceipt.paidAmount || currentReceipt.total)));
 
                   return (
                     <div style={{ marginTop: '6px' }}>
