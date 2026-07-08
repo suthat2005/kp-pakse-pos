@@ -1188,8 +1188,8 @@ export default function Reports({ activeUser, isMobile }) {
         {[
           { id: 'pos',      icon: '🏪', label: 'ໜ້າຮ້ານ POS' },
           { id: 'online',   icon: '🌐', label: 'ອອນລາຍ Shop' },
-          { id: 'overview', icon: '📊', label: 'ພາບລວມທຸລະກິດ' },
           { id: 'treats',   icon: '🎁', label: 'ລາຍການລ້ຽງແຂກ (Treats)' },
+          { id: 'overview', icon: '📊', label: 'ພາບລວມທຸລະກິດ' },
         ].map(tab => (
           <button
             key={tab.id}
@@ -1924,6 +1924,15 @@ export default function Reports({ activeUser, isMobile }) {
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📒 ໜີ້ຄ້າງຊຳລະ</span>
               <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#e67e22' }}>{totalOutstandingDebt.toLocaleString()} ₭</span>
               <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>{totalDebtors} ລາຍ ທີ່ຍັງຄ້າງ</span>
+            </div>
+            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #f39c12' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🎁 ລາຍການລ້ຽງແຂກ (Treats)</span>
+              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#f39c12' }}>
+                {rangeOrders.filter(o => o.paymentMethod === 'treat').length} ຄັ້ງ
+              </span>
+              <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>
+                ມູນຄ່າ: {rangeOrders.filter(o => o.paymentMethod === 'treat').reduce((s, o) => s + (o.total || 0), 0).toLocaleString()} ₭
+              </span>
             </div>
           </div>
 
