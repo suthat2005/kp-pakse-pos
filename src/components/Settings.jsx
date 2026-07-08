@@ -3440,6 +3440,16 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.82rem', color: 'var(--text-primary)' }}>
                       <input
                         type="checkbox"
+                        checked={settings.notifyBalancePayment !== false}
+                        onChange={(e) => setSettings({ ...settings, notifyBalancePayment: e.target.checked })}
+                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: 'var(--gold-primary)' }}
+                      />
+                      💵 ຮັບເງີນສຳລະ (Final Payments)
+                    </label>
+
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.82rem', color: 'var(--text-primary)' }}>
+                      <input
+                        type="checkbox"
                         checked={settings.notifyNewJob !== false}
                         onChange={(e) => setSettings({ ...settings, notifyNewJob: e.target.checked })}
                         style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: 'var(--gold-primary)' }}

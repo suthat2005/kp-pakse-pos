@@ -2383,9 +2383,10 @@
         "border-color": "#1a2636"
       },
       "notifyOnlineOrder": true,
-      "notifyOnlineOrderUpdate": true
+      "notifyOnlineOrderUpdate": true,
+      "notifyBalancePayment": true
     },
-    "updatedAt": 1783551678977
+    "updatedAt": 1783552139073
   },
   "expenses": {
     "data": [],

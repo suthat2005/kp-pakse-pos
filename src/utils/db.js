@@ -198,6 +198,7 @@ const DEFAULT_SETTINGS = {
   notifyLowStock: true,
   notifyOnlineOrder: true,
   notifyOnlineOrderUpdate: true,
+  notifyBalancePayment: true,
   notifyNewSale: true,
   notifyDeposit: true,
   notifyNewJob: true,
@@ -3526,7 +3527,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       let shouldNotify = false;
       if (isSale && settings.notifyNewSale !== false) shouldNotify = true;
       if (isDeposit && settings.notifyDeposit !== false) shouldNotify = true;
-      if (isBalance && settings.notifyNewSale !== false) shouldNotify = true;
+      if (isBalance && settings.notifyBalancePayment !== false) shouldNotify = true;
 
       if (shouldNotify) {
         const itemsStr = order.items.map(item => `• ${item.name} x ${item.qty}`).join('\n');
