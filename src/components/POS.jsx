@@ -2523,8 +2523,8 @@ export default function POS({
             .modal-overlay.print-modal .modal-content {
               position: static !important;
               display: block !important;
-              width: 72mm !important;
-              max-width: 72mm !important;
+              width: ${settings.receiptPaperWidth || '80mm'} !important;
+              max-width: ${settings.receiptPaperWidth || '80mm'} !important;
               background: white !important;
               box-shadow: none !important;
               border: none !important;
@@ -2557,8 +2557,8 @@ export default function POS({
               break-before: avoid !important;
             }
             .print-receipt-container {
-              width: 72mm !important;
-              max-width: 72mm !important;
+              width: ${settings.receiptPaperWidth || '80mm'} !important;
+              max-width: ${settings.receiptPaperWidth || '80mm'} !important;
               font-size: ${settings.receiptFontSize || '10pt'} !important;
               font-family: 'Phetsarath OT', 'Noto Sans Lao', Arial, sans-serif !important;
               color: #000 !important;
@@ -2590,7 +2590,7 @@ export default function POS({
               font-weight: 800 !important;
             }
             .print-receipt-divider {
-              border-top: 2px solid #000 !important;
+              border-top: ${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} #000 !important;
               margin: 8px 0 !important;
               height: 0 !important;
             }

@@ -2653,8 +2653,30 @@
     "updatedAt": 1782828113494
   },
   "customers": {
-    "data": [],
-    "updatedAt": 1782828113494
+    "data": [
+      {
+        "id": "CUST10001",
+        "name": "sang",
+        "phone": "02023304555",
+        "discountType": "percent",
+        "discountValue": 2,
+        "tier": "Bronze",
+        "createdDate": "2026-06-30T19:26:09.795Z",
+        "totalSpend": 147000
+      },
+      {
+        "id": "CUST10002",
+        "name": "ທດຫກ",
+        "phone": "owner@gmail.com",
+        "discountType": "percent",
+        "discountValue": 2,
+        "tier": "Bronze",
+        "createdDate": "2026-06-30T21:39:53.007Z",
+        "password": "owner123",
+        "totalSpend": 117600
+      }
+    ],
+    "updatedAt": 1782929324841
   },
   "otp_logs": {
     "data": [],

@@ -322,7 +322,7 @@ export default function Reports({ activeUser, isMobile }) {
             .logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-bottom: 6px; }
             .title { font-size: calc(${fontSize} + 2pt); font-weight: bold; }
             .subtitle { font-size: calc(${fontSize} - 1.5pt); color: #555; }
-            .divider { border-bottom: 1px dashed black; margin: 8px 0; }
+            .divider { border-bottom: ${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} black; margin: 8px 0; }
             .totals { display: flex; justify-content: space-between; font-weight: bold; margin-top: 4px; }
             .section-title { font-weight: bold; margin-top: 10px; border-bottom: 0.5px solid black; padding-bottom: 2px; }
           </style>

@@ -1582,22 +1582,22 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     <h4 style={{ color: 'white', fontSize: '0.9rem', marginBottom: '12px' }}>⚙️ ເລືອກສະແດງຂໍ້ມູນຕ່າງໆໃນໃບບິນ (Receipt Sections Visibility)</h4>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                       {[
-                        { id: 'receiptShowLogo', label: 'ສະແດງ ໂລໂກ້ໃບບິນ' },
-                        { id: 'receiptShowHeader', label: 'ສະແດງ ຊື່ຮ້ານຄ້າຫົວບິນ' },
-                        { id: 'receiptShowContactInfo', label: 'ສະແດງ ທີ່ຢູ່ ແລະ ເບີໂທຕິດຕໍ່' },
-                        { id: 'receiptShowBillId', label: 'ສະແດງ ເለກບິນ (Bill ID)' },
-                        { id: 'receiptShowDate', label: 'ສະແດง ວັນທີ ແລະ ເວລາ' },
-                        { id: 'receiptShowCashier', label: 'ສະແດງ ຊື່ພະນັກງານຂາຍ' },
-                        { id: 'receiptShowPaymentMethod', label: 'ສະແດງ ວິທີການຊຳລະເງິນ' },
-                        { id: 'receiptShowCustomer', label: 'ສະແດງ ຊື່ ແລະ ເບີໂທລູກຄ້າ' },
-                        { id: 'receiptShowSubtotal', label: 'ສະແດງ ຍອດລວມກ່ອນສ່ວນຫຼຸດ' },
-                        { id: 'receiptShowDiscount', label: 'ສະແດງ ຍອດສ່ວນຫຼຸດ' },
-                        { id: 'receiptShowTotal', label: 'ສະແດງ ຍອດຊຳລະສຸດທິ' },
-                        { id: 'receiptShowChange', label: 'ສະແດງ ຍອດເງິນສົດຮັບມາ ແລະ ເງິນທອນ' },
-                        { id: 'receiptShowEquivalent', label: 'ສະແດງ ຍອດປຽບທຽບສະກຸນເງິນອື່ນ (THB/USD)' },
+                        { id: 'receiptShowLogo', label: 'ສະແດງໂລໂກ້ໃນໃບບິນ' },
+                        { id: 'receiptShowHeader', label: 'ສະແດງຊື່ຮ້ານຄ້າຫົວໃບບິນ' },
+                        { id: 'receiptShowContactInfo', label: 'ສະແດງທີ່ຢູ່ ແລະ ເບີໂທຕິດຕໍ່' },
+                        { id: 'receiptShowBillId', label: 'ສະແດງເລກບິນ (Bill ID)' },
+                        { id: 'receiptShowDate', label: 'ສະແດງວັນທີ ແລະ ເວລາ' },
+                        { id: 'receiptShowCashier', label: 'ສະແດງຊື່ພະນັກງານຂາຍ' },
+                        { id: 'receiptShowPaymentMethod', label: 'ສະແດງວິທີການຊຳລະເງິນ' },
+                        { id: 'receiptShowCustomer', label: 'ສະແດງຊື່ ແລະ ເບີໂທລູກຄ້າ' },
+                        { id: 'receiptShowSubtotal', label: 'ສະແດງຍອດລວມກ່ອນສ່ວນຫຼຸດ' },
+                        { id: 'receiptShowDiscount', label: 'ສະແດງຍອດສ່ວນຫຼຸດ' },
+                        { id: 'receiptShowTotal', label: 'ສະແດງຍອດຊຳລະສຸດທິ' },
+                        { id: 'receiptShowChange', label: 'ສະແດງຍອດເງິນສົດຮັບມາ ແລະ ເງິນທອນ' },
+                        { id: 'receiptShowEquivalent', label: 'ສະແດງຍອດປຽບທຽບສະກຸນເງິນອື່ນ (THB/USD)' },
                         { id: 'showQrOnReceipt', label: 'ສະແດງ BCEL QR Code ຮັບເງິນ' },
-                        { id: 'receiptShowSignatures', label: 'ສະແດງ ບ່ອນເຊັນຜູ້ຈ່າຍ & ຜູ້ຮັບເງິນ' },
-                        { id: 'receiptShowFooter', label: 'ສະແດງ ຂໍ້ຄວາມຂອບໃຈທ້າຍໃບບິນ' },
+                        { id: 'receiptShowSignatures', label: 'ສະແດງບ່ອນເຊັນຜູ້ຈ່າຍ ແລະ ຜູ້ຮັບເງິນ' },
+                        { id: 'receiptShowFooter', label: 'ສະແດງຂໍ້ຄວາມຂອບໃຈທ້າຍໃບບິນ' },
                         { id: 'receiptShowTrackingQr', label: 'ສະແດງ QR Code ຕິດຕາມສະຖານະພຣະ (Amulet Tracking)' }
                       ].map(item => (
                         <label key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
@@ -1854,6 +1854,18 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           <div style={{ display: 'flex', justifyContent: 'center', marginTop: '6px' }}>
                             <div style={{ width: getQrSizePx(settings.receiptQrSize), height: getQrSizePx(settings.receiptQrSize), background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: '#666', border: '1px solid #ddd', borderRadius: '4px', fontWeight: 'bold' }}>BCEL QR</div>
                           </div>
+                        </div>
+                      )}
+
+                      {/* Track Status QR Code (Amulet custom tracking) */}
+                      {settings.receiptShowTrackingQr !== false && (
+                        <div style={{ marginTop: '10px', textAlign: 'center', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 2.5pt)`, borderTop: `${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} black`, paddingTop: '8px', color: 'black' }}>
+                          <p style={{ fontWeight: 'bold', marginBottom: '2px' }}>🔍 ສະແກນຕິດຕາມສະຖານະລາຍການ (Scan to Track)</p>
+                          <p style={{ fontSize: '0.72rem', color: '#555' }}>ຕິດຕາມຂັ້ນຕອນການອັດກອບພຣະເຄື່ອງຂອງທ່ານແບບ Real-time</p>
+                          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '6px' }}>
+                            <div style={{ width: '80px', height: '80px', background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: '#666', border: '1px solid #ddd', borderRadius: '4px', fontWeight: 'bold' }}>TRACK QR</div>
+                          </div>
+                          <p style={{ fontSize: '0.7rem', color: '#666', marginTop: '4px' }}>ເລກທີງານ: JOB10023</p>
                         </div>
                       )}
 
