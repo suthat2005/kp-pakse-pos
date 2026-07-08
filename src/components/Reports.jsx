@@ -1952,7 +1952,25 @@ export default function Reports({ activeUser, isMobile }) {
               <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>{onlinePaidOrders.length} ອໍເດີ້ຊຳລະ</span>
             </div>
 
-            {/* 3. Combined Revenue */}
+            {/* 3. Outstanding Debt */}
+            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #e67e22' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📒 ໜີ້ຄ້າງຊຳລະ</span>
+              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#e67e22' }}>{totalOutstandingDebt.toLocaleString()} ₭</span>
+              <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>{totalDebtors} ລາຍ ທີ່ຍັງຄ້າງ</span>
+            </div>
+
+            {/* 4. Guest Treats */}
+            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #f39c12' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🎁 ລາຍການລ້ຽງແຂກ (Treats)</span>
+              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#f39c12' }}>
+                {rangeOrders.filter(o => o.paymentMethod === 'treat').length} ຄັ້ງ
+              </span>
+              <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>
+                ມູນຄ່າ: {rangeOrders.filter(o => o.paymentMethod === 'treat').reduce((s, o) => s + (o.total || 0), 0).toLocaleString()} ₭
+              </span>
+            </div>
+
+            {/* 5. Combined Revenue */}
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid var(--gold-primary)' }}>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💰 ຍອດຂາຍລວມທຸກຊ່ອງທາງ</span>
               <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>{ovTotalRevenue.toLocaleString()} ₭</span>
@@ -1990,7 +2008,7 @@ export default function Reports({ activeUser, isMobile }) {
                   </div>
                   {(ovTransferTHB > 0 || settings.exchangeRateThb) && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
-                      <span>• ເງິນໂອນ THB:</span>
+                      <span>• ເງິນໂอน THB:</span>
                       <span style={{ color: 'white' }}>{ovTransferTHB.toLocaleString()} ฿</span>
                     </div>
                   )}
@@ -2005,32 +2023,14 @@ export default function Reports({ activeUser, isMobile }) {
               </div>
             </div>
 
-            {/* 4. Guest Treats */}
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #f39c12' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🎁 ລາຍການລ້ຽງແຂກ (Treats)</span>
-              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#f39c12' }}>
-                {rangeOrders.filter(o => o.paymentMethod === 'treat').length} ຄັ້ງ
-              </span>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>
-                ມູນຄ່າ: {rangeOrders.filter(o => o.paymentMethod === 'treat').reduce((s, o) => s + (o.total || 0), 0).toLocaleString()} ₭
-              </span>
-            </div>
-
-            {/* 5. Outstanding Debt */}
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #e67e22' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📒 ໜີ້ຄ້າງຊຳລະ</span>
-              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#e67e22' }}>{totalOutstandingDebt.toLocaleString()} ₭</span>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>{totalDebtors} ລາຍ ທີ່ຍັງຄ້າງ</span>
-            </div>
-
-            {/* 6. Total Expenses (Second-to-last) */}
+            {/* 6. Total Expenses */}
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #e74c3c' }}>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💸 ລາຍຈ່າຍທັງໝົດ</span>
               <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#e74c3c' }}>{totalExpenses.toLocaleString()} ₭</span>
               <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ຄ່າໃຊ້ຈ່າຍດຳເນີນການ</span>
             </div>
 
-            {/* 7. Net Profit (Absolute Last) */}
+            {/* 7. Net Profit */}
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #2ecc71' }}>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📈 ກຳໄລສຸດທິ (ປະເມີນ)</span>
               <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#2ecc71' }}>{hasReportsPermission('reportsProfit') ? Math.round(ovNetProfit).toLocaleString() + " ₭" : "*** ₭"}</span>
