@@ -1594,6 +1594,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                         { id: 'receiptShowDiscount', label: 'ສະແດງຍອດສ່ວນຫຼຸດ' },
                         { id: 'receiptShowTotal', label: 'ສະແດງຍອດຊຳລະສຸດທິ' },
                         { id: 'receiptShowChange', label: 'ສະແດງຍອດເງິນສົດຮັບມາ ແລະ ເງິນທອນ' },
+                        { id: 'receiptShowDeposit', label: 'ສະແດງຍອດເງິນມັດຈຳ (Show Deposit)' },
                         { id: 'receiptShowEquivalent', label: 'ສະແດງຍອດປຽບທຽບສະກຸນເງິນອື່ນ (THB/USD)' },
                         { id: 'showQrOnReceipt', label: 'ສະແດງ BCEL QR Code ຮັບເງິນ' },
                         { id: 'receiptShowSignatures', label: 'ສະແດງບ່ອນເຊັນຜູ້ຈ່າຍ ແລະ ຜູ້ຮັບເງິນ' },
@@ -1821,6 +1822,18 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           <span>{db.getLabel('rcpt_total_label', 'ຍອດຊຳລະສຸດທິ:')}</span>
                           <span>180,000 ₭</span>
                         </div>
+                      )}
+                      {settings.receiptShowDeposit !== false && (
+                        <>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: 'green' }}>
+                            <span>ຫັກມັດຈຳ / Deposit Offset:</span>
+                            <span>-50,000 ₭</span>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: '#e74c3c', fontStyle: 'italic', fontWeight: 'bold' }}>
+                            <span>ຄ້າງຊຳລະ / Balance:</span>
+                            <span>130,000 ₭</span>
+                          </div>
+                        </>
                       )}
 
                       {settings.receiptShowChange !== false && (

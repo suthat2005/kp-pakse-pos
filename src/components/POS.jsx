@@ -1100,11 +1100,9 @@ export default function POS({
     !(item.name && item.name.startsWith('ມັດຈຳ:'))
   );
 
-  const targetRoundTotalLAK = checkoutIsDepositMode
-    ? grandTotal
-    : hasJobBalanceItem
-      ? grandTotal
-      : Math.max(0, grandTotal - (activeSlot.depositAmount || 0));
+  const targetRoundTotalLAK = (activeSlot && activeSlot.depositAmount > 0 && !checkoutIsDepositMode)
+    ? Math.max(0, grandTotal - activeSlot.depositAmount)
+    : grandTotal;
 
   const targetRoundTotalInCurrency = payCurrency === 'LAK' ? targetRoundTotalLAK
                                    : payCurrency === 'THB' ? Math.ceil(targetRoundTotalLAK / payRate)
@@ -4555,11 +4553,11 @@ export default function POS({
                             <span style={{ fontWeight: 'bold', color: 'white' }}>{grandTotal.toLocaleString()} ₭</span>
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', color: '#f39c12' }}>
-                            <span>ຍອດມັດຈຳທີ່ຕ້ອງຈ່າຍ (Deposit to Pay Now):</span>
+                            <span>{checkoutIsDepositMode ? 'ຍອດມັດຈຳທີ່ຕ້ອງຈ່າຍ (Deposit to Pay Now):' : 'ຍອດມັດຈຳທີ່ຈ່າຍແລ້ວ (Deposit Already Paid):'}</span>
                             <span style={{ fontWeight: 'bold' }}>{totalJobDeposit.toLocaleString()} ₭</span>
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', color: '#e74c3c', borderTop: '1px dashed rgba(255,255,255,0.1)', paddingTop: '6px', marginTop: '2px' }}>
-                            <span>ຍອດຄ້າງຊຳລະຫຼັງຈ່າຍ (Remaining Balance):</span>
+                            <span>{checkoutIsDepositMode ? 'ຍອດຄ້າງຊຳລະຫຼັງຈ່າຍ (Remaining Balance):' : 'ຍອດທີ່ຕ້ອງຊຳລະຕອນນີ້ (Amount to Pay Now):'}</span>
                             <span style={{ fontWeight: 'bold' }}>{(grandTotal - totalJobDeposit).toLocaleString()} ₭</span>
                           </div>
                         </div>
@@ -4614,7 +4612,9 @@ export default function POS({
                         type="button"
                         onClick={() => {
                           setPaymentMethod(m.key);
-                          const targetLAK = (activeSlot && activeSlot.depositAmount > 0) ? activeSlot.depositAmount : grandTotal;
+                          const targetLAK = (activeSlot && activeSlot.depositAmount > 0 && !checkoutIsDepositMode) 
+                            ? Math.max(0, grandTotal - activeSlot.depositAmount) 
+                            : grandTotal;
                           const targetInCurrency = payCurrency === 'LAK' ? targetLAK
                                                  : payCurrency === 'THB' ? Math.ceil(targetLAK / payRate)
                                                  : Math.ceil((targetLAK / payRate) * 100) / 100;
@@ -5506,7 +5506,7 @@ export default function POS({
                       </div>
 
                       {/* Deposit Paid Row */}
-                      {depVal > 0 && (
+                      {settings.receiptShowDeposit !== false && depVal > 0 && (
                         <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: 'green' }}>
                           <span>{isDraft ? 'ມັດຈຳ / Deposit:' : 'ຫັກມັດຈຳ / Deposit Offset:'}</span>
                           <span>-{depVal.toLocaleString()} ກີບ</span>
@@ -5514,7 +5514,7 @@ export default function POS({
                       )}
 
                       {/* Remaining Balance */}
-                      {remainingBalanceFinal > 0 && (
+                      {settings.receiptShowDeposit !== false && remainingBalanceFinal > 0 && (
                         <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: '#e74c3c', fontStyle: 'italic', fontWeight: 'bold' }}>
                           <span>ຄ້າງຊຳລະ / Balance:</span>
                           <span>{remainingBalanceFinal.toLocaleString()} ກີບ</span>

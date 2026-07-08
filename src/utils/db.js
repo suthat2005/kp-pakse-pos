@@ -181,6 +181,7 @@ const DEFAULT_SETTINGS = {
   receiptShowEquivalent: true,
   receiptShowSignatures: true,
   receiptShowFooter: true,
+  receiptShowDeposit: true,
   // Notification settings
   notifyProvider: 'none',
   telegramBotToken: '',
