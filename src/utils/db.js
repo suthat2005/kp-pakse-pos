@@ -2192,6 +2192,19 @@ if (!localStorage.getItem('amulet_pos_cctv_alerts')) {
 seedStorage('cctv_alerts', DEFAULT_CCTV_ALERTS);
 }
 
+    // One-time health check: remove orphaned payments for orders that do not exist
+    if (!localStorage.getItem('amulet_pos_orphaned_payments_cleanup_v1')) {
+      const orders = this.getOrders();
+      const orderIds = new Set(orders.map(o => o.id));
+      const payments = this.getOrderPayments();
+      const cleanedPayments = payments.filter(p => orderIds.has(p.order_id));
+      if (cleanedPayments.length !== payments.length) {
+        this.saveOrderPayments(cleanedPayments);
+        console.log(`🧹 Cleaned up ${payments.length - cleanedPayments.length} orphaned payments.`);
+      }
+      localStorage.setItem('amulet_pos_orphaned_payments_cleanup_v1', 'true');
+    }
+
     // One-time customer ID cleanup for deleted customers (so they don't reappear as ghost records)
     if (!localStorage.getItem('amulet_pos_cust_cleanup_v1')) {
       const customers = this.getCustomers();

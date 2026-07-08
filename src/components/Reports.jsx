@@ -240,7 +240,7 @@ export default function Reports({ activeUser, isMobile }) {
   const end = endDate ? new Date(endDate + 'T23:59:59') : null;
 
   // Filter lists for selected range
-  const allPayments = db.getOrderPayments();
+  const allPayments = db.getOrderPayments().filter(p => allOrders.some(o => o.id === p.order_id));
   const rangePayments = allPayments.filter(p => {
     if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) return true;
     const d = new Date(p.date);
