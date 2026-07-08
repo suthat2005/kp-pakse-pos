@@ -875,31 +875,15 @@ export default function POS({
     const activeJob = framingJobs.find(j => j.slotId === slot.id && j.status !== 'picked_up');
     const hasItems = slot.items && slot.items.length > 0;
     
-    if (activeJob || hasItems) {
-      if (window.confirm('ຄິວນີ້ມີລາຍການສິນຄ້າ ຫຼື ໃບສັ່ງອັດກອບພຣະຄ້າງຢູ່. ທ່ານຕ້ອງການລຶບຄິວນີ້ ແລະ ຍ້າຍໃບສັ່ງອັດກອບພຣະອອກເພື່ອລຶບຄິວແທ້ບໍ່?')) {
-        try {
-          // Detach the job
-          const allJobs = db.getFramingJobs();
-          allJobs.forEach(j => {
-            if (j.slotId === slot.id && j.status !== 'picked_up') {
-              j.slotId = 'Detached-' + Date.now();
-              db.updateFramingJob(j);
-            }
-          });
-          
-          // Clear the slot items
-          db.clearSlot(slot.id);
-          
-          // Delete the slot
-          db.deleteSlot(slot.id);
-          
-          setSlots(db.getSlots());
-          setFramingJobs(db.getFramingJobs());
-          alert('✓ ລຶບບັດຄິວສຳເລັດແລ້ວ!');
-        } catch (err) {
-          alert(err.message || 'ບໍ່ສາມາດລຶບໄດ້');
-        }
-      }
+    // 🔒 BLOCK: Cannot delete a slot that has items or active framing jobs
+    if (hasItems || activeJob) {
+      const itemCount = slot.items ? slot.items.length : 0;
+      alert(
+        `🚫 ບໍ່ສາມາດລຶບບັດຄິວ "${slot.label}" ໄດ້!\n\n` +
+        (hasItems ? `• ມີສິນຄ້າ ${itemCount} ລາຍການ ຄ້າງຢູ່ (ຕ້ອງຈ່າຍ / ລ້າງກ່ອນ)\n` : '') +
+        (activeJob ? `• ມີໃບສັ່ງອັດກອບພຣະຄ້າງຢູ່ (ຕ້ອງ Picked Up ກ່ອນ)\n` : '') +
+        `\n⚠️ ກະລຸນາຊຳລະ ຫຼື ລ້າງລາຍການໃຫ້ຄົບກ່ອນລຶບ.`
+      );
       return;
     }
 
@@ -2914,35 +2898,40 @@ export default function POS({
                       {/* Decorative top accent line */}
                       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: `linear-gradient(90deg, transparent, ${cardBorder}, transparent)` }} />
 
-                      {/* Delete slot button */}
-                      {(slot.id !== 'Walk-In' || slot.label !== 'Walk-In') && (
-                        <button
-                          className="no-print"
-                          style={{
-                            position: 'absolute',
-                            top: '8px',
-                            right: '8px',
-                            width: '24px',
-                            height: '24px',
-                            borderRadius: '50%',
-                            background: 'rgba(0,0,0,0.7)',
-                            border: '1.5px solid rgba(231,76,60,0.5)',
-                            color: 'rgba(231,76,60,0.8)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            fontSize: '0.7rem',
-                            zIndex: 10,
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
-                            transition: 'all 0.2s'
-                          }}
-                          onClick={(e) => handleDeleteSlotClick(e, slot)}
-                          title="ລຶບບັດຄິວ"
-                        >
-                          ✕
-                        </button>
-                      )}
+                      {/* Delete slot button — locked if slot has items or active framing job */}
+                      {(slot.id !== 'Walk-In' || slot.label !== 'Walk-In') && (() => {
+                        const slotHasItems = slot.items && slot.items.length > 0;
+                        const slotHasJob = framingJobs.some(j => j.slotId === slot.id && j.status !== 'picked_up');
+                        const isLocked = slotHasItems || slotHasJob;
+                        return (
+                          <button
+                            className="no-print"
+                            style={{
+                              position: 'absolute',
+                              top: '8px',
+                              right: '8px',
+                              width: '24px',
+                              height: '24px',
+                              borderRadius: '50%',
+                              background: isLocked ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.7)',
+                              border: isLocked ? '1.5px solid rgba(180,180,180,0.3)' : '1.5px solid rgba(231,76,60,0.5)',
+                              color: isLocked ? 'rgba(180,180,180,0.4)' : 'rgba(231,76,60,0.8)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: isLocked ? 'not-allowed' : 'pointer',
+                              fontSize: '0.7rem',
+                              zIndex: 10,
+                              boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                              transition: 'all 0.2s'
+                            }}
+                            onClick={(e) => handleDeleteSlotClick(e, slot)}
+                            title={isLocked ? '🔒 ລຶບບໍ່ໄດ້: ມີສິນຄ້າ/ອັດກອບຄ້າງຢູ່' : 'ລຶບບັດຄິວ'}
+                          >
+                            {isLocked ? '🔒' : '✕'}
+                          </button>
+                        );
+                      })()}
 
                       {/* Edit button */}
                       <button
@@ -3120,6 +3109,7 @@ export default function POS({
             onPrintJobClick={handlePrintFramingClick}
             onCollectPayment={handleCollectPayment}
             onTrackJob={onTrackJob}
+            onJobsUpdated={(updatedJobs) => setFramingJobs(updatedJobs)}
           />
         </div>
       ) : (

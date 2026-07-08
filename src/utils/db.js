@@ -2762,6 +2762,25 @@ return jobs;
 saveFramingJobs(jobs) {
 setStorage('framing_jobs', jobs);
 },
+  // Remove all jobs with status 'picked_up' (Delivered column) from the board
+  clearDeliveredJobs() {
+    const jobs = this.getFramingJobs();
+    const remaining = jobs.filter(j => j.status !== 'picked_up');
+    this.saveFramingJobs(remaining);
+    return remaining;
+  },
+  // Auto-clear delivered jobs once per day. Call on app load/mount.
+  autoClearDeliveredIfNewDay() {
+    const KEY = 'amulet_pos_last_delivered_clear_date';
+    const today = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
+    const lastClear = localStorage.getItem(KEY);
+    if (lastClear !== today) {
+      this.clearDeliveredJobs();
+      localStorage.setItem(KEY, today);
+      return true; // cleared
+    }
+    return false; // nothing to do
+  },
 addFramingJob(job) {
 const jobs = this.getFramingJobs();
 let nextNum = 10001;

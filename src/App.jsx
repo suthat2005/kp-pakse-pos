@@ -1256,6 +1256,7 @@ export default function App() {
         <main className="dashboard-content">
           {activeTab === 'pos' && hasPermission(activeUser, 'pos') && (
             <POS
+              key={activeUser.id}
               activeUser={activeUser}
               onUpdate={handleSystemUpdate}
               redirectedCartItem={redirectedCartItem}

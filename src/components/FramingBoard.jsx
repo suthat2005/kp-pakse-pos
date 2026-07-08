@@ -10,7 +10,8 @@ export default function FramingBoard({
   onEditJobClick, 
   onPrintJobClick, 
   onCollectPayment,
-  onTrackJob
+  onTrackJob,
+  onJobsUpdated
 }) {
   // Notification Modal States
   const [showNotifyModal, setShowNotifyModal] = useState(false);
@@ -36,6 +37,27 @@ export default function FramingBoard({
       })
       .catch(err => console.error('Error fetching server IP:', err));
   }, []);
+
+  // 🗓️ Auto-clear delivered jobs once per day on mount
+  useEffect(() => {
+    const wasCleared = db.autoClearDeliveredIfNewDay();
+    if (wasCleared && onJobsUpdated) {
+      onJobsUpdated(db.getFramingJobs());
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleClearDelivered = () => {
+    const count = pickedUpJobs.length;
+    if (count === 0) {
+      alert('ບໍ່ມີລາຍການທີ່ສົ່ງມອບແລ້ວ');
+      return;
+    }
+    if (window.confirm(`ທ່ານຕ້ອງການລ້າງ ${count} ລາຍການທີ່ສົ່ງມອບແລ້ວອອກຈາກບອດແທ້ບໍ່?\n(ຂໍ້ມູນຍັງຄົງຢູ່ໃນໃບຮຽກໂກ້ / ບັນທຶກໄດ້ທຸກເທື່ອ)`)) {
+      const remaining = db.clearDeliveredJobs();
+      if (onJobsUpdated) onJobsUpdated(remaining);
+    }
+  };
 
   // Status Filter Lists (Mapping internal status to updated business flow)
   const pendingJobs = jobs.filter(j => j.status === 'pending');       // Received
@@ -307,7 +329,16 @@ export default function FramingBoard({
                 {pickedUpJobs.length}
               </span>
             </div>
-
+            {pickedUpJobs.length > 0 && (
+              <button
+                className="btn btn-secondary"
+                style={{ padding: '2px 8px', fontSize: '0.7rem', color: 'rgba(231,76,60,0.85)', borderColor: 'rgba(231,76,60,0.4)', background: 'rgba(231,76,60,0.08)' }}
+                onClick={handleClearDelivered}
+                title="ລ້າງລາຍການທີ່ສົ່ງມອບແລ້ວທັງໝົດ (Clear all delivered)"
+              >
+                🗑️ ລ້າງ
+              </button>
+            )}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '600px' }}>
             {pickedUpJobs.map(job => (
