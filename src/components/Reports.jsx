@@ -329,7 +329,7 @@ export default function Reports({ activeUser, isMobile }) {
             .section-title { font-weight: bold; margin-top: 10px; border-bottom: 0.5px solid black; padding-bottom: 2px; }
           </style>
         </head>
-        <body onload="window.print();"><div style="width: ${printableWidth}; margin: 0 auto;">
+        <body onload="window.print();"><div style="width: ${printableWidth}; margin: 0 auto; box-sizing: border-box; padding-left: calc(${settings.receiptPadding || '3mm'} + ${settings.receiptMarginLeft || '0mm'}); padding-right: calc(${settings.receiptPadding || '3mm'} + ${settings.receiptMarginRight || '0mm'}); padding-top: calc(${settings.receiptPadding || '3mm'} + ${settings.receiptMarginTop || '0mm'}); padding-bottom: calc(${settings.receiptPadding || '3mm'} + ${settings.receiptMarginBottom || '0mm'} + ${settings.receiptFeedPadding || '8mm'});">
           <div class="header">
             ${(settings.receiptShowLogo !== false && shopLogo) ? `<img src="${shopLogo}" class="logo" />` : ''}
             <div class="title">${shopName}</div>

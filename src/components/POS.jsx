@@ -5332,16 +5332,16 @@ export default function POS({
                 className="print-receipt-container" 
                 id="receipt-print-area"
                 style={{
-                  width: settings.receiptPaperWidth || '80mm',
+                  width: '100%',
+                  boxSizing: 'border-box',
                   fontSize: settings.receiptFontSize || '10pt',
-                  padding: settings.receiptPadding || '5mm',
+                  paddingLeft: `calc(${settings.receiptPadding || '3mm'} + ${settings.receiptMarginLeft || '0mm'})`,
+                  paddingRight: `calc(${settings.receiptPadding || '3mm'} + ${settings.receiptMarginRight || '0mm'})`,
+                  paddingTop: `calc(${settings.receiptPadding || '3mm'} + ${settings.receiptMarginTop || '0mm'})`,
+                  paddingBottom: `calc(${settings.receiptPadding || '3mm'} + ${settings.receiptMarginBottom || '0mm'} + ${settings.receiptFeedPadding || '8mm'})`,
                   background: 'white',
                   color: 'black',
-                  lineHeight: settings.receiptLineHeight || '1.3',
-                  marginLeft: settings.receiptMarginLeft || '0mm',
-                  marginRight: settings.receiptMarginRight || '0mm',
-                  marginTop: settings.receiptMarginTop || '0mm',
-                  marginBottom: settings.receiptMarginBottom || '0mm'
+                  lineHeight: settings.receiptLineHeight || '1.3'
                 }}
               >
                 <div className="print-receipt-header">
