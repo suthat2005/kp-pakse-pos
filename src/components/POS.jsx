@@ -5465,13 +5465,11 @@ export default function POS({
                   const depVal = isDraft ? (currentReceipt.depositAmount || totalJobDeposit || 0) : totalJobDeposit;
                   const printedSubtotal = totalJobPrice;
                   
-                  const printedTotal = isDraft 
-                    ? (depVal > 0 ? depVal : (printedSubtotal - discVal)) 
-                    : (currentReceipt.paidAmount || currentReceipt.total);
+                  const printedTotal = printedSubtotal - discVal;
 
                   const remainingBalanceFinal = isDraft 
                     ? Math.max(0, printedSubtotal - discVal - depVal)
-                    : Math.max(0, currentReceipt.remainingAmount !== undefined ? currentReceipt.remainingAmount : (printedSubtotal - discVal - printedTotal));
+                    : Math.max(0, currentReceipt.remainingAmount !== undefined ? currentReceipt.remainingAmount : (printedSubtotal - discVal - depVal - (currentReceipt.paidAmount || currentReceipt.total)));
 
                   return (
                     <div style={{ marginTop: '6px' }}>
@@ -5499,7 +5497,7 @@ export default function POS({
 
                       {/* Net Total */}
                       <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} + 1pt)`, borderTop: `${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} black`, paddingTop: '4px', marginTop: '4px' }}>
-                        <span>{isDraft ? 'ຍອດລວມທັງໝົດ:' : (depVal > 0 && remainingBalanceFinal > 0 ? 'ຍອດຊຳລະມັດຈຳ:' : 'ຍອດລວມສຸດທິ:')}</span>
+                        <span>ຍອດລວມທັງໝົດ / Net Total:</span>
                         <span>{printedTotal.toLocaleString()} ກີບ</span>
                       </div>
 
