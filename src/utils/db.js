@@ -2856,7 +2856,11 @@ this.saveUsers(filtered);
 },
 getActiveUser() {
 this.init();
-return getStorage('active_user', DEFAULT_USERS[0]);
+const active = getStorage('active_user', null);
+if (!active) return null;
+const users = this.getUsers();
+const latest = users.find(u => u.id === active.id || u.email.toLowerCase() === active.email.toLowerCase());
+return latest ? { ...active, ...latest } : active;
 },
 setActiveUser(user) {
 setStorage('active_user', user);

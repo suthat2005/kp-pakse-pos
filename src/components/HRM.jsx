@@ -1747,7 +1747,7 @@ export default function HRM({ activeUser, onUpdate }) {
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: userFormData.permissions?.admin ? 0.5 : 1 }}>
                             <input
                               type="checkbox"
-                              id="perm-${item.key}"
+                              id={`perm-${item.key}`}
                               style={{ width: '15px', height: '15px', cursor: 'pointer' }}
                               disabled={userFormData.permissions?.admin}
                               checked={userFormData.permissions?.admin || userFormData.permissions?.[item.key] || false}
@@ -1780,7 +1780,7 @@ export default function HRM({ activeUser, onUpdate }) {
                                 }));
                               }}
                             />
-                            <label htmlFor="perm-${item.key}" style={{ margin: 0, fontSize: '0.85rem', cursor: 'pointer', color: 'white', fontWeight: 'bold' }}>
+                            <label htmlFor={`perm-${item.key}`} style={{ margin: 0, fontSize: '0.85rem', cursor: 'pointer', color: 'white', fontWeight: 'bold' }}>
                               {item.label}
                             </label>
                           </div>
@@ -1801,7 +1801,7 @@ export default function HRM({ activeUser, onUpdate }) {
                                 <div key={sub.key} style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: userFormData.permissions?.admin ? 0.5 : 1 }}>
                                   <input
                                     type="checkbox"
-                                    id="perm-${sub.key}"
+                                    id={`perm-${sub.key}`}
                                     style={{ width: '13px', height: '13px', cursor: 'pointer' }}
                                     disabled={userFormData.permissions?.admin}
                                     checked={userFormData.permissions?.admin || userFormData.permissions?.[sub.key] || false}
@@ -1815,7 +1815,7 @@ export default function HRM({ activeUser, onUpdate }) {
                                       }));
                                     }}
                                   />
-                                  <label htmlFor="perm-${sub.key}" style={{ margin: 0, fontSize: '0.75rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                                  <label htmlFor={`perm-${sub.key}`} style={{ margin: 0, fontSize: '0.75rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>
                                     {sub.label}
                                   </label>
                                 </div>
@@ -2084,7 +2084,7 @@ export default function HRM({ activeUser, onUpdate }) {
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: userFormData.permissions?.admin ? 0.5 : 1 }}>
                             <input
                               type="checkbox"
-                              id="edit-perm-${item.key}"
+                              id={`edit-perm-${item.key}`}
                               style={{ width: '15px', height: '15px', cursor: 'pointer' }}
                               disabled={userFormData.permissions?.admin}
                               checked={userFormData.permissions?.admin || userFormData.permissions?.[item.key] || false}
@@ -2117,7 +2117,7 @@ export default function HRM({ activeUser, onUpdate }) {
                                 }));
                               }}
                             />
-                            <label htmlFor="edit-perm-${item.key}" style={{ margin: 0, fontSize: '0.85rem', cursor: 'pointer', color: 'white', fontWeight: 'bold' }}>
+                            <label htmlFor={`edit-perm-${item.key}`} style={{ margin: 0, fontSize: '0.85rem', cursor: 'pointer', color: 'white', fontWeight: 'bold' }}>
                               {item.label}
                             </label>
                           </div>
@@ -2138,7 +2138,7 @@ export default function HRM({ activeUser, onUpdate }) {
                                 <div key={sub.key} style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: userFormData.permissions?.admin ? 0.5 : 1 }}>
                                   <input
                                     type="checkbox"
-                                    id="edit-perm-${sub.key}"
+                                    id={`edit-perm-${sub.key}`}
                                     style={{ width: '13px', height: '13px', cursor: 'pointer' }}
                                     disabled={userFormData.permissions?.admin}
                                     checked={userFormData.permissions?.admin || userFormData.permissions?.[sub.key] || false}
@@ -2152,7 +2152,7 @@ export default function HRM({ activeUser, onUpdate }) {
                                       }));
                                     }}
                                   />
-                                  <label htmlFor="edit-perm-${sub.key}" style={{ margin: 0, fontSize: '0.75rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                                  <label htmlFor={`edit-perm-${sub.key}`} style={{ margin: 0, fontSize: '0.75rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>
                                     {sub.label}
                                   </label>
                                 </div>
