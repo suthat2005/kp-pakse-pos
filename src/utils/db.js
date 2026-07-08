@@ -188,6 +188,22 @@ const DEFAULT_SETTINGS = {
   telegramChatId: '',
   discordWebhookUrl: '',
   lineNotifyToken: '',
+  notifyNewSale: true,
+  notifyDeposit: true,
+  notifyNewJob: true,
+  notifyJobStatus: true,
+  notifyDebt: true,
+  notifyExpense: true,
+  notifyClockInOut: true,
+  notifyLowStock: true,
+  notifyNewSale: true,
+  notifyDeposit: true,
+  notifyNewJob: true,
+  notifyJobStatus: true,
+  notifyDebt: true,
+  notifyExpense: true,
+  notifyClockInOut: true,
+  notifyLowStock: true,
   // Barcode / Scanner settings
   onlineShopUrl: '',
   onlineShopTitle: 'ຂອບພຣະຣັທເກຊ Online',
@@ -2477,92 +2493,112 @@ saveDebts(debts) {
 setStorage('debts', debts);
 },
 addDebt(debtData) {
-const debts = this.getDebts();
-let nextNum = 10001;
-if (debts.length > 0) {
-  const nums = debts.map(d => {
-    if (!d.id) return 0;
-    const match = d.id.match(/\d+/);
-    return match ? parseInt(match[0], 10) : 0;
-  });
-  const maxNum = Math.max(...nums);
-  if (maxNum >= 10001) {
-    nextNum = maxNum + 1;
-  }
-}
-const newId = 'DBT' + String(nextNum).padStart(5, '0');
-const newDebt = {
-...debtData,
-id: newId,
-date: new Date().toISOString(),
-status: 'unpaid'
-};
-debts.push(newDebt);
-this.saveDebts(debts);
-
-// Deduct stock when debt is created
-const products = this.getProducts();
-const lowStockItemsList = [];
-newDebt.items.forEach(item => {
-  const prod = products.find(p => p.id === item.productId);
-  if (prod && !this.isServiceCategory(prod.category)) {
-    prod.stock = Math.max(0, prod.stock - item.qty);
-    if (prod.stock <= prod.minStock) {
-      lowStockItemsList.push(prod);
+    const debts = this.getDebts();
+    let nextNum = 10001;
+    if (debts.length > 0) {
+      const nums = debts.map(d => {
+        if (!d.id) return 0;
+        const match = d.id.match(/\d+/);
+        return match ? parseInt(match[0], 10) : 0;
+      });
+      const maxNum = Math.max(...nums);
+      if (maxNum >= 10001) {
+        nextNum = maxNum + 1;
+      }
     }
-  }
-});
-this.saveProducts(products);
+    const newId = 'DBT' + String(nextNum).padStart(5, '0');
+    const newDebt = {
+      ...debtData,
+      id: newId,
+      date: new Date().toISOString(),
+      status: 'unpaid'
+    };
+    debts.push(newDebt);
+    this.saveDebts(debts);
 
-// Send stock notification alert if any items are low
-if (lowStockItemsList.length > 0) {
-  let message = `⚠️ *ແຈ້ງເຕືອນສິນຄ້າໃກ້ໝົດສະຕັອກ (ຈາກການຕິດໜີ້)!*\n`;
-  lowStockItemsList.forEach(item => {
-    message += `• ${item.name} (ເຫຼືອ ${item.stock} ${item.unit || 'ອັນ'}, ເກນຕໍ່າສຸດ ${item.minStock} ${item.unit || 'ອັນ'})\n`;
-  });
-  this.sendNotification(message);
-}
+    // Deduct stock when debt is created
+    const products = this.getProducts();
+    const lowStockItemsList = [];
+    newDebt.items.forEach(item => {
+      const prod = products.find(p => p.id === item.productId);
+      if (prod && !this.isServiceCategory(prod.category)) {
+        prod.stock = Math.max(0, prod.stock - item.qty);
+        if (prod.stock <= prod.minStock) {
+          lowStockItemsList.push(prod);
+        }
+      }
+    });
+    this.saveProducts(products);
 
-return newDebt;
-},
+    // Send stock notification alert if any items are low
+    if (lowStockItemsList.length > 0) {
+      let message = `⚠️ *ແຈ້ງເຕືອນສິນຄ້າໃກ້ໝົດສະຕັອກ (ຈາກການຕິດໜີ້)!*\n`;
+      lowStockItemsList.forEach(item => {
+        message += `• ${item.name} (ເຫຼືອ ${item.stock} ${item.unit || 'ອັນ'}, ເកນຕໍ່າສຸດ ${item.minStock} ${item.unit || 'ອັນ'})\n`;
+      });
+      this.sendNotification(message);
+    }
+
+    const settings = this.getSettings();
+    if (settings.notifyDebt !== false) {
+      const msg = `📒 *ແຈ້ງເຕືອນການຕິດໜີ້ໃໝ່!*\n` +
+                  `🧾 *ລະຫັດໜີ້:* ${newDebt.id}\n` +
+                  `👤 *ລູກຄ້າ:* ${newDebt.customerName}\n` +
+                  `📞 *ເບີໂທ:* ${newDebt.customerPhone || 'ບໍ່ມີ'}\n` +
+                  `💰 *ຍອດຕິດໜີ້:* ${newDebt.total.toLocaleString()} LAK`;
+      this.sendNotification(msg);
+    }
+
+    return newDebt;
+  },
 payDebt(debtId) {
-const debts = this.getDebts();
-const idx = debts.findIndex(d => d.id === debtId);
-if (idx !== -1) {
-debts[idx].status = 'paid';
-this.saveDebts(debts);
+    const debts = this.getDebts();
+    const idx = debts.findIndex(d => d.id === debtId);
+    if (idx !== -1) {
+      debts[idx].status = 'paid';
+      this.saveDebts(debts);
 
-// Auto-update associated framing jobs to 'picked_up' status so they move to Delivered column
-if (debts[idx].items) {
-  debts[idx].items.forEach(item => {
-    if (item.productId && item.productId.startsWith('JOB')) {
-      this.updateFramingJobStatus(item.productId, 'picked_up');
+      // Auto-update associated framing jobs to 'picked_up' status so they move to Delivered column
+      if (debts[idx].items) {
+        debts[idx].items.forEach(item => {
+          if (item.productId && item.productId.startsWith('JOB')) {
+            this.updateFramingJobStatus(item.productId, 'picked_up');
+          }
+        });
+      }
+
+      const settings = this.getSettings();
+      if (settings.notifyDebt !== false) {
+        const msg = `📒 *ແຈ້ງເຕືອນຮັບຊຳລະໜີ້! (ເກັບເງິນຕິດໜີ້)*\n` +
+                    `🧾 *ລະຫັດໜີ້:* ${debts[idx].id}\n` +
+                    `👤 *ລູກຄ້າ:* ${debts[idx].customerName}\n` +
+                    `💰 *ຍອດຊຳລະ:* ${debts[idx].total.toLocaleString()} LAK\n` +
+                    `✅ *ສະຖານະ:* ຊຳລະໜີ້ສຳເລັດ`;
+        this.sendNotification(msg);
+      }
     }
-  });
-}
-}
 
-const slots = this.getSlots();
-let slotChanged = false;
-Object.keys(slots).forEach(slotId => {
-if (slots[slotId].debtId === debtId) {
-slots[slotId].isDebt = false;
-slots[slotId].debtId = '';
-slots[slotId].customerName = '';
-slots[slotId].customerPhone = '';
-slots[slotId].amuletImage = '';
-slots[slotId].discountPercent = 0;
-slots[slotId].discountType = 'percent';
-slots[slotId].discountAmount = 0;
-slots[slotId].items = [];
-slotChanged = true;
-}
-});
-if (slotChanged) {
-this.saveSlots(slots);
-}
-this.cleanupDeliveredJobs();
-},
+    const slots = this.getSlots();
+    let slotChanged = false;
+    Object.keys(slots).forEach(slotId => {
+      if (slots[slotId].debtId === debtId) {
+        slots[slotId].isDebt = false;
+        slots[slotId].debtId = '';
+        slots[slotId].customerName = '';
+        slots[slotId].customerPhone = '';
+        slots[slotId].amuletImage = '';
+        slots[slotId].discountPercent = 0;
+        slots[slotId].discountType = 'percent';
+        slots[slotId].discountAmount = 0;
+        slots[slotId].items = [];
+        slotChanged = true;
+      }
+    });
+    if (slotChanged) {
+      this.saveSlots(slots);
+    }
+    this.cleanupDeliveredJobs();
+  },
 
 getProducts() {
 this.init();
@@ -2610,6 +2646,7 @@ return newProduct;
 },
   updateProduct(updatedProduct) {
     const products = this.getProducts();
+    const settings = this.getSettings();
     const idx = products.findIndex(p => p.id === updatedProduct.id);
     if (idx !== -1) {
       const oldStock = products[idx].stock;
@@ -2625,10 +2662,12 @@ return newProduct;
 
       // If stock was reduced below or equal to minStock
       if (products[idx].stock <= products[idx].minStock && oldStock > oldMin && !this.isServiceCategory(products[idx].category)) {
-        const msg = `⚠️ *ແຈ້ງເຕືອນສິນຄ້າໃກ້ໝົດສະຕັອກ (ປັບປຸງຂໍ້ມູນ)!*\n` +
-                    `📦 *ສິນຄ້າ:* ${products[idx].name}\n` +
-                    `📉 *ຄົງເຫຼືອ:* ${products[idx].stock} ${products[idx].unit || 'ອັນ'} (ເກນຕໍ່າສຸດ: ${products[idx].minStock} ${products[idx].unit || 'ອັນ'})`;
-        this.sendNotification(msg);
+        if (settings.notifyLowStock !== false) {
+          const msg = `⚠️ *ແຈ້ງເຕືອນສິນຄ້າໃກ້ໝົດສະຕັອກ (ປັບປຸງຂໍ້ມູນ)!*\n` +
+                      `📦 *ສິນຄ້າ:* ${products[idx].name}\n` +
+                      `📉 *ຄົງເຫຼືອ:* ${products[idx].stock} ${products[idx].unit || 'ອັນ'} (ເກນຕໍ່າສຸດ: ${products[idx].minStock} ${products[idx].unit || 'ອັນ'})`;
+          this.sendNotification(msg);
+        }
       }
     }
   },
@@ -2879,6 +2918,19 @@ status: 'pending'
 };
 jobs.push(newJob);
 this.saveFramingJobs(jobs);
+
+const settings = this.getSettings();
+if (settings.notifyNewJob !== false) {
+  const msg = `🛠️ *ແຈ້ງເຕືອນງານອັດກອບໃໝ่!*\n` +
+              `🧾 *ລະຫັດງານ:* ${newJob.id}\n` +
+              `👤 *ລູກຄ້າ:* ${newJob.customerName || 'ທົ່ວໄປ'}\n` +
+              `🖼️ *ປະເພດກອບ:* ${newJob.frameStyle} (ໜາ: ${newJob.acrylicThickness})\n` +
+              `💰 *ລາຄາລວມ:* ${newJob.totalPrice.toLocaleString()} LAK\n` +
+              `📥 *ມັດຈຳ:* ${newJob.deposit.toLocaleString()} LAK\n` +
+              `⏳ *ຄ້າງຊຳລະ:* ${newJob.balance.toLocaleString()} LAK`;
+  this.sendNotification(msg);
+}
+
 return newJob;
 },
 updateFramingJob(updatedJob) {
@@ -2900,11 +2952,27 @@ updateFramingJobStatus(id, newStatus) {
 const jobs = this.getFramingJobs();
 const idx = jobs.findIndex(j => j.id === id);
 if (idx !== -1) {
-jobs[idx].status = newStatus;
-if (newStatus === 'picked_up') {
-jobs[idx].balance = 0;
-}
-this.saveFramingJobs(jobs);
+  const oldStatus = jobs[idx].status;
+  jobs[idx].status = newStatus;
+  if (newStatus === 'picked_up') {
+    jobs[idx].balance = 0;
+  }
+  this.saveFramingJobs(jobs);
+
+  const settings = this.getSettings();
+  if (settings.notifyJobStatus !== false && oldStatus !== newStatus) {
+    const statusMap = {
+      pending: '⏳ ລໍຖ້າເຮັດ (Pending)',
+      framing: '🛠️ ກຳລັງອັດກອບ (Framing)',
+      done: '✅ ອັດກອບສຳເລັດ (Done)',
+      picked_up: '🏠 ສົ່ງມອບລູກຄ້າແລ້ວ (Delivered)'
+    };
+    const msg = `🔄 *ອັບເດດສະຖານະງານອັດກອບ!*\n` +
+                `🧾 *ລະຫັດງານ:* ${id}\n` +
+                `🖼️ *ປະເພດກອບ:* ${jobs[idx].frameStyle}\n` +
+                `🔄 *ສະຖານະໃໝ່:* ${statusMap[newStatus] || newStatus}`;
+    this.sendNotification(msg);
+  }
 }
 },
 
@@ -3024,7 +3092,16 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       logs.unshift(record);
       this.saveAttendance(logs);
       
-      this.addAuditLog('clock_in', 'ພະນັກງານ ' + record.userName + ' ເຂົ້າງານ (Clock In), ເງິນທອນເລີ່ມຕົ້ນ: ' + (Number(openingCash) || 0).toLocaleString() + ' ກີບ');
+      this.addAuditLog('clock_in', 'ພะນັກງານ ' + record.userName + ' ເຂົ້າງານ (Clock In), ເງິນທອນເລີ່ມຕົ້ນ: ' + (Number(openingCash) || 0).toLocaleString() + ' ກີບ');
+      
+      const settings = this.getSettings();
+      if (settings.notifyClockInOut !== false) {
+        const msg = `🕒 *ແຈ້ງເຕືອນພະນັກງານເຂົ້າງານ!*\n` +
+                    `👤 *ພະນັກງານ:* ${record.userName}\n` +
+                    `⏰ *ເວລາ:* ${new Date(record.clockIn).toLocaleTimeString('lo-LA')}\n` +
+                    `💵 *${this.getLabel('rcpt_opening_cash', 'ເງິນທອນລິ້ນຊັກ') || 'ເງິນທອນລິ້ນຊັກ'}:* ${record.openingCash.toLocaleString()} LAK`;
+        this.sendNotification(msg);
+      }
     }
     return record;
   },
@@ -3061,7 +3138,17 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       
       this.saveAttendance(logs);
       
-      this.addAuditLog('clock_out', 'ພະນັກງານ ' + record.userName + ' ອອກງານ (Clock Out), ຊົ່ວໂມງເຮັດວຽກ: ' + record.workHours + 'ຊມ, ຄ່າຈ้าง: ' + record.payout.toLocaleString() + ' ກີບ');
+      this.addAuditLog('clock_out', 'ພະນັກງານ ' + record.userName + ' ອອກງານ (Clock Out), ຊົ່ວໂມງເຮັດວຽກ: ' + record.workHours + 'ຊມ, ຄ່າຈ້າງ: ' + record.payout.toLocaleString() + ' ກີບ');
+      
+      if (settings.notifyClockInOut !== false) {
+        const msg = `🕒 *ແຈ້ງເຕືອນພະນັກງານອອກງານ!*\n` +
+                    `👤 *ພະນັກງານ:* ${record.userName}\n` +
+                    `⏰ *ເວລາເຂົ້າ:* ${new Date(record.clockIn).toLocaleTimeString('lo-LA')}\n` +
+                    `⏰ *ເວລາອອກ:* ${new Date(record.clockOut).toLocaleTimeString('lo-LA')}\n` +
+                    `⏱️ *ຊົ່ວໂມງເຮັດວຽກ:* ${record.workHours} ຊົ່ວໂມງ (OT: ${record.otHours} ຊມ)\n` +
+                    `💰 *ລາຍໄດ້ປະຈຳກະ:* ${record.payout.toLocaleString()} LAK`;
+        this.sendNotification(msg);
+      }
     }
     return record;
   },
@@ -3211,6 +3298,17 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     
     const currencySymbol = currency === 'LAK' ? '₭' : currency === 'THB' ? '฿' : '$';
     this.addAuditLog('expense_logged', `ບັນທຶກລາຍຈ່າຍ: ${newExpense.categoryName} ມູນຄ່າ ${newExpense.amount.toLocaleString()} ${currencySymbol} (ແປງເປັນ ${convertedAmount.toLocaleString()} ກີບ) (${newExpense.notes})`);
+    
+    if (settings.notifyExpense !== false) {
+      const msg = `💸 *ແຈ້ງເຕືອນບັນທຶກລາຍຈ່າຍໃໝ່!*\n` +
+                  `🧾 *ລະຫັດ:* ${newExpense.id}\n` +
+                  `👤 *ຜູ້ບັນທຶກ:* ${newExpense.createdByName}\n` +
+                  `📂 *ປະເພດ:* ${newExpense.categoryName}\n` +
+                  `💰 *ຈຳນວນເງິນ:* ${newExpense.amount.toLocaleString()} ${currencySymbol} (ແປງເປັນ ${newExpense.convertedAmount.toLocaleString()} LAK)\n` +
+                  `📝 *ໝາຍເຫດ:* ${newExpense.notes || 'ບໍ່ມີ'}`;
+      this.sendNotification(msg);
+    }
+
     return newExpense;
   },
 
@@ -3418,22 +3516,56 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
 
   sendSalesAndStockNotification(order, lowStockItems) {
     try {
-      const itemsStr = order.items.map(item => `• ${item.name} x ${item.qty}`).join('\n');
-      let message = `🔔 *ແຈ້ງເຕືອນການຂາຍໃໝ່!*\n` +
-                    `🧾 *ເລກບິນ:* ${order.id}\n` +
-                    `👤 *ພະນັກງານຂາຍ:* ${order.cashierName}\n` +
-                    `📦 *ລາຍການ:* \n${itemsStr}\n` +
-                    `💵 *ຍອດລວມສຸດທິ:* ${order.total.toLocaleString()} LAK\n` +
-                    `💳 *ຊຳລະຜ່ານ:* ${order.paymentMethod === 'cash' ? '💵 ເງິນສົດ' : '📱 ໂອນທະນາຄານ'}`;
+      const settings = this.getSettings();
+      const isDeposit = order.remainingAmount > 0 && !order.isBalancePayment;
+      const isBalance = order.isBalancePayment;
+      const isSale = !isDeposit && !isBalance;
 
-      if (lowStockItems && lowStockItems.length > 0) {
-        message += `\n\n⚠️ *ແຈ້ງເຕືອນສິນຄ້າໃກ້ໝົດສະຕັອກ!*\n`;
+      let shouldNotify = false;
+      if (isSale && settings.notifyNewSale !== false) shouldNotify = true;
+      if (isDeposit && settings.notifyDeposit !== false) shouldNotify = true;
+      if (isBalance && settings.notifyNewSale !== false) shouldNotify = true;
+
+      if (shouldNotify) {
+        const itemsStr = order.items.map(item => `• ${item.name} x ${item.qty}`).join('\n');
+        let title = '🔔 *ແຈ້ງເຕືອນການຂາຍໃໝ່!*';
+        if (isDeposit) {
+          title = '📥 *ແຈ້ງເຕືອນຮັບເງິນມັດຈຳໃໝ່!*';
+        } else if (isBalance) {
+          title = '💵 *ແຈ້ງເຕືອນຊຳລະເງິນສ່ວນທີ່ເຫຼືອ!*';
+        }
+
+        let message = `${title}\n` +
+                      `🧾 *ເລກບິນ:* ${order.id}\n` +
+                      `👤 *ພະນັກງານ:* ${order.cashierName}\n` +
+                      `📦 *ລາຍການ:* \n${itemsStr}\n` +
+                      `💰 *ມູນຄ່າທັງໝົດ:* ${order.total.toLocaleString()} LAK\n`;
+        
+        if (isDeposit) {
+          message += `📥 *ຮັບເງິນມັດຈຳ:* ${order.paidAmount.toLocaleString()} LAK\n` +
+                     `⏳ *ຍອດຄ້າງຊຳລະ:* ${order.remainingAmount.toLocaleString()} LAK\n`;
+        } else if (isBalance) {
+          message += `💵 *ຊຳລະງວດສຸດທ້າຍ:* ${order.paidAmount.toLocaleString()} LAK\n` +
+                     `✅ *ສະຖານະ:* ຊຳລະຄົບຖ້ວນ\n`;
+        }
+
+        message += `💳 *ຊຳລະຜ່ານ:* ${order.paymentMethod === 'cash' ? '💵 ເງິນສົດ' : (order.paymentMethod === 'transfer' ? '📱 ໂອນທະນາຄານ' : (order.paymentMethod === 'treat' ? '🎁 ລາຍການລ້ຽງແຂກ' : '🥞 ແຍກຊຳລະ'))}`;
+        
+        if (lowStockItems && lowStockItems.length > 0 && settings.notifyLowStock !== false) {
+          message += `\n\n⚠️ *ແຈ້ງເຕືອນສິນຄ້າໃກ້ໝົດສະຕັອກ!*\n`;
+          lowStockItems.forEach(item => {
+            message += `• ${item.name} (ເຫຼືອ ${item.stock} ${item.unit || 'ອັນ'}, ເກນຕໍ່າສຸດ ${item.minStock} ${item.unit || 'ອັນ'})\n`;
+          });
+        }
+
+        this.sendNotification(message);
+      } else if (lowStockItems && lowStockItems.length > 0 && settings.notifyLowStock !== false) {
+        let message = `⚠️ *ແຈ້ງເຕືອນສິນຄ້າໃກ້ໝົດສະຕັอก!*\n`;
         lowStockItems.forEach(item => {
           message += `• ${item.name} (ເຫຼືອ ${item.stock} ${item.unit || 'ອັນ'}, ເກນຕໍ່າສຸດ ${item.minStock} ${item.unit || 'ອັນ'})\n`;
         });
+        this.sendNotification(message);
       }
-
-      this.sendNotification(message);
     } catch (e) {
       console.error('Unified notification error:', e);
     }
@@ -3506,6 +3638,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
   },
   updateRawMaterial(updated) {
     const list = this.getRawMaterials();
+    const settings = this.getSettings();
     const idx = list.findIndex(m => m.id === updated.id);
     if (idx !== -1) {
       list[idx] = {
@@ -3518,10 +3651,12 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       
       // Stock warning notification for raw materials
       if (list[idx].stock_qty <= list[idx].min_stock) {
-        const msg = `⚠️ *ແຈ້ງເຕືອນວັດຖຸດິບໃກ້ໝົດສະຕັອກ!*\n` +
-                    `📦 *ວັດຖຸດິບ:* ${list[idx].name}\n` +
-                    `📉 *ຄົງເຫຼືອ:* ${list[idx].stock_qty} ${list[idx].unit || 'ອັນ'} (ເກນຕໍ່າສຸດ: ${list[idx].min_stock} ${list[idx].unit || 'ອັນ'})`;
-        this.sendNotification(msg);
+        if (settings.notifyLowStock !== false) {
+          const msg = `⚠️ *ແຈ້ງເຕືອນວັດຖຸດິບໃກ້ໝົດສະຕັອກ!*\n` +
+                      `📦 *ວັດຖຸດິບ:* ${list[idx].name}\n` +
+                      `📉 *ຄົງເຫຼືອ:* ${list[idx].stock_qty} ${list[idx].unit || 'ອັນ'} (ເກນຕໍ່າສຸດ: ${list[idx].min_stock} ${list[idx].unit || 'ອັນ'})`;
+          this.sendNotification(msg);
+        }
       }
     }
   },
