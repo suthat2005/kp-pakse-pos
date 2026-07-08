@@ -1284,9 +1284,15 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                             value={settings.receiptPaperWidth || '80mm'}
                             onChange={(e) => setSettings({ ...settings, receiptPaperWidth: e.target.value })}
                           >
-                            <option value="58mm">58mm (ເຈ້ຍນ້ອຍ)</option>
-                            <option value="72mm">72mm (80mm printer → 72mm printable)</option>
-                            <option value="80mm">80mm (ເຈ້ຍມາດຕະຖານ)</option>
+                            <option value="58mm">58mm (ເຈ້ຍນ້ອຍ/Mini - 48mm printable)</option>
+                            <option value="76mm">76mm (ເຈ້ຍຫົວເຂັມ/Dot Matrix - 63mm printable)</option>
+                            <option value="80mm">80mm (ເຈ້ຍມາດຕະຖານ/Standard POS - 72mm printable)</option>
+                            <option value="82mm">82mm (ເຈ້ຍກວ້າງ/Wide POS - 76mm printable)</option>
+                            <option value="100mm">100mm (ປ້າຍກວ້າງ/Wide Label - 92mm printable)</option>
+                            <option value="110mm">110mm (ເຈ້ຍປ້າຍ 4-inch/Label - 100mm printable)</option>
+                            <option value="A5">A5 Portrait (ເຄິ່ງ A4 ແນວຕັ້ງ - 140mm printable)</option>
+                            <option value="A5-landscape">A5 Landscape (ເຄິ່ງ A4 ແນວນອນ - 200mm printable)</option>
+                            <option value="A4">A4 Portrait (ເຈ້ຍເອກະສານ/Standard Document - 200mm printable)</option>
                           </select>
                         </div>
                         <div className="form-group">
@@ -1742,7 +1748,20 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     boxSizing: 'border-box'
                   }}>
                     <div style={{
-                      width: settings.receiptPaperWidth === '58mm' ? '200px' : '260px',
+                      width: (() => {
+                        const mapping = {
+                          '58mm': '200px',
+                          '76mm': '240px',
+                          '80mm': '260px',
+                          '82mm': '270px',
+                          '100mm': '320px',
+                          '110mm': '350px',
+                          'A5': '420px',
+                          'A5-landscape': '550px',
+                          'A4': '550px'
+                        };
+                        return mapping[settings.receiptPaperWidth] || '260px';
+                      })(),
                       fontSize: settings.receiptFontSize || '10pt',
                       padding: settings.receiptPadding || '5mm',
                       background: 'white',

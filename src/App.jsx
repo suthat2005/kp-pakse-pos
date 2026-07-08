@@ -471,11 +471,27 @@ export default function App() {
     return <Login onLoginSuccess={handleLoginSuccess} />;
   }
 
+  const widths = db.getPaperPrintWidths(settings.receiptPaperWidth || '80mm');
   const computedStyle = getThemeStyle();
 
   return (
     <div className="app-container" style={computedStyle}>
       <style>{`
+        :root {
+          --receipt-paper-width: ${widths.paper};
+          --receipt-printable-width: ${widths.printable};
+          --receipt-font-size: ${settings.receiptFontSize || '10pt'};
+          --receipt-padding: ${settings.receiptPadding || '3mm'};
+          --receipt-line-height: ${settings.receiptLineHeight || '1.3'};
+          --receipt-divider-thickness: ${settings.receiptDividerThickness || '1px'};
+          --receipt-divider-style: ${settings.receiptDividerStyle || 'dashed'};
+        }
+        @media print {
+          @page {
+            size: ${widths.paper.includes('landscape') ? 'A5 landscape' : widths.paper === 'A5' ? 'A5' : widths.paper === 'A4' ? 'A4' : 'portrait'};
+            margin: 0mm !important;
+          }
+        }
         /* Collapsible Sidebar Styles */
         .app-container {
           display: flex !important;

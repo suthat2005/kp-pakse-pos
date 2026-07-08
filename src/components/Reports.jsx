@@ -234,7 +234,9 @@ export default function Reports({ activeUser, isMobile }) {
 
   // Print Summary receipt template (80mm thermal layout)
   const handlePrintSummary = () => {
-    const paperWidth = settings.receiptPaperWidth || '80mm';
+    const widths = db.getPaperPrintWidths(settings.receiptPaperWidth || '80mm');
+    const paperWidth = widths.paper;
+    const printableWidth = widths.printable;
     const fontSize = settings.receiptFontSize || '10pt';
     const shopLogo = settings.receiptLogoUrl || '';
     const shopName = settings.shopName || 'ຂອບພຣະຣັທເກຊ';
@@ -312,7 +314,7 @@ export default function Reports({ activeUser, isMobile }) {
         <head>
           <title>ລາຍງານສະຫຼຸບຍອດຂາຍ - Amulet POS</title>
           <style>
-            @page { size: ${paperWidth} auto; margin: 0; }
+            @page { size: ${widths.paper.includes('landscape') ? 'A5 landscape' : widths.paper === 'A5' ? 'A5' : widths.paper === 'A4' ? 'A4' : 'portrait'}; margin: 0; }
             body {
               margin: 0; padding: 10px;
               font-family: 'Phetsarath OT', Arial, sans-serif;
@@ -327,7 +329,7 @@ export default function Reports({ activeUser, isMobile }) {
             .section-title { font-weight: bold; margin-top: 10px; border-bottom: 0.5px solid black; padding-bottom: 2px; }
           </style>
         </head>
-        <body onload="window.print();">
+        <body onload="window.print();"><div style="width: ${printableWidth}; margin: 0 auto;">
           <div class="header">
             ${(settings.receiptShowLogo !== false && shopLogo) ? `<img src="${shopLogo}" class="logo" />` : ''}
             <div class="title">${shopName}</div>
@@ -402,7 +404,7 @@ export default function Reports({ activeUser, isMobile }) {
             <p>ລາຍງານນີ້ພິມອອກຈາກລະບົບ POS</p>
             <p>ຮ້ານ ຂອບພຣະຣັທເກຊ - ປາກເຊ</p>
           </div>
-        </body>
+        </div></body>
       </html>
     `);
     doc.close();
