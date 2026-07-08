@@ -471,6 +471,12 @@ export default function App() {
     return <Login onLoginSuccess={handleLoginSuccess} />;
   }
 
+  const cleanSidebarLabel = (text) => {
+    if (!text) return '';
+    // Strip leading emojis and optional space
+    return text.replace(/^[\u{1F300}-\u{1F9FF}\u{2700}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2B50}\u{1F1E0}-\u{1F1FF}\u{1F900}-\u{1F9FF}🐾🛠️💵📦👥💳📊🛒📒🤖⚙️⚡️✨🌟👑🔥]+[\s]*/u, '');
+  };
+
   const widths = db.getPaperPrintWidths(settings.receiptPaperWidth || '80mm');
   const computedStyle = getThemeStyle();
 
@@ -891,7 +897,7 @@ export default function App() {
               onClick={() => { setActiveTab('reports'); setMobileSidebarOpen(false); }}
             >
               <span className="sidebar-icon">📊</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_reports', '📊 ລາຍງານ (Reports)')}</span>}
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_reports', '📊 ລາຍງານ (Reports)'))}</span>}
             </button>
           )}
 
@@ -906,8 +912,8 @@ export default function App() {
               {!sidebarCollapsed && (
                 <span className="sidebar-label">
                   {activeUser.role === 'technician'
-                    ? db.getLabel('tab_framing', '🛠️ ງານອັດກອບ (Framing)')
-                    : db.getLabel('tab_pos', '💵 ຂາຍໜ້າຮ້ານ (POS)')}
+                    ? cleanSidebarLabel(db.getLabel('tab_framing', '🛠️ ງານອັດກອບ (Framing)'))
+                    : cleanSidebarLabel(db.getLabel('tab_pos', '💵 ຂາຍໜ້າຮ້ານ (POS)'))}
                 </span>
               )}
             </button>
@@ -921,7 +927,7 @@ export default function App() {
               onClick={() => { setActiveTab('online_orders'); setMobileSidebarOpen(false); }}
             >
               <span className="sidebar-icon">🛒</span>
-              {!sidebarCollapsed && <span className="sidebar-label">🛒 ອໍເດີ້ອອນລາຍ (Online Orders)</span>}
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel('🛒 ອໍເດີ້ອອນລາຍ (Online Orders)')}</span>}
             </button>
           )}
 
@@ -933,7 +939,7 @@ export default function App() {
               onClick={() => { setActiveTab('inventory'); setMobileSidebarOpen(false); }}
             >
               <span className="sidebar-icon">📦</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_inventory', '📦 ສະຕັອກ (Inventory)')}</span>}
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_inventory', '📦 ສະຕັອກ (Inventory)'))}</span>}
             </button>
           )}
 
@@ -945,7 +951,7 @@ export default function App() {
               onClick={() => { setActiveTab('debts'); setMobileSidebarOpen(false); }}
             >
               <span className="sidebar-icon">📒</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_debts', '📒 ບັນຊີຕິດໜີ້ (Debts)')}</span>}
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_debts', '📒 ບັນຊີຕິດໜີ້ (Debts)'))}</span>}
             </button>
           )}
 
@@ -957,7 +963,7 @@ export default function App() {
               onClick={() => { setActiveTab('customers'); setMobileSidebarOpen(false); }}
             >
               <span className="sidebar-icon">💳</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_customers', '💳 ສະມາຊິກ (Members)')}</span>}
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_customers', '💳 ສະມາຊິກ (Members)'))}</span>}
             </button>
           )}
 
@@ -969,7 +975,7 @@ export default function App() {
               onClick={() => { setActiveTab('hrm'); setMobileSidebarOpen(false); }}
             >
               <span className="sidebar-icon">👥</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_hrm', '👥 ຈັດການບຸກຄະລາກອນ (HRM)')}</span>}
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_hrm', '👥 ຈັດການບຸກຄະລາກອນ (HRM)'))}</span>}
             </button>
           )}
 
@@ -981,7 +987,7 @@ export default function App() {
               onClick={() => { setActiveTab('ai'); setMobileSidebarOpen(false); }}
             >
               <span className="sidebar-icon">🤖</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_ai', '🤖 ລະບົບ AI')}</span>}
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_ai', '🤖 ລະບົບ AI'))}</span>}
             </button>
           )}
 
@@ -993,7 +999,7 @@ export default function App() {
               onClick={() => { setActiveTab('settings'); setMobileSidebarOpen(false); }}
             >
               <span className="sidebar-icon">⚙️</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_settings', '⚙️ ຕັ້ງຄ່າ (Settings)')}</span>}
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_settings', '⚙️ ຕັ້ງຄ່າ (Settings)'))}</span>}
             </button>
           )}
         </nav>
