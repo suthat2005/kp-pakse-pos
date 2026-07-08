@@ -1615,8 +1615,29 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
     }
   };
 
+  const verifyAdminPin = () => {
+    const pin = prompt('🔒 ຕ້ອງການອະນຸມັດ: ກະລຸນາໃສ່ລະຫັດ PIN ຂອງ Admin/ເຈົ້າຂອງຮ້ານ:');
+    if (!pin) return false;
+    const users = db.getUsers();
+    const settings = db.getSettings();
+    const matchedOwner = users.find(u => u.role === 'owner' && u.passcode === pin);
+    const isMasterPin = pin === settings.masterAdminPin;
+    if (matchedOwner || isMasterPin) return true;
+    alert('❌ ລະຫັດ PIN ບໍ່ຖືກຕ້ອງ!');
+    return false;
+  };
+
   // Direct Stock Adjustments (+ / - buttons in table)
   const adjustStock = (product, delta) => {
+    if (delta > 0) {
+      if (!hasInventoryPermission('inventoryAddStock')) {
+        if (!verifyAdminPin()) return;
+      }
+    } else if (delta < 0) {
+      if (!hasInventoryPermission('inventoryDeleteStock')) {
+        if (!verifyAdminPin()) return;
+      }
+    }
     const newStock = Math.max(0, product.stock + delta);
     const updated = {
       ...product,
@@ -1631,6 +1652,17 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
   const handleStockInputChange = (product, value) => {
     const qty = parseInt(value);
     if (isNaN(qty) || qty < 0) return;
+
+    if (qty > product.stock) {
+      if (!hasInventoryPermission('inventoryAddStock')) {
+        if (!verifyAdminPin()) return;
+      }
+    } else if (qty < product.stock) {
+      if (!hasInventoryPermission('inventoryDeleteStock')) {
+        if (!verifyAdminPin()) return;
+      }
+    }
+
     const updated = {
       ...product,
       stock: qty
