@@ -114,7 +114,7 @@ status: 'present'
 ];
 
 const DEFAULT_SETTINGS = {
-  shopName: 'ຂອບພຣະຣັທເກຊ',
+  shopName: 'ຂອບພຣະ ປາກເຊ',
   shopSubtitle: 'ຮ້ານອັດກອບພຣະເຄື່ອງ & ວັດຖຸມຸງຄຸນ',
   shopPhone: '02023304555',
   shopAddress: 'ປາກເຊ, ແຂວງຈຳປາສັກ',
@@ -185,7 +185,7 @@ const DEFAULT_SETTINGS = {
   // Notification settings
   notifyProvider: 'none',
   telegramBotToken: '',
-  telegramChatId: '',
+  telegramChatId: '8579870017',
   discordWebhookUrl: '',
   lineNotifyToken: '',
   notifyNewSale: true,
@@ -3727,7 +3727,10 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
 
     const baseUrl = window.location.protocol + '//' + window.location.host;
     const checkParams = new URLSearchParams();
-    keys.forEach(k => checkParams.append(k, '0'));
+    keys.forEach(k => {
+      const ts = localStorage.getItem('amulet_pos_ts_' + k) || '0';
+      checkParams.append(k, ts);
+    });
     
     // Bidirectional startup sync
     fetch(`${baseUrl}/api/db/sync?` + checkParams.toString())

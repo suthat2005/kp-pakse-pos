@@ -2282,7 +2282,7 @@
       "receiptShowFooter": true,
       "notifyProvider": "none",
       "telegramBotToken": "",
-      "telegramChatId": "",
+      "telegramChatId": "8579870017",
       "discordWebhookUrl": "",
       "lineNotifyToken": "",
       "barcodeBeep": true,
@@ -2383,7 +2383,7 @@
         "border-color": "#1a2636"
       }
     },
-    "updatedAt": 1783278247465
+    "updatedAt": 1783550911464
   },
   "expenses": {
     "data": [],
