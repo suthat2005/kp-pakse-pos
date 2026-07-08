@@ -302,6 +302,11 @@ export default function FramingBoard({
                     ↞ ແກ້
                   </button>
                   )}
+                  {hasFramingPermission('framingEditJob') && (
+                  <button className="btn btn-secondary" style={{ padding: '4px 6px', fontSize: '0.7rem' }} onClick={() => onEditJobClick(job)}>
+                    ✏️ ແກ້
+                  </button>
+                  )}
                   {hasFramingPermission('framingNotifyCustomer') && (
                   <button className="btn btn-secondary" style={{ padding: '4px 6px', fontSize: '0.7rem', borderColor: 'var(--success-green)', color: 'var(--success-green)' }} onClick={() => handleNotifyClick(job)}>
                     🔔 ແຈ້ງ
