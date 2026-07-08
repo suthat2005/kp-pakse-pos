@@ -5450,34 +5450,34 @@ export default function POS({
                   // Fallback to standard layout if no job item exists in the receipt
                   if (!hasJob) {
                     return (
-                      <div style={{ marginTop: '6px' }}>
+                      <div style={{ marginTop: '6px', paddingRight: '6mm' }}>
                         {settings.receiptShowSubtotal !== false && (
                           <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: settings.receiptTotalsFontSize || '100%', marginTop: '4px' }}>
-                            <span>ຍອດລວມ / Subtotal:</span>
+                            <span>ຍອດລວມ:</span>
                             <span>{currentReceipt.subtotal.toLocaleString()} ກີບ</span>
                           </div>
                         )}
                         {settings.receiptShowDiscount !== false && currentReceipt.discount > 0 && (
                           <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px', color: '#e74c3c' }}>
-                            <span>ສ່ວນຫຼຸດ / Discount:</span>
+                            <span>ສ່ວນຫຼຸດ:</span>
                             <span>-{currentReceipt.discount.toLocaleString()} ກີບ</span>
                           </div>
                         )}
                         {settings.receiptShowTotal !== false && (
                           <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} + 1pt)`, borderTop: `${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} black`, paddingTop: '4px', marginTop: '4px' }}>
-                            <span>ຍອດລວມສຸດທິ / Total:</span>
+                            <span>ຍອດລວມສຸດທິ:</span>
                             <span>{currentReceipt.total.toLocaleString()} ກີບ</span>
                           </div>
                         )}
                         {settings.receiptShowDeposit !== false && depVal > 0 && (
                           <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: 'green' }}>
-                            <span>{isDraft ? 'ມັດຈຳ / Deposit:' : 'ຫັກມັດຈຳ / Deposit Offset:'}</span>
+                            <span>{isDraft ? 'ມັດຈຳ:' : 'ຫັກມັດຈຳ:'}</span>
                             <span>-{depVal.toLocaleString()} ກີບ</span>
                           </div>
                         )}
                         {settings.receiptShowDeposit !== false && remainingBalanceFinal > 0 && (
                           <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: '#e74c3c', fontStyle: 'italic', fontWeight: 'bold' }}>
-                            <span>ຄ້າງຊຳລະ / Balance:</span>
+                            <span>ຄ້າງຊຳລະ:</span>
                             <span>{remainingBalanceFinal.toLocaleString()} ກີບ</span>
                           </div>
                         )}
@@ -5489,11 +5489,11 @@ export default function POS({
                   const printedTotal = printedSubtotal - discVal;
 
                   return (
-                    <div style={{ marginTop: '6px' }}>
+                    <div style={{ marginTop: '6px', paddingRight: '6mm' }}>
                       {/* Subtotal */}
                       {settings.receiptShowSubtotal !== false && (
                         <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: settings.receiptTotalsFontSize || '100%', marginTop: '4px' }}>
-                          <span>ຍອດລວມ / Subtotal:</span>
+                          <span>ຍອດລວມ:</span>
                           <span>{printedSubtotal.toLocaleString()} ກີບ</span>
                         </div>
                       )}
@@ -5501,7 +5501,7 @@ export default function POS({
                       {/* Discount */}
                       {settings.receiptShowDiscount !== false && discVal > 0 && (
                         <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px', color: '#e74c3c' }}>
-                          <span>ສ່ວນຫຼຸດ / Discount:</span>
+                          <span>ສ່ວນຫຼຸດ:</span>
                           <span>-{discVal.toLocaleString()} ກີບ</span>
                         </div>
                       )}
@@ -5509,7 +5509,7 @@ export default function POS({
                       {/* Net Total (Subtotal - Discount) */}
                       {settings.receiptShowTotal !== false && (
                         <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} + 1pt)`, borderTop: `${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} black`, paddingTop: '4px', marginTop: '4px' }}>
-                          <span>ຍອດລວມສຸດທິ / Total:</span>
+                          <span>ຍອດລວມສຸດທິ:</span>
                           <span>{printedTotal.toLocaleString()} ກີບ</span>
                         </div>
                       )}
@@ -5517,7 +5517,7 @@ export default function POS({
                       {/* Deposit Paid Row */}
                       {settings.receiptShowDeposit !== false && depVal > 0 && (
                         <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: 'green' }}>
-                          <span>{isDraft ? 'ມັດຈຳ / Deposit:' : 'ຫັກມັດຈຳ / Deposit Offset:'}</span>
+                          <span>{isDraft ? 'ມັດຈຳ:' : 'ຫັກມັດຈຳ:'}</span>
                           <span>-{depVal.toLocaleString()} ກີບ</span>
                         </div>
                       )}
@@ -5525,7 +5525,7 @@ export default function POS({
                       {/* Remaining Balance */}
                       {settings.receiptShowDeposit !== false && remainingBalanceFinal > 0 && (
                         <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: '#e74c3c', fontStyle: 'italic', fontWeight: 'bold' }}>
-                          <span>ຄ້າງຊຳລະ / Balance:</span>
+                          <span>ຄ້າງຊຳລະ:</span>
                           <span>{remainingBalanceFinal.toLocaleString()} ກີບ</span>
                         </div>
                       )}
@@ -5616,9 +5616,9 @@ export default function POS({
 
                 {/* Exchange Rates and Equivalent conversions at bottom — shows all 3 currencies when enabled */}
                 {settings.receiptShowEquivalent !== false && (
-                  <div style={{ marginTop: '12px', paddingTop: '6px', borderTop: `${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} black`, fontSize: `calc(${settings.receiptFontSize || '10pt'} - 2.5pt)`, lineHeight: '1.4', color: 'black' }}>
+                  <div style={{ marginTop: '12px', paddingTop: '6px', paddingRight: '6mm', borderTop: `${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} black`, fontSize: `calc(${settings.receiptFontSize || '10pt'} - 2.5pt)`, lineHeight: '1.4', color: 'black' }}>
                     <div style={{ fontWeight: 'bold', marginBottom: '2px', textAlign: 'center' }}>
-                      {db.getLabel('rcpt_equivalent_totals_label', 'ມູນຄ່າທຽບເທົ່າ (Equivalent)')}
+                      {db.getLabel('rcpt_equivalent_totals_label', 'ມູນຄ່າທຽບເທົ່າ')}
                     </div>
                     <table style={{ width: '100%', fontSize: `calc(${settings.receiptFontSize || '10pt'} - 2.5pt)` }}>
                       <tbody>

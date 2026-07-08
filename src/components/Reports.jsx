@@ -344,7 +344,7 @@ export default function Reports({ activeUser, isMobile }) {
 
           <div class="divider"></div>
 
-          <div class="section-title">📊 ສິນຄ້າທີ່ຂາຍໄດ້ (Products Sold)</div>
+          <div class="section-title">📊 ສິນຄ້າທີ່ຂายໄດ້</div>
           <table style="width: 100%; border-collapse: collapse; font-size: calc(${fontSize} - 1.5pt); margin-top: 4px;">
             <thead>
               <tr style="border-bottom: 0.5px solid black; text-align: left; font-weight: bold;">
@@ -360,8 +360,8 @@ export default function Reports({ activeUser, isMobile }) {
 
           <div class="divider"></div>
 
-          <div class="section-title">💰 ສະຫຼຸບລາຍຮັບ-ລາຍຈ່າຍ (Financial Summary)</div>
-          <div style="font-size: calc(${fontSize} - 1pt); margin-top: 4px;">
+          <div class="section-title">💰 ສະຫຼຸບລາຍຮັບ-ລາຍຈ່າຍ</div>
+          <div style="font-size: calc(${fontSize} - 1pt); margin-top: 4px; padding-right: 6mm;">
             <div style="display:flex; justify-content:space-between;">
               <span>ຍອດຂາຍທັງໝົດ:</span>
               <span><b>${hasReportsPermission('reportsRevenue') ? totalSales.toLocaleString() + " ກີບ" : "*** ກີບ"}</b></span>
@@ -393,7 +393,7 @@ export default function Reports({ activeUser, isMobile }) {
               <span>-${totalExpenses.toLocaleString()} ກີບ</span>
             </div>
             <div style="display:flex; justify-content:space-between; font-size: calc(${fontSize} + 1pt); border-top: 0.5px solid black; margin-top: 6px; padding-top: 4px; font-weight: bold;">
-              <span>ກຳໄລສຸດທິ (Est. Profit):</span>
+              <span>ກຳໄລສຸດທິ:</span>
               <span>${netProfit.toLocaleString()} ກີບ</span>
             </div>
           </div>
