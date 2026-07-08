@@ -1320,6 +1320,42 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                       </div>
+                      {/* ─── NEW: Column widths + Print feed ─── */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginTop: '8px' }}>
+                        <div className="form-group">
+                          <label className="form-label">🔢 ຄວາມກວ້າງຄໍລໍາຈຳນວນ (Qty Col Width)</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={settings.receiptQtyColWidth || '22px'}
+                            onChange={(e) => setSettings({ ...settings, receiptQtyColWidth: e.target.value })}
+                            placeholder="e.g. 22px"
+                          />
+                          <small style={{ color: '#aaa', fontSize: '0.72rem' }}>ຄ່າເລີ່ມ: 22px</small>
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">💰 ຄວາມກວ້າງຄໍລໍາລາຄາ (Price Col Width)</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={settings.receiptPriceColWidth || '65px'}
+                            onChange={(e) => setSettings({ ...settings, receiptPriceColWidth: e.target.value })}
+                            placeholder="e.g. 65px"
+                          />
+                          <small style={{ color: '#aaa', fontSize: '0.72rem' }}>ຄ່າເລີ່ມ: 65px — ເພີ່ມຖ້າລາຄາຂາດ</small>
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">⬇️ ລ໋ອກເຈ້ຍດ້ານລຸ່ມ (Print Feed Padding)</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={settings.receiptFeedPadding || '8mm'}
+                            onChange={(e) => setSettings({ ...settings, receiptFeedPadding: e.target.value })}
+                            placeholder="e.g. 8mm"
+                          />
+                          <small style={{ color: '#aaa', fontSize: '0.72rem' }}>ເພີ່ມຖ້ານ<br/>ໍ້ຫລ ກ ➝ ຂາດ</small>
+                        </div>
+                      </div>
                     </div>
 
                     {/* Margins Group */}

@@ -2488,7 +2488,7 @@ export default function POS({
         {`
           @media print {
             @page {
-              size: auto;
+              size: ${settings.receiptPaperWidth || '80mm'} auto;
               margin: 0mm !important;
             }
             body > *:not(div[data-portal]) {
@@ -5405,8 +5405,8 @@ export default function POS({
                   <thead>
                     <tr style={{ borderBottom: '1px solid black', textAlign: 'left' }}>
                       <th style={{ paddingBottom: '4px' }}>ລາຍການ</th>
-                      <th style={{ width: '25px', textAlign: 'center', paddingBottom: '4px' }}>{db.getLabel('rcpt_header_qty', 'ຈຳນວນ')}</th>
-                      <th style={{ width: '70px', textAlign: 'right', paddingBottom: '4px' }}>{db.getLabel('rcpt_header_price', 'ລາຄາ')}</th>
+                      <th style={{ width: settings.receiptQtyColWidth || '22px', textAlign: 'center', paddingBottom: '4px' }}>{db.getLabel('rcpt_header_qty', 'ຈຳນວນ')}</th>
+                      <th style={{ width: settings.receiptPriceColWidth || '65px', textAlign: 'right', paddingBottom: '4px' }}>{db.getLabel('rcpt_header_price', 'ລາຄາ')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -5719,6 +5719,8 @@ export default function POS({
                     <p>{settings.receiptFooterNote || 'ພຣະເຄື່ອງຄຸ້ມຄອງ, ໂຊກດີ ມີໄຊ!'}</p>
                   </div>
                 )}
+                {/* ─── Feed Padding: prevents last line from being cut by printer blade ─── */}
+                <div style={{ height: settings.receiptFeedPadding || '8mm', display: 'block' }} />
               </div>
             </div>
             <div className="modal-footer no-print">
@@ -6558,6 +6560,8 @@ export default function POS({
                     <p>{settings.receiptFooterNote || 'ກະລຸນາກວດສອບພຣະເຄື່ອງ ແລະ ຂອບ ກ່ອນອອກຈາກຮ້าน'}</p>
                   </div>
                 )}
+                {/* ─── Feed Padding: prevents last line from being cut by printer blade ─── */}
+                <div style={{ height: settings.receiptFeedPadding || '8mm', display: 'block' }} />
               </div>
             </div>
             <div className="modal-footer no-print">
