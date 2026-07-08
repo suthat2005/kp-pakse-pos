@@ -270,8 +270,8 @@ export default function Reports({ activeUser, isMobile }) {
       itemsHtml += `
         <tr>
           <td style="padding: 4px 0; line-height: 1.2;">${item.name}</td>
-          <td style="text-align: center; padding: 4px 0;">${item.qty}</td>
-          <td style="text-align: right; padding: 4px 0;">${item.total.toLocaleString()}</td>
+          <td style="width: ${settings.receiptQtyColWidth || '25px'}; text-align: center; padding: 4px 0;">${item.qty}</td>
+          <td style="width: ${settings.receiptPriceColWidth || '75px'}; text-align: right; padding: 4px 0;">${item.total.toLocaleString()} ກີບ</td>
         </tr>
       `;
     });
@@ -349,8 +349,8 @@ export default function Reports({ activeUser, isMobile }) {
             <thead>
               <tr style="border-bottom: 0.5px solid black; text-align: left; font-weight: bold;">
                 <th style="padding-bottom: 4px;">ລາຍການ</th>
-                <th style="width: 30px; text-align: center; padding-bottom: 4px;">ຈຳນວນ</th>
-                <th style="width: 80px; text-align: right; padding-bottom: 4px;">ຍອດລວມ</th>
+                <th style="width: ${settings.receiptQtyColWidth || '25px'}; text-align: center; padding-bottom: 4px;">ຈຳນວນ</th>
+                 <th style="width: ${settings.receiptPriceColWidth || '75px'}; text-align: right; padding-bottom: 4px;">ຍອດລວມ</th>
               </tr>
             </thead>
             <tbody>

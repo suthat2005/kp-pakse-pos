@@ -5410,8 +5410,8 @@ export default function POS({
                             <div style={{ fontWeight: 'bold' }}>{item.name}</div>
 
                           </td>
-                          <td style={{ textAlign: 'center', paddingTop: '4px', verticalAlign: 'top' }}>{item.qty}</td>
-                          <td style={{ textAlign: 'right', paddingTop: '4px', verticalAlign: 'top' }}>{item.total.toLocaleString()}</td>
+                          <td style={{ width: settings.receiptQtyColWidth || '25px', textAlign: 'center', paddingTop: '4px', verticalAlign: 'top' }}>{item.qty}</td>
+                          <td style={{ width: settings.receiptPriceColWidth || '75px', textAlign: 'right', paddingTop: '4px', verticalAlign: 'top' }}>{item.total.toLocaleString()} ກີບ</td>
                         </tr>
                       );
                     })}
