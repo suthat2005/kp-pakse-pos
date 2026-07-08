@@ -137,7 +137,7 @@ const DEFAULT_SETTINGS = {
   lowStockThreshold: 5,
   taxRate: 0,
   logoSvg: '',
-  receiptLogoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=60',
+  receiptLogoUrl: '',
   receiptHeaderNote: 'ຂອບພຣະຣັທເກຊ - ປາກເຊ',
   receiptFooterNote: 'ພຣະເຄື່ອງຄຸ້ມຄອງ, ໂຊກດີ ມີໄຊ!',
   appTheme: 'gold', // gold, amber, emerald, blue, crimson

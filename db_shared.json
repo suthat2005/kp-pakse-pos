@@ -2227,7 +2227,7 @@
       "lowStockThreshold": 5,
       "taxRate": 0,
       "logoSvg": "",
-      "receiptLogoUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=60",
+      "receiptLogoUrl": "",
       "receiptHeaderNote": "ຂອບພຣະຣັທເກຊ - ປາກເຊ",
       "receiptFooterNote": "ພຣະເຄື່ອງຄຸ້ມຄອງ, ໂກດີ ມີໄຊ!",
       "appTheme": "blue",
@@ -2385,7 +2385,7 @@
       "notifyOnlineOrder": true,
       "notifyOnlineOrderUpdate": true
     },
-    "updatedAt": 1783551143852
+    "updatedAt": 1783551678977
   },
   "expenses": {
     "data": [],

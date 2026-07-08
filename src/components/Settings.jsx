@@ -1839,22 +1839,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       textAlign: 'left'
                     }}>
                       
-                      {/* Cashier Avatar (Printed on top of receipt if activeUser avatar is available) */}
-                      {settings.receiptShowCashier !== false && activeUser && activeUser.avatar && (
-                        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
-                          <img 
-                            src={activeUser.avatar} 
-                            alt="Cashier Avatar Preview" 
-                            style={{ 
-                              width: '70px', 
-                              height: '70px', 
-                              borderRadius: '50%', 
-                              objectFit: 'cover', 
-                              border: '2px solid #ddd' 
-                            }} 
-                          />
-                        </div>
-                      )}
+
 
                       {/* Logo */}
                       {settings.receiptShowLogo !== false && (
