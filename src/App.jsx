@@ -883,6 +883,19 @@ export default function App() {
               )}
             </div>
           )}
+                    {/* 1. Reports */}
+          {hasPermission(activeUser, 'reports') && !isMobile && (
+            <button
+              type="button"
+              className={`sidebar-item ${activeTab === 'reports' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('reports'); setMobileSidebarOpen(false); }}
+            >
+              <span className="sidebar-icon">📊</span>
+              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_reports', '📊 ລາຍງານ (Reports)')}</span>}
+            </button>
+          )}
+
+          {/* 2. POS */}
           {hasPermission(activeUser, 'pos') && !isMobile && (
             <button
               type="button"
@@ -900,54 +913,7 @@ export default function App() {
             </button>
           )}
 
-
-
-          {hasPermission(activeUser, 'inventory') && !isMobile && (
-            <button
-              type="button"
-              className={`sidebar-item ${activeTab === 'inventory' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('inventory'); setMobileSidebarOpen(false); }}
-            >
-              <span className="sidebar-icon">📦</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_inventory', '📦 ສະຕັອກ (Inventory)')}</span>}
-            </button>
-          )}
-
-          {hasPermission(activeUser, 'hrm') && (
-            <button
-              type="button"
-              className={`sidebar-item ${activeTab === 'hrm' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('hrm'); setMobileSidebarOpen(false); }}
-            >
-              <span className="sidebar-icon">👥</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_hrm', '👥 ຈັດການບຸກຄະລາກອນ (HRM)')}</span>}
-            </button>
-          )}
-
-          {hasPermission(activeUser, 'customers') && (
-            <button
-              type="button"
-              className={`sidebar-item ${activeTab === 'customers' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('customers'); setMobileSidebarOpen(false); }}
-            >
-              <span className="sidebar-icon">💳</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_customers', '💳 ສະມາຊິກ (Members)')}</span>}
-            </button>
-          )}
-
-
-
-          {hasPermission(activeUser, 'reports') && !isMobile && (
-            <button
-              type="button"
-              className={`sidebar-item ${activeTab === 'reports' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('reports'); setMobileSidebarOpen(false); }}
-            >
-              <span className="sidebar-icon">📊</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_reports', '📊 ລາຍງານ (Reports)')}</span>}
-            </button>
-          )}
-
+          {/* 3. Online Orders */}
           {(activeUser.role === 'owner' || activeUser.role === 'manager') && !isMobile && (
             <button
               type="button"
@@ -959,6 +925,19 @@ export default function App() {
             </button>
           )}
 
+          {/* 4. Inventory */}
+          {hasPermission(activeUser, 'inventory') && !isMobile && (
+            <button
+              type="button"
+              className={`sidebar-item ${activeTab === 'inventory' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('inventory'); setMobileSidebarOpen(false); }}
+            >
+              <span className="sidebar-icon">📦</span>
+              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_inventory', '📦 ສະຕັອກ (Inventory)')}</span>}
+            </button>
+          )}
+
+          {/* 5. Debts */}
           {hasPermission(activeUser, 'debts') && !isMobile && (
             <button
               type="button"
@@ -970,6 +949,31 @@ export default function App() {
             </button>
           )}
 
+          {/* 6. Members */}
+          {hasPermission(activeUser, 'customers') && (
+            <button
+              type="button"
+              className={`sidebar-item ${activeTab === 'customers' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('customers'); setMobileSidebarOpen(false); }}
+            >
+              <span className="sidebar-icon">💳</span>
+              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_customers', '💳 ສະມາຊິກ (Members)')}</span>}
+            </button>
+          )}
+
+          {/* 7. HRM */}
+          {hasPermission(activeUser, 'hrm') && (
+            <button
+              type="button"
+              className={`sidebar-item ${activeTab === 'hrm' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('hrm'); setMobileSidebarOpen(false); }}
+            >
+              <span className="sidebar-icon">👥</span>
+              {!sidebarCollapsed && <span className="sidebar-label">{db.getLabel('tab_hrm', '👥 ຈັດການບຸກຄະລາກອນ (HRM)')}</span>}
+            </button>
+          )}
+
+          {/* 8. AI System */}
           {hasPermission(activeUser, 'ai') && (
             <button
               type="button"
@@ -981,6 +985,7 @@ export default function App() {
             </button>
           )}
 
+          {/* 9. Settings */}
           {hasPermission(activeUser, 'settings') && !isMobile && (
             <button
               type="button"
