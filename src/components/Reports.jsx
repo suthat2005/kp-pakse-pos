@@ -331,14 +331,19 @@ export default function Reports({ activeUser, isMobile }) {
   allProducts.forEach(p => { productCostMap[p.id] = p.cost; });
   
   let totalCost = 0;
+  let posJobsValue = 0;
   rangeOrders.forEach(o => {
     o.items.forEach(item => {
-      const cost = productCostMap[item.productId] !== undefined ? productCostMap[item.productId] : 0;
-      totalCost += cost * item.qty;
+      if (item.productId && item.productId.startsWith('JOB')) {
+        posJobsValue += (item.price || 0) * item.qty;
+      } else {
+        const cost = productCostMap[item.productId] !== undefined ? productCostMap[item.productId] : 0;
+        totalCost += cost * item.qty;
+      }
     });
   });
 
-  const grossProfit = totalSales - totalCost;
+  const grossProfit = (totalSales - posJobsValue) - totalCost;
   const completedJobsValue = rangeJobs.reduce((sum, j) => sum + j.totalPrice, 0);
   const totalExpenses = rangeExpenses.reduce((sum, ex) => sum + (ex.convertedAmount || ex.amount), 0);
   const netProfit = grossProfit + (completedJobsValue * 0.7) - totalExpenses;
@@ -1345,25 +1350,24 @@ export default function Reports({ activeUser, isMobile }) {
           </div>
         </div>
         
-
-        {/* Card 2: Estimated Profit */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📈 ກຳໄລສຸດທິ (Est. Profit)</span>
-          <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--success-green)' }}>
-            {hasReportsPermission('reportsProfit') ? Math.round(netProfit).toLocaleString() + " ກີບ" : "*** ກີບ"}
-          </span>
-          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>*ຫັກຕົ້ນທຶນ ແລະ ຄ່າໃຊ້ຈ່າຍແລ້ວ</span>
-        </div>
-
-        {/* Card 3: Orders count */}
+        {/* Card 2: Orders count */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🛒 ຈຳນວນໃບບິນຂາຍ</span>
           <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'white' }}>
             {rangeOrders.length} ບິນ
           </span>
           <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>
-            สะເລ່ຍ: {rangeOrders.length > 0 ? Math.round(totalSales / rangeOrders.length).toLocaleString() : 0} ₭/ບິນ
+            ສະເລ່ຍ: {rangeOrders.length > 0 ? Math.round(totalSales / rangeOrders.length).toLocaleString() : 0} ₭/ບິນ
           </span>
+        </div>
+
+        {/* Card 3: Framing value */}
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🛠️ ມູນຄ່າງານອັດກອບ</span>
+          <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--accent-amber)' }}>
+            {completedJobsValue.toLocaleString()} ກີບ
+          </span>
+          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ງານຄ້າງຄິວທັງໝົດ: {allJobs.filter(j => j.status !== 'picked_up').length} ງານ</span>
         </div>
 
         {/* Card 4: Outstanding Debt Ledger */}
@@ -1377,16 +1381,7 @@ export default function Reports({ activeUser, isMobile }) {
           </span>
         </div>
 
-        {/* Card 5: Framing value */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🛠️ ມູນຄ່າງານອັດກອບ</span>
-          <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--accent-amber)' }}>
-            {completedJobsValue.toLocaleString()} ກີບ
-          </span>
-          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ງານຄ້າງຄິວທັງໝົດ: {allJobs.filter(j => j.status !== 'picked_up').length} ງານ</span>
-        </div>
-
-        {/* Card 6: Expenses */}
+        {/* Card 5: Expenses (Second-to-last) */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💸 ລາຍຈ່າຍທັງໝົດ</span>
           <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#e74c3c' }}>
@@ -1394,88 +1389,14 @@ export default function Reports({ activeUser, isMobile }) {
           </span>
           <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ລາຍຈ່າຍໃນໄລຍະເວລາທີ່ເລືອກ</span>
         </div>
-      </div>
 
-      {/* (Online channel quick-stats removed – see Online tab) */}
-
-      {/* Print summary button trigger */}
-      {hasReportsPermission('reportsExport') && (
-      <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={handlePrintSummary}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', fontWeight: 'bold', fontSize: '0.85rem' }}
-        >
-          🖨️ ພິມລາຍງານສະຫຼຸບຍອດຂາຍ (Print Sales Summary)
-        </button>
-      </div>
-      )}
-
-      {/* Custom interactive charts panel */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
-        
-        {/* Trend line chart */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.95rem' }}>{db.getLabel('rep_trend_chart_title', '📈 ແນວໂນ້ມຍອດຂາຍ (Sales Trend Line Chart)')}</h4>
-            <select
-              value={trendChartStyle}
-              onChange={(e) => {
-                setTrendChartStyle(e.target.value);
-                localStorage.setItem('rep_trend_style', e.target.value);
-              }}
-              className="form-control"
-              style={{ width: 'auto', padding: '2px 8px', fontSize: '0.75rem', height: '26px', borderRadius: '6px', background: 'var(--bg-input, #222)', color: 'white', border: '1px solid var(--border-color)' }}
-            >
-              <option value="3d-ribbon">📈 3D Ribbon</option>
-              <option value="2d-area">📉 2D Area</option>
-              <option value="3d-bar">📊 3D Column</option>
-            </select>
-          </div>
-          {renderTrendChart()}
-        </div>
-
-        {/* Category donut chart */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.95rem' }}>{db.getLabel('rep_category_donut_title', '🍕 ສັດສ່ວນຍອດຂາຍຕາມໝວດໝູ່ (Category Split)')}</h4>
-            <select
-              value={categoryChartStyle}
-              onChange={(e) => {
-                setCategoryChartStyle(e.target.value);
-                localStorage.setItem('rep_category_style', e.target.value);
-              }}
-              className="form-control"
-              style={{ width: 'auto', padding: '2px 8px', fontSize: '0.75rem', height: '26px', borderRadius: '6px', background: 'var(--bg-input, #222)', color: 'white', border: '1px solid var(--border-color)' }}
-            >
-              <option value="3d-donut">🍩 3D Donut</option>
-              <option value="2d-donut">⚪ 2D Donut</option>
-              <option value="3d-bar">📊 3D Column</option>
-            </select>
-          </div>
-          {renderDonutChart()}
-        </div>
-
-        {/* Debt Risk status chart */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.95rem' }}>{db.getLabel('rep_debt_chart_title', '📒 ສະຖານະຍອດຕິດໜີ້ຊ່ວງນີ້ (Debt Risk Comparison)')}</h4>
-            <select
-              value={debtChartStyle}
-              onChange={(e) => {
-                setDebtChartStyle(e.target.value);
-                localStorage.setItem('rep_debt_style', e.target.value);
-              }}
-              className="form-control"
-              style={{ width: 'auto', padding: '2px 8px', fontSize: '0.75rem', height: '26px', borderRadius: '6px', background: 'var(--bg-input, #222)', color: 'white', border: '1px solid var(--border-color)' }}
-            >
-              <option value="3d-bar">📊 3D Column</option>
-              <option value="2d-bar">▌ 2D Column</option>
-              <option value="3d-donut">🍩 3D Donut</option>
-            </select>
-          </div>
-          {renderDebtChart()}
+        {/* Card 6: Estimated Profit (Absolute Last) */}
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📈 ກຳໄລສຸດທິ (Est. Profit)</span>
+          <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--success-green)' }}>
+            {hasReportsPermission('reportsProfit') ? Math.round(netProfit).toLocaleString() + " ກີບ" : "*** ກີບ"}
+          </span>
+          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>*ຫັກຕົ້ນທຶນ ແລະ ຄ່າໃຊ້ຈ່າຍແລ້ວ</span>
         </div>
       </div>
 
