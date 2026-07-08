@@ -1293,8 +1293,8 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                                 receiptFontSize: '10pt',
                                 receiptPadding: '3mm',
                                 receiptLineHeight: '1.3',
-                                receiptQtyColWidth: '25px',
-                                receiptPriceColWidth: '70px',
+                                receiptQtyColWidth: '35px',
+                                receiptPriceColWidth: '95px',
                                 receiptFeedPadding: '8mm',
                                 receiptMarginLeft: '0mm',
                                 receiptMarginRight: '0mm',
@@ -1366,27 +1366,27 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginTop: '8px' }}>
                         <div className="form-group">
-                          <label className="form-label">🔢 ຖັນຈຳນວນ ( {parseNum(settings.receiptQtyColWidth, 25)} px )</label>
+                          <label className="form-label">🔢 ຖັນຈຳນວນ ( {parseNum(settings.receiptQtyColWidth, 35)} px )</label>
                           <input
                             type="range"
                             min="15"
                             max="60"
                             step="1"
                             style={{ accentColor: 'var(--gold-primary)', width: '100%', cursor: 'pointer', display: 'block', margin: '8px 0' }}
-                            value={parseNum(settings.receiptQtyColWidth, 25)}
+                            value={parseNum(settings.receiptQtyColWidth, 35)}
                             onChange={(e) => setSettings({ ...settings, receiptQtyColWidth: e.target.value + 'px' })}
                           />
                           <small style={{ color: '#aaa', fontSize: '0.72rem' }}>ເລື່ອນເພື່ອຂະຫຍາຍ/ຫຍໍ້ຖັນຈຳນວນ</small>
                         </div>
                         <div className="form-group">
-                          <label className="form-label">💰 ຖັນລາຄາ ( {parseNum(settings.receiptPriceColWidth, 70)} px )</label>
+                          <label className="form-label">💰 ຖັນລາຄາ ( {parseNum(settings.receiptPriceColWidth, 95)} px )</label>
                           <input
                             type="range"
                             min="40"
                             max="120"
                             step="1"
                             style={{ accentColor: 'var(--gold-primary)', width: '100%', cursor: 'pointer', display: 'block', margin: '8px 0' }}
-                            value={parseNum(settings.receiptPriceColWidth, 70)}
+                            value={parseNum(settings.receiptPriceColWidth, 95)}
                             onChange={(e) => setSettings({ ...settings, receiptPriceColWidth: e.target.value + 'px' })}
                           />
                           <small style={{ color: '#aaa', fontSize: '0.72rem' }}>ເພີ່ມຖ້າລາຄາຕົກຂອບ ຫຼື ຂາດ</small>

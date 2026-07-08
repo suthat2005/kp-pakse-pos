@@ -4592,10 +4592,10 @@ export default function POS({
                   <label style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 'bold', display: 'block', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{db.getLabel('chk_pay_method', 'ຊ່ອງທາງຊຳລະ')}</label>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {[
-                      { key: 'treat', icon: '🎁', label: 'ລ້ຽງແຂກ (Owner Treat)', color: '#e67e22' },
-                      { key: 'cash', icon: '💵', label: db.getLabel('chk_cash', 'ເງິນສົດ (Cash)'), color: '#27ae60' },
+                      { key: 'treat', icon: '🎁', label: 'ລ້ຽງແຂກ', color: '#e67e22' },
+                      { key: 'cash', icon: '💵', label: db.getLabel('chk_cash', 'ເງິນສົດ'), color: '#27ae60' },
                       { key: 'transfer', icon: '📱', label: db.getLabel('chk_transfer', 'ໂອນ BCEL One'), color: '#3498db' },
-                      { key: 'split', icon: '🔀', label: 'ເງິນສົດ + ໂອນ (Split)', color: '#9b59b6' }
+                      { key: 'split', icon: '🔀', label: 'ເງິນສົດ + ໂອນ', color: '#9b59b6' }
                     ].map(m => (
                       <button
                         key={m.key}
@@ -5376,11 +5376,11 @@ export default function POS({
                   {settings.receiptShowPaymentMethod !== false && (
                     <div>
                       <b>ການຊຳລະ:</b> {
-                        currentReceipt.paymentMethod === 'treat' ? '🎁 ລ້ຽງແຂກ (Owner Treat)' :
-                        currentReceipt.paymentMethod === 'cash' ? 'ເງິນສົດ (Cash)' :
-                        currentReceipt.paymentMethod === 'draft' ? 'ຍັງບໍ່ທັນຊຳລະ (Temporary Bill)' :
-                        currentReceipt.paymentMethod === 'split' ? 'ເງິນສົດ + ໂອນ (Split)' :
-                        'ໂອນທະນາຄານ (BCEL)'
+                        currentReceipt.paymentMethod === 'treat' ? '🎁 ລ້ຽງແຂກ' :
+                        currentReceipt.paymentMethod === 'cash' ? 'ເງິນສົດ' :
+                        currentReceipt.paymentMethod === 'draft' ? 'ຍັງບໍ່ທັນຊຳລະ' :
+                        currentReceipt.paymentMethod === 'split' ? 'ເງິນສົດ + ໂອນ' :
+                        'ໂອນທະນາຄານ'
                       }
                     </div>
                   )}
@@ -5391,12 +5391,13 @@ export default function POS({
 
                 <div className="print-receipt-divider"></div>
 
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: settings.receiptItemsFontSize || 'calc(100% - 2pt)' }}>
+                <div style={{ paddingRight: '6mm' }}>
+  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: settings.receiptItemsFontSize || 'calc(100% - 2pt)' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid black', textAlign: 'left' }}>
                       <th style={{ paddingBottom: '4px' }}>ລາຍການ</th>
-                      <th style={{ width: settings.receiptQtyColWidth || '25px', textAlign: 'center', paddingBottom: '4px' }}>{db.getLabel('rcpt_header_qty', 'ຈຳນວນ')}</th>
-                      <th style={{ width: settings.receiptPriceColWidth || '75px', textAlign: 'right', paddingBottom: '4px' }}>{db.getLabel('rcpt_header_price', 'ລາຄາ')}</th>
+                      <th style={{ width: settings.receiptQtyColWidth || '35px', textAlign: 'center', paddingBottom: '4px' }}>{db.getLabel('rcpt_header_qty', 'ຈຳນວນ')}</th>
+                      <th style={{ width: settings.receiptPriceColWidth || '95px', textAlign: 'right', paddingBottom: '4px' }}>{db.getLabel('rcpt_header_price', 'ລາຄາ')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -5410,13 +5411,14 @@ export default function POS({
                             <div style={{ fontWeight: 'bold' }}>{item.name}</div>
 
                           </td>
-                          <td style={{ width: settings.receiptQtyColWidth || '25px', textAlign: 'center', paddingTop: '4px', verticalAlign: 'top' }}>{item.qty}</td>
-                          <td style={{ width: settings.receiptPriceColWidth || '75px', textAlign: 'right', paddingTop: '4px', verticalAlign: 'top' }}>{item.total.toLocaleString()} ກີບ</td>
+                          <td style={{ width: settings.receiptQtyColWidth || '35px', textAlign: 'center', paddingTop: '4px', verticalAlign: 'top' }}>{item.qty}</td>
+                          <td style={{ width: settings.receiptPriceColWidth || '95px', textAlign: 'right', paddingTop: '4px', verticalAlign: 'top' }}>{item.total.toLocaleString()} ກີບ</td>
                         </tr>
                       );
                     })}
                   </tbody>
                 </table>
+</div>
 
                 {/* Default totals layout */}
                 {(() => {

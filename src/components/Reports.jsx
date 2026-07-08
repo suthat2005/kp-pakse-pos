@@ -270,8 +270,8 @@ export default function Reports({ activeUser, isMobile }) {
       itemsHtml += `
         <tr>
           <td style="padding: 4px 0; line-height: 1.2;">${item.name}</td>
-          <td style="width: ${settings.receiptQtyColWidth || '25px'}; text-align: center; padding: 4px 0;">${item.qty}</td>
-          <td style="width: ${settings.receiptPriceColWidth || '75px'}; text-align: right; padding: 4px 0;">${item.total.toLocaleString()} ກີບ</td>
+          <td style="width: ${settings.receiptQtyColWidth || '35px'}; text-align: center; padding: 4px 0;">${item.qty}</td>
+          <td style="width: ${settings.receiptPriceColWidth || '95px'}; text-align: right; padding: 4px 0;">${item.total.toLocaleString()} ກີບ</td>
         </tr>
       `;
     });
@@ -345,18 +345,20 @@ export default function Reports({ activeUser, isMobile }) {
           <div class="divider"></div>
 
           <div class="section-title">📊 ສິນຄ້າທີ່ຂายໄດ້</div>
+          <div style="padding-right: 6mm;">
           <table style="width: 100%; border-collapse: collapse; font-size: calc(${fontSize} - 1.5pt); margin-top: 4px;">
             <thead>
               <tr style="border-bottom: 0.5px solid black; text-align: left; font-weight: bold;">
                 <th style="padding-bottom: 4px;">ລາຍການ</th>
-                <th style="width: ${settings.receiptQtyColWidth || '25px'}; text-align: center; padding-bottom: 4px;">ຈຳນວນ</th>
-                 <th style="width: ${settings.receiptPriceColWidth || '75px'}; text-align: right; padding-bottom: 4px;">ຍອດລວມ</th>
+                <th style="width: ${settings.receiptQtyColWidth || '35px'}; text-align: center; padding-bottom: 4px;">ຈຳນວນ</th>
+                 <th style="width: ${settings.receiptPriceColWidth || '95px'}; text-align: right; padding-bottom: 4px;">ຍອດລວມ</th>
               </tr>
             </thead>
             <tbody>
               ${itemsHtml || '<tr><td colspan="3" style="text-align:center; padding: 10px;">ບໍ່ມີລາຍການຂາຍໃນຊ່ວງນີ້</td></tr>'}
             </tbody>
           </table>
+          </div>
 
           <div class="divider"></div>
 
@@ -1171,7 +1173,7 @@ export default function Reports({ activeUser, isMobile }) {
             
             {/* Cash portion */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingBottom: '2px', borderBottom: '1px dashed rgba(255,255,255,0.05)' }}>
-              <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>💵 ລວມຮັບເງິນສົດ (Cash):</span>
+              <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>💵 ລວມຮັບເງິນສົດ:</span>
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
                 <span>• ເງິນສົດ LAK:</span>
                 <span style={{ color: 'white' }}>{rangeCashLAK.toLocaleString()} ₭</span>
@@ -1763,7 +1765,7 @@ export default function Reports({ activeUser, isMobile }) {
                 
                 {/* Cash portion */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingBottom: '2px', borderBottom: '1px dashed rgba(255,255,255,0.05)' }}>
-                  <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>💵 ລວມຮັບເງິນສົດ (Cash):</span>
+                  <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>💵 ລວມຮັບເງິນສົດ:</span>
                   <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
                     <span>• ເງິນສົດ LAK:</span>
                     <span style={{ color: 'white' }}>{ovCashLAK.toLocaleString()} ₭</span>
@@ -1963,7 +1965,7 @@ export default function Reports({ activeUser, isMobile }) {
                   <div><b>ເລກບິນ:</b> {selectedReceipt.id}</div>
                   <div><b>ວັນທີ:</b> {new Date(selectedReceipt.date).toLocaleString('lo-LA')}</div>
                   <div><b>ພະນັກງານຂາຍ:</b> {selectedReceipt.cashierName || 'Online Shop'}</div>
-                  <div><b>ການຊຳລະ:</b> {selectedReceipt.id.startsWith('ONL-') ? 'ໂອນທະນາຄານ (Online BCEL)' : (selectedReceipt.paymentMethod === 'treat' ? '🎁 ລ້ຽງແຂກ (Owner Treat)' : (selectedReceipt.paymentMethod === 'cash' ? 'ເງິນສົດ (Cash)' : selectedReceipt.paymentMethod === 'split' ? 'ເງິນສົດ + ໂອນ (Split)' : 'ໂອນທະນາຄານ (BCEL)'))}</div>
+                  <div><b>ການຊຳລະ:</b> {selectedReceipt.id.startsWith('ONL-') ? 'ໂອນທະນາຄານ (Online)' : (selectedReceipt.paymentMethod === 'treat' ? '🎁 ລ້ຽງແຂກ' : (selectedReceipt.paymentMethod === 'cash' ? 'ເງິນສົດ' : selectedReceipt.paymentMethod === 'split' ? 'ເງິນສົດ + ໂອນ' : 'ໂອນທະນາຄານ'))}</div>
                   {selectedReceipt.bankTxRef && <div><b>ເລກອ້າງອີງ:</b> {selectedReceipt.bankTxRef}</div>}
                   {selectedReceipt.id.startsWith('ONL-') && selectedReceipt.shippingAddress && (
                     <div style={{ marginTop: '4px', borderTop: '0.5px solid #ccc', paddingTop: '4px', fontSize: '7.5pt' }}>

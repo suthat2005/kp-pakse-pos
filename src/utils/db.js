@@ -2282,12 +2282,12 @@ this.runDataRetention();
 
     // Auto-migrate old layout values to safe defaults
     let migrated = false;
-    if (!settings.receiptQtyColWidth || settings.receiptQtyColWidth === '22px' || settings.receiptQtyColWidth === '12px') {
-      settings.receiptQtyColWidth = '25px';
+    if (!settings.receiptQtyColWidth || settings.receiptQtyColWidth === '22px' || settings.receiptQtyColWidth === '12px' || settings.receiptQtyColWidth === '25px') {
+      settings.receiptQtyColWidth = '35px';
       migrated = true;
     }
-    if (!settings.receiptPriceColWidth || settings.receiptPriceColWidth === '65px' || settings.receiptPriceColWidth === '70px') {
-      settings.receiptPriceColWidth = '75px';
+    if (!settings.receiptPriceColWidth || settings.receiptPriceColWidth === '65px' || settings.receiptPriceColWidth === '70px' || settings.receiptPriceColWidth === '75px') {
+      settings.receiptPriceColWidth = '95px';
       migrated = true;
     }
     if (!settings.receiptPadding || settings.receiptPadding === '5mm') {
