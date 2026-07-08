@@ -109,29 +109,83 @@ export default function Reports({ activeUser, isMobile }) {
 
     if (deleteTarget.type === 'pos') {
       const orders = db.getOrders();
+      const order = orders.find(o => o.id === deleteTarget.id);
+      
+      // Auto-restore stock for non-service items in POS order
+      if (order && !order.skipStockReduction) {
+        const products = db.getProducts();
+        let restoredCount = 0;
+        order.items.forEach(item => {
+          const prod = products.find(p => p.id === item.productId);
+          if (prod && !db.isServiceCategory(prod.category)) {
+            prod.stock = (prod.stock || 0) + item.qty;
+            restoredCount += item.qty;
+          }
+        });
+        if (restoredCount > 0) {
+          db.saveProducts(products);
+        }
+      }
+
       const filtered = orders.filter(o => o.id !== deleteTarget.id);
       db.saveOrders(filtered);
       db.addAuditLog(
         'success_pin',
-        `ລຶບບິນຂາຍໜ້າຮ້ານ ID: ${deleteTarget.id} (ອະນຸມັດໂດຍ Admin PIN)`,
+        `ລຶບບິນຂາຍໜ້າຮ້ານ ID: ${deleteTarget.id} (ຄືນສະຕັອກສິນຄ້າອໍໂຕ້, ອະນຸມັດໂດຍ Admin PIN)`,
         'warning'
       );
     } else if (deleteTarget.type === 'debt') {
       const debts = db.getDebts();
+      const debt = debts.find(d => d.id === deleteTarget.id);
+      
+      // Auto-restore stock for non-service items in Debt
+      if (debt) {
+        const products = db.getProducts();
+        let restoredCount = 0;
+        debt.items.forEach(item => {
+          const prod = products.find(p => p.id === item.productId);
+          if (prod && !db.isServiceCategory(prod.category)) {
+            prod.stock = (prod.stock || 0) + item.qty;
+            restoredCount += item.qty;
+          }
+        });
+        if (restoredCount > 0) {
+          db.saveProducts(products);
+        }
+      }
+
       const filtered = debts.filter(d => d.id !== deleteTarget.id);
       db.saveDebts(filtered);
       db.addAuditLog(
         'success_pin',
-        `ລຶບບິນຕິດໜີ້ ID: ${deleteTarget.id} (ອະນຸມັດໂດຍ Admin PIN)`,
+        `ລຶບບິນຕິດໜີ້ ID: ${deleteTarget.id} (ຄືນສະຕັອກສິນຄ້າອໍໂຕ້, ອະນຸມັດໂດຍ Admin PIN)`,
         'warning'
       );
     } else if (deleteTarget.type === 'online') {
       const online = db.getOnlineOrders();
+      const order = online.find(o => o.id === deleteTarget.id);
+      
+      // Auto-restore stock for non-service items in Online order (only if it was marked as paid)
+      if (order && order.paymentStatus === 'paid') {
+        const products = db.getProducts();
+        let restoredCount = 0;
+        order.items.forEach(item => {
+          const prod = products.find(p => p.id === item.productId);
+          if (prod && !db.isServiceCategory(prod.category)) {
+            prod.stock = (prod.stock || 0) + item.qty;
+            restoredCount += item.qty;
+          }
+        });
+        if (restoredCount > 0) {
+          db.saveProducts(products);
+        }
+      }
+
       const filtered = online.filter(o => o.id !== deleteTarget.id);
       db.saveOnlineOrders(filtered);
       db.addAuditLog(
         'success_pin',
-        `ລຶບບິນຂາຍອອນລາຍ ID: ${deleteTarget.id} (ອະນຸມັດໂດຍ Admin PIN)`,
+        `ລຶບບິນຂາຍອອນລາຍ ID: ${deleteTarget.id} (ຄືນສະຕັອກສິນຄ້າອໍໂຕ້, ອະນຸມັດໂດຍ Admin PIN)`,
         'warning'
       );
     } else if (deleteTarget.type === 'expense') {
