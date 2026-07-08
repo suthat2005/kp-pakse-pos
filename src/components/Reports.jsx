@@ -134,6 +134,15 @@ export default function Reports({ activeUser, isMobile }) {
         `ລຶບບິນຂາຍອອນລາຍ ID: ${deleteTarget.id} (ອະນຸມັດໂດຍ Admin PIN)`,
         'warning'
       );
+    } else if (deleteTarget.type === 'expense') {
+      const expenses = db.getExpenses();
+      const filtered = expenses.filter(ex => ex.id !== deleteTarget.id);
+      db.saveExpenses(filtered);
+      db.addAuditLog(
+        'success_pin',
+        `ລຶບບິນລາຍຈ່າຍ ID: ${deleteTarget.id} (ອະນຸມັດໂດຍ Admin PIN)`,
+        'warning'
+      );
     }
 
     alert('✓ ລຶບໃບບິນສຳເລັດ!');
@@ -1652,6 +1661,7 @@ export default function Reports({ activeUser, isMobile }) {
                     <th style={{ padding: '10px', textAlign: 'left' }}>ວັນທີ</th>
                     <th style={{ padding: '10px', textAlign: 'left' }}>ລາຍການ</th>
                     <th style={{ padding: '10px', textAlign: 'right' }}>ຈຳນວນ</th>
+                    <th style={{ padding: '10px', textAlign: 'center' }}>ຈັດການ</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1667,6 +1677,15 @@ export default function Reports({ activeUser, isMobile }) {
                       <td style={{ padding: '10px', textAlign: 'right', color: '#e74c3c', fontWeight: 'bold' }}>
                         -{ex.amount.toLocaleString()} {ex.currency || 'LAK'}
                         {ex.currency && ex.currency !== 'LAK' && <small style={{ display: 'block', fontSize: '0.65rem', color: 'var(--text-secondary)' }}>(≈ {ex.convertedAmount?.toLocaleString()} ₭)</small>}
+                      </td>
+                      <td style={{ padding: '10px', textAlign: 'center' }}>
+                        <button
+                          className="btn btn-danger"
+                          style={{ padding: '3px 8px', fontSize: '0.72rem', background: 'rgba(231, 76, 60, 0.2)', border: '1px solid rgba(231, 76, 60, 0.4)', color: '#e74c3c' }}
+                          onClick={() => handleRequestDelete('expense', ex.id, ex.categoryName || ex.category)}
+                        >
+                          🗑️ ລຶບ
+                        </button>
                       </td>
                     </tr>
                   ))}
