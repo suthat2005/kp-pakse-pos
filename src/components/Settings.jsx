@@ -58,6 +58,11 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
     return !!activeUser.permissions?.[subKey];
   };
   const [scanTestResult, setScanTestResult] = useState('');
+  const parseNum = (str, defaultVal) => {
+    if (!str) return defaultVal;
+    const num = parseFloat(str);
+    return isNaN(num) ? defaultVal : num;
+  };
   const [labelsSearchQuery, setLabelsSearchQuery] = useState('');
   const [newFrameStyle, setNewFrameStyle] = useState('');
   const [isMainTerminalLocal, setIsMainTerminalLocal] = useState(() => localStorage.getItem('isMainTerminal') !== 'false');
@@ -1275,7 +1280,33 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     {/* Sizing & Spacing Group */}
                     <div className="glass-card" style={{ padding: '12px', background: 'rgba(255,255,255,0.01)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.85rem', margin: 0 }}>📏 ຂະໜາດ & ໄລຍະຫ່າງ (Sizing & Spacing)</h4>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                        <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.85rem', margin: 0 }}>📏 ຂະໜາດ & ໄລຍະຫ่าง (Sizing & Spacing)</h4>
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          style={{ padding: '2px 8px', fontSize: '0.7rem', background: 'rgba(212,175,55,0.1)', borderColor: 'rgba(212,175,55,0.3)', color: 'var(--gold-primary)', borderRadius: '4px' }}
+                          onClick={() => {
+                            if (window.confirm('ທ່ານຕ້ອງການຄືນຄ່າເລີ່ມຕົ້ນຂອງຂະໜາດໃບບິນທັງໝົດແທ້ບໍ່?')) {
+                              setSettings({
+                                ...settings,
+                                receiptFontSize: '10pt',
+                                receiptPadding: '3mm',
+                                receiptLineHeight: '1.3',
+                                receiptQtyColWidth: '25px',
+                                receiptPriceColWidth: '70px',
+                                receiptFeedPadding: '8mm',
+                                receiptMarginLeft: '0mm',
+                                receiptMarginRight: '0mm',
+                                receiptMarginTop: '0mm',
+                                receiptMarginBottom: '0mm'
+                              });
+                            }
+                          }}
+                        >
+                          🔄 ຄືນຄ່າເລີ່ມຕົ້ນ
+                        </button>
+                      </div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '12px' }}>
                         <div className="form-group">
                           <label className="form-label">ຂະໜາດເຈ້ຍ (Paper Width)</label>
@@ -1296,70 +1327,82 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           </select>
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຂະໜາດຟອນຫຼັກ (Base Font)</label>
+                          <label className="form-label">ຂະໜາດຟອນ ( {parseNum(settings.receiptFontSize, 10)} pt )</label>
                           <input
-                            type="text"
-                            className="form-control"
-                            value={settings.receiptFontSize || '10pt'}
-                            onChange={(e) => setSettings({ ...settings, receiptFontSize: e.target.value })}
-                            placeholder="e.g. 10pt"
+                            type="range"
+                            min="6"
+                            max="18"
+                            step="1"
+                            style={{ accentColor: 'var(--gold-primary)', width: '100%', cursor: 'pointer', display: 'block', margin: '8px 0' }}
+                            value={parseNum(settings.receiptFontSize, 10)}
+                            onChange={(e) => setSettings({ ...settings, receiptFontSize: e.target.value + 'pt' })}
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ໄລຍະຫ່າງໃນ (Padding)</label>
+                          <label className="form-label">ໄລຍະຂອບບິນ ( {parseNum(settings.receiptPadding, 3)} mm )</label>
                           <input
-                            type="text"
-                            className="form-control"
-                            value={settings.receiptPadding || '5mm'}
-                            onChange={(e) => setSettings({ ...settings, receiptPadding: e.target.value })}
-                            placeholder="e.g. 5mm"
+                            type="range"
+                            min="0"
+                            max="15"
+                            step="1"
+                            style={{ accentColor: 'var(--gold-primary)', width: '100%', cursor: 'pointer', display: 'block', margin: '8px 0' }}
+                            value={parseNum(settings.receiptPadding, 3)}
+                            onChange={(e) => setSettings({ ...settings, receiptPadding: e.target.value + 'mm' })}
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຄວາມສູງແຖວ (Line Height)</label>
+                          <label className="form-label">ຄວາມສູງແຖວ ( {parseNum(settings.receiptLineHeight, 1.3)} )</label>
                           <input
-                            type="text"
-                            className="form-control"
-                            value={settings.receiptLineHeight || '1.3'}
+                            type="range"
+                            min="1.0"
+                            max="2.0"
+                            step="0.1"
+                            style={{ accentColor: 'var(--gold-primary)', width: '100%', cursor: 'pointer', display: 'block', margin: '8px 0' }}
+                            value={parseNum(settings.receiptLineHeight, 1.3)}
                             onChange={(e) => setSettings({ ...settings, receiptLineHeight: e.target.value })}
-                            placeholder="e.g. 1.3"
                           />
                         </div>
                       </div>
-                      {/* ─── NEW: Column widths + Print feed ─── */}
+                      
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginTop: '8px' }}>
                         <div className="form-group">
-                          <label className="form-label">🔢 ຄວາມກວ້າງຄໍລໍາຈຳນວນ (Qty Col Width)</label>
+                          <label className="form-label">🔢 ຖັນຈຳນວນ ( {parseNum(settings.receiptQtyColWidth, 25)} px )</label>
                           <input
-                            type="text"
-                            className="form-control"
-                            value={settings.receiptQtyColWidth || '22px'}
-                            onChange={(e) => setSettings({ ...settings, receiptQtyColWidth: e.target.value })}
-                            placeholder="e.g. 22px"
+                            type="range"
+                            min="15"
+                            max="60"
+                            step="1"
+                            style={{ accentColor: 'var(--gold-primary)', width: '100%', cursor: 'pointer', display: 'block', margin: '8px 0' }}
+                            value={parseNum(settings.receiptQtyColWidth, 25)}
+                            onChange={(e) => setSettings({ ...settings, receiptQtyColWidth: e.target.value + 'px' })}
                           />
-                          <small style={{ color: '#aaa', fontSize: '0.72rem' }}>ຄ່າເລີ່ມ: 22px</small>
+                          <small style={{ color: '#aaa', fontSize: '0.72rem' }}>ເລື່ອນເພື່ອຂະຫຍາຍ/ຫຍໍ້ຖັນຈຳນວນ</small>
                         </div>
                         <div className="form-group">
-                          <label className="form-label">💰 ຄວາມກວ້າງຄໍລໍາລາຄາ (Price Col Width)</label>
+                          <label className="form-label">💰 ຖັນລາຄາ ( {parseNum(settings.receiptPriceColWidth, 70)} px )</label>
                           <input
-                            type="text"
-                            className="form-control"
-                            value={settings.receiptPriceColWidth || '65px'}
-                            onChange={(e) => setSettings({ ...settings, receiptPriceColWidth: e.target.value })}
-                            placeholder="e.g. 65px"
+                            type="range"
+                            min="40"
+                            max="120"
+                            step="1"
+                            style={{ accentColor: 'var(--gold-primary)', width: '100%', cursor: 'pointer', display: 'block', margin: '8px 0' }}
+                            value={parseNum(settings.receiptPriceColWidth, 70)}
+                            onChange={(e) => setSettings({ ...settings, receiptPriceColWidth: e.target.value + 'px' })}
                           />
-                          <small style={{ color: '#aaa', fontSize: '0.72rem' }}>ຄ່າເລີ່ມ: 65px — ເພີ່ມຖ້າລາຄາຂາດ</small>
+                          <small style={{ color: '#aaa', fontSize: '0.72rem' }}>ເພີ່ມຖ້າລາຄາຕົກຂອບ ຫຼື ຂາດ</small>
                         </div>
                         <div className="form-group">
-                          <label className="form-label">⬇️ ລ໋ອກເຈ້ຍດ້ານລຸ່ມ (Print Feed Padding)</label>
+                          <label className="form-label">⬇️ ໄລຍະລາກເຈ້ຍ ( {parseNum(settings.receiptFeedPadding, 8)} mm )</label>
                           <input
-                            type="text"
-                            className="form-control"
-                            value={settings.receiptFeedPadding || '8mm'}
-                            onChange={(e) => setSettings({ ...settings, receiptFeedPadding: e.target.value })}
-                            placeholder="e.g. 8mm"
+                            type="range"
+                            min="0"
+                            max="50"
+                            step="1"
+                            style={{ accentColor: 'var(--gold-primary)', width: '100%', cursor: 'pointer', display: 'block', margin: '8px 0' }}
+                            value={parseNum(settings.receiptFeedPadding, 8)}
+                            onChange={(e) => setSettings({ ...settings, receiptFeedPadding: e.target.value + 'mm' })}
                           />
-                          <small style={{ color: '#aaa', fontSize: '0.72rem' }}>ເພີ່ມຖ້ານ<br/>ໍ້ຫລ ກ ➝ ຂາດ</small>
+                          <small style={{ color: '#aaa', fontSize: '0.72rem' }}>ເພີ່ມຖ້າທ້າຍບິນຖືກຕັດຂາດ</small>
                         </div>
                       </div>
                     </div>
@@ -1369,48 +1412,56 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.85rem', margin: 0 }}>📍 ໄລຍະຂອບໃບບິນ (Print Margins)</h4>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '12px' }}>
                         <div className="form-group">
-                          <label className="form-label">ຂອບຊ້າຍ (Left Margin)</label>
+                          <label className="form-label">ຂອບຊ້າຍ ( {parseNum(settings.receiptMarginLeft, 0)} mm )</label>
                           <input
-                            type="text"
-                            className="form-control"
-                            value={settings.receiptMarginLeft || '0mm'}
-                            onChange={(e) => setSettings({ ...settings, receiptMarginLeft: e.target.value })}
-                            placeholder="e.g. 0mm"
+                            type="range"
+                            min="0"
+                            max="20"
+                            step="1"
+                            style={{ accentColor: 'var(--gold-primary)', width: '100%', cursor: 'pointer', display: 'block', margin: '8px 0' }}
+                            value={parseNum(settings.receiptMarginLeft, 0)}
+                            onChange={(e) => setSettings({ ...settings, receiptMarginLeft: e.target.value + 'mm' })}
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຂອບຂວາ (Right Margin)</label>
+                          <label className="form-label">ຂອບຂວາ ( {parseNum(settings.receiptMarginRight, 0)} mm )</label>
                           <input
-                            type="text"
-                            className="form-control"
-                            value={settings.receiptMarginRight || '0mm'}
-                            onChange={(e) => setSettings({ ...settings, receiptMarginRight: e.target.value })}
-                            placeholder="e.g. 0mm"
+                            type="range"
+                            min="0"
+                            max="20"
+                            step="1"
+                            style={{ accentColor: 'var(--gold-primary)', width: '100%', cursor: 'pointer', display: 'block', margin: '8px 0' }}
+                            value={parseNum(settings.receiptMarginRight, 0)}
+                            onChange={(e) => setSettings({ ...settings, receiptMarginRight: e.target.value + 'mm' })}
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຂອບເທິງ (Top Margin)</label>
+                          <label className="form-label">ຂອບເທິງ ( {parseNum(settings.receiptMarginTop, 0)} mm )</label>
                           <input
-                            type="text"
-                            className="form-control"
-                            value={settings.receiptMarginTop || '0mm'}
-                            onChange={(e) => setSettings({ ...settings, receiptMarginTop: e.target.value })}
-                            placeholder="e.g. 0mm"
+                            type="range"
+                            min="0"
+                            max="20"
+                            step="1"
+                            style={{ accentColor: 'var(--gold-primary)', width: '100%', cursor: 'pointer', display: 'block', margin: '8px 0' }}
+                            value={parseNum(settings.receiptMarginTop, 0)}
+                            onChange={(e) => setSettings({ ...settings, receiptMarginTop: e.target.value + 'mm' })}
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຂອບລຸ່ມ (Bottom Margin)</label>
+                          <label className="form-label">ຂອບລຸ່ມ ( {parseNum(settings.receiptMarginBottom, 0)} mm )</label>
                           <input
-                            type="text"
-                            className="form-control"
-                            value={settings.receiptMarginBottom || '0mm'}
-                            onChange={(e) => setSettings({ ...settings, receiptMarginBottom: e.target.value })}
-                            placeholder="e.g. 0mm"
+                            type="range"
+                            min="0"
+                            max="20"
+                            step="1"
+                            style={{ accentColor: 'var(--gold-primary)', width: '100%', cursor: 'pointer', display: 'block', margin: '8px 0' }}
+                            value={parseNum(settings.receiptMarginBottom, 0)}
+                            onChange={(e) => setSettings({ ...settings, receiptMarginBottom: e.target.value + 'mm' })}
                           />
                         </div>
                       </div>
                     </div>
-
+                    
                     {/* Section Font Sizes Group */}
                     <div className="glass-card" style={{ padding: '12px', background: 'rgba(255,255,255,0.01)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.85rem', margin: 0 }}>🔤 ຂະໜາດຟອນແຕ່ລະສ່ວນ (Section Font Sizes)</h4>
