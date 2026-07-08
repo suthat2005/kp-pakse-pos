@@ -1285,6 +1285,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                             onChange={(e) => setSettings({ ...settings, receiptPaperWidth: e.target.value })}
                           >
                             <option value="58mm">58mm (ເຈ້ຍນ້ອຍ)</option>
+                            <option value="72mm">72mm (80mm printer → 72mm printable)</option>
                             <option value="80mm">80mm (ເຈ້ຍມາດຕະຖານ)</option>
                           </select>
                         </div>

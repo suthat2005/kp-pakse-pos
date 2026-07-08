@@ -5501,13 +5501,15 @@ export default function POS({
                   return (
                     <div style={{ marginTop: '6px' }}>
                       {/* Subtotal */}
-                      <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: settings.receiptTotalsFontSize || '100%', marginTop: '4px' }}>
-                        <span>ຍອດລວມ / Subtotal:</span>
-                        <span>{printedSubtotal.toLocaleString()} ກີບ</span>
-                      </div>
+                      {settings.receiptShowSubtotal !== false && (
+                        <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: settings.receiptTotalsFontSize || '100%', marginTop: '4px' }}>
+                          <span>ຍອດລວມ / Subtotal:</span>
+                          <span>{printedSubtotal.toLocaleString()} ກີບ</span>
+                        </div>
+                      )}
 
                       {/* Discount */}
-                      {discVal > 0 && (
+                      {settings.receiptShowDiscount !== false && discVal > 0 && (
                         <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px', color: '#e74c3c' }}>
                           <span>ສ່ວນຫຼຸດ / Discount:</span>
                           <span>-{discVal.toLocaleString()} ກີບ</span>
@@ -5515,10 +5517,12 @@ export default function POS({
                       )}
 
                       {/* Net Total (Subtotal - Discount) */}
-                      <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} + 1pt)`, borderTop: `${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} black`, paddingTop: '4px', marginTop: '4px' }}>
-                        <span>ຍອດລວມສຸດທິ / Total:</span>
-                        <span>{printedTotal.toLocaleString()} ກີບ</span>
-                      </div>
+                      {settings.receiptShowTotal !== false && (
+                        <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} + 1pt)`, borderTop: `${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} black`, paddingTop: '4px', marginTop: '4px' }}>
+                          <span>ຍອດລວມສຸດທິ / Total:</span>
+                          <span>{printedTotal.toLocaleString()} ກີບ</span>
+                        </div>
+                      )}
 
                       {/* Deposit Paid Row */}
                       {settings.receiptShowDeposit !== false && depVal > 0 && (
@@ -5539,58 +5543,60 @@ export default function POS({
                   );
                 })()}
 
-                {/* Multi-currency payment display */}
+                {/* Multi-currency payment row – only show when paying in a foreign currency and equivalent is enabled */}
                 {settings.receiptShowEquivalent !== false && currentReceipt.payCurrency && currentReceipt.payCurrency !== 'LAK' && (
                   <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontSize: settings.receiptTotalsFontSize || '100%', fontWeight: 'bold', marginTop: '4px', borderTop: `${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} #ccc`, paddingTop: '4px' }}>
                     <span>{db.getLabel('rcpt_payment_amount_label', 'ຍອດຊຳລະ')} ({currentReceipt.payCurrency}):</span>
                     <span>
-                      {currentReceipt.payCurrency === 'USD' 
+                      {currentReceipt.payCurrency === 'USD'
                         ? Number(currentReceipt.currencyTotal).toFixed(2) + ' USD'
                         : currentReceipt.currencyTotal.toLocaleString() + ' ບາດ'}
                     </span>
                   </div>
                 )}
 
-                {/* Cash Received and Change / Split Payment details */}
+                {/* Cash Received / Change / Split Payment details — all gated by receiptShowChange */}
                 {currentReceipt.paymentMethod === 'split' ? (
-                  <>
-                    <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px' }}>
-                      <span>💵 ຮັບເງິນສົດ ({currentReceipt.payCurrency}):</span>
-                      <span>
-                        {currentReceipt.payCurrency === 'USD' 
-                          ? Number(currentReceipt.currencyCashReceived).toFixed(2) + ' USD'
-                          : currentReceipt.currencyCashReceived.toLocaleString() + ' ' + (currentReceipt.payCurrency === 'LAK' ? 'ກີບ' : 'ບາດ')}
-                      </span>
-                    </div>
-                    <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '2px' }}>
-                      <span>📱 ຍອດໂອນ ({currentReceipt.payCurrency}):</span>
-                      <span>
-                        {currentReceipt.payCurrency === 'USD' 
-                          ? Number(currentReceipt.currencyTransferAmount).toFixed(2) + ' USD'
-                          : (currentReceipt.currencyTransferAmount || 0).toLocaleString() + ' ' + (currentReceipt.payCurrency === 'LAK' ? 'ກີບ' : 'ບາດ')}
-                      </span>
-                    </div>
-                    {currentReceipt.bankTxRef && (
-                      <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '2px' }}>
-                        <span>ເລກອ້າງອີງ (Ref):</span>
-                        <span>{currentReceipt.bankTxRef}</span>
+                  settings.receiptShowChange !== false && (
+                    <>
+                      <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px' }}>
+                        <span>💵 ຮັບເງິນສົດ ({currentReceipt.payCurrency}):</span>
+                        <span>
+                          {currentReceipt.payCurrency === 'USD'
+                            ? Number(currentReceipt.currencyCashReceived).toFixed(2) + ' USD'
+                            : currentReceipt.currencyCashReceived.toLocaleString() + ' ' + (currentReceipt.payCurrency === 'LAK' ? 'ກີບ' : 'ບາດ')}
+                        </span>
                       </div>
-                    )}
-                    <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '2px' }}>
-                      <span>{db.getLabel('rcpt_change_label', 'ເງິນທອນ')}:</span>
-                      <span>
-                        {currentReceipt.payCurrency === 'USD' 
-                          ? Number(currentReceipt.currencyChange).toFixed(2) + ' USD'
-                          : currentReceipt.currencyChange.toLocaleString() + ' ' + (currentReceipt.payCurrency === 'LAK' ? 'ກີບ' : 'ບາດ')}
-                      </span>
-                    </div>
-                  </>
+                      <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '2px' }}>
+                        <span>📱 ຍອດໂອນ ({currentReceipt.payCurrency}):</span>
+                        <span>
+                          {currentReceipt.payCurrency === 'USD'
+                            ? Number(currentReceipt.currencyTransferAmount).toFixed(2) + ' USD'
+                            : (currentReceipt.currencyTransferAmount || 0).toLocaleString() + ' ' + (currentReceipt.payCurrency === 'LAK' ? 'ກີບ' : 'ບາດ')}
+                        </span>
+                      </div>
+                      {currentReceipt.bankTxRef && (
+                        <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '2px' }}>
+                          <span>ເລກອ້າງອີງ (Ref):</span>
+                          <span>{currentReceipt.bankTxRef}</span>
+                        </div>
+                      )}
+                      <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '2px' }}>
+                        <span>{db.getLabel('rcpt_change_label', 'ເງິນທອນ')}:</span>
+                        <span>
+                          {currentReceipt.payCurrency === 'USD'
+                            ? Number(currentReceipt.currencyChange).toFixed(2) + ' USD'
+                            : currentReceipt.currencyChange.toLocaleString() + ' ' + (currentReceipt.payCurrency === 'LAK' ? 'ກີບ' : 'ບາດ')}
+                        </span>
+                      </div>
+                    </>
+                  )
                 ) : settings.receiptShowChange !== false && currentReceipt.paymentMethod === 'cash' ? (
                   <>
                     <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px' }}>
                       <span>{db.getLabel('rcpt_received_label', 'ຮັບເງິນ')} ({currentReceipt.payCurrency}):</span>
                       <span>
-                        {currentReceipt.payCurrency === 'USD' 
+                        {currentReceipt.payCurrency === 'USD'
                           ? Number(currentReceipt.currencyCashReceived).toFixed(2) + ' USD'
                           : currentReceipt.currencyCashReceived.toLocaleString() + ' ' + (currentReceipt.payCurrency === 'LAK' ? 'ກີບ' : 'ບາດ')}
                       </span>
@@ -5598,14 +5604,14 @@ export default function POS({
                     <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '2px' }}>
                       <span>{db.getLabel('rcpt_change_label', 'ເງິນທອນ')}:</span>
                       <span>
-                        {currentReceipt.payCurrency === 'USD' 
+                        {currentReceipt.payCurrency === 'USD'
                           ? Number(currentReceipt.currencyChange).toFixed(2) + ' USD'
                           : currentReceipt.currencyChange.toLocaleString() + ' ' + (currentReceipt.payCurrency === 'LAK' ? 'ກີບ' : 'ບາດ')}
                       </span>
                     </div>
                   </>
                 ) : (
-                  currentReceipt.bankTxRef && (
+                  settings.receiptShowChange !== false && currentReceipt.bankTxRef && (
                     <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px' }}>
                       <span>{db.getLabel('rcpt_ref_label', 'ເລກອ້າງອີງ (Ref):')}</span>
                       <span>{currentReceipt.bankTxRef}</span>
@@ -5618,7 +5624,7 @@ export default function POS({
                   </div>
                 )}
 
-                {/* Exchange Rates and Equivalent conversions at bottom */}
+                {/* Exchange Rates and Equivalent conversions at bottom — shows all 3 currencies when enabled */}
                 {settings.receiptShowEquivalent !== false && (
                   <div style={{ marginTop: '12px', paddingTop: '6px', borderTop: `${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} black`, fontSize: `calc(${settings.receiptFontSize || '10pt'} - 2.5pt)`, lineHeight: '1.4', color: 'black' }}>
                     <div style={{ fontWeight: 'bold', marginBottom: '2px', textAlign: 'center' }}>
@@ -5626,24 +5632,18 @@ export default function POS({
                     </div>
                     <table style={{ width: '100%', fontSize: `calc(${settings.receiptFontSize || '10pt'} - 2.5pt)` }}>
                       <tbody>
-                        {currentReceipt.payCurrency !== 'LAK' && (
-                          <tr>
-                            <td>{db.getLabel('rcpt_currency_lak', 'LAK (ກີບ):')}</td>
-                            <td style={{ textAlign: 'right' }}>{currentReceipt.total.toLocaleString()} ₭</td>
-                          </tr>
-                        )}
-                        {currentReceipt.payCurrency !== 'THB' && (
-                          <tr>
-                            <td>{db.getLabel('rcpt_currency_thb', 'THB (ບาด):')}</td>
-                            <td style={{ textAlign: 'right' }}>{Math.ceil(currentReceipt.total / (currentReceipt.exchangeRateThb || 750)).toLocaleString()} ฿</td>
-                          </tr>
-                        )}
-                        {currentReceipt.payCurrency !== 'USD' && (
-                          <tr>
-                            <td>{db.getLabel('rcpt_currency_usd', 'USD (ໂດລາ):')}</td>
-                            <td style={{ textAlign: 'right' }}>${(Math.ceil((currentReceipt.total / (currentReceipt.exchangeRateUsd || 26000)) * 100) / 100).toFixed(2)}</td>
-                          </tr>
-                        )}
+                        <tr>
+                          <td>{db.getLabel('rcpt_currency_lak', 'LAK (ກີບ):')}</td>
+                          <td style={{ textAlign: 'right' }}>{currentReceipt.total.toLocaleString()} ₭</td>
+                        </tr>
+                        <tr>
+                          <td>{db.getLabel('rcpt_currency_thb', 'THB (ບາດ):')}</td>
+                          <td style={{ textAlign: 'right' }}>{Math.ceil(currentReceipt.total / (currentReceipt.exchangeRateThb || 750)).toLocaleString()} ฿</td>
+                        </tr>
+                        <tr>
+                          <td>{db.getLabel('rcpt_currency_usd', 'USD (ໂດລາ):')}</td>
+                          <td style={{ textAlign: 'right' }}>${(Math.ceil((currentReceipt.total / (currentReceipt.exchangeRateUsd || 26000)) * 100) / 100).toFixed(2)}</td>
+                        </tr>
                       </tbody>
                     </table>
                     <div style={{ fontSize: `calc(${settings.receiptFontSize || '10pt'} - 3pt)`, color: '#666', marginTop: '4px', textAlign: 'center', fontStyle: 'italic' }}>
