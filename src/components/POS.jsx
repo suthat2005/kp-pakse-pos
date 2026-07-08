@@ -5674,8 +5674,8 @@ export default function POS({
                   const jobItem = currentReceipt.items.find(item => item.productId && item.productId.startsWith('JOB'));
                   return settings.receiptShowTrackingQr !== false && jobItem && trackingQrUrl ? (
                     <div style={{ marginTop: '10px', textAlign: 'center', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 2.5pt)`, borderTop: `${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} black`, paddingTop: '8px', color: 'black' }}>
-                      <p style={{ fontWeight: 'bold', marginBottom: '2px' }}>🔍 ສະແກນຕິດຕາມສະຖານະລາຍການ (Scan to Track)</p>
-                      <p style={{ fontSize: '0.72rem', color: '#555' }}>ຕິດຕາມຂັ້ນຕອນການອັດກອບພຣະເຄື່ອງຂອງທ່ານແບບ Real-time</p>
+                      <p style={{ fontWeight: 'bold', marginBottom: '2px' }}>{db.getLabel('rcpt_track_title', '🔍 ສະແກນຕິດຕາມສະຖານະລາຍການ (Scan to Track)')}</p>
+                      <p style={{ fontSize: '0.72rem', color: '#555' }}>{db.getLabel('rcpt_track_note', 'ຕິດຕາມຂັ້ນຕອນການອັດກອບພຣະເຄື່ອງຂອງທ່ານແບບ Real-time')}</p>
                       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '6px' }}>
                         <img
                           src={trackingQrUrl}
@@ -5687,7 +5687,7 @@ export default function POS({
                           }}
                         />
                       </div>
-                      <p style={{ fontSize: '0.7rem', color: '#666', marginTop: '4px' }}>ເລກທີງານ: {jobItem.productId}</p>
+                      <p style={{ fontSize: '0.7rem', color: '#666', marginTop: '4px' }}>{db.getLabel('rcpt_track_job_label', 'ເລກທີງານ:')} {jobItem.productId}</p>
                     </div>
                   ) : null;
                 })()}

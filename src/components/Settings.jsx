@@ -1788,6 +1788,9 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                         {renderLabelInput('rcpt_qr_payment_title', 'ຫົວຂໍ້ QR Code (QR Title)', 'QR Code ຮັບເງິນ (BCEL One)')}
                         {renderLabelInput('rcpt_paid_by', 'ລາຍເຊັນຜູ້ຈ່າຍ (Paid By)', 'ຜູ້ຈ່າຍເງິນ (Paid By)')}
                         {renderLabelInput('rcpt_received_by', 'ລายເຊັນຜູ້ຮັບ (Received By)', 'ຜູ້ຮັບເງິນ (Received By)')}
+                        {renderLabelInput('rcpt_track_title', 'ຫົວຂໍ້ຕິດຕາມ (Tracking Title)', '🔍 ສະແກນຕິດຕາມສະຖານະລາຍການ (Scan to Track)')}
+                        {renderLabelInput('rcpt_track_note', 'ຄຳອະທິບາຍຕິດຕາມ (Tracking Description)', 'ຕິດຕາມຂັ້ນຕອນການອັດກອບພຣະເຄື່ອງຂອງທ່ານແບບ Real-time')}
+                        {renderLabelInput('rcpt_track_job_label', 'ປ້າຍກຳກັບເລກທີງານ (Job ID Label)', 'ເລກທີງານ:')}
                       </div>
                     </div>
                   </div>
