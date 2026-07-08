@@ -63,6 +63,24 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
     const num = parseFloat(str);
     return isNaN(num) ? defaultVal : num;
   };
+  const renderLabelInput = (key, labelName, placeholder) => {
+    return (
+      <div className="form-group" key={key}>
+        <label className="form-label" style={{ fontSize: '0.76rem', color: '#ccc' }}>{labelName}</label>
+        <input
+          type="text"
+          className="form-control"
+          style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(212,175,55,0.2)', fontSize: '0.8rem', padding: '6px 10px', color: 'white' }}
+          value={(settings.labels && settings.labels[key]) || ''}
+          placeholder={placeholder}
+          onChange={(e) => {
+            const newLabels = { ...(settings.labels || {}), [key]: e.target.value };
+            setSettings({ ...settings, labels: newLabels });
+          }}
+        />
+      </div>
+    );
+  };
   const [labelsSearchQuery, setLabelsSearchQuery] = useState('');
   const [newFrameStyle, setNewFrameStyle] = useState('');
   const [isMainTerminalLocal, setIsMainTerminalLocal] = useState(() => localStorage.getItem('isMainTerminal') !== 'false');
@@ -1711,79 +1729,69 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   {/* Custom Labels Section */}
                   <div className="glass-card" style={{ padding: '16px', background: 'rgba(255,255,255,0.01)', marginTop: '16px' }}>
                     <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.9rem', marginBottom: '12px' }}>✍️ ປັບແຕ່ງຂໍ້ຄວາມໃນໃບບິນເອງ (Custom Receipt Labels)</h4>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '12px' }}>
-                      ທ່ານສາມາດປ່ຽນຂໍ້ຄວາມຫົວຂໍ້ຕ່າງໆໃນໃບບິນໄດ້ຕາມຄວາມຕ້ອງການ ເຊັ່ນ ຍອດລວມທີ່ຕ້ອງຊຳລະ, ສ່ວນຫຼຸດ, ຈຳນວນ, ລາຄາ ແລະ ອື່ນໆ.
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+                      ທ່ານສາມາດປ່ຽນຂໍ້ຄວາມຫົວຂໍ້ທຸກຢ່າງໃນໃບບິນໄດ້ຕາມຄວາມຕ້ອງການ. ປະຕິບັດຕາມຫົວຂໍ້ກຸ່ມດ້ານລຸ່ມນີ້:
                     </p>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                      <div className="form-group">
-                        <label className="form-label">ຂໍ້ຄວາມ "ຍອດລວມກ່ອນຫຼຸດ" (Subtotal Label)</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={(settings.labels && settings.labels.cart_subtotal) || ''}
-                          placeholder="ຍອດລວມກ່ອນຫຼຸດ / ຍອດລວມທີ່ເຫຼືອຈາກມັດຈຳ"
-                          onChange={(e) => {
-                            const newLabels = { ...(settings.labels || {}), cart_subtotal: e.target.value };
-                            setSettings({ ...settings, labels: newLabels });
-                          }}
-                        />
+
+                    {/* Group 1: General Info */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <h5 style={{ color: 'var(--gold-primary)', fontSize: '0.8rem', borderBottom: '1px solid rgba(212,175,55,0.2)', paddingBottom: '4px', marginBottom: '8px' }}>📋 ຂໍ້ມູນທົ່ວໄປ (General Info)</h5>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        {renderLabelInput('rcpt_title', 'ຫົວຂໍ້ໃບບິນ (Receipt Title)', 'ໃບບິນຮັບເງິນ / RECEIPT')}
+                        {renderLabelInput('rcpt_bill_no', 'ເລກບິນ (Bill No Label)', 'ເລກບິນ:')}
+                        {renderLabelInput('rcpt_date', 'ວັນທີ (Date Label)', 'ວັນທີ:')}
+                        {renderLabelInput('rcpt_cashier', 'ພະນັກງານຂາຍ (Cashier Label)', 'ພະນັກງານຂາຍ:')}
+                        {renderLabelInput('rcpt_customer_label', 'ລູກຄ້າ (Customer Label)', 'ລູກຄ້າ:')}
+                        {renderLabelInput('rcpt_payment_method_label', 'ການຊຳລະ (Payment Method Label)', 'ການຊຳລະ:')}
                       </div>
-                      <div className="form-group">
-                        <label className="form-label">ຂໍ້ຄວາມ "ຍອດລວມສຸດທິ" (Net Total Label)</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={(settings.labels && settings.labels.cart_total) || ''}
-                          placeholder="ຍອດລວມສຸດທິ / ຍອດທີ່ຕ້ອງຊຳລະ"
-                          onChange={(e) => {
-                            const newLabels = { ...(settings.labels || {}), cart_total: e.target.value };
-                            setSettings({ ...settings, labels: newLabels });
-                          }}
-                        />
+                    </div>
+
+                    {/* Group 2: Table Headers */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <h5 style={{ color: 'var(--gold-primary)', fontSize: '0.8rem', borderBottom: '1px solid rgba(212,175,55,0.2)', paddingBottom: '4px', marginBottom: '8px' }}>📊 ຕາຕະລາງລາຍການ (Table Headers)</h5>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                        {renderLabelInput('rcpt_header_item', 'ຖັນລາຍການ (Item Column)', 'ລາຍການ')}
+                        {renderLabelInput('rcpt_header_qty', 'ຖັນຈຳນວນ (Qty Column)', 'ຈຳນວນ')}
+                        {renderLabelInput('rcpt_header_price', 'ຖັນລາຄາ (Price Column)', 'ລາຄາ')}
                       </div>
-                      <div className="form-group">
-                        <label className="form-label">ຂໍ້ຄວາມ "ສ່ວນຫຼຸດ" (Discount Label)</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={(settings.labels && settings.labels.rcpt_discount_label) || ''}
-                          placeholder="ສ່ວນຫຼຸດ"
-                          onChange={(e) => {
-                            const newLabels = { ...(settings.labels || {}), rcpt_discount_label: e.target.value };
-                            setSettings({ ...settings, labels: newLabels });
-                          }}
-                        />
+                    </div>
+
+                    {/* Group 3: Totals Summary */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <h5 style={{ color: 'var(--gold-primary)', fontSize: '0.8rem', borderBottom: '1px solid rgba(212,175,55,0.2)', paddingBottom: '4px', marginBottom: '8px' }}>💰 ສະຫຼຸບຍອດເງິນ (Totals Summary)</h5>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        {renderLabelInput('rcpt_subtotal', 'ຍອດລວມກ່ອນຫຼຸດ (Subtotal Label)', 'ຍອດລວມ:')}
+                        {renderLabelInput('rcpt_discount_label', 'ສ່ວນຫຼຸດ (Discount Label)', 'ສ່ວນຫຼຸດ:')}
+                        {renderLabelInput('rcpt_total_label', 'ຍອດຊຳລະສຸດທິ (Net Total Label)', 'ຍອດຊຳລະສຸດທິ:')}
+                        {renderLabelInput('rcpt_deposit', 'ມັດຈຳ (Deposit Label)', 'ມັດຈຳ:')}
+                        {renderLabelInput('rcpt_deposit_offset', 'ຫັກມັດຈຳ (Deposit Offset Label)', 'ຫັກມັດຈຳ:')}
+                        {renderLabelInput('rcpt_balance', 'ຄ້າງຊຳລະ (Balance Label)', 'ຄ້າງຊຳລະ:')}
                       </div>
-                      <div className="form-group">
-                        <label className="form-label">ຂໍ້ຄວາມຫົວຕາຕະລາງ "ຈຳນວນ" (Qty Header)</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={(settings.labels && settings.labels.rcpt_header_qty) || ''}
-                          placeholder="ຈຳນວນ"
-                          onChange={(e) => {
-                            const newLabels = { ...(settings.labels || {}), rcpt_header_qty: e.target.value };
-                            setSettings({ ...settings, labels: newLabels });
-                          }}
-                        />
+                    </div>
+
+                    {/* Group 4: Currency Equivalent */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <h5 style={{ color: 'var(--gold-primary)', fontSize: '0.8rem', borderBottom: '1px solid rgba(212,175,55,0.2)', paddingBottom: '4px', marginBottom: '8px' }}>💵 ມູນຄ່າທຽບເທົ່າ (Currency Equivalent)</h5>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        {renderLabelInput('rcpt_equivalent_totals_label', 'ຫົວຂໍ້ທຽບເທົ່າ (Equivalent Title)', 'ມູນຄ່າທຽບເທົ່າ')}
+                        {renderLabelInput('rcpt_exchange_rate_label', 'ອັດຕາແລກປ່ຽນ (Exchange Rate Label)', 'ອັດຕາແລກປ່ຽນ:')}
+                        {renderLabelInput('rcpt_currency_lak', 'LAK ກີບ (LAK Label)', 'LAK (ກີບ):')}
+                        {renderLabelInput('rcpt_currency_thb', 'THB ບາດ (THB Label)', 'THB (ບາດ):')}
+                        {renderLabelInput('rcpt_currency_usd', 'USD ໂດລາ (USD Label)', 'USD (ໂດລາ):')}
                       </div>
-                      <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                        <label className="form-label">ຂໍ້ຄວາມຫົວຕາຕະລາງ "ລາຄາ/ຍອດລວມ" (Price/Total Header)</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={(settings.labels && settings.labels.rcpt_header_price) || ''}
-                          placeholder="ລາຄາ"
-                          onChange={(e) => {
-                            const newLabels = { ...(settings.labels || {}), rcpt_header_price: e.target.value };
-                            setSettings({ ...settings, labels: newLabels });
-                          }}
-                        />
+                    </div>
+
+                    {/* Group 5: Signatures & QR */}
+                    <div style={{ marginBottom: '8px' }}>
+                      <h5 style={{ color: 'var(--gold-primary)', fontSize: '0.8rem', borderBottom: '1px solid rgba(212,175,55,0.2)', paddingBottom: '4px', marginBottom: '8px' }}>✍️ ລາຍເຊັນ & QR Code (Signatures & QR)</h5>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        {renderLabelInput('rcpt_qr_payment_title', 'ຫົວຂໍ້ QR Code (QR Title)', 'QR Code ຮັບເງິນ (BCEL One)')}
+                        {renderLabelInput('rcpt_paid_by', 'ລາຍເຊັນຜູ້ຈ່າຍ (Paid By)', 'ຜູ້ຈ່າຍເງິນ (Paid By)')}
+                        {renderLabelInput('rcpt_received_by', 'ລายເຊັນຜູ້ຮັບ (Received By)', 'ຜູ້ຮັບເງິນ (Received By)')}
                       </div>
                     </div>
                   </div>
                 </div>
-
                 {/* Right Column: Live Receipt Preview */}
                 <div style={{ flex: '0 0 320px', display: 'flex', flexDirection: 'column', gap: '12px', position: 'sticky', top: '10px' }}>
                   <h4 style={{ color: 'white', fontSize: '0.9rem', margin: '0 0 4px 0' }}>🔍 ຕົວຢ່າງໃບບິນ (Receipt Preview)</h4>
@@ -1933,11 +1941,11 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       {settings.receiptShowDeposit !== false && (
                         <>
                           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: 'green' }}>
-                            <span>ຫັກມັດຈຳ / Deposit Offset:</span>
+                            <span>{db.getLabel('rcpt_deposit_offset', 'ຫັກມັດຈຳ:')}</span>
                             <span>-50,000 ₭</span>
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: '#e74c3c', fontStyle: 'italic', fontWeight: 'bold' }}>
-                            <span>ຄ້າງຊຳລະ / Balance:</span>
+                            <span>{db.getLabel('rcpt_balance', 'ຄ້າງຊຳລະ:')}</span>
                             <span>130,000 ₭</span>
                           </div>
                         </>

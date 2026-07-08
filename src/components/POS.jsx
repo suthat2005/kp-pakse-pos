@@ -5455,31 +5455,31 @@ export default function POS({
                       <div style={{ marginTop: '6px', paddingRight: '6mm' }}>
                         {settings.receiptShowSubtotal !== false && (
                           <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: settings.receiptTotalsFontSize || '100%', marginTop: '4px' }}>
-                            <span>ຍອດລວມ:</span>
+                            <span>{db.getLabel('rcpt_subtotal', 'ຍອດລວມ:')}</span>
                             <span>{currentReceipt.subtotal.toLocaleString()} ກີບ</span>
                           </div>
                         )}
                         {settings.receiptShowDiscount !== false && currentReceipt.discount > 0 && (
                           <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px', color: '#e74c3c' }}>
-                            <span>ສ່ວນຫຼຸດ:</span>
+                            <span>{db.getLabel('rcpt_discount_label', 'ສ່ວນຫຼຸດ:')}</span>
                             <span>-{currentReceipt.discount.toLocaleString()} ກີບ</span>
                           </div>
                         )}
                         {settings.receiptShowTotal !== false && (
                           <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} + 1pt)`, borderTop: `${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} black`, paddingTop: '4px', marginTop: '4px' }}>
-                            <span>ຍອດລວມສຸດທິ:</span>
+                            <span>{db.getLabel('rcpt_total_label', 'ຍອດລວມສຸດທິ:')}</span>
                             <span>{currentReceipt.total.toLocaleString()} ກີບ</span>
                           </div>
                         )}
                         {settings.receiptShowDeposit !== false && depVal > 0 && (
                           <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: 'green' }}>
-                            <span>{isDraft ? 'ມັດຈຳ:' : 'ຫັກມັດຈຳ:'}</span>
+                            <span>{isDraft ? db.getLabel('rcpt_deposit', 'ມັດຈຳ:') : db.getLabel('rcpt_deposit_offset', 'ຫັກມັດຈຳ:')}</span>
                             <span>-{depVal.toLocaleString()} ກີບ</span>
                           </div>
                         )}
                         {settings.receiptShowDeposit !== false && remainingBalanceFinal > 0 && (
                           <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: '#e74c3c', fontStyle: 'italic', fontWeight: 'bold' }}>
-                            <span>ຄ້າງຊຳລະ:</span>
+                            <span>{db.getLabel('rcpt_balance', 'ຄ້າງຊຳລະ:')}</span>
                             <span>{remainingBalanceFinal.toLocaleString()} ກີບ</span>
                           </div>
                         )}
@@ -5495,7 +5495,7 @@ export default function POS({
                       {/* Subtotal */}
                       {settings.receiptShowSubtotal !== false && (
                         <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: settings.receiptTotalsFontSize || '100%', marginTop: '4px' }}>
-                          <span>ຍອດລວມ:</span>
+                          <span>{db.getLabel('rcpt_subtotal', 'ຍອດລວມ:')}</span>
                           <span>{printedSubtotal.toLocaleString()} ກີບ</span>
                         </div>
                       )}
@@ -5503,7 +5503,7 @@ export default function POS({
                       {/* Discount */}
                       {settings.receiptShowDiscount !== false && discVal > 0 && (
                         <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px', color: '#e74c3c' }}>
-                          <span>ສ່ວນຫຼຸດ:</span>
+                          <span>{db.getLabel('rcpt_discount_label', 'ສ່ວນຫຼຸດ:')}</span>
                           <span>-{discVal.toLocaleString()} ກີບ</span>
                         </div>
                       )}
@@ -5511,7 +5511,7 @@ export default function POS({
                       {/* Net Total (Subtotal - Discount) */}
                       {settings.receiptShowTotal !== false && (
                         <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} + 1pt)`, borderTop: `${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} black`, paddingTop: '4px', marginTop: '4px' }}>
-                          <span>ຍອດລວມສຸດທິ:</span>
+                          <span>{db.getLabel('rcpt_total_label', 'ຍອດລວມສຸດທິ:')}</span>
                           <span>{printedTotal.toLocaleString()} ກີບ</span>
                         </div>
                       )}
@@ -5519,7 +5519,7 @@ export default function POS({
                       {/* Deposit Paid Row */}
                       {settings.receiptShowDeposit !== false && depVal > 0 && (
                         <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: 'green' }}>
-                          <span>{isDraft ? 'ມັດຈຳ:' : 'ຫັກມັດຈຳ:'}</span>
+                          <span>{isDraft ? db.getLabel('rcpt_deposit', 'ມັດຈຳ:') : db.getLabel('rcpt_deposit_offset', 'ຫັກມັດຈຳ:')}</span>
                           <span>-{depVal.toLocaleString()} ກີບ</span>
                         </div>
                       )}
@@ -5527,7 +5527,7 @@ export default function POS({
                       {/* Remaining Balance */}
                       {settings.receiptShowDeposit !== false && remainingBalanceFinal > 0 && (
                         <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: '#e74c3c', fontStyle: 'italic', fontWeight: 'bold' }}>
-                          <span>ຄ້າງຊຳລະ:</span>
+                          <span>{db.getLabel('rcpt_balance', 'ຄ້າງຊຳລະ:')}</span>
                           <span>{remainingBalanceFinal.toLocaleString()} ກີບ</span>
                         </div>
                       )}
