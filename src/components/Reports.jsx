@@ -378,21 +378,55 @@ export default function Reports({ activeUser, isMobile }) {
   
   let totalCost = 0;
   let posJobsValue = 0;
+  let posProductsValue = 0;
+
+  // Calculate proportional sales and costs for each order payment
+  rangePayments.forEach(p => {
+    const order = allOrders.find(o => o.id === p.order_id);
+    if (order) {
+      let rawJobsTotal = 0;
+      let rawProductsTotal = 0;
+      
+      order.items.forEach(item => {
+        const itemTotal = (item.price || 0) * (item.qty || 0);
+        if (item.productId && item.productId.startsWith('JOB')) {
+          rawJobsTotal += itemTotal;
+        } else {
+          rawProductsTotal += itemTotal;
+        }
+      });
+      
+      const totalRaw = rawJobsTotal + rawProductsTotal;
+      if (totalRaw > 0) {
+        const jobRatio = rawJobsTotal / totalRaw;
+        const productRatio = rawProductsTotal / totalRaw;
+        
+        posJobsValue += p.amount_paid * jobRatio;
+        posProductsValue += p.amount_paid * productRatio;
+      } else {
+        posProductsValue += p.amount_paid;
+      }
+    } else {
+      posProductsValue += p.amount_paid;
+    }
+  });
+
+  // Calculate costs of items in orders in the selected range
   rangeOrders.forEach(o => {
     o.items.forEach(item => {
       if (item.productId && item.productId.startsWith('JOB')) {
-        posJobsValue += (item.price || 0) * item.qty;
+        totalCost += (item.price || 0) * (item.qty || 0) * 0.3;
       } else {
         const cost = productCostMap[item.productId] !== undefined ? productCostMap[item.productId] : 0;
-        totalCost += cost * item.qty;
+        totalCost += cost * (item.qty || 0);
       }
     });
   });
 
-  const grossProfit = (totalSales - posJobsValue) - totalCost;
+  const grossProfit = (posProductsValue - totalCost) + (posJobsValue * 0.7);
   const completedJobsValue = rangeJobs.reduce((sum, j) => sum + j.totalPrice, 0);
   const totalExpenses = rangeExpenses.reduce((sum, ex) => sum + (ex.convertedAmount || ex.amount), 0);
-  const netProfit = grossProfit + (completedJobsValue * 0.7) - totalExpenses;
+  const netProfit = grossProfit - totalExpenses;
 
   // Active receivables (Outstanding Debt) - Total active unpaid debts in system
   const totalOutstandingDebt = allDebts
@@ -1343,7 +1377,25 @@ export default function Reports({ activeUser, isMobile }) {
       {/* Analytics Summary Row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
         
-        {/* Card 1: Revenue */}
+        {/* Card 1: Product Sales */}
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🛍️ ມູນຄ່າຂາຍສິນຄ້າ (Product Sales)</span>
+          <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#3498db' }}>
+            {hasReportsPermission('reportsRevenue') ? Math.round(posProductsValue).toLocaleString() + " ກີບ" : "*** ກີບ"}
+          </span>
+          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ຍອດຂາຍສິນຄ້າທົ່ວໄປ</span>
+        </div>
+
+        {/* Card 2: Framing Sales */}
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🛠️ ມູນຄ່າງານອັດກອບ (Framing Sales)</span>
+          <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--accent-amber)' }}>
+            {hasReportsPermission('reportsRevenue') ? Math.round(posJobsValue).toLocaleString() + " ກີບ" : "*** ກີບ"}
+          </span>
+          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ຍອດຂາຍສະເພາະງານອັດກອບ</span>
+        </div>
+
+        {/* Card 3: Total Revenue */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💵 ຍອດຂາຍທັງໝົດ (Revenue)</span>
           <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
@@ -1396,7 +1448,7 @@ export default function Reports({ activeUser, isMobile }) {
           </div>
         </div>
         
-        {/* Card 2: Orders count */}
+        {/* Card 4: Orders count */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🛒 ຈຳນວນໃບບິນຂາຍ</span>
           <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'white' }}>
@@ -1407,16 +1459,7 @@ export default function Reports({ activeUser, isMobile }) {
           </span>
         </div>
 
-        {/* Card 3: Framing value */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🛠️ ມູນຄ່າງານອັດກອບ</span>
-          <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--accent-amber)' }}>
-            {completedJobsValue.toLocaleString()} ກີບ
-          </span>
-          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ງານຄ້າງຄິວທັງໝົດ: {allJobs.filter(j => j.status !== 'picked_up').length} ງານ</span>
-        </div>
-
-        {/* Card 4: Outstanding Debt Ledger */}
+        {/* Card 5: Outstanding Debt Ledger */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📒 ມູນຄ່າໜີ້ຄ້າງຊຳລະທັງໝົດ</span>
           <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--alert-red)' }}>
@@ -1427,7 +1470,7 @@ export default function Reports({ activeUser, isMobile }) {
           </span>
         </div>
 
-        {/* Card 5: Expenses (Second-to-last) */}
+        {/* Card 6: Expenses (Second-to-last) */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💸 ລາຍຈ່າຍທັງໝົດ</span>
           <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#e74c3c' }}>
@@ -1436,13 +1479,13 @@ export default function Reports({ activeUser, isMobile }) {
           <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ລາຍຈ່າຍໃນໄລຍະເວລາທີ່ເລືອກ</span>
         </div>
 
-        {/* Card 6: Estimated Profit (Absolute Last) */}
+        {/* Card 7: Estimated Profit (Absolute Last) */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📈 ກຳໄລສຸດທິ (Est. Profit)</span>
           <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--success-green)' }}>
             {hasReportsPermission('reportsProfit') ? Math.round(netProfit).toLocaleString() + " ກີບ" : "*** ກີບ"}
           </span>
-          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>*ຫັກຕົ້ນທຶນ ແລະ ຄ່າໃຊ້ຈ່າຍແລ້ວ</span>
+          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>*ຫັກຕົ້ນທຶນ ແລະ ຄ່າໃຊ້ຈ่ายແລ້ວ</span>
         </div>
       </div>
 
