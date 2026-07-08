@@ -2381,9 +2381,11 @@
         "bg-main": "#080d12",
         "bg-card": "#101720",
         "border-color": "#1a2636"
-      }
+      },
+      "notifyOnlineOrder": true,
+      "notifyOnlineOrderUpdate": true
     },
-    "updatedAt": 1783550911464
+    "updatedAt": 1783551143852
   },
   "expenses": {
     "data": [],

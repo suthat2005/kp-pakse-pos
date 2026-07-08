@@ -3512,6 +3512,26 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       ⚠️ ສິນຄ້າໃກ້ໝົດສະຕັອກ (Low Stock Warnings)
                     </label>
 
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.82rem', color: 'var(--text-primary)' }}>
+                      <input
+                        type="checkbox"
+                        checked={settings.notifyOnlineOrder !== false}
+                        onChange={(e) => setSettings({ ...settings, notifyOnlineOrder: e.target.checked })}
+                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: 'var(--gold-primary)' }}
+                      />
+                      🛒 ອໍເດີ້ອອນລາຍໃໝ່ (New Online Orders)
+                    </label>
+
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.82rem', color: 'var(--text-primary)' }}>
+                      <input
+                        type="checkbox"
+                        checked={settings.notifyOnlineOrderUpdate !== false}
+                        onChange={(e) => setSettings({ ...settings, notifyOnlineOrderUpdate: e.target.checked })}
+                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: 'var(--gold-primary)' }}
+                      />
+                      📦 ອັບເດດອໍເດີ້ອອນລາຍ (Online Order Updates)
+                    </label>
+
                   </div>
                 </div>
               )}

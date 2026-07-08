@@ -196,6 +196,8 @@ const DEFAULT_SETTINGS = {
   notifyExpense: true,
   notifyClockInOut: true,
   notifyLowStock: true,
+  notifyOnlineOrder: true,
+  notifyOnlineOrderUpdate: true,
   notifyNewSale: true,
   notifyDeposit: true,
   notifyNewJob: true,
@@ -4538,10 +4540,13 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     orders.push(newOrder);
     this.saveOnlineOrders(orders);
     
-    this.sendNotification(`🛒 *ມີອໍເດີ້ອອນລາຍໃໝ່!*\n` +
-                          `🧾 *ເລກທີ:* ${newOrder.id}\n` +
-                          `👤 *ລູກຄ້າ:* ${newOrder.customerName} (${newOrder.customerPhone})\n` +
-                          `💰 *ຍອດລວມ:* ${newOrder.total.toLocaleString()} LAK`);
+    const settings = this.getSettings();
+    if (settings.notifyOnlineOrder !== false) {
+      this.sendNotification(`🛒 *ມີອໍເດີ້ອອນລາຍໃໝ່!*\n` +
+                            `🧾 *ເລກທີ:* ${newOrder.id}\n` +
+                            `👤 *ລູກຄ້າ:* ${newOrder.customerName} (${newOrder.customerPhone})\n` +
+                            `💰 *ຍອດລວມ:* ${newOrder.total.toLocaleString()} LAK`);
+    }
                           
     return newOrder;
   },
@@ -4578,7 +4583,6 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
         });
         this.saveProducts(products);
         
-        // Also update customer spend & tier if they are linked
         if (order.customerId) {
           this.updateCustomerSpend(order.customerId, order.total);
         }
@@ -4597,9 +4601,12 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
 
       this.saveOnlineOrders(orders);
       
-      this.sendNotification(`📦 *ອັບເດດອໍເດີ້ ${order.id}!*\n` +
-                            `💳 *ສະຖານະຊຳລະ:* ${order.paymentStatus}\n` +
-                            `🚚 *ສະຖານະຂົນສົ່ງ:* ${order.shippingStatus}`);
+      const settings = this.getSettings();
+      if (settings.notifyOnlineOrderUpdate !== false) {
+        this.sendNotification(`📦 *ອັບເດດອໍເດີ້ ${order.id}!*\n` +
+                              `💳 *ສະຖານະຊຳລະ:* ${order.paymentStatus}\n` +
+                              `🚚 *ສະຖານະຂົນສົ່ງ:* ${order.shippingStatus}`);
+      }
       
       return order;
     }
