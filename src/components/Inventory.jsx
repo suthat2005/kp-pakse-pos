@@ -2385,7 +2385,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--gold-primary)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>📦 ຈຳນວນສິນຄ້າຄົງເຫຼືອທັງໝົດ</span>
           <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'white' }}>
-            {totalStockCount.toLocaleString()} <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>ຊິ້ນ/ອัน</span>
+            {totalStockCount.toLocaleString()} <span style={{ fontSize: '0.85rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>ຊິ້ນ/ອັນ (ຈາກ {physicalProducts.length} ລາຍການ)</span>
           </span>
         </div>
         <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--accent-amber, #e67e22)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
