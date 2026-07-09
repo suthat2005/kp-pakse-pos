@@ -2668,7 +2668,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                     </div>
                   </td>
                   <td style={{ padding: '12px 16px', textAlign: 'right' }}>
-                    {p.cost.toLocaleString()} ກີບ
+                    {hasInventoryPermission('inventoryViewCost') ? `${p.cost.toLocaleString()} ກີບ` : '*** ກີບ'}
                   </td>
                   <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
                     {p.price.toLocaleString()} ກີບ
