@@ -2413,11 +2413,14 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.92rem', marginBottom: '14px', marginTop: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
           📊 ສະຫຼຸບສິນຄ້າຕາມຫມວດຫມູ່ (Category Summary)
         </h4>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '10px' }}>
           {categories.map(cat => {
             const catProducts = products.filter(p => p.category === cat.id);
             const isService = db.isServiceCategory(cat.id);
             const stockTotal = isService ? null : catProducts.reduce((sum, p) => sum + (Number(p.stock) || 0), 0);
+            const catTotalCost = isService ? 0 : catProducts.reduce((sum, p) => sum + ((Number(p.cost) || 0) * (Number(p.stock) || 0)), 0);
+            const catTotalRetail = isService ? 0 : catProducts.reduce((sum, p) => sum + ((Number(p.price) || 0) * (Number(p.stock) || 0)), 0);
+            const catProfit = catTotalRetail - catTotalCost;
             return (
               <div
                 key={cat.id}
@@ -2442,7 +2445,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   )}
                   <span style={{ fontSize: '0.82rem', fontWeight: '600', color: 'var(--text-primary)', lineHeight: 1.3 }}>{cat.name}</span>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                   <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
                     📋 ລາຍການ: <b style={{ color: 'white' }}>{catProducts.length}</b> ລາຍການ
                   </span>
@@ -2453,6 +2456,29 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   )}
                   {isService && (
                     <span style={{ fontSize: '0.75rem', color: 'var(--accent-amber, #e67e22)' }}>🛠️ ບໍລິການ (ບໍ່ມີສະຕັອກ)</span>
+                  )}
+                  {!isService && (
+                    <>
+                      <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', margin: '4px 0' }} />
+                      <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                        💰 ຕົ້ນທຶນ:{' '}
+                        <b style={{ color: 'var(--accent-amber, #e67e22)' }}>
+                          {hasInventoryPermission('inventoryViewCost') ? `${catTotalCost.toLocaleString()} ກີບ` : '***'}
+                        </b>
+                      </span>
+                      <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                        📈 ຂາຍ:{' '}
+                        <b style={{ color: 'var(--success-green, #27ae60)' }}>
+                          {catTotalRetail.toLocaleString()} ກີບ
+                        </b>
+                      </span>
+                      <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                        ✨ ກຳໄລ:{' '}
+                        <b style={{ color: catProfit >= 0 ? 'var(--gold-primary)' : 'var(--alert-red)' }}>
+                          {hasInventoryPermission('inventoryViewCost') ? `${catProfit.toLocaleString()} ກີບ` : '***'}
+                        </b>
+                      </span>
+                    </>
                   )}
                 </div>
               </div>
