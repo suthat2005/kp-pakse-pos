@@ -1619,9 +1619,15 @@ export default function POS({
       customerName: activeSlot.customerName || '',
       customerPhone: activeSlot.customerPhone || '',
       paidAmount: finalLAKAmountToPay,
-      remainingAmount: Math.max(0, grandTotal - finalLAKAmountToPay),
+      remainingAmount: checkoutIsDepositMode 
+        ? Math.max(0, grandTotal - finalLAKAmountToPay)
+        : Math.max(0, grandTotal - (activeSlot.depositAmount || 0) - finalLAKAmountToPay),
       depositAmount: checkoutIsDepositMode ? finalLAKAmountToPay : (activeSlot.depositAmount || 0),
-      financialStatus: paymentMethod === 'treat' ? 'Paid' : (finalLAKAmountToPay === 0 ? 'Pending' : (Math.max(0, grandTotal - finalLAKAmountToPay) > 0 ? 'PartialPaid' : 'Paid')),
+      financialStatus: paymentMethod === 'treat' 
+        ? 'Paid' 
+        : (checkoutIsDepositMode 
+            ? 'PartialPaid' 
+            : (Math.max(0, grandTotal - (activeSlot.depositAmount || 0) - finalLAKAmountToPay) > 0 ? 'PartialPaid' : 'Paid')),
       pickupStatus: 'WaitingPickup',
       treatRemark: paymentMethod === 'treat' ? treatRemark.trim() : '',
       paymentHistory: [historyEntry],
@@ -1797,12 +1803,17 @@ export default function POS({
   const handleProcessDebtSubmit = (e) => {
     e.preventDefault();
     
+    const remainingDebt = Math.max(0, grandTotal - (activeSlot.depositAmount || 0));
+
     // Save to debt list ledger table
     const savedDebt = db.addDebt({
       customerName: debtCustomerName,
       customerPhone: debtCustomerPhone,
       items: adjustedCartItems,
-      total: grandTotal,
+      total: remainingDebt,
+      subtotal: subtotal,
+      discount: discount,
+      depositAmount: activeSlot.depositAmount || 0,
       notes: debtNotes
     });
 
@@ -1834,9 +1845,29 @@ export default function POS({
       setSlots(updatedSlots);
     }
     
+    // Set up current receipt for automatic printing
+    setCurrentReceipt({
+      id: savedDebt.id,
+      slotId: selectedSlotId,
+      date: new Date().toISOString(),
+      items: adjustedCartItems,
+      customerName: debtCustomerName,
+      customerPhone: debtCustomerPhone,
+      subtotal: subtotal,
+      discount: discount,
+      discountPercent: activeSlot.discountPercent || 0,
+      total: grandTotal,
+      depositAmount: activeSlot.depositAmount || 0,
+      remainingAmount: remainingDebt,
+      paymentMethod: 'debt',
+      payCurrency: 'LAK',
+      cashierName: activeUser ? activeUser.name : 'ພะນັກງານ',
+      cashierId: activeUser ? activeUser.id : ''
+    });
+
     setFramingJobs(db.getFramingJobs());
     setShowDebtModal(false);
-    alert('✓ ບັນທຶກລາຍການຕິດໜີ້ລູກຄ້າສຳເລັດ!');
+    setShowReceipt(true);
     setViewMode('slots'); // Redirect back to slots board
     if (onUpdate) onUpdate();
   };
@@ -2686,10 +2717,11 @@ export default function POS({
                 }).map(slot => {
                   const hasItems = slot.items.length > 0;
                   const isDebt = slot.isDebt;
-                  const hasDeposit = slot.depositAmount > 0;
+                  const activeJob = framingJobs.find(j => j.slotId === slot.id && j.status !== 'picked_up');
                   const totalQty = slot.items.reduce((s, i) => s + i.qty, 0);
                   const totalValue = slot.items.reduce((s, i) => s + i.total, 0);
-                  const activeJob = framingJobs.find(j => j.slotId === slot.id && j.status !== 'picked_up');
+                  const hasCustomer = !!(slot.customerName || slot.customerPhone || slot.customerId || activeJob || hasItems);
+                  const hasDeposit = slot.depositAmount > 0 || (activeJob && parseFloat(activeJob.deposit) > 0);
 
                   // Determine colors based on status
                   let statusBg = 'rgba(255,255,255,0.03)';
@@ -2702,15 +2734,15 @@ export default function POS({
                     statusColor = '#e74c3c';
                     statusText = 'ຕິດໜີ້ (Debt)';
                     borderStyle = '1px solid rgba(231,76,60,0.3)';
-                  } else if (hasItems && hasDeposit) {
+                  } else if (hasCustomer && hasDeposit) {
                     statusBg = 'rgba(52,152,219,0.15)';
                     statusColor = '#3498db';
-                    statusText = 'ມັດຈຳແລ້ວ';
+                    statusText = 'ມັດຈຳແລ້ວ (Deposit)';
                     borderStyle = '1px solid rgba(52,152,219,0.3)';
-                  } else if (hasItems) {
+                  } else if (hasCustomer) {
                     statusBg = 'rgba(46,204,113,0.15)';
                     statusColor = '#2ecc71';
-                    statusText = 'ມີສິນຄ້າ';
+                    statusText = 'ມີລູກຄ້າ / ບໍ່ວ່າງ';
                     borderStyle = '1px solid rgba(46,204,113,0.3)';
                   }
 
@@ -2848,21 +2880,22 @@ export default function POS({
                   const activeJob = framingJobs.find(j => j.slotId === slot.id && j.status !== 'picked_up');
                   const totalQty = slot.items.reduce((s, i) => s + i.qty, 0);
                   const totalValue = slot.items.reduce((s, i) => s + i.total, 0);
+                  const hasCustomer = !!(slot.customerName || slot.customerPhone || slot.customerId || activeJob || hasItems);
+                  const hasDeposit = slot.depositAmount > 0 || (activeJob && parseFloat(activeJob.deposit) > 0);
 
                   // Determine card style
                   let cardBg, cardBorder, cardGlow, statusColor;
-                  const hasDeposit = slot.depositAmount > 0;
                   if (isDebt) {
                     cardBg = 'linear-gradient(145deg, rgba(231,76,60,0.18) 0%, rgba(192,57,43,0.08) 100%)';
                     cardBorder = 'rgba(231,76,60,0.6)';
                     cardGlow = '0 0 20px rgba(231,76,60,0.2), 0 4px 20px rgba(0,0,0,0.4)';
                     statusColor = 'var(--alert-red)';
-                  } else if (hasItems && hasDeposit) {
+                  } else if (hasCustomer && hasDeposit) {
                     cardBg = 'linear-gradient(145deg, rgba(52,152,219,0.18) 0%, rgba(41,128,185,0.08) 100%)';
                     cardBorder = 'rgba(52,152,219,0.6)';
                     cardGlow = '0 0 20px rgba(52,152,219,0.2), 0 4px 20px rgba(0,0,0,0.4)';
                     statusColor = '#3498db';
-                  } else if (hasItems) {
+                  } else if (hasCustomer) {
                     cardBg = 'linear-gradient(145deg, rgba(39,174,96,0.18) 0%, rgba(27,120,66,0.08) 100%)';
                     cardBorder = 'rgba(46,204,113,0.6)';
                     cardGlow = '0 0 20px rgba(46,204,113,0.2), 0 4px 20px rgba(0,0,0,0.4)';
@@ -2988,7 +3021,7 @@ export default function POS({
                             justifyContent: 'center',
                             fontSize: '1.2rem'
                           }}>
-                            {isDebt ? '🔴' : (hasItems && hasDeposit) ? '💰' : hasItems ? '🛍' : '📿'}
+                            {isDebt ? '🔴' : (hasCustomer && hasDeposit) ? '💰' : hasCustomer ? '🛍' : '📿'}
                           </div>
                         )}
                       </div>
@@ -2998,7 +3031,7 @@ export default function POS({
                         <span style={{ 
                           fontSize: '0.9rem', 
                           fontWeight: 'bold', 
-                          color: isDebt ? 'var(--alert-red)' : (hasItems && hasDeposit) ? '#3498db' : hasItems ? '#2ecc71' : 'white', 
+                          color: isDebt ? 'var(--alert-red)' : (hasCustomer && hasDeposit) ? '#3498db' : hasCustomer ? '#2ecc71' : 'white', 
                           textAlign: 'center', 
                           width: '90%', 
                           overflow: 'hidden', 
@@ -5250,7 +5283,7 @@ export default function POS({
                   />
                 </div>
                 <div style={{ background: 'rgba(231,76,60,0.1)', padding: '10px', borderRadius: '6px', fontSize: '0.8rem', color: 'var(--alert-red)' }}>
-                  *ຍອດຕິດໜີ້ທັງໝົດ: <b>{grandTotal.toLocaleString()} ກີບ</b> ຈະຖືກບັນທຶກເຂົ້າບັນຊີຕິດໜີ້ຫຼັງບ້ານ.
+                  *ຍອດຕິດໜີ້ທັງໝົດ: <b>{Math.max(0, grandTotal - (activeSlot.depositAmount || 0)).toLocaleString()} ກີບ</b> ຈະຖືກບັນທຶກເຂົ້າບັນຊີຕິດໜີ້ຫຼັງບ້ານ.
                 </div>
               </div>
               <div className="modal-footer">
@@ -5379,6 +5412,7 @@ export default function POS({
                         currentReceipt.paymentMethod === 'treat' ? '🎁 ລ້ຽງແຂກ' :
                         currentReceipt.paymentMethod === 'cash' ? 'ເງິນສົດ' :
                         currentReceipt.paymentMethod === 'draft' ? 'ຍັງບໍ່ທັນຊຳລະ' :
+                        currentReceipt.paymentMethod === 'debt' ? 'ຕິດໜີ້ (Unpaid/Debt)' :
                         currentReceipt.paymentMethod === 'split' ? 'ເງິນສົດ + ໂອນ' :
                         'ໂອນທະນາຄານ'
                       }
@@ -5473,7 +5507,7 @@ export default function POS({
                         )}
                         {settings.receiptShowDeposit !== false && depVal > 0 && (
                           <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: 'green' }}>
-                            <span>{isDraft ? db.getLabel('rcpt_deposit', 'ມັດຈຳ:') : db.getLabel('rcpt_deposit_offset', 'ຫັກມັດຈຳ:')}</span>
+                            <span>{(isDraft || currentReceipt.remainingAmount > 0) ? db.getLabel('rcpt_deposit', 'ມັດຈຳ:') : db.getLabel('rcpt_deposit_offset', 'ຫັກມັດຈຳ:')}</span>
                             <span>-{depVal.toLocaleString()} ກີບ</span>
                           </div>
                         )}
@@ -5519,7 +5553,7 @@ export default function POS({
                       {/* Deposit Paid Row */}
                       {settings.receiptShowDeposit !== false && depVal > 0 && (
                         <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: 'green' }}>
-                          <span>{isDraft ? db.getLabel('rcpt_deposit', 'ມັດຈຳ:') : db.getLabel('rcpt_deposit_offset', 'ຫັກມັດຈຳ:')}</span>
+                          <span>{(isDraft || currentReceipt.remainingAmount > 0) ? db.getLabel('rcpt_deposit', 'ມັດຈຳ:') : db.getLabel('rcpt_deposit_offset', 'ຫັກມັດຈຳ:')}</span>
                           <span>-{depVal.toLocaleString()} ກີບ</span>
                         </div>
                       )}
@@ -5602,6 +5636,28 @@ export default function POS({
                       </span>
                     </div>
                   </>
+                ) : settings.receiptShowChange !== false && currentReceipt.paymentMethod === 'transfer' ? (
+                  <>
+                    <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px' }}>
+                      <span>📱 ຍອດໂອນ ({currentReceipt.payCurrency}):</span>
+                      <span>
+                        {currentReceipt.payCurrency === 'USD'
+                          ? Number(currentReceipt.currencyTransferAmount).toFixed(2) + ' USD'
+                          : (currentReceipt.currencyTransferAmount || 0).toLocaleString() + ' ' + (currentReceipt.payCurrency === 'LAK' ? 'ກີບ' : 'ບາດ')}
+                      </span>
+                    </div>
+                    {currentReceipt.bankTxRef && (
+                      <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '2px' }}>
+                        <span>{db.getLabel('rcpt_ref_label', 'ເລກອ້າງອີງ (Ref):')}</span>
+                        <span>{currentReceipt.bankTxRef}</span>
+                      </div>
+                    )}
+                  </>
+                ) : currentReceipt.paymentMethod === 'debt' ? (
+                  <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: '#e74c3c' }}>
+                    <span>📒 ຍອດຕິດໜີ້ (Debt):</span>
+                    <span>{remainingBalanceFinal.toLocaleString()} ກີບ</span>
+                  </div>
                 ) : (
                   settings.receiptShowChange !== false && currentReceipt.bankTxRef && (
                     <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px' }}>

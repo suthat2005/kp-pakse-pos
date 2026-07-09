@@ -1507,55 +1507,53 @@ export default function Reports({ activeUser, isMobile }) {
           </div>
 
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                  <th style={{ padding: '12px' }}>ເລກບິນ (ID)</th>
-                  <th style={{ padding: '12px' }}>ວันທີ / ເວລາ</th>
-                  <th style={{ padding: '12px' }}>ພະນັກງານຂາຍ</th>
-                  <th style={{ padding: '12px', textAlign: 'right' }}>ສ່ວນຫຼຸດ</th>
-                  <th style={{ padding: '12px', textAlign: 'right' }}>ຍອດລວມສຸດທິ</th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>ຊ່ອງທາງຊຳລະ</th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>ປຣິນບິນຄືນ</th>
-                </tr>
-              </thead>
-              <tbody>
+            {isMobile ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {filteredOrders.length === 0 ? (
-                  <tr>
-                    <td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
-                      ບໍ່ມີໃບບິນຂາຍໃນຊ່ວງເວລານີ້
-                    </td>
-                  </tr>
+                  <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>
+                    ບໍ່ມີໃບບິນຂາຍໃນຊ່ວງເວລານີ້
+                  </div>
                 ) : (
                   filteredOrders.map(order => (
-                    <tr
+                    <div
                       key={order.id}
-                      style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', fontSize: '0.85rem' }}
+                      className="glass-card"
+                      style={{
+                        padding: '16px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                        borderLeft: '4px solid ' + (order.paymentMethod === 'cash' ? '#f39c12' : order.paymentMethod === 'split' ? '#9b59b6' : order.paymentMethod === 'treat' ? '#e67e22' : '#3498db')
+                      }}
                     >
-                      <td style={{ padding: '12px', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
-                        {order.id}
-                        {order.treatRemark && (
-                          <div style={{ fontSize: '0.72rem', color: '#e67e22', fontStyle: 'italic', marginTop: '2px' }}>
-                            💬 {order.treatRemark}
-                          </div>
-                        )}
-                      </td>
-                      <td style={{ padding: '12px' }}>
-                        {new Date(order.date).toLocaleString('lo-LA')}
-                      </td>
-                      <td style={{ padding: '12px' }}>
-                        {order.cashierName}
-                      </td>
-                      <td style={{ padding: '12px', textAlign: 'right', color: 'var(--success-green)' }}>
-                        {order.discount > 0 ? `-${order.discount.toLocaleString()} ₭` : '-'}
-                      </td>
-                      <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>
-                        {order.total.toLocaleString()} ₭
-                      </td>
-                      <td style={{ padding: '12px', textAlign: 'center' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)', fontSize: '0.95rem' }}>{order.id}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                          {new Date(order.date).toLocaleString('lo-LA')}
+                        </span>
+                      </div>
+                      
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                        <span style={{ color: 'var(--text-secondary)' }}>👤 ພະນັກງານ:</span>
+                        <span style={{ fontWeight: '500' }}>{order.cashierName}</span>
+                      </div>
+
+                      {order.discount > 0 && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                          <span style={{ color: 'var(--text-secondary)' }}>🏷️ ສ່ວນຫຼຸດ:</span>
+                          <span style={{ color: 'var(--success-green)' }}>-{order.discount.toLocaleString()} ₭</span>
+                        </div>
+                      )}
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '8px' }}>
+                        <span style={{ color: 'var(--text-secondary)' }}>💵 ຍອດລວມສຸດທິ:</span>
+                        <span style={{ fontWeight: 'bold', color: 'white', fontSize: '0.95rem' }}>{order.total.toLocaleString()} ₭</span>
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '8px' }}>
                         <span
                           style={{
-                            fontSize: '0.75rem',
+                            fontSize: '0.72rem',
                             padding: '2px 8px',
                             borderRadius: '10px',
                             background: order.paymentMethod === 'cash' ? 'rgba(243, 156, 18, 0.15)' : order.paymentMethod === 'split' ? 'rgba(155, 89, 182, 0.15)' : order.paymentMethod === 'treat' ? 'rgba(230, 126, 34, 0.15)' : 'rgba(52, 152, 219, 0.15)',
@@ -1563,30 +1561,122 @@ export default function Reports({ activeUser, isMobile }) {
                             border: `1px solid ${order.paymentMethod === 'cash' ? 'rgba(243, 156, 18, 0.3)' : order.paymentMethod === 'split' ? 'rgba(155, 89, 182, 0.3)' : order.paymentMethod === 'treat' ? 'rgba(230, 126, 34, 0.3)' : 'rgba(52, 152, 219, 0.3)'}`
                           }}
                         >
-                          {order.paymentMethod === 'cash' ? '💵 ເງິນສົດ' : order.paymentMethod === 'split' ? '🔀 ເງິນສົດ + ໂອນ' : order.paymentMethod === 'treat' ? '🎁 ລ້ຽງແຂກ (Treat)' : '📱 ໂອນທະນາຄານ'}
+                          {order.paymentMethod === 'cash' ? '💵 ເງິນສົດ' : order.paymentMethod === 'split' ? '🔀 ເງິນສົດ + ໂອນ' : order.paymentMethod === 'treat' ? '🎁 ລ້ຽງແຂກ' : '📱 ໂອນທະນາຄານ'}
                         </span>
-                      </td>
-                      <td style={{ padding: '12px', textAlign: 'center', display: 'flex', gap: '6px', justifyContent: 'center', alignItems: 'center' }}>
-                        <button
-                          className="btn btn-secondary"
-                          style={{ padding: '3px 8px', fontSize: '0.75rem' }}
-                          onClick={() => handleReprint(order)}
-                        >
-                          🖨️ ເປີດເບິ່ງ
-                        </button>
-                        <button
-                          className="btn btn-danger"
-                          style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231, 76, 60, 0.2)', border: '1px solid rgba(231, 76, 60, 0.4)', color: '#e74c3c' }}
-                          onClick={() => handleRequestDelete('pos', order.id, order.paymentMethod === 'treat' ? 'ລ້ຽງແຂກ' : 'ຂາຍໜ້າຮ້ານ')}
-                        >
-                          🗑️ ລຶບ
-                        </button>
-                      </td>
-                    </tr>
+
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <button
+                            type="button"
+                            className="btn btn-secondary btn-sm"
+                            style={{ padding: '3px 8px', fontSize: '0.75rem', height: '30px' }}
+                            onClick={() => handleReprint(order)}
+                          >
+                            🖨️ ເປີດເບິ່ງ
+                          </button>
+                          {hasReportsPermission('reportsDelete') && (
+                            <button
+                              type="button"
+                              className="btn btn-danger btn-sm"
+                              style={{ padding: '3px 8px', fontSize: '0.75rem', height: '30px', background: 'rgba(231,76,60,0.15)', border: '1px solid rgba(231,76,60,0.3)', color: 'var(--alert-red)' }}
+                              onClick={() => handleRequestDelete('pos', order.id, order.paymentMethod === 'treat' ? 'ລ້ຽງແຂກ' : 'ຂາຍໜ້າຮ້ານ')}
+                            >
+                              🗑️ ລຶບ
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {order.treatRemark && (
+                        <div style={{ fontSize: '0.72rem', color: '#e67e22', fontStyle: 'italic', background: 'rgba(230, 126, 34, 0.05)', padding: '6px 8px', borderRadius: '4px' }}>
+                          💬 ໝາຍເຫດ: {order.treatRemark}
+                        </div>
+                      )}
+                    </div>
                   ))
                 )}
-              </tbody>
-            </table>
+              </div>
+            ) : (
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                    <th style={{ padding: '12px' }}>ເລກບິນ (ID)</th>
+                    <th style={{ padding: '12px' }}>ວັນທີ / ເວລາ</th>
+                    <th style={{ padding: '12px' }}>ພະນັກງານຂາຍ</th>
+                    <th style={{ padding: '12px', textAlign: 'right' }}>ສ່ວນຫຼຸດ</th>
+                    <th style={{ padding: '12px', textAlign: 'right' }}>ຍອດລວມສຸດທິ</th>
+                    <th style={{ padding: '12px', textAlign: 'center' }}>ຊ່ອງທາງຊຳລະ</th>
+                    <th style={{ padding: '12px', textAlign: 'center' }}>ປຣິນບິນຄືນ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
+                        ບໍ່ມີໃບບິນຂາຍໃນຊ່ວງເວລານີ້
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredOrders.map(order => (
+                      <tr
+                        key={order.id}
+                        style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', fontSize: '0.85rem' }}
+                      >
+                        <td style={{ padding: '12px', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
+                          {order.id}
+                          {order.treatRemark && (
+                            <div style={{ fontSize: '0.72rem', color: '#e67e22', fontStyle: 'italic', marginTop: '2px' }}>
+                              💬 {order.treatRemark}
+                            </div>
+                          )}
+                        </td>
+                        <td style={{ padding: '12px' }}>
+                          {new Date(order.date).toLocaleString('lo-LA')}
+                        </td>
+                        <td style={{ padding: '12px' }}>
+                          {order.cashierName}
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'right', color: 'var(--success-green)' }}>
+                          {order.discount > 0 ? `-${order.discount.toLocaleString()} ₭` : '-'}
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>
+                          {order.total.toLocaleString()} ₭
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                          <span
+                            style={{
+                              fontSize: '0.75rem',
+                              padding: '2px 8px',
+                              borderRadius: '10px',
+                              background: order.paymentMethod === 'cash' ? 'rgba(243, 156, 18, 0.15)' : order.paymentMethod === 'split' ? 'rgba(155, 89, 182, 0.15)' : order.paymentMethod === 'treat' ? 'rgba(230, 126, 34, 0.15)' : 'rgba(52, 152, 219, 0.15)',
+                              color: order.paymentMethod === 'cash' ? '#f39c12' : order.paymentMethod === 'split' ? '#9b59b6' : order.paymentMethod === 'treat' ? '#e67e22' : '#3498db',
+                              border: `1px solid ${order.paymentMethod === 'cash' ? 'rgba(243, 156, 18, 0.3)' : order.paymentMethod === 'split' ? 'rgba(155, 89, 182, 0.3)' : order.paymentMethod === 'treat' ? 'rgba(230, 126, 34, 0.3)' : 'rgba(52, 152, 219, 0.3)'}`
+                            }}
+                          >
+                            {order.paymentMethod === 'cash' ? '💵 ເງິນສົດ' : order.paymentMethod === 'split' ? '🔀 ເງິນສົດ + ໂອນ' : order.paymentMethod === 'treat' ? '🎁 ລ້ຽງແຂກ (Treat)' : '📱 ໂອນທະນາຄານ'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'center', display: 'flex', gap: '6px', justifyContent: 'center', alignItems: 'center' }}>
+                          <button
+                            className="btn btn-secondary"
+                            style={{ padding: '3px 8px', fontSize: '0.75rem' }}
+                            onClick={() => handleReprint(order)}
+                          >
+                            🖨️ ເປີດເບິ່ງ
+                          </button>
+                          <button
+                            className="btn btn-danger"
+                            style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231, 76, 60, 0.2)', border: '1px solid rgba(231, 76, 60, 0.4)', color: '#e74c3c' }}
+                            onClick={() => handleRequestDelete('pos', order.id, order.paymentMethod === 'treat' ? 'ລ້ຽງແຂກ' : 'ຂາຍໜ້າຮ້ານ')}
+                          >
+                            🗑️ ລຶບ
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
 
