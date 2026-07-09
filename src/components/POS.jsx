@@ -2496,6 +2496,35 @@ export default function POS({
     return matchesCategory && matchesSearch;
   });
 
+  // Calculate remaining balance for receipt if open to avoid scope issues in JSX blocks
+  let remainingBalanceFinal = 0;
+  if (showReceipt && currentReceipt) {
+    let totalJobPrice = 0;
+    let totalJobDeposit = 0;
+    let hasJob = false;
+    currentReceipt.items.forEach(item => {
+      if (item.productId && item.productId.startsWith('JOB')) {
+        const job = db.getFramingJobs().find(j => j.id === item.productId);
+        if (job) {
+          hasJob = true;
+          totalJobPrice += job.totalPrice;
+          totalJobDeposit += job.deposit;
+        }
+      }
+    });
+    const isDraft = currentReceipt.paymentMethod === 'draft';
+    const discVal = currentReceipt.discount || 0;
+    const depVal = hasJob
+      ? (isDraft ? (currentReceipt.depositAmount || totalJobDeposit || 0) : totalJobDeposit)
+      : (currentReceipt.depositAmount || 0);
+
+    remainingBalanceFinal = hasJob
+      ? (isDraft 
+          ? Math.max(0, totalJobPrice - discVal - depVal)
+          : Math.max(0, currentReceipt.remainingAmount !== undefined ? currentReceipt.remainingAmount : (totalJobPrice - discVal - depVal - (currentReceipt.paidAmount || currentReceipt.total))))
+      : (currentReceipt.remainingAmount !== undefined ? currentReceipt.remainingAmount : Math.max(0, currentReceipt.total - depVal));
+  }
+
   return (
     <div style={{ height: 'calc(100vh - 130px)' }}>
       {/* Dynamic Receipt Print Sizing Styles */}
