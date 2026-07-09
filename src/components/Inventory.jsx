@@ -2416,7 +2416,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '10px' }}>
           {categories.map(cat => {
             const catProducts = products.filter(p => p.category === cat.id);
-            const isService = cat.type === 'service';
+            const isService = db.isServiceCategory(cat.id);
             const stockTotal = isService ? null : catProducts.reduce((sum, p) => sum + (Number(p.stock) || 0), 0);
             return (
               <div
