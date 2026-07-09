@@ -10,12 +10,15 @@ export default function OnlineOrders({ activeUser, isMobile }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [zoomSlip, setZoomSlip] = useState(false);
   const [activeTab, setActiveTab] = useState('active'); // 'active' | 'archive'
-  
+
   // Shipping input states
   const [shippingCompany, setShippingCompany] = useState('');
   const [trackingNumber, setTrackingNumber] = useState('');
   const [shippingImage, setShippingImage] = useState('');
   const [shippingNote, setShippingNote] = useState('');
+
+  // Chat reply state
+  const [chatReply, setChatReply] = useState('');
 
   useEffect(() => {
     loadOrders();
@@ -34,6 +37,11 @@ export default function OnlineOrders({ activeUser, isMobile }) {
       const fresh = db.getOnlineOrders().find(o => o.id === selectedOrder.id);
       if (fresh) {
         setSelectedOrder(fresh);
+        // Automatically mark customer messages as read if we are looking at this order
+        const hasUnread = fresh.messages && fresh.messages.some(m => m.sender === 'customer' && !m.read);
+        if (hasUnread) {
+          db.markOnlineOrderMessagesAsRead(fresh.id, 'customer');
+        }
       }
     }
   }, [orders]);
@@ -44,6 +52,8 @@ export default function OnlineOrders({ activeUser, isMobile }) {
     setTrackingNumber(order.trackingNumber || '');
     setShippingImage(order.shippingImage || '');
     setShippingNote('');
+    setChatReply('');
+    db.markOnlineOrderMessagesAsRead(order.id, 'customer');
   };
 
   const handleApprovePayment = () => {
@@ -97,6 +107,14 @@ export default function OnlineOrders({ activeUser, isMobile }) {
     if (nextStatus === 'delivered') {
       setSelectedOrder(null);
     }
+    loadOrders();
+  };
+
+  // ---- Admin chat reply ----
+  const handleSendAdminReply = () => {
+    if (!selectedOrder || !chatReply.trim()) return;
+    db.addMessageToOnlineOrder(selectedOrder.id, 'admin', chatReply.trim(), 'ຮ້ານ');
+    setChatReply('');
     loadOrders();
   };
 
@@ -219,59 +237,76 @@ export default function OnlineOrders({ activeUser, isMobile }) {
           {filteredOrders.length === 0 ? (
             <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '40px 0', fontSize: '0.85rem' }}>ບໍ່ພົບລາຍການອໍເດີ້</div>
           ) : (
-            filteredOrders.map(o => (
-              <div
-                key={o.id}
-                onClick={() => handleSelectOrder(o)}
-                style={{
-                  padding: '12px 16px',
-                  borderRadius: '10px',
-                  background: selectedOrder?.id === o.id ? 'rgba(212,175,55,0.08)' : 'rgba(255,255,255,0.02)',
-                  border: selectedOrder?.id === o.id ? '1.5px solid var(--gold-primary)' : '1px solid var(--border-color)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '6px'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)', fontSize: '0.9rem' }}>{o.id}</span>
-                  <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{new Date(o.date).toLocaleDateString('lo-LA')}</span>
+            filteredOrders.map(o => {
+              const unreadCount = o.messages ? o.messages.filter(m => m.sender === 'customer' && m.read === false).length : 0;
+              return (
+                <div
+                  key={o.id}
+                  onClick={() => handleSelectOrder(o)}
+                  style={{
+                    padding: '12px 16px',
+                    borderRadius: '10px',
+                    background: selectedOrder?.id === o.id ? 'rgba(212,175,55,0.08)' : 'rgba(255,255,255,0.02)',
+                    border: selectedOrder?.id === o.id ? '1.5px solid var(--gold-primary)' : '1px solid var(--border-color)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '6px'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)', fontSize: '0.9rem' }}>{o.id}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      {unreadCount > 0 && (
+                        <span style={{
+                          fontSize: '0.6rem',
+                          background: '#e74c3c',
+                          color: 'white',
+                          padding: '1px 6px',
+                          borderRadius: '10px',
+                          fontWeight: 'bold'
+                        }}>
+                          💬 {unreadCount}
+                        </span>
+                      )}
+                      <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{new Date(o.date).toLocaleDateString('lo-LA')}</span>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: '500' }}>👤 {o.customerName} ({o.customerPhone})</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>💰 {o.total.toLocaleString()} LAK</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
+                    <span style={{
+                      fontSize: '0.65rem',
+                      padding: '2px 8px',
+                      borderRadius: '8px',
+                      background: o.paymentStatus === 'paid' ? 'rgba(46,204,113,0.15)' : o.paymentStatus === 'pending_verification' ? 'rgba(241,196,15,0.15)' : 'rgba(231,76,60,0.15)',
+                      color: o.paymentStatus === 'paid' ? '#2ecc71' : o.paymentStatus === 'pending_verification' ? '#f1c40f' : '#e74c3c'
+                    }}>
+                      {getPaymentStatusText(o.paymentStatus)}
+                    </span>
+                    <span style={{
+                      fontSize: '0.65rem',
+                      padding: '2px 8px',
+                      borderRadius: '8px',
+                      background: o.shippingStatus === 'delivered' ? 'rgba(46,204,113,0.15)' : 'rgba(255,255,255,0.08)',
+                      color: o.shippingStatus === 'delivered' ? '#2ecc71' : 'var(--text-secondary)'
+                    }}>
+                      {getShippingStatusText(o.shippingStatus)}
+                    </span>
+                    <span style={{
+                      fontSize: '0.65rem',
+                      padding: '2px 8px',
+                      borderRadius: '8px',
+                      background: (o.shippingMethod === 'pickup' || (o.shippingAddress && o.shippingAddress.province && o.shippingAddress.province.includes('ຮັບຢູ່ໜ້າຮ້ານ'))) ? 'rgba(52,152,219,0.15)' : 'rgba(155,89,182,0.15)',
+                      color: (o.shippingMethod === 'pickup' || (o.shippingAddress && o.shippingAddress.province && o.shippingAddress.province.includes('ຮັບຢູ່ໜ້າຮ້ານ'))) ? '#3498db' : '#9b59b6'
+                    }}>
+                      {(o.shippingMethod === 'pickup' || (o.shippingAddress && o.shippingAddress.province && o.shippingAddress.province.includes('ຮັບຢູ່ໜ້າຮ້ານ'))) ? '🏪 ຮັບຢູ່ໜ້າຮ້ານ' : '🚚 ຈັດສົ່ງ'}
+                    </span>
+                  </div>
                 </div>
-                <div style={{ fontSize: '0.85rem', fontWeight: '500' }}>👤 {o.customerName} ({o.customerPhone})</div>
-                <div style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>💰 {o.total.toLocaleString()} LAK</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
-                  <span style={{
-                    fontSize: '0.65rem',
-                    padding: '2px 8px',
-                    borderRadius: '8px',
-                    background: o.paymentStatus === 'paid' ? 'rgba(46,204,113,0.15)' : o.paymentStatus === 'pending_verification' ? 'rgba(241,196,15,0.15)' : 'rgba(231,76,60,0.15)',
-                    color: o.paymentStatus === 'paid' ? '#2ecc71' : o.paymentStatus === 'pending_verification' ? '#f1c40f' : '#e74c3c'
-                  }}>
-                    {getPaymentStatusText(o.paymentStatus)}
-                  </span>
-                  <span style={{
-                    fontSize: '0.65rem',
-                    padding: '2px 8px',
-                    borderRadius: '8px',
-                    background: o.shippingStatus === 'delivered' ? 'rgba(46,204,113,0.15)' : 'rgba(255,255,255,0.08)',
-                    color: o.shippingStatus === 'delivered' ? '#2ecc71' : 'var(--text-secondary)'
-                  }}>
-                    {getShippingStatusText(o.shippingStatus)}
-                  </span>
-                  <span style={{
-                    fontSize: '0.65rem',
-                    padding: '2px 8px',
-                    borderRadius: '8px',
-                    background: (o.shippingMethod === 'pickup' || (o.shippingAddress && o.shippingAddress.province && o.shippingAddress.province.includes('ຮັບຢູ່ໜ້າຮ້ານ'))) ? 'rgba(52,152,219,0.15)' : 'rgba(155,89,182,0.15)',
-                    color: (o.shippingMethod === 'pickup' || (o.shippingAddress && o.shippingAddress.province && o.shippingAddress.province.includes('ຮັບຢູ່ໜ້າຮ້ານ'))) ? '#3498db' : '#9b59b6'
-                  }}>
-                    {(o.shippingMethod === 'pickup' || (o.shippingAddress && o.shippingAddress.province && o.shippingAddress.province.includes('ຮັບຢູ່ໜ້າຮ້ານ'))) ? '🏪 ຮັບຢູ່ໜ້າຮ້ານ' : '🚚 ຈັດສົ່ງ'}
-                  </span>
-                </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
@@ -439,12 +474,72 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                     ))}
                   </div>
                 </div>
+
+                {/* 5. Customer Chat Panel */}
+                <div style={{ background: 'rgba(52,152,219,0.04)', border: '1px solid rgba(52,152,219,0.2)', borderRadius: '10px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <h4 style={{ color: 'var(--gold-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    💬 ຂໍ້ຄວາມຈາກລູກຄ້າ:
+                    {selectedOrder.messages && selectedOrder.messages.filter(m => m.sender === 'customer' && m.read === false).length > 0 && (
+                      <span style={{ fontSize: '0.7rem', background: '#e74c3c', color: 'white', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>
+                        {selectedOrder.messages.filter(m => m.sender === 'customer' && m.read === false).length} ໃໝ່
+                      </span>
+                    )}
+                  </h4>
+
+                  {/* Message history */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '220px', overflowY: 'auto', padding: '4px 0' }}>
+                    {(!selectedOrder.messages || selectedOrder.messages.length === 0) ? (
+                      <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.8rem', padding: '20px 0' }}>
+                        📭 ຍັງບໍ່ມີຂໍ້ຄວາມ
+                      </div>
+                    ) : (
+                      selectedOrder.messages.map((msg, idx) => (
+                        <div key={idx} style={{
+                          alignSelf: msg.sender === 'admin' ? 'flex-end' : 'flex-start',
+                          background: msg.sender === 'admin' ? 'rgba(212,175,55,0.12)' : 'rgba(52,152,219,0.12)',
+                          border: `1px solid ${msg.sender === 'admin' ? 'rgba(212,175,55,0.3)' : 'rgba(52,152,219,0.3)'}`,
+                          borderRadius: '10px',
+                          padding: '8px 12px',
+                          maxWidth: '85%'
+                        }}>
+                          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginBottom: '3px' }}>
+                            {msg.sender === 'admin' ? '🏪 ຮ້ານ' : `👤 ${msg.senderName || 'ລູກຄ້າ'}`}
+                            {' · '}{new Date(msg.timestamp).toLocaleString('lo-LA')}
+                          </div>
+                          <div style={{ fontSize: '0.82rem', color: 'white', wordBreak: 'break-word' }}>{msg.text}</div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Admin reply input */}
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="ຕອບກັບລູກຄ້າ... (Enter ເພື່ອສົ່ງ)"
+                      value={chatReply}
+                      onChange={(e) => setChatReply(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') handleSendAdminReply(); }}
+                      style={{ flex: 1, fontSize: '0.82rem' }}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={handleSendAdminReply}
+                      disabled={!chatReply.trim()}
+                      style={{ padding: '6px 16px', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
+                    >
+                      📤 ສົ່ງ
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* Right column: Slip review and actions */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <h4 style={{ color: 'var(--gold-primary)', margin: 0 }}>📱 ສະລິບການໂອນເງິນ:</h4>
-                
+
                 {selectedOrder.slipImage ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <div

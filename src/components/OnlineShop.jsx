@@ -65,7 +65,7 @@ export default function OnlineShop() {
   const [selectedDetailProduct, setSelectedDetailProduct] = useState(null);
   const [categories, setCategories] = useState([]);
   const [settings, setSettings] = useState({});
-  const [activeTab, setActiveTab] = useState('catalog'); // catalog, cart, profile, tracking
+  const [activeTab, setActiveTab] = useState('catalog'); // catalog, cart, profile, tracking, chat
   
   // Auth states
   const [customer, setCustomer] = useState(null);
@@ -128,6 +128,11 @@ export default function OnlineShop() {
   const [trackingOrderId, setTrackingOrderId] = useState('');
   const [trackedOrder, setTrackedOrder] = useState(null);
 
+  // Chat states (customer messaging)
+  const [chatOrderId, setChatOrderId] = useState('');
+  const [chatMessage, setChatMessage] = useState('');
+  const [chatOrder, setChatOrder] = useState(null);
+
   const loadData = () => {
     setProducts(db.getProducts().filter(p => p.showOnline));
     setCategories(db.getCategories().filter(c => c.type !== 'service'));
@@ -151,7 +156,23 @@ export default function OnlineShop() {
     setTimeout(() => {
       loadData();
     }, 0);
-    const handleUpdate = () => loadData();
+    const handleUpdate = () => {
+      loadData();
+      setChatOrder(prev => {
+        if (!prev) return null;
+        const fresh = db.getOnlineOrders().find(o => o.id === prev.id);
+        if (fresh) {
+          const hasUnread = fresh.messages && fresh.messages.some(m => m.sender === 'admin' && !m.read);
+          if (hasUnread) {
+            setTimeout(() => {
+              db.markOnlineOrderMessagesAsRead(fresh.id, 'admin');
+            }, 0);
+          }
+          return fresh;
+        }
+        return prev;
+      });
+    };
     window.addEventListener('db-updated', handleUpdate);
     return () => window.removeEventListener('db-updated', handleUpdate);
   }, []);
@@ -569,7 +590,7 @@ export default function OnlineShop() {
             <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(212,175,55,0.1)', border: '1px solid var(--gold-primary)', display: 'flex', alignItems: 'center', justifySelf: 'center', justifyContent: 'center', fontSize: '1rem' }}>🪷</div>
           )}
           <div>
-            <h1 style={{ fontSize: '0.95rem', margin: 0, color: 'var(--gold-primary)', fontWeight: 'bold' }}>{settings.onlineShopName || settings.shopName || 'ຂອບພຣະຣັທເກຊ'}</h1>
+            <h1 style={{ fontSize: '0.95rem', margin: 0, color: 'var(--gold-primary)', fontWeight: 'bold' }}>{settings.onlineShopTitle || settings.onlineShopName || settings.shopName || 'ຂອບພຣະຣັທເກຊ'}</h1>
             <p style={{ fontSize: '0.6rem', color: '#888', margin: 0 }}>Online Store • Mobile First</p>
           </div>
         </div>
@@ -1459,6 +1480,114 @@ export default function OnlineShop() {
     )}
       </div>
 
+      {/* === CHAT TAB === */}
+      {activeTab === 'chat' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>💬 ສົ່ງຂໍ້ຄວາມຫາຮ້ານ</h3>
+          {!chatOrder ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <p style={{ color: '#aaa', fontSize: '0.82rem', margin: 0 }}>
+                ກະລຸນາໃສ່ເລກອໍເດີ້ຂອງທ່ານເພື່ອເລີ່ມສົ່ງຂໍ້ຄວາມຫາທາງຮ້ານ
+              </p>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="ເລກອໍເດີ້ ຕົວຢ່າງ: ONL10001"
+                  value={chatOrderId}
+                  onChange={(e) => setChatOrderId(e.target.value.toUpperCase())}
+                  style={{ background: '#1c1916', margin: 0 }}
+                />
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  style={{ padding: '0 20px', whiteSpace: 'nowrap', margin: 0 }}
+                  onClick={() => {
+                    const orders = db.getOnlineOrders();
+                    const found = orders.find(o => o.id === chatOrderId.trim());
+                    if (found) {
+                      setChatOrder(found);
+                      db.markOnlineOrderMessagesAsRead(found.id, 'admin');
+                    } else {
+                      alert('ບໍ່ພົບອໍເດີ້ ກະລຸນາກວດເລກຄືນ');
+                    }
+                  }}
+                >
+                  ໂຫຼດ
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: '10px', padding: '10px 14px' }}>
+                <div>
+                  <div style={{ fontSize: '0.7rem', color: '#888' }}>ສົ່ງຂໍ້ຄວາມສຳລັບອໍເດີ້:</div>
+                  <div style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{chatOrder.id}</div>
+                </div>
+                <button
+                  type="button"
+                  style={{ background: 'none', border: 'none', color: '#888', fontSize: '0.8rem', cursor: 'pointer' }}
+                  onClick={() => { setChatOrder(null); setChatOrderId(''); }}
+                >
+                  ✕ ປ່ຽນ
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minHeight: '200px', maxHeight: '350px', overflowY: 'auto', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '10px', padding: '12px' }}>
+                {(() => {
+                  const liveOrder = db.getOnlineOrders().find(o => o.id === chatOrder.id);
+                  const msgs = liveOrder?.messages || [];
+                  if (msgs.length === 0) {
+                    return <div style={{ textAlign: 'center', color: '#666', fontSize: '0.8rem', paddingTop: '40px' }}>📭 ຍັງບໍ່ມີຂໍ້ຄວາມ</div>;
+                  }
+                  return msgs.map((msg, idx) => (
+                    <div key={idx} style={{ alignSelf: msg.sender === 'customer' ? 'flex-end' : 'flex-start', background: msg.sender === 'customer' ? 'rgba(212,175,55,0.15)' : 'rgba(52,152,219,0.15)', border: `1px solid ${msg.sender === 'customer' ? 'rgba(212,175,55,0.3)' : 'rgba(52,152,219,0.3)'}`, borderRadius: '10px', padding: '8px 12px', maxWidth: '85%' }}>
+                      <div style={{ fontSize: '0.65rem', color: '#888', marginBottom: '3px' }}>
+                        {msg.sender === 'customer' ? 'ທ່ານ' : 'ແອັດມິນ'}
+                        {' • '}{new Date(msg.timestamp).toLocaleString('lo-LA')}
+                      </div>
+                      <div style={{ fontSize: '0.82rem', color: 'white', wordBreak: 'break-word' }}>{msg.text}</div>
+                    </div>
+                  ));
+                })()}
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="ພິມຂໍ້ຄວາມ... (Enter ເພື່ອສົ່ງ)"
+                  value={chatMessage}
+                  onChange={(e) => setChatMessage(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && chatMessage.trim()) {
+                      db.addMessageToOnlineOrder(chatOrder.id, 'customer', chatMessage.trim(), chatOrder.customerName || 'ລູກຄ້າ');
+                      setChatMessage('');
+                      const fresh = db.getOnlineOrders().find(o => o.id === chatOrder.id);
+                      if (fresh) setChatOrder(fresh);
+                    }
+                  }}
+                  style={{ flex: 1, background: '#1c1916', margin: 0, fontSize: '0.82rem' }}
+                />
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={!chatMessage.trim()}
+                  style={{ padding: '0 16px', margin: 0, fontSize: '0.82rem', whiteSpace: 'nowrap' }}
+                  onClick={() => {
+                    if (!chatMessage.trim()) return;
+                    db.addMessageToOnlineOrder(chatOrder.id, 'customer', chatMessage.trim(), chatOrder.customerName || 'ລູກຄ້າ');
+                    setChatMessage('');
+                    const fresh = db.getOnlineOrders().find(o => o.id === chatOrder.id);
+                    if (fresh) setChatOrder(fresh);
+                  }}
+                >
+                  📤 ສົ່ງ
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* 3. MOBILE BOTTOM NAVIGATION */}
       <nav style={{
         position: 'fixed',
@@ -1531,6 +1660,24 @@ export default function OnlineShop() {
         >
           <span style={{ fontSize: '1.25rem' }}>🔍</span>
           <span>ຕິດຕາມ</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('chat')}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: activeTab === 'chat' ? 'var(--gold-primary)' : '#888',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '4px',
+            fontSize: '0.65rem',
+            cursor: 'pointer'
+          }}
+        >
+          <span style={{ fontSize: '1.25rem' }}>💬</span>
+          <span>ສອບຖາມ</span>
         </button>
 
         <button

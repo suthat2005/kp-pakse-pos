@@ -1,4 +1,4 @@
-﻿// Mock database utility using localStorage for "ຂອບພຣະຣັທເກຊ" (Amulet POS & Framing)
+// Mock database utility using localStorage for "ຂອບພຣະຣັທເກຊ" (Amulet POS & Framing)
 // Tailored for Lao language, LAK (ກີບ) currency.
 
 const DEFAULT_CATEGORIES = [
@@ -4569,6 +4569,43 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       }
       
       return order;
+    }
+    return null;
+  },
+  addMessageToOnlineOrder(orderId, sender, text, senderName = '') {
+    const orders = this.getOnlineOrders();
+    const idx = orders.findIndex(o => o.id === orderId);
+    if (idx !== -1) {
+      if (!orders[idx].messages) orders[idx].messages = [];
+      orders[idx].messages.push({
+        sender,      // 'customer' | 'admin'
+        senderName,
+        text,
+        timestamp: new Date().toISOString(),
+        read: false
+      });
+      this.saveOnlineOrders(orders);
+      window.dispatchEvent(new Event('db-updated'));
+      return orders[idx];
+    }
+    return null;
+  },
+  markOnlineOrderMessagesAsRead(orderId, senderToMarkAsRead = 'customer') {
+    const orders = this.getOnlineOrders();
+    const idx = orders.findIndex(o => o.id === orderId);
+    if (idx !== -1 && orders[idx].messages) {
+      let changed = false;
+      orders[idx].messages.forEach(m => {
+        if (m.sender === senderToMarkAsRead && !m.read) {
+          m.read = true;
+          changed = true;
+        }
+      });
+      if (changed) {
+        this.saveOnlineOrders(orders);
+        window.dispatchEvent(new Event('db-updated'));
+      }
+      return orders[idx];
     }
     return null;
   },
