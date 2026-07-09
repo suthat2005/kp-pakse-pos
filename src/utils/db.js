@@ -1,4 +1,4 @@
-// Mock database utility using localStorage for "ຂອບພຣະຣັທເກຊ" (Amulet POS & Framing)
+﻿// Mock database utility using localStorage for "ຂອບພຣະຣັທເກຊ" (Amulet POS & Framing)
 // Tailored for Lao language, LAK (ກີບ) currency.
 
 const DEFAULT_CATEGORIES = [
@@ -2089,47 +2089,6 @@ export const db = {
     }
 if (!localStorage.getItem('amulet_pos_products')) {
 seedStorage('products', DEFAULT_PRODUCTS);
-} else {
-  // Ensure K05 and C009-E195 products exist so the user does not have to create them manually
-  const currentProducts = getStorage('products', []);
-  let updatedProducts = false;
-  
-  if (currentProducts.length > 0) {
-    if (!currentProducts.some(p => p.barcode === 'K05')) {
-      currentProducts.push({
-        id: 'P_K05',
-        barcode: 'K05',
-        name: 'ກອບທອງອີຕາលີ K05 (กรอบทองอิตาลี)',
-        category: 'frames',
-        price: 150000,
-        cost: 100000,
-        stock: 20,
-        minStock: 2,
-        unit: 'ອັນ',
-        image: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=200&auto=format&fit=crop&q=60'
-      });
-      updatedProducts = true;
-    }
-    if (!currentProducts.some(p => p.barcode === 'C009-E195')) {
-      currentProducts.push({
-        id: 'P_C009_E195',
-        barcode: 'C009-E195',
-        name: 'ກອບທອງອີຕາលີ C009-E195 (กรอบทองอิตาลี)',
-        category: 'frames',
-        price: 150000,
-        cost: 100000,
-        stock: 20,
-        minStock: 2,
-        unit: 'ອັນ',
-        image: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=200&auto=format&fit=crop&q=60'
-      });
-      updatedProducts = true;
-    }
-    
-    if (updatedProducts) {
-      setStorage('products', currentProducts);
-    }
-  }
 }
 const storedUsers = getStorage('users', []);
 if (!localStorage.getItem('amulet_pos_users') || storedUsers.length === 0 || !storedUsers.some(u => u.email)) {
