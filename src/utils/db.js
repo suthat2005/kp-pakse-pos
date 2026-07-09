@@ -4606,7 +4606,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     window.dispatchEvent(new Event('db-updated'));
     return newInquiry;
   },
-  addMessageToOnlineOrder(orderId, sender, text, senderName = '') {
+  addMessageToOnlineOrder(orderId, sender, text, senderName = '', attachments = []) {
     const orders = this.getOnlineOrders();
     const idx = orders.findIndex(o => o.id === orderId);
     if (idx !== -1) {
@@ -4616,7 +4616,8 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
         senderName,
         text,
         timestamp: new Date().toISOString(),
-        read: false
+        read: false,
+        attachments: attachments || []
       });
       this.saveOnlineOrders(orders);
       window.dispatchEvent(new Event('db-updated'));

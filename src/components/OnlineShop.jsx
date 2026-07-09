@@ -132,6 +132,7 @@ export default function OnlineShop() {
   const [chatOrderId, setChatOrderId] = useState('');
   const [chatMessage, setChatMessage] = useState('');
   const [chatOrder, setChatOrder] = useState(null);
+  const [chatAttachments, setChatAttachments] = useState([]);
 
   const loadData = () => {
     setProducts(db.getProducts().filter(p => p.showOnline));
@@ -176,6 +177,16 @@ export default function OnlineShop() {
     window.addEventListener('db-updated', handleUpdate);
     return () => window.removeEventListener('db-updated', handleUpdate);
   }, []);
+
+  // Auto-open chat room for logged-in customer when they switch to chat tab
+  useEffect(() => {
+    if (activeTab === 'chat' && customer && !chatOrder) {
+      const inq = db.getOrCreateOnlineInquiry(customer.name, customer.phone);
+      setChatOrder(inq);
+      localStorage.setItem('active_chat_id', inq.id);
+      db.markOnlineOrderMessagesAsRead(inq.id, 'admin');
+    }
+  }, [activeTab, customer]);
 
   useEffect(() => {
     // Decode a data:image base64 QR using jsQR to get the EMVCo payload
@@ -1484,152 +1495,116 @@ export default function OnlineShop() {
       {activeTab === 'chat' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>💬 ສົ່ງຂໍ້ຄວາມຫາຮ້ານ</h3>
-          {!chatOrder ? (
-            /* Choose how to start chat */
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {/* Form to start general chat */}
-              <div className="glass-card" style={{ padding: '20px', background: '#141210', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.9rem' }}>💬 ເລີ່ມການສົນທະນາທົ່ວໄປ (General Chat)</h4>
-                <p style={{ color: '#aaa', fontSize: '0.75rem', margin: 0 }}>
-                  ປ້ອນຊື່ ແລະ ເບີໂທຂອງທ່ານເພື່ອສອບຖາມຂໍ້ມູນ ຫຼື ປ່ຽນແປງລາຍລະອຽດຕ່າງໆກັບທາງຮ້ານ
-                </p>
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label" style={{ fontSize: '0.75rem' }}>ຊື່ຂອງທ່ານ (Your Name)</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="ຊື່ ແລະ ນາມສະກຸນ"
-                    value={authName}
-                    onChange={(e) => setAuthName(e.target.value)}
-                    style={{ background: '#1c1916', margin: 0, fontSize: '0.82rem' }}
-                  />
-                </div>
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label" style={{ fontSize: '0.75rem' }}>ເບີໂທຕິດຕໍ່ (Phone Number)</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="ເບີໂທຕິດຕໍ່ ຕົວຢ່າງ: 020XXXXXXXX"
-                    value={authPhone}
-                    onChange={(e) => setAuthPhone(e.target.value)}
-                    style={{ background: '#1c1916', margin: 0, fontSize: '0.82rem' }}
-                  />
-                </div>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  disabled={!authName.trim() || !authPhone.trim()}
-                  onClick={() => {
-                    const inq = db.getOrCreateOnlineInquiry(authName.trim(), authPhone.trim());
-                    setChatOrder(inq);
-                    localStorage.setItem('active_chat_id', inq.id);
-                  }}
-                  style={{ width: '100%', padding: '10px', fontSize: '0.85rem', marginTop: '6px' }}
-                >
-                  🚀 ເລີ່ມລົມກັບທາງຮ້ານ
-                </button>
-              </div>
 
-              {/* Or load existing order chat */}
-              <div className="glass-card" style={{ padding: '16px', background: '#141210', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.85rem' }}>🔍 ຫຼື ໂຫຼດຫ້ອງແຊັດຈາກເລກອໍເດີ້ (Load Order Chat)</h4>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="ເລກອໍເດີ້ ຕົວຢ່າງ: ONL10001"
-                    value={chatOrderId}
-                    onChange={(e) => setChatOrderId(e.target.value.toUpperCase())}
-                    style={{ background: '#1c1916', margin: 0, fontSize: '0.82rem' }}
-                  />
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    style={{ padding: '0 20px', whiteSpace: 'nowrap', margin: 0, fontSize: '0.82rem' }}
-                    onClick={() => {
-                      const orders = db.getOnlineOrders();
-                      const found = orders.find(o => o.id === chatOrderId.trim());
-                      if (found) {
-                        setChatOrder(found);
-                        db.markOnlineOrderMessagesAsRead(found.id, 'admin');
-                        localStorage.setItem('active_chat_id', found.id);
-                      } else {
-                        alert('ບໍ່ພົບອໍເດີ້ ກະລຸນາກວດເລກຄືນ');
-                      }
-                    }}
-                  >
-                    ໂຫຼດ
-                  </button>
-                </div>
-              </div>
+          {!customer ? (
+            <div style={{ padding: '32px 20px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '14px', alignItems: 'center', background: '#141210', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px' }}>
+              <div style={{ fontSize: '2.5rem' }}>🔒</div>
+              <div style={{ color: 'var(--gold-primary)', fontWeight: 'bold', fontSize: '1rem' }}>ກະລຸນາ Login ກ່ອນ</div>
+              <div style={{ color: '#aaa', fontSize: '0.82rem' }}>ເພື່ອສົ່ງຂໍ້ຄວາມຫາທາງຮ້ານ ກະລຸນາ Login ເຂົ້າສູ່ລະບົບກ່ອນ</div>
+              <button type="button" className="btn btn-primary" onClick={() => setActiveTab('profile')} style={{ padding: '10px 28px', fontSize: '0.85rem' }}>
+                👤 ໄປຫນ້າ Login
+              </button>
             </div>
+          ) : !chatOrder ? (
+            <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '40px 0' }}>⏳ ກຳລັງໂຫຼດຫ້ອງແຊັດ...</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {/* Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: '10px', padding: '10px 14px' }}>
                 <div>
-                  <div style={{ fontSize: '0.7rem', color: '#888' }}>
-                    {chatOrder.type === 'inquiry' ? 'ຫ້ອງສົນທະນາທົ່ວໄປ:' : 'ສົ່ງຂໍ້ຄວາມສຳລັບອໍເດີ້:'}
-                  </div>
-                  <div style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{chatOrder.id}</div>
+                  <div style={{ fontSize: '0.7rem', color: '#888' }}>💬 ຫ້ອງສົນທະນາ:</div>
+                  <div style={{ color: 'var(--gold-primary)', fontWeight: 'bold', fontSize: '0.9rem' }}>{chatOrder.customerName}</div>
                 </div>
-                <button
-                  type="button"
-                  style={{ background: 'none', border: 'none', color: '#888', fontSize: '0.8rem', cursor: 'pointer' }}
-                  onClick={() => {
-                    setChatOrder(null);
-                    setChatOrderId('');
-                    localStorage.removeItem('active_chat_id');
-                  }}
-                >
-                  ✕ ປ່ຽນ
-                </button>
+                <div style={{ fontSize: '0.65rem', color: '#555' }}>ID: {chatOrder.id}</div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minHeight: '200px', maxHeight: '350px', overflowY: 'auto', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '10px', padding: '12px' }}>
+
+              {/* Messages */}
+              <div id="chat-messages-customer" style={{ display: 'flex', flexDirection: 'column', gap: '8px', minHeight: '280px', maxHeight: '420px', overflowY: 'auto', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '10px', padding: '12px' }}>
                 {(() => {
                   const liveOrder = db.getOnlineOrders().find(o => o.id === chatOrder.id);
                   const msgs = liveOrder?.messages || [];
-                  if (msgs.length === 0) {
-                    return <div style={{ textAlign: 'center', color: '#666', fontSize: '0.8rem', paddingTop: '40px' }}>📭 ຍັງບໍ່ມີຂໍ້ຄວາມ</div>;
-                  }
+                  if (msgs.length === 0) return <div style={{ textAlign: 'center', color: '#666', fontSize: '0.8rem', paddingTop: '60px' }}>📭 ຍັງບໍ່ມີຂໍ້ຄວາມ — ພິມແລ້ວສົ່ງຫາຮ້ານໄດ້ເລີຍ!</div>;
                   return msgs.map((msg, idx) => (
-                    <div key={idx} style={{ alignSelf: msg.sender === 'customer' ? 'flex-end' : 'flex-start', background: msg.sender === 'customer' ? 'rgba(212,175,55,0.15)' : 'rgba(52,152,219,0.15)', border: `1px solid ${msg.sender === 'customer' ? 'rgba(212,175,55,0.3)' : 'rgba(52,152,219,0.3)'}`, borderRadius: '10px', padding: '8px 12px', maxWidth: '85%' }}>
-                      <div style={{ fontSize: '0.65rem', color: '#888', marginBottom: '3px' }}>
-                        {msg.sender === 'customer' ? 'ທ່ານ' : 'ແອັດມິນ'}
-                        {' • '}{new Date(msg.timestamp).toLocaleString('lo-LA')}
+                    <div key={idx} style={{ alignSelf: msg.sender === 'customer' ? 'flex-end' : 'flex-start', background: msg.sender === 'customer' ? 'rgba(212,175,55,0.15)' : 'rgba(52,152,219,0.15)', border: `1px solid ${msg.sender === 'customer' ? 'rgba(212,175,55,0.3)' : 'rgba(52,152,219,0.3)'}`, borderRadius: msg.sender === 'customer' ? '12px 12px 2px 12px' : '12px 12px 12px 2px', padding: '8px 12px', maxWidth: '82%' }}>
+                      <div style={{ fontSize: '0.62rem', color: '#888', marginBottom: '3px' }}>
+                        {msg.sender === 'customer' ? '✦ ທ່ານ' : '🏪 ຮ້ານ'}{' • '}{new Date(msg.timestamp).toLocaleString('lo-LA')}
                       </div>
-                      <div style={{ fontSize: '0.82rem', color: 'white', wordBreak: 'break-word' }}>{msg.text}</div>
+                      {msg.text && <div style={{ fontSize: '0.85rem', color: 'white', wordBreak: 'break-word', lineHeight: '1.4' }}>{msg.text}</div>}
+                      {msg.attachments && msg.attachments.length > 0 && (
+                        <div style={{ marginTop: msg.text ? '8px' : 0, display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                          {msg.attachments.map((att, ai) => (
+                            att.type === 'image' ? <img key={ai} src={att.data} alt={att.name} style={{ maxWidth: '160px', maxHeight: '160px', borderRadius: '8px', cursor: 'pointer', objectFit: 'cover' }} onClick={() => window.open(att.data)} />
+                            : att.type === 'video' ? <video key={ai} src={att.data} controls style={{ maxWidth: '200px', borderRadius: '8px' }} />
+                            : <a key={ai} href={att.data} download={att.name} style={{ fontSize: '0.75rem', color: 'var(--gold-primary)', textDecoration: 'underline' }}>📎 {att.name}</a>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ));
                 })()}
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
+
+              {/* Attachment preview */}
+              {chatAttachments.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '8px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  {chatAttachments.map((att, i) => (
+                    <div key={i} style={{ position: 'relative' }}>
+                      {att.type === 'image' ? <img src={att.data} alt={att.name} style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '6px' }} />
+                       : att.type === 'video' ? <div style={{ width: '56px', height: '56px', background: 'rgba(0,0,0,0.5)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>🎬</div>
+                       : <div style={{ padding: '4px 8px', background: 'rgba(212,175,55,0.1)', borderRadius: '6px', fontSize: '0.68rem', color: 'var(--gold-primary)', maxWidth: '90px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>📎 {att.name}</div>}
+                      <button onClick={() => setChatAttachments(prev => prev.filter((_,j) => j !== i))} style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#e74c3c', border: 'none', borderRadius: '50%', width: '16px', height: '16px', color: 'white', cursor: 'pointer', fontSize: '0.55rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Input bar */}
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '42px', height: '42px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', cursor: 'pointer', fontSize: '1.15rem', flexShrink: 0 }}>
+                  📎
+                  <input type="file" multiple accept="image/*,video/*,.pdf,.doc,.docx" style={{ display: 'none' }}
+                    onChange={(e) => {
+                      Array.from(e.target.files).forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                          const type = file.type.startsWith('video') ? 'video' : file.type.startsWith('image') ? 'image' : 'file';
+                          setChatAttachments(prev => [...prev, { type, name: file.name, data: ev.target.result }]);
+                        };
+                        reader.readAsDataURL(file);
+                      });
+                      e.target.value = '';
+                    }}
+                  />
+                </label>
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="ພิມຂໍ້ຄວາມ... (Enter ເພື່ອສົ່ງ)"
+                  placeholder="ພິມຂໍ້ຄວາມ... (Enter ເພື່ອສົ່ງ)"
                   value={chatMessage}
                   onChange={(e) => setChatMessage(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' && chatMessage.trim()) {
-                      db.addMessageToOnlineOrder(chatOrder.id, 'customer', chatMessage.trim(), chatOrder.customerName || 'ລູກຄ້າ');
-                      setChatMessage('');
+                    if (e.key === 'Enter' && (chatMessage.trim() || chatAttachments.length > 0)) {
+                      db.addMessageToOnlineOrder(chatOrder.id, 'customer', chatMessage.trim(), chatOrder.customerName || 'ລູກຄ້າ', chatAttachments);
+                      setChatMessage(''); setChatAttachments([]);
                       const fresh = db.getOnlineOrders().find(o => o.id === chatOrder.id);
                       if (fresh) setChatOrder(fresh);
+                      setTimeout(() => { const b = document.getElementById('chat-messages-customer'); if (b) b.scrollTop = b.scrollHeight; }, 100);
                     }
                   }}
-                  style={{ flex: 1, background: '#1c1916', margin: 0, fontSize: '0.82rem' }}
+                  style={{ flex: 1, background: '#1c1916', margin: 0, fontSize: '0.85rem', height: '42px' }}
                 />
                 <button
                   type="button"
                   className="btn btn-primary"
-                  disabled={!chatMessage.trim()}
-                  style={{ padding: '0 16px', margin: 0, fontSize: '0.82rem', whiteSpace: 'nowrap' }}
+                  disabled={!chatMessage.trim() && chatAttachments.length === 0}
+                  style={{ padding: '0 18px', height: '42px', margin: 0, fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }}
                   onClick={() => {
-                    if (!chatMessage.trim()) return;
-                    db.addMessageToOnlineOrder(chatOrder.id, 'customer', chatMessage.trim(), chatOrder.customerName || 'ລູກຄ້າ');
-                    setChatMessage('');
+                    if (!chatMessage.trim() && chatAttachments.length === 0) return;
+                    db.addMessageToOnlineOrder(chatOrder.id, 'customer', chatMessage.trim(), chatOrder.customerName || 'ລູກຄ້າ', chatAttachments);
+                    setChatMessage(''); setChatAttachments([]);
                     const fresh = db.getOnlineOrders().find(o => o.id === chatOrder.id);
                     if (fresh) setChatOrder(fresh);
+                    setTimeout(() => { const b = document.getElementById('chat-messages-customer'); if (b) b.scrollTop = b.scrollHeight; }, 100);
                   }}
                 >
                   📤 ສົ່ງ
@@ -1639,6 +1614,7 @@ export default function OnlineShop() {
           )}
         </div>
       )}
+
 
             {/* 3. MOBILE BOTTOM NAVIGATION */}
       <nav style={{

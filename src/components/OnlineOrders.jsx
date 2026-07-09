@@ -19,6 +19,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
 
   // Chat reply state
   const [chatReply, setChatReply] = useState('');
+  const [adminAttachments, setAdminAttachments] = useState([]);
 
   useEffect(() => {
     loadOrders();
@@ -112,20 +113,34 @@ export default function OnlineOrders({ activeUser, isMobile }) {
 
   // ---- Admin chat reply ----
   const handleSendAdminReply = () => {
-    if (!selectedOrder || !chatReply.trim()) return;
-    db.addMessageToOnlineOrder(selectedOrder.id, 'admin', chatReply.trim(), 'ຮ້ານ');
+    if (!selectedOrder || (!chatReply.trim() && adminAttachments.length === 0)) return;
+    db.addMessageToOnlineOrder(selectedOrder.id, 'admin', chatReply.trim(), 'ຮ້ານ', adminAttachments);
     setChatReply('');
+    setAdminAttachments([]);
     loadOrders();
   };
 
-  // Filtering logic
+  const handleAdminFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const type = file.type.startsWith('video') ? 'video' : file.type.startsWith('image') ? 'image' : 'file';
+        setAdminAttachments(prev => [...prev, { type, name: file.name, data: ev.target.result }]);
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
+  };
+
+  // Filtering logic — INQ records only appear in Chat tab, not Orders/Archive
   const filteredOrders = orders.filter(o => {
+    if (o.type === 'inquiry') return false;
     const matchesSearch = o.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           o.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           o.customerPhone.includes(searchQuery);
-    const isInquiry = o.type === 'inquiry';
-    const matchesPayment = isInquiry || filterPayment === 'all' || o.paymentStatus === filterPayment;
-    const matchesShipping = isInquiry || filterShipping === 'all' || o.shippingStatus === filterShipping;
+    const matchesPayment = filterPayment === 'all' || o.paymentStatus === filterPayment;
+    const matchesShipping = filterShipping === 'all' || o.shippingStatus === filterShipping;
     const matchesTab = activeTab === 'active'
       ? o.shippingStatus !== 'delivered'
       : o.shippingStatus === 'delivered';
@@ -199,7 +214,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
               transition: 'all 0.2s'
             }}
           >
-            📥 ອໍເດີ້ ({orders.filter(o => o.shippingStatus !== 'delivered').length})
+            📥 ອໍເດີ້ ({orders.filter(o => o.type !== 'inquiry' && o.shippingStatus !== 'delivered').length})
           </button>
           <button
             type="button"
@@ -217,7 +232,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
               transition: 'all 0.2s'
             }}
           >
-            🗄️ Archive ({orders.filter(o => o.shippingStatus === 'delivered').length})
+            🗄️ Archive ({orders.filter(o => o.type !== 'inquiry' && o.shippingStatus === 'delivered').length})
           </button>
           <button
             type="button"
@@ -527,7 +542,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                       alignSelf: msg.sender === 'admin' ? 'flex-end' : 'flex-start',
                       background: msg.sender === 'admin' ? 'rgba(212,175,55,0.12)' : 'rgba(52,152,219,0.12)',
                       border: `1px solid ${msg.sender === 'admin' ? 'rgba(212,175,55,0.3)' : 'rgba(52,152,219,0.3)'}`,
-                      borderRadius: '10px',
+                      borderRadius: msg.sender === 'admin' ? '10px 10px 2px 10px' : '10px 10px 10px 2px',
                       padding: '10px 14px',
                       maxWidth: '75%'
                     }}>
@@ -535,14 +550,47 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                         {msg.sender === 'admin' ? '🏪 ຮ້ານ' : `👤 ${msg.senderName || 'ລູກຄ້າ'}`}
                         {' · '}{new Date(msg.timestamp).toLocaleString('lo-LA')}
                       </div>
-                      <div style={{ fontSize: '0.85rem', color: 'white', wordBreak: 'break-word' }}>{msg.text}</div>
+                      {msg.text && <div style={{ fontSize: '0.85rem', color: 'white', wordBreak: 'break-word' }}>{msg.text}</div>}
+                      {msg.attachments && msg.attachments.length > 0 && (
+                        <div style={{ marginTop: msg.text ? '8px' : 0, display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                          {msg.attachments.map((att, ai) => (
+                            att.type === 'image' ? (
+                              <img key={ai} src={att.data} alt={att.name} style={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '6px', cursor: 'pointer', objectFit: 'cover' }} onClick={() => window.open(att.data)} />
+                            ) : att.type === 'video' ? (
+                              <video key={ai} src={att.data} controls style={{ maxWidth: '200px', borderRadius: '6px' }} />
+                            ) : (
+                              <a key={ai} href={att.data} download={att.name} style={{ fontSize: '0.75rem', color: 'var(--gold-primary)', textDecoration: 'underline' }}>📎 {att.name}</a>
+                            )
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))
                 )}
               </div>
 
               {/* Input box */}
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+              {adminAttachments.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '6px', padding: '6px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
+                  {adminAttachments.map((att, i) => (
+                    <div key={i} style={{ position: 'relative' }}>
+                      {att.type === 'image' ? (
+                        <img src={att.data} alt={att.name} style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '6px' }} />
+                      ) : att.type === 'video' ? (
+                        <div style={{ width: '50px', height: '50px', background: '#222', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem' }}>🎬</div>
+                      ) : (
+                        <div style={{ padding: '4px 8px', background: 'rgba(212,175,55,0.1)', borderRadius: '6px', fontSize: '0.68rem', color: 'var(--gold-primary)' }}>📎 {att.name}</div>
+                      )}
+                      <button onClick={() => setAdminAttachments(prev => prev.filter((_,j) => j !== i))} style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#e74c3c', border: 'none', borderRadius: '50%', width: '15px', height: '15px', color: 'white', cursor: 'pointer', fontSize: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '10px', alignItems: 'center' }}>
+                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '38px', height: '38px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', cursor: 'pointer', fontSize: '1.1rem', flexShrink: 0 }}>
+                  📎
+                  <input type="file" multiple accept="image/*,video/*,.pdf,.doc,.docx" style={{ display: 'none' }} onChange={handleAdminFileChange} />
+                </label>
                 <input
                   type="text"
                   className="form-control"
@@ -550,14 +598,14 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                   value={chatReply}
                   onChange={(e) => setChatReply(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') handleSendAdminReply(); }}
-                  style={{ flex: 1, fontSize: '0.85rem' }}
+                  style={{ flex: 1, fontSize: '0.85rem', height: '38px' }}
                 />
                 <button
                   type="button"
                   className="btn btn-primary"
                   onClick={handleSendAdminReply}
-                  disabled={!chatReply.trim()}
-                  style={{ padding: '8px 24px', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
+                  disabled={!chatReply.trim() && adminAttachments.length === 0}
+                  style={{ padding: '0 20px', height: '38px', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }}
                 >
                   📤 ສົ່ງ
                 </button>
