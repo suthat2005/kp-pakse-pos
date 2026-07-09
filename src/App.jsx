@@ -1450,38 +1450,6 @@ export default function App() {
                   ))}
                 </div>
 
-                {/* Hidden print template */}
-                {expensePrintId && (() => {
-                  const ex = (db.getExpenses() || []).find(e => e.id === expensePrintId);
-                  if (!ex) return null;
-                  return (
-                    <div id="expense-receipt-print" style={{ display: 'none' }}>
-                      <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-                        <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{settings.shopName || 'ຂອບພຣະຣັທເກຊ'}</div>
-                        <div style={{ fontSize: '12px' }}>{settings.shopSubtitle}</div>
-                        <div style={{ fontSize: '14px', fontWeight: 'bold', marginTop: '6px' }}>ໃບບິນລາຍຈ່າຍ / Expense Receipt</div>
-                      </div>
-                      <div className="dashed"></div>
-                      <table>
-                        <tbody>
-                          <tr><td><b>ເລກທີ:</b></td><td style={{ textAlign: 'right' }}>{ex.id}</td></tr>
-                          <tr><td><b>ວັນທີ:</b></td><td style={{ textAlign: 'right' }}>{new Date(ex.date).toLocaleString('lo-LA')}</td></tr>
-                          <tr><td><b>ປະເພດ:</b></td><td style={{ textAlign: 'right' }}>{ex.categoryName || ex.category}</td></tr>
-                          {ex.supplier && <tr><td><b>ຜູ້ສະໜອງ:</b></td><td style={{ textAlign: 'right' }}>{ex.supplier}</td></tr>}
-                          <tr><td><b>ວິທີຊຳລະ:</b></td><td style={{ textAlign: 'right' }}>{ex.paymentMethod === 'transfer' ? 'ໂອນທະນາຄານ' : 'ເງິນສົດ'}</td></tr>
-                        </tbody>
-                      </table>
-                      <div className="dashed"></div>
-                      <div style={{ fontSize: '16px', fontWeight: 'bold', textAlign: 'center' }}>
-                        ມູນຄ່າ: {(ex.amount || 0).toLocaleString()} {ex.currency || 'LAK'}
-                        {ex.currency && ex.currency !== 'LAK' && ` (≈ ${ex.convertedAmount?.toLocaleString()} ₭)`}
-                      </div>
-                      <div className="dashed"></div>
-                      {ex.notes && <div><b>ໝາຍເຫດ:</b> {ex.notes}</div>}
-                      <div style={{ fontSize: '11px', marginTop: '6px' }}>ຜູ້ບັນທຶກ: {ex.createdByName || 'N/A'}</div>
-                    </div>
-                  );
-                })()}
               </div>
             ) : (
               /* ===== Expense Entry Form ===== */
@@ -1492,7 +1460,7 @@ export default function App() {
                   alert('ກະລຸນາປ້ອນຈຳນວນເງິນໃຫ້ຖືກຕ້ອງ');
                   return;
                 }
-                db.addExpense({
+                const newEx = db.addExpense({
                   category: expenseFormData.category,
                   categoryName: expenseFormData.categoryName,
                   amount: amountVal,
@@ -1504,6 +1472,22 @@ export default function App() {
                 alert('✓ ບັນທຶກລາຍຈ່າຍສຳເລັດ!');
                 setExpenseFormData({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '', paymentMethod: 'cash', supplier: '', currency: 'LAK' });
                 handleSystemUpdate();
+
+                if (newEx) {
+                  setExpensePrintId(newEx.id);
+                  setTimeout(() => {
+                    const el = document.getElementById('expense-receipt-print');
+                    if (el) {
+                      const w = window.open('', '_blank', 'width=400,height=600');
+                      w.document.write('<html><head><title>Expense Receipt</title><style>body{font-family:monospace;font-size:13px;padding:10px;color:#000}table{width:100%;border-collapse:collapse}td{padding:3px 0}.dashed{border-top:1px dashed #000;margin:8px 0}</style></head><body>');
+                      w.document.write(el.innerHTML);
+                      w.document.write('</body></html>');
+                      w.document.close();
+                      w.print();
+                    }
+                    setExpensePrintId(null);
+                  }, 150);
+                }
               }}>
                 {/* Row 1: Category & Supplier */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
@@ -1636,6 +1620,39 @@ export default function App() {
                 </div>
               </form>
             )}
+
+            {/* Hidden print template */}
+            {expensePrintId && (() => {
+              const ex = (db.getExpenses() || []).find(e => e.id === expensePrintId);
+              if (!ex) return null;
+              return (
+                <div id="expense-receipt-print" style={{ display: 'none' }}>
+                  <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{settings.shopName || 'ຂອບພຣະຣັທເກຊ'}</div>
+                    <div style={{ fontSize: '12px' }}>{settings.shopSubtitle}</div>
+                    <div style={{ fontSize: '14px', fontWeight: 'bold', marginTop: '6px' }}>ໃບບິນລາຍຈ່າຍ / Expense Receipt</div>
+                  </div>
+                  <div className="dashed"></div>
+                  <table>
+                    <tbody>
+                      <tr><td><b>ເລກທີ:</b></td><td style={{ textAlign: 'right' }}>{ex.id}</td></tr>
+                      <tr><td><b>ວັນທີ:</b></td><td style={{ textAlign: 'right' }}>{new Date(ex.date).toLocaleString('lo-LA')}</td></tr>
+                      <tr><td><b>ປະເພດ:</b></td><td style={{ textAlign: 'right' }}>{ex.categoryName || ex.category}</td></tr>
+                      {ex.supplier && <tr><td><b>ຜູ້ສະໜອງ:</b></td><td style={{ textAlign: 'right' }}>{ex.supplier}</td></tr>}
+                      <tr><td><b>ວິທີຊຳລະ:</b></td><td style={{ textAlign: 'right' }}>{ex.paymentMethod === 'transfer' ? 'ໂອນທະນາຄານ' : 'ເງິນສົດ'}</td></tr>
+                    </tbody>
+                  </table>
+                  <div className="dashed"></div>
+                  <div style={{ fontSize: '16px', fontWeight: 'bold', textAlign: 'center' }}>
+                    ມູນຄ່າ: {(ex.amount || 0).toLocaleString()} {ex.currency || 'LAK'}
+                    {ex.currency && ex.currency !== 'LAK' && ` (≈ ${ex.convertedAmount?.toLocaleString()} ₭)`}
+                  </div>
+                  <div className="dashed"></div>
+                  {ex.notes && <div><b>ໝາຍເຫດ:</b> {ex.notes}</div>}
+                  <div style={{ fontSize: '11px', marginTop: '6px' }}>ຜູ້ບັນທຶກ: {ex.createdByName || 'N/A'}</div>
+                </div>
+              );
+            })()}
           </div>
         </div>
         </Portal>
