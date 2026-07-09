@@ -2584,15 +2584,18 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
           <button
             key={tab.id}
             className={`nav-tab ${selectedCatFilter === tab.id ? 'active' : ''}`}
-            style={{ fontSize: '0.85rem', borderRadius: '20px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '6px' }}
+            style={{ fontSize: '0.85rem', borderRadius: '20px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', padding: '8px 14px', minWidth: '80px', textAlign: 'center' }}
             onClick={() => changeCatFilter(tab.id)}
           >
-            {tab.icon && (tab.icon.startsWith('data:image/') || tab.icon.startsWith('http')) ? (
-              <img src={tab.icon} style={{ width: '16px', height: '16px', objectFit: 'contain', borderRadius: '2px' }} alt="" />
-            ) : (
-              <span>{tab.icon}</span>
-            )}
-            <span>{tab.name} ({tab.count})</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              {tab.icon && (tab.icon.startsWith('data:image/') || tab.icon.startsWith('http')) ? (
+                <img src={tab.icon} style={{ width: '14px', height: '14px', objectFit: 'contain', borderRadius: '2px' }} alt="" />
+              ) : (
+                <span style={{ fontSize: '0.8rem' }}>{tab.icon}</span>
+              )}
+              <span style={{ fontWeight: '500', whiteSpace: 'nowrap' }}>{tab.name}</span>
+            </span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 'bold', opacity: 0.9 }}>({tab.count})</span>
           </button>
         ))}
       </div>
