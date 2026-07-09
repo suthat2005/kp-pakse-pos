@@ -123,8 +123,9 @@ export default function OnlineOrders({ activeUser, isMobile }) {
     const matchesSearch = o.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           o.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           o.customerPhone.includes(searchQuery);
-    const matchesPayment = filterPayment === 'all' || o.paymentStatus === filterPayment;
-    const matchesShipping = filterShipping === 'all' || o.shippingStatus === filterShipping;
+    const isInquiry = o.type === 'inquiry';
+    const matchesPayment = isInquiry || filterPayment === 'all' || o.paymentStatus === filterPayment;
+    const matchesShipping = isInquiry || filterShipping === 'all' || o.shippingStatus === filterShipping;
     const matchesTab = activeTab === 'active'
       ? o.shippingStatus !== 'delivered'
       : o.shippingStatus === 'delivered';
@@ -136,7 +137,8 @@ export default function OnlineOrders({ activeUser, isMobile }) {
       case 'unpaid': return '🛑 ລໍຖ້າຊຳລະ';
       case 'pending_verification': return '⏳ ລໍຖ້າກວດສອບສະລິບ';
       case 'paid': return '✅ ຊຳລະແລ້ວ';
-      case 'rejected': return '❌ ສະລິບຖືກປະຕິເສດ';
+      case 'rejected': return '❌ ສະລິບຖືກປະຕิເສດ';
+      case 'inquiry': return '💬 ສອບຖາມຂໍ້ມູນ';
       default: return status;
     }
   };
@@ -149,6 +151,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
       case 'shipped': return '✈️ ສົ່ງແລ້ວ';
       case 'delivered': return '🎁 ສຳເລັດແລ້ວ';
       case 'cancelled': return '❌ ຍົກເລີກ';
+      case 'inquiry': return '📋 ບໍ່ມີອໍເດີ້';
       default: return status;
     }
   };
@@ -274,7 +277,11 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                     </div>
                   </div>
                   <div style={{ fontSize: '0.85rem', fontWeight: '500' }}>👤 {o.customerName} ({o.customerPhone})</div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>💰 {o.total.toLocaleString()} LAK</div>
+                  {o.type === 'inquiry' ? (
+                    <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#3498db' }}>💬 ສອບຖາມຂໍ້ມູນທົ່ວໄປ</div>
+                  ) : (
+                    <div style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>💰 {o.total.toLocaleString()} LAK</div>
+                  )}
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
                     <span style={{
                       fontSize: '0.65rem',
@@ -356,6 +363,64 @@ export default function OnlineOrders({ activeUser, isMobile }) {
             </div>
 
             {/* Layout divided into details and slip section */}
+            {selectedOrder.type === 'inquiry' ? (
+              /* Full-width Inquiry Chat view */
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ background: 'rgba(52,152,219,0.04)', border: '1px solid rgba(52,152,219,0.2)', borderRadius: '10px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    💬 ການສອບຖາມຈາກລູກຄ້າ: {selectedOrder.customerName} ({selectedOrder.customerPhone})
+                  </h4>
+                  
+                  {/* Message history */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minHeight: '300px', maxHeight: '450px', overflowY: 'auto', padding: '8px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
+                    {(!selectedOrder.messages || selectedOrder.messages.length === 0) ? (
+                      <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.85rem', paddingTop: '80px' }}>
+                        📭 ຍັງບໍ່ມີຂໍ້ຄວາມ
+                      </div>
+                    ) : (
+                      selectedOrder.messages.map((msg, idx) => (
+                        <div key={idx} style={{
+                          alignSelf: msg.sender === 'admin' ? 'flex-end' : 'flex-start',
+                          background: msg.sender === 'admin' ? 'rgba(212,175,55,0.12)' : 'rgba(52,152,219,0.12)',
+                          border: `1px solid ${msg.sender === 'admin' ? 'rgba(212,175,55,0.3)' : 'rgba(52,152,219,0.3)'}`,
+                          borderRadius: '10px',
+                          padding: '8px 12px',
+                          maxWidth: '85%'
+                        }}>
+                          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginBottom: '3px' }}>
+                            {msg.sender === 'admin' ? '🏪 ຮ້ານ' : `👤 ${msg.senderName || 'ລູກຄ້າ'}`}
+                            {' · '}{new Date(msg.timestamp).toLocaleString('lo-LA')}
+                          </div>
+                          <div style={{ fontSize: '0.82rem', color: 'white', wordBreak: 'break-word' }}>{msg.text}</div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Admin reply input */}
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="ຕອບກັບລູກຄ້າ... (Enter ເພື່ອສົ່ງ)"
+                      value={chatReply}
+                      onChange={(e) => setChatReply(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') handleSendAdminReply(); }}
+                      style={{ flex: 1, fontSize: '0.82rem' }}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={handleSendAdminReply}
+                      disabled={!chatReply.trim()}
+                      style={{ padding: '6px 20px', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
+                    >
+                      📤 ສົ່ງ
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px' }}>
               {/* Left detail column */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -605,6 +670,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                 )}
               </div>
             </div>
+            )}
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-secondary)' }}>

@@ -1485,49 +1485,101 @@ export default function OnlineShop() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>💬 ສົ່ງຂໍ້ຄວາມຫາຮ້ານ</h3>
           {!chatOrder ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <p style={{ color: '#aaa', fontSize: '0.82rem', margin: 0 }}>
-                ກະລຸນາໃສ່ເລກອໍເດີ້ຂອງທ່ານເພື່ອເລີ່ມສົ່ງຂໍ້ຄວາມຫາທາງຮ້ານ
-              </p>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="ເລກອໍເດີ້ ຕົວຢ່າງ: ONL10001"
-                  value={chatOrderId}
-                  onChange={(e) => setChatOrderId(e.target.value.toUpperCase())}
-                  style={{ background: '#1c1916', margin: 0 }}
-                />
+            /* Choose how to start chat */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Form to start general chat */}
+              <div className="glass-card" style={{ padding: '20px', background: '#141210', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.9rem' }}>💬 ເລີ່ມການສົນທະນາທົ່ວໄປ (General Chat)</h4>
+                <p style={{ color: '#aaa', fontSize: '0.75rem', margin: 0 }}>
+                  ປ້ອນຊື່ ແລະ ເບີໂທຂອງທ່ານເພື່ອສອບຖາມຂໍ້ມູນ ຫຼື ປ່ຽນແປງລາຍລະອຽດຕ່າງໆກັບທາງຮ້ານ
+                </p>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>ຊື່ຂອງທ່ານ (Your Name)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="ຊື່ ແລະ ນາມສະກຸນ"
+                    value={authName}
+                    onChange={(e) => setAuthName(e.target.value)}
+                    style={{ background: '#1c1916', margin: 0, fontSize: '0.82rem' }}
+                  />
+                </div>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>ເບີໂທຕິດຕໍ່ (Phone Number)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="ເບີໂທຕິດຕໍ່ ຕົວຢ່າງ: 020XXXXXXXX"
+                    value={authPhone}
+                    onChange={(e) => setAuthPhone(e.target.value)}
+                    style={{ background: '#1c1916', margin: 0, fontSize: '0.82rem' }}
+                  />
+                </div>
                 <button
                   type="button"
                   className="btn btn-primary"
-                  style={{ padding: '0 20px', whiteSpace: 'nowrap', margin: 0 }}
+                  disabled={!authName.trim() || !authPhone.trim()}
                   onClick={() => {
-                    const orders = db.getOnlineOrders();
-                    const found = orders.find(o => o.id === chatOrderId.trim());
-                    if (found) {
-                      setChatOrder(found);
-                      db.markOnlineOrderMessagesAsRead(found.id, 'admin');
-                    } else {
-                      alert('ບໍ່ພົບອໍເດີ້ ກະລຸນາກວດເລກຄືນ');
-                    }
+                    const inq = db.getOrCreateOnlineInquiry(authName.trim(), authPhone.trim());
+                    setChatOrder(inq);
+                    localStorage.setItem('active_chat_id', inq.id);
                   }}
+                  style={{ width: '100%', padding: '10px', fontSize: '0.85rem', marginTop: '6px' }}
                 >
-                  ໂຫຼດ
+                  🚀 ເລີ່ມລົມກັບທາງຮ້ານ
                 </button>
+              </div>
+
+              {/* Or load existing order chat */}
+              <div className="glass-card" style={{ padding: '16px', background: '#141210', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.85rem' }}>🔍 ຫຼື ໂຫຼດຫ້ອງແຊັດຈາກເລກອໍເດີ້ (Load Order Chat)</h4>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="ເລກອໍເດີ້ ຕົວຢ່າງ: ONL10001"
+                    value={chatOrderId}
+                    onChange={(e) => setChatOrderId(e.target.value.toUpperCase())}
+                    style={{ background: '#1c1916', margin: 0, fontSize: '0.82rem' }}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    style={{ padding: '0 20px', whiteSpace: 'nowrap', margin: 0, fontSize: '0.82rem' }}
+                    onClick={() => {
+                      const orders = db.getOnlineOrders();
+                      const found = orders.find(o => o.id === chatOrderId.trim());
+                      if (found) {
+                        setChatOrder(found);
+                        db.markOnlineOrderMessagesAsRead(found.id, 'admin');
+                        localStorage.setItem('active_chat_id', found.id);
+                      } else {
+                        alert('ບໍ່ພົບອໍເດີ້ ກະລຸນາກວດເລກຄືນ');
+                      }
+                    }}
+                  >
+                    ໂຫຼດ
+                  </button>
+                </div>
               </div>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: '10px', padding: '10px 14px' }}>
                 <div>
-                  <div style={{ fontSize: '0.7rem', color: '#888' }}>ສົ່ງຂໍ້ຄວາມສຳລັບອໍເດີ້:</div>
+                  <div style={{ fontSize: '0.7rem', color: '#888' }}>
+                    {chatOrder.type === 'inquiry' ? 'ຫ້ອງສົນທະນາທົ່ວໄປ:' : 'ສົ່ງຂໍ້ຄວາມສຳລັບອໍເດີ້:'}
+                  </div>
                   <div style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{chatOrder.id}</div>
                 </div>
                 <button
                   type="button"
                   style={{ background: 'none', border: 'none', color: '#888', fontSize: '0.8rem', cursor: 'pointer' }}
-                  onClick={() => { setChatOrder(null); setChatOrderId(''); }}
+                  onClick={() => {
+                    setChatOrder(null);
+                    setChatOrderId('');
+                    localStorage.removeItem('active_chat_id');
+                  }}
                 >
                   ✕ ປ່ຽນ
                 </button>
@@ -1554,7 +1606,7 @@ export default function OnlineShop() {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="ພິມຂໍ້ຄວາມ... (Enter ເພື່ອສົ່ງ)"
+                  placeholder="ພิມຂໍ້ຄວາມ... (Enter ເພື່ອສົ່ງ)"
                   value={chatMessage}
                   onChange={(e) => setChatMessage(e.target.value)}
                   onKeyDown={(e) => {
@@ -1588,7 +1640,7 @@ export default function OnlineShop() {
         </div>
       )}
 
-      {/* 3. MOBILE BOTTOM NAVIGATION */}
+            {/* 3. MOBILE BOTTOM NAVIGATION */}
       <nav style={{
         position: 'fixed',
         bottom: 0,

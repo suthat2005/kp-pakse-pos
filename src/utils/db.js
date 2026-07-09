@@ -4572,6 +4572,40 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     }
     return null;
   },
+  getOrCreateOnlineInquiry(customerName, customerPhone) {
+    const orders = this.getOnlineOrders();
+    const existing = orders.find(o => o.type === 'inquiry' && o.customerPhone === customerPhone);
+    if (existing) {
+      return existing;
+    }
+    const newSeq = orders.length + 10001;
+    const newInquiry = {
+      id: 'INQ-' + String(newSeq).padStart(6, '0'),
+      type: 'inquiry',
+      customerName: customerName,
+      customerPhone: customerPhone,
+      total: 0,
+      items: [],
+      date: new Date().toISOString(),
+      paymentStatus: 'inquiry',
+      shippingStatus: 'inquiry',
+      messages: [],
+      timeline: [
+        { status: 'ເລີ່ມຕົ້ນສອບຖາມ', date: new Date().toISOString(), note: 'ລູກຄ້າເລີ່ມຕົ້ນສົນທະນາກັບທາງຮ້ານ' }
+      ]
+    };
+    orders.push(newInquiry);
+    this.saveOnlineOrders(orders);
+    
+    const settings = this.getSettings();
+    if (settings.notifyOnlineOrder !== false) {
+      this.sendNotification(`💬 *ມີຂໍ້ຄວາມສອບຖາມໃໝ່!*\n` +
+                            `🧾 *ລະຫັດ:* ${newInquiry.id}\n` +
+                            `👤 *ລູກຄ້າ:* ${newInquiry.customerName} (${newInquiry.customerPhone})`);
+    }
+    window.dispatchEvent(new Event('db-updated'));
+    return newInquiry;
+  },
   addMessageToOnlineOrder(orderId, sender, text, senderName = '') {
     const orders = this.getOnlineOrders();
     const idx = orders.findIndex(o => o.id === orderId);
