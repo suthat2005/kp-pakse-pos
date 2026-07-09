@@ -2408,59 +2408,6 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         </div>
       </div>
 
-      {/* Category Summary Card */}
-      <div className="glass-card" style={{ padding: '20px', borderLeft: '4px solid var(--gold-primary)', marginTop: '4px' }}>
-        <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.92rem', marginBottom: '14px', marginTop: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-          📊 ສະຫຼຸບສິນຄ້າຕາມຫມວດຫມູ່ (Category Summary)
-        </h4>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '10px' }}>
-          {categories.map(cat => {
-            const catProducts = products.filter(p => p.category === cat.id);
-            const isService = cat.type === 'service';
-            const stockTotal = isService ? null : catProducts.reduce((sum, p) => sum + (Number(p.stock) || 0), 0);
-            return (
-              <div
-                key={cat.id}
-                onClick={() => { setSelectedCatFilter(cat.id); }}
-                style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: selectedCatFilter === cat.id ? '1.5px solid var(--gold-primary)' : '1px solid var(--border-color)',
-                  borderRadius: '10px',
-                  padding: '12px 14px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '4px'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                  {cat.icon && (cat.icon.startsWith('data:image/') || cat.icon.startsWith('http')) ? (
-                    <img src={cat.icon} style={{ width: '20px', height: '20px', objectFit: 'contain', borderRadius: '3px' }} alt="" />
-                  ) : (
-                    <span style={{ fontSize: '1rem' }}>{cat.icon || '📦'}</span>
-                  )}
-                  <span style={{ fontSize: '0.82rem', fontWeight: '600', color: 'var(--text-primary)', lineHeight: 1.3 }}>{cat.name}</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                    📋 ລາຍການ: <b style={{ color: 'white' }}>{catProducts.length}</b> ລາຍການ
-                  </span>
-                  {!isService && (
-                    <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                      📦 ສະຕັອກ: <b style={{ color: stockTotal === 0 ? 'var(--alert-red)' : 'var(--gold-primary)' }}>{stockTotal}</b> ຊິ້ນ
-                    </span>
-                  )}
-                  {isService && (
-                    <span style={{ fontSize: '0.75rem', color: 'var(--accent-amber, #e67e22)' }}>🛠️ ບໍລິການ (ບໍ່ມີສະຕັອກ)</span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
       {/* Low Stock Alerts Banner */}
       {lowStockProducts.length > 0 && (
         <div style={{ background: 'rgba(231, 76, 60, 0.1)', border: '1.5px solid var(--alert-red)', padding: '16px', borderRadius: 'var(--radius-lg)' }}>
