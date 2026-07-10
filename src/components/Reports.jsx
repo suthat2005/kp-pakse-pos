@@ -60,6 +60,16 @@ export default function Reports({ activeUser, isMobile }) {
   const [deletePin, setDeletePin] = useState('');
   const [deleteError, setDeleteError] = useState('');
 
+  // Edit Bill Modal States
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editType, setEditType] = useState(null); // 'order' | 'debt' | 'expense'
+  const [editTarget, setEditTarget] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [editPin, setEditPin] = useState('');
+  const [editError, setEditError] = useState('');
+  const [editSaving, setEditSaving] = useState(false);
+
+
   // Load database items on start and when database events fire
   const loadData = () => {
     const orders = db.getOrders();
@@ -332,7 +342,99 @@ export default function Reports({ activeUser, isMobile }) {
     loadData();
   };
 
+  const handleOpenEdit = (type, record) => {
+    setEditType(type);
+    setEditTarget(record);
+    if (type === 'order') {
+      setEditForm({
+        paymentMethod: record.paymentMethod || 'cash',
+        cashierName: record.cashierName || '',
+        discount: record.discount || 0,
+        cashReceived: record.cashReceived || 0,
+        transferAmount: record.transferAmount || 0,
+        change: record.change || 0,
+        bankTxRef: record.bankTxRef || '',
+        payCurrency: record.payCurrency || 'LAK',
+        treatRemark: record.treatRemark || '',
+        notes: record.notes || '',
+      });
+    } else if (type === 'debt') {
+      setEditForm({
+        customerName: record.customerName || '',
+        customerPhone: record.customerPhone || '',
+        discount: record.discount || 0,
+        depositAmount: record.depositAmount || 0,
+        total: record.total || 0,
+        status: record.status || 'unpaid',
+        notes: record.notes || '',
+        cashierName: record.cashierName || '',
+      });
+    } else if (type === 'expense') {
+      setEditForm({
+        categoryName: record.categoryName || record.category || '',
+        amount: record.amount || 0,
+        currency: record.currency || 'LAK',
+        supplier: record.supplier || '',
+        notes: record.notes || '',
+        date: record.date ? record.date.slice(0, 16) : '',
+        createdByName: record.createdByName || '',
+      });
+    }
+    setEditPin('');
+    setEditError('');
+    setShowEditModal(true);
+  };
+
+  const handleSaveEdit = (e) => {
+    e.preventDefault();
+    const users = db.getUsers();
+    const currentSettings = db.getSettings();
+    const matchedOwner = users.find(u => u.role === 'owner' && u.passcode === editPin);
+    const isMasterPin = editPin === currentSettings.masterAdminPin;
+    if (!matchedOwner && !isMasterPin) {
+      setEditError('🔒 ລະຫັດ PIN ບໍ່ຖືກຕ້ອງ!');
+      return;
+    }
+    setEditSaving(true);
+    try {
+      if (editType === 'order') {
+        const changes = { ...editForm };
+        changes.discount = Number(changes.discount) || 0;
+        changes.cashReceived = Number(changes.cashReceived) || 0;
+        changes.transferAmount = Number(changes.transferAmount) || 0;
+        changes.change = Number(changes.change) || 0;
+        // Recalculate total if discount changed
+        if (editTarget.subtotal !== undefined) {
+          changes.total = editTarget.subtotal - changes.discount;
+        }
+        db.updateOrder(editTarget.id, changes);
+        db.addAuditLog('success_pin', `ແກ້ໄຂບິນຂາຍ ID: ${editTarget.id} (ອະນຸມັດໂດຍ Admin PIN)`, 'info');
+      } else if (editType === 'debt') {
+        const changes = { ...editForm };
+        changes.discount = Number(changes.discount) || 0;
+        changes.depositAmount = Number(changes.depositAmount) || 0;
+        changes.total = Number(changes.total) || editTarget.total;
+        db.updateDebt(editTarget.id, changes);
+        db.addAuditLog('success_pin', `ແກ້ໄຂບິນໜີ້ ID: ${editTarget.id} (ອະນຸມັດໂດຍ Admin PIN)`, 'info');
+      } else if (editType === 'expense') {
+        const changes = { ...editForm };
+        changes.amount = Number(changes.amount) || 0;
+        changes.category = changes.categoryName;
+        db.updateExpense(editTarget.id, changes);
+        db.addAuditLog('success_pin', `ແກ້ໄຂລາຍຈ່າຍ ID: ${editTarget.id} (ອະນຸມັດໂດຍ Admin PIN)`, 'info');
+      }
+      alert('✓ ແກ້ໄຂສຳເລັດ!');
+      setShowEditModal(false);
+      setEditTarget(null);
+      loadData();
+    } catch (err) {
+      setEditError('❌ ເກີດຂໍ້ຜິດພາດ: ' + err.message);
+    }
+    setEditSaving(false);
+  };
+
   // Preset setter
+
   const setDatePreset = (preset) => {
     setActivePreset(preset);
     if (preset === 'today') {
@@ -1648,6 +1750,14 @@ export default function Reports({ activeUser, isMobile }) {
                           >
                             🖨️ ເປີດເບິ່ງ
                           </button>
+                          <button
+                            type="button"
+                            className="btn btn-secondary btn-sm"
+                            style={{ padding: '3px 8px', fontSize: '0.75rem', height: '30px', background: 'rgba(52,152,219,0.15)', border: '1px solid rgba(52,152,219,0.35)', color: '#3498db' }}
+                            onClick={() => handleOpenEdit('order', order)}
+                          >
+                            ✏️ ແກ້ໄຂ
+                          </button>
                           {hasReportsPermission('reportsDelete') && (
                             <button
                               type="button"
@@ -1739,6 +1849,13 @@ export default function Reports({ activeUser, isMobile }) {
                             🖨️ ເປີດເບິ່ງ
                           </button>
                           <button
+                            className="btn btn-secondary"
+                            style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(52,152,219,0.15)', border: '1px solid rgba(52,152,219,0.35)', color: '#3498db' }}
+                            onClick={() => handleOpenEdit('order', order)}
+                          >
+                            ✏️ ແກ້ໄຂ
+                          </button>
+                          <button
                             className="btn btn-danger"
                             style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231, 76, 60, 0.2)', border: '1px solid rgba(231, 76, 60, 0.4)', color: '#e74c3c' }}
                             onClick={() => handleRequestDelete('pos', order.id, order.paymentMethod === 'treat' ? 'ລ້ຽງແຂກ' : 'ຂາຍໜ້າຮ້ານ')}
@@ -1815,6 +1932,7 @@ export default function Reports({ activeUser, isMobile }) {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <span style={{ fontWeight: 'bold', color: debt.status === 'unpaid' ? 'var(--alert-red)' : 'var(--success-green)', fontSize: '0.95rem' }}>{debt.total.toLocaleString()} ₭</span>
                           <button className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '0.7rem', height: '28px' }} onClick={() => { setSelectedDebtReceipt(debt); setShowDebtModal(true); }}>🖨️ ເປີດບິນ</button>
+                          <button className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '0.7rem', height: '28px', background: 'rgba(52,152,219,0.15)', border: '1px solid rgba(52,152,219,0.35)', color: '#3498db' }} onClick={() => handleOpenEdit('debt', debt)}>✏️ ແກ້ໄຂ</button>
                           {hasReportsPermission('reportsDelete') && (
                             <button className="btn btn-danger" style={{ padding: '2px 6px', fontSize: '0.7rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c', height: '28px' }} onClick={() => handleRequestDelete('debt', debt.id, 'ຕິດໜີ້')}>🗑️</button>
                           )}
@@ -1882,6 +2000,7 @@ export default function Reports({ activeUser, isMobile }) {
                         <td style={{ padding: '12px', textAlign: 'center' }}>
                           <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
                             <button className="btn btn-secondary" style={{ padding: '3px 8px', fontSize: '0.75rem', height: '30px' }} onClick={() => { setSelectedDebtReceipt(debt); setShowDebtModal(true); }}>🖨️ ເປີດບິນ</button>
+                            <button className="btn btn-secondary" style={{ padding: '3px 8px', fontSize: '0.75rem', height: '30px', background: 'rgba(52,152,219,0.15)', border: '1px solid rgba(52,152,219,0.35)', color: '#3498db' }} onClick={() => handleOpenEdit('debt', debt)}>✏️ ແກ້ໄຂ</button>
                             {hasReportsPermission('reportsDelete') && (
                               <button className="btn btn-danger" style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c' }} onClick={() => handleRequestDelete('debt', debt.id, 'ຕິດໜີ້')}>🗑️ ລຶບ</button>
                             )}
@@ -1944,6 +2063,7 @@ export default function Reports({ activeUser, isMobile }) {
                       </div>
                       <div style={{ display: 'flex', gap: '6px' }}>
                         <button className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '0.72rem', height: '28px' }} onClick={() => { setSelectedExpenseReceipt(ex); setShowExpenseModal(true); }}>🖨️ ເປີດບິນ</button>
+                        <button className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '0.72rem', height: '28px', background: 'rgba(52,152,219,0.15)', border: '1px solid rgba(52,152,219,0.35)', color: '#3498db' }} onClick={() => handleOpenEdit('expense', ex)}>✏️ ແກ້ໄຂ</button>
                         {hasReportsPermission('reportsDelete') && (
                           <button className="btn btn-danger" style={{ padding: '2px 8px', fontSize: '0.72rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c', height: '28px' }} onClick={() => handleRequestDelete('expense', ex.id, ex.categoryName || ex.category)}>🗑️ ລຶບ</button>
                         )}
@@ -1996,6 +2116,7 @@ export default function Reports({ activeUser, isMobile }) {
                         <td style={{ padding: '12px', textAlign: 'center' }}>
                           <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
                             <button className="btn btn-secondary" style={{ padding: '3px 8px', fontSize: '0.75rem', height: '30px' }} onClick={() => { setSelectedExpenseReceipt(ex); setShowExpenseModal(true); }}>🖨️ ເປີດບິນ</button>
+                            <button className="btn btn-secondary" style={{ padding: '3px 8px', fontSize: '0.75rem', height: '30px', background: 'rgba(52,152,219,0.15)', border: '1px solid rgba(52,152,219,0.35)', color: '#3498db' }} onClick={() => handleOpenEdit('expense', ex)}>✏️ ແກ້ໄຂ</button>
                             {hasReportsPermission('reportsDelete') && (
                               <button className="btn btn-danger" style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c' }} onClick={() => handleRequestDelete('expense', ex.id, ex.categoryName || ex.category)}>
                                 🗑️ ລຶບ

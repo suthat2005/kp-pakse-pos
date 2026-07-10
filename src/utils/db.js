@@ -2562,6 +2562,25 @@ payDebt(debtId) {
     this.cleanupDeliveredJobs();
   },
 
+  updateDebt(debtId, changes) {
+    const debts = this.getDebts();
+    const idx = debts.findIndex(d => d.id === debtId);
+    if (idx === -1) return null;
+    debts[idx] = { ...debts[idx], ...changes };
+    this.saveDebts(debts);
+    this.dispatchEvent('db_updated');
+    return debts[idx];
+  },
+
+  updateExpense(expenseId, changes) {
+    const expenses = this.getExpenses();
+    const idx = expenses.findIndex(e => e.id === expenseId);
+    if (idx === -1) return null;
+    expenses[idx] = { ...expenses[idx], ...changes };
+    this.saveExpenses(expenses);
+    return expenses[idx];
+  },
+
 getProducts() {
 this.init();
 const products = getStorage('products', DEFAULT_PRODUCTS);
@@ -2797,6 +2816,16 @@ setStorage('orders', orders);
     this.sendSalesAndStockNotification(newOrder, lowStockItemsList);
 
     return newOrder;
+  },
+
+  updateOrder(orderId, changes) {
+    const orders = this.getOrders();
+    const idx = orders.findIndex(o => o.id === orderId);
+    if (idx === -1) return null;
+    orders[idx] = { ...orders[idx], ...changes };
+    this.saveOrders(orders);
+    this.dispatchEvent('db_updated');
+    return orders[idx];
   },
 
 getFramingJobs() {
