@@ -41,6 +41,8 @@ export default function Reports({ activeUser, isMobile }) {
   });
   
   const [searchQuery, setSearchQuery] = useState('');
+  const [debtSearch, setDebtSearch] = useState('');
+  const [expenseSearch, setExpenseSearch] = useState('');
   const [reportTab, setReportTab] = useState('pos'); // 'pos' | 'online' | 'overview'
   
   // Archive View Receipt Modal
@@ -1682,51 +1684,67 @@ export default function Reports({ activeUser, isMobile }) {
 
         {/* Period Outstanding Debt Ledger */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.05rem' }}>📒 ບັນຊີລູກຄ້າຕິດໜີ້ຊ່ວງນີ້ (Period Debts Table)</h3>
-          
-          
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+            <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.05rem', margin: 0 }}>📒 ບັນຊີລູກຄ້າຕິດໜີ້ຊ່ວງນີ້ (Period Debts Table)</h3>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="ຄົ້ນຫາລູກຄ້າ, ເລກບິນ..."
+              value={debtSearch || ''}
+              onChange={(e) => setDebtSearch(e.target.value)}
+              style={{ maxWidth: '280px', fontSize: '0.85rem' }}
+            />
+          </div>
+
           <div style={{ overflowX: 'auto' }}>
             {isMobile ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {filteredDebts.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
-                    ບໍ່ມີລາຍການຕິດໜີ້ໃນຊ່ວງເວລານີ້
-                  </div>
+                {(filteredDebts.filter(d => !debtSearch || d.id.toLowerCase().includes(debtSearch.toLowerCase()) || d.customerName.toLowerCase().includes(debtSearch.toLowerCase()) || (d.customerPhone || '').includes(debtSearch))).length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>ບໍ່ມີລາຍການຕິດໜີ້ໃນຊ່ວງເວລານີ້</div>
                 ) : (
-                  filteredDebts.map(debt => (
-                    <div key={debt.id} className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  filteredDebts
+                    .filter(d => !debtSearch || d.id.toLowerCase().includes(debtSearch.toLowerCase()) || d.customerName.toLowerCase().includes(debtSearch.toLowerCase()) || (d.customerPhone || '').includes(debtSearch))
+                    .map(debt => (
+                    <div key={debt.id} className="glass-card" style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px', borderLeft: `4px solid ${debt.status === 'unpaid' ? '#e74c3c' : '#27ae60'}`, border: '1px solid rgba(255,255,255,0.05)' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{debt.id}</span>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{new Date(debt.date).toLocaleDateString('lo-LA')}</span>
+                        <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)', fontSize: '0.95rem' }}>{debt.id}</span>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{new Date(debt.date).toLocaleString('lo-LA')}</span>
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem' }}>
-                        <div><b>ລູກຄ້າ:</b> {debt.customerName} ({debt.customerPhone || 'ບໍ່ມີເບີໂທ'})</div>
-                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                          <b>ລາຍການ:</b> {debt.items.map(item => `${item.name} (x${item.qty})`).join(', ')}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                        <span style={{ color: 'var(--text-secondary)' }}>👤 ລູກຄ້າ:</span>
+                        <span style={{ fontWeight: '500' }}>{debt.customerName} {debt.customerPhone ? `(${debt.customerPhone})` : ''}</span>
+                      </div>
+                      {debt.cashierName && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
+                          <span style={{ color: 'var(--text-secondary)' }}>🧑‍💼 ພະນັກງານ:</span>
+                          <span>{debt.cashierName}</span>
                         </div>
+                      )}
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.02)', padding: '6px 8px', borderRadius: '6px' }}>
+                        <b>ລາຍການ:</b> {debt.items.map(item => `${item.name} ×${item.qty}`).join(', ')}
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '8px', marginTop: '4px' }}>
-                        <span
-                          style={{
-                            fontSize: '0.72rem',
-                            padding: '2px 8px',
-                            borderRadius: '10px',
-                            background: debt.status === 'unpaid' ? 'rgba(231, 76, 60, 0.15)' : 'rgba(39, 174, 96, 0.15)',
-                            color: debt.status === 'unpaid' ? 'var(--alert-red)' : 'var(--success-green)',
-                            border: `1px solid ${debt.status === 'unpaid' ? 'rgba(231, 76, 60, 0.3)' : 'rgba(39, 174, 96, 0.3)'}`
-                          }}
-                        >
-                          {debt.status === 'unpaid' ? '🔴 ຕິດໜີ້ຄ້າງຊຳລະ' : '🟢 ຊຳລະໜີ້ແລ້ວ'}
+                      {debt.discount > 0 && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
+                          <span style={{ color: 'var(--text-secondary)' }}>🏷️ ສ່ວນຫຼຸດ:</span>
+                          <span style={{ color: 'var(--success-green)' }}>-{debt.discount.toLocaleString()} ₭</span>
+                        </div>
+                      )}
+                      {debt.depositAmount > 0 && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
+                          <span style={{ color: 'var(--text-secondary)' }}>💰 ມັດຈຳ:</span>
+                          <span style={{ color: '#f39c12' }}>-{debt.depositAmount.toLocaleString()} ₭</span>
+                        </div>
+                      )}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '8px' }}>
+                        <span style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: '10px', background: debt.status === 'unpaid' ? 'rgba(231,76,60,0.15)' : 'rgba(39,174,96,0.15)', color: debt.status === 'unpaid' ? 'var(--alert-red)' : 'var(--success-green)', border: `1px solid ${debt.status === 'unpaid' ? 'rgba(231,76,60,0.3)' : 'rgba(39,174,96,0.3)'}` }}>
+                          {debt.status === 'unpaid' ? '🔴 ຕິດໜີ້ຄ້າງ' : '🟢 ຊຳລະແລ້ວ'}
                         </span>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontWeight: 'bold', color: 'var(--alert-red)' }}>{debt.total.toLocaleString()} ₭</span>
-                          <button
-                            className="btn btn-danger"
-                            style={{ padding: '2px 6px', fontSize: '0.7rem', background: 'rgba(231, 76, 60, 0.2)', border: '1px solid rgba(231, 76, 60, 0.4)', color: '#e74c3c' }}
-                            onClick={() => handleRequestDelete('debt', debt.id, 'ຕິດໜີ້')}
-                          >
-                            🗑️
-                          </button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontWeight: 'bold', color: debt.status === 'unpaid' ? 'var(--alert-red)' : 'var(--success-green)', fontSize: '0.95rem' }}>{debt.total.toLocaleString()} ₭</span>
+                          <button className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '0.7rem', height: '28px' }} onClick={() => { const d = db.getDebts().find(x => x.id === debt.id); if (d) { const Debts = window._debtsRef; if (window._handlePrintDebtReceipt) window._handlePrintDebtReceipt(d); } }}>🖨️</button>
+                          {hasReportsPermission('reportsDelete') && (
+                            <button className="btn btn-danger" style={{ padding: '2px 6px', fontSize: '0.7rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c', height: '28px' }} onClick={() => handleRequestDelete('debt', debt.id, 'ຕິດໜີ້')}>🗑️</button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1734,72 +1752,63 @@ export default function Reports({ activeUser, isMobile }) {
                 )}
               </div>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                    <th style={{ padding: '12px' }}>ເລກໃບບິນໜີ້</th>
-                    <th style={{ padding: '12px' }}>ວັນທີຄ້າງຊຳລະ</th>
-                    <th style={{ padding: '12px' }}>ຊື່ລູกຄ້າ</th>
-                    <th style={{ padding: '12px' }}>ເບີໂທຕິດຕໍ່</th>
-                    <th style={{ padding: '12px' }}>ລາຍການສິນຄ້າ</th>
-                    <th style={{ padding: '12px', textAlign: 'right' }}>ຍົດຕິດໜີ້</th>
+                    <th style={{ padding: '12px' }}>ເລກໃບບິນ (ID)</th>
+                    <th style={{ padding: '12px' }}>ວັນທີ / ເວລາ</th>
+                    <th style={{ padding: '12px' }}>ຊື່ລູກຄ້າ / ເບີໂທ</th>
+                    <th style={{ padding: '12px' }}>ລາຍການ</th>
+                    <th style={{ padding: '12px', textAlign: 'right' }}>ສ່ວນຫຼຸດ</th>
+                    <th style={{ padding: '12px', textAlign: 'right' }}>ມັດຈຳ</th>
+                    <th style={{ padding: '12px', textAlign: 'right' }}>ຍອດຕິດໜີ້</th>
                     <th style={{ padding: '12px', textAlign: 'center' }}>ສະຖານະ</th>
                     <th style={{ padding: '12px', textAlign: 'center' }}>ຈັດການ</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredDebts.length === 0 ? (
-                    <tr>
-                      <td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
-                        ບໍ່ມີລາຍການຕິດໜີ້ໃນຊ່ວງເວລານີ້
-                      </td>
-                    </tr>
+                  {filteredDebts
+                    .filter(d => !debtSearch || d.id.toLowerCase().includes(debtSearch.toLowerCase()) || d.customerName.toLowerCase().includes(debtSearch.toLowerCase()) || (d.customerPhone || '').includes(debtSearch))
+                    .length === 0 ? (
+                    <tr><td colSpan="9" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>ບໍ່ມີລາຍການຕິດໜີ້ໃນຊ່ວງເວລານີ້</td></tr>
                   ) : (
-                    filteredDebts.map(debt => (
-                      <tr
-                        key={debt.id}
-                        style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', fontSize: '0.85rem' }}
-                      >
-                        <td style={{ padding: '12px', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
-                          {debt.id}
-                        </td>
-                        <td style={{ padding: '12px' }}>
-                          {new Date(debt.date).toLocaleDateString('lo-LA')}
+                    filteredDebts
+                      .filter(d => !debtSearch || d.id.toLowerCase().includes(debtSearch.toLowerCase()) || d.customerName.toLowerCase().includes(debtSearch.toLowerCase()) || (d.customerPhone || '').includes(debtSearch))
+                      .map(debt => (
+                      <tr key={debt.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', fontSize: '0.85rem', borderLeft: `3px solid ${debt.status === 'unpaid' ? '#e74c3c' : '#27ae60'}` }}>
+                        <td style={{ padding: '12px', fontWeight: 'bold', color: 'var(--gold-primary)' }}>{debt.id}</td>
+                        <td style={{ padding: '12px', fontSize: '0.8rem' }}>
+                          <div>{new Date(debt.date).toLocaleDateString('lo-LA')}</div>
+                          <div style={{ color: 'var(--text-secondary)', fontSize: '0.72rem' }}>{new Date(debt.date).toLocaleTimeString('lo-LA')}</div>
+                          {debt.cashierName && <div style={{ color: 'var(--text-secondary)', fontSize: '0.7rem' }}>👤 {debt.cashierName}</div>}
                         </td>
                         <td style={{ padding: '12px', fontWeight: '500' }}>
-                          {debt.customerName}
+                          <div>{debt.customerName}</div>
+                          <div style={{ fontFamily: 'monospace', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{debt.customerPhone}</div>
                         </td>
-                        <td style={{ padding: '12px', fontFamily: 'monospace' }}>
-                          {debt.customerPhone}
+                        <td style={{ padding: '12px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                          {debt.items.map(item => `${item.name} ×${item.qty}`).join(', ')}
                         </td>
-                        <td style={{ padding: '12px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {debt.items.map(item => `${item.name} (x${item.qty})ixed`).join(', ')}
+                        <td style={{ padding: '12px', textAlign: 'right', color: 'var(--success-green)' }}>
+                          {debt.discount > 0 ? `-${debt.discount.toLocaleString()} ₭` : <span style={{ color: 'rgba(255,255,255,0.2)' }}>-</span>}
                         </td>
-                        <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold', color: 'var(--alert-red)' }}>
+                        <td style={{ padding: '12px', textAlign: 'right', color: '#f39c12' }}>
+                          {debt.depositAmount > 0 ? `-${debt.depositAmount.toLocaleString()} ₭` : <span style={{ color: 'rgba(255,255,255,0.2)' }}>-</span>}
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold', color: debt.status === 'unpaid' ? 'var(--alert-red)' : 'var(--success-green)' }}>
                           {debt.total.toLocaleString()} ₭
                         </td>
                         <td style={{ padding: '12px', textAlign: 'center' }}>
-                          <span
-                            style={{
-                              fontSize: '0.75rem',
-                              padding: '2px 8px',
-                              borderRadius: '10px',
-                              background: debt.status === 'unpaid' ? 'rgba(231, 76, 60, 0.15)' : 'rgba(39, 174, 96, 0.15)',
-                              color: debt.status === 'unpaid' ? 'var(--alert-red)' : 'var(--success-green)',
-                              border: `1px solid ${debt.status === 'unpaid' ? 'rgba(231, 76, 60, 0.3)' : 'rgba(39, 174, 96, 0.3)'}`
-                            }}
-                          >
+                          <span style={{ fontSize: '0.72rem', padding: '3px 8px', borderRadius: '10px', background: debt.status === 'unpaid' ? 'rgba(231,76,60,0.15)' : 'rgba(39,174,96,0.15)', color: debt.status === 'unpaid' ? 'var(--alert-red)' : 'var(--success-green)', border: `1px solid ${debt.status === 'unpaid' ? 'rgba(231,76,60,0.3)' : 'rgba(39,174,96,0.3)'}` }}>
                             {debt.status === 'unpaid' ? '🔴 ຕິດໜີ້ຄ້າງຊຳລະ' : '🟢 ຊຳລະໜີ້ແລ້ວ'}
                           </span>
                         </td>
                         <td style={{ padding: '12px', textAlign: 'center' }}>
-                          <button
-                            className="btn btn-danger"
-                            style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231, 76, 60, 0.2)', border: '1px solid rgba(231, 76, 60, 0.4)', color: '#e74c3c' }}
-                            onClick={() => handleRequestDelete('debt', debt.id, 'ຕິດໜີ້')}
-                          >
-                            🗑️ ລຶບ
-                          </button>
+                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                            {hasReportsPermission('reportsDelete') && (
+                              <button className="btn btn-danger" style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c' }} onClick={() => handleRequestDelete('debt', debt.id, 'ຕິດໜີ້')}>🗑️ ລຶບ</button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -1810,50 +1819,115 @@ export default function Reports({ activeUser, isMobile }) {
           </div>
         </div>
 
+
         {/* Expenses summary list for POS tab */}
-        {rangeExpenses.length > 0 && (
-          <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '16px' }}>
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
             <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.05rem', margin: 0 }}>💸 ບັນທຶກລາຍຈ່າຍຊ່ວງນີ້ (Period Expenses Table)</h3>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.83rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
-                    <th style={{ padding: '10px', textAlign: 'left' }}>ວັນທີ</th>
-                    <th style={{ padding: '10px', textAlign: 'left' }}>ລາຍການ</th>
-                    <th style={{ padding: '10px', textAlign: 'right' }}>ຈຳນວນ</th>
-                    <th style={{ padding: '10px', textAlign: 'center' }}>ຈັດການ</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[...rangeExpenses].sort((a, b) => new Date(b.date) - new Date(a.date)).map((ex, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
-                      <td style={{ padding: '10px' }}>{new Date(ex.date).toLocaleDateString('lo-LA')}</td>
-                      <td style={{ padding: '10px' }}>
-                        <div style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{ex.categoryName || ex.category || '-'}</div>
-                        {ex.notes && <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>📝 {ex.notes}</div>}
-                        {ex.supplier && <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>🏢 ຜູ້ສະໜອງ: {ex.supplier}</div>}
-                        {ex.createdByName && <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', marginTop: '1px' }}>👤 ຜູ້ບັນທຶກ: {ex.createdByName}</div>}
-                      </td>
-                      <td style={{ padding: '10px', textAlign: 'right', color: '#e74c3c', fontWeight: 'bold' }}>
-                        -{ex.amount.toLocaleString()} {ex.currency || 'LAK'}
-                        {ex.currency && ex.currency !== 'LAK' && <small style={{ display: 'block', fontSize: '0.65rem', color: 'var(--text-secondary)' }}>(≈ {ex.convertedAmount?.toLocaleString()} ₭)</small>}
-                      </td>
-                      <td style={{ padding: '10px', textAlign: 'center' }}>
-                        <button
-                          className="btn btn-danger"
-                          style={{ padding: '3px 8px', fontSize: '0.72rem', background: 'rgba(231, 76, 60, 0.2)', border: '1px solid rgba(231, 76, 60, 0.4)', color: '#e74c3c' }}
-                          onClick={() => handleRequestDelete('expense', ex.id, ex.categoryName || ex.category)}
-                        >
-                          🗑️ ລຶບ
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="ຄົ້ນຫາລາຍຈ່າຍ, ໝວດ..."
+              value={expenseSearch || ''}
+              onChange={(e) => setExpenseSearch(e.target.value)}
+              style={{ maxWidth: '280px', fontSize: '0.85rem' }}
+            />
           </div>
-        )}
+          {(() => {
+            const sortedExpenses = [...rangeExpenses]
+              .sort((a, b) => new Date(b.date) - new Date(a.date))
+              .filter(ex => !expenseSearch ||
+                (ex.categoryName || ex.category || '').toLowerCase().includes(expenseSearch.toLowerCase()) ||
+                (ex.notes || '').toLowerCase().includes(expenseSearch.toLowerCase()) ||
+                (ex.supplier || '').toLowerCase().includes(expenseSearch.toLowerCase()) ||
+                (ex.id || '').toLowerCase().includes(expenseSearch.toLowerCase())
+              );
+            if (sortedExpenses.length === 0) return (
+              <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>ບໍ່ມີລາຍຈ່າຍໃນຊ່ວງເວລານີ້</div>
+            );
+            return isMobile ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {sortedExpenses.map((ex, i) => (
+                  <div key={ex.id || i} className="glass-card" style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px', borderLeft: '4px solid #e74c3c', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)', fontSize: '0.85rem' }}>{ex.id || `EXP-${i + 1}`}</span>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{new Date(ex.date).toLocaleString('lo-LA')}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>📂 ໝວດ:</span>
+                      <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{ex.categoryName || ex.category || '-'}</span>
+                    </div>
+                    {ex.notes && <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.02)', padding: '5px 8px', borderRadius: '6px' }}>📝 {ex.notes}</div>}
+                    {ex.supplier && <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🏢 ຜູ້ສະໜອງ: {ex.supplier}</div>}
+                    {ex.createdByName && <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.35)' }}>👤 ຜູ້ບັນທຶກ: {ex.createdByName}</div>}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '8px' }}>
+                      <div>
+                        <span style={{ fontWeight: 'bold', color: '#e74c3c', fontSize: '0.95rem' }}>-{ex.amount.toLocaleString()} {ex.currency || 'LAK'}</span>
+                        {ex.currency && ex.currency !== 'LAK' && <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>≈ {ex.convertedAmount?.toLocaleString()} ₭</div>}
+                      </div>
+                      {hasReportsPermission('reportsDelete') && (
+                        <button className="btn btn-danger" style={{ padding: '2px 8px', fontSize: '0.72rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c', height: '28px' }} onClick={() => handleRequestDelete('expense', ex.id, ex.categoryName || ex.category)}>🗑️ ລຶບ</button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '750px' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                      <th style={{ padding: '12px' }}>ລະຫັດ (ID)</th>
+                      <th style={{ padding: '12px' }}>ວັນທີ / ເວລາ</th>
+                      <th style={{ padding: '12px' }}>ໝວດລາຍຈ່າຍ</th>
+                      <th style={{ padding: '12px' }}>ໝາຍເຫດ / ຜູ້ສະໜອງ</th>
+                      <th style={{ padding: '12px' }}>ຜູ້ບັນທຶກ</th>
+                      <th style={{ padding: '12px', textAlign: 'right' }}>ຈຳນວນ</th>
+                      <th style={{ padding: '12px', textAlign: 'center' }}>ຈັດການ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedExpenses.map((ex, i) => (
+                      <tr key={ex.id || i} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', fontSize: '0.84rem', borderLeft: '3px solid #e74c3c' }}>
+                        <td style={{ padding: '12px', fontWeight: 'bold', color: 'var(--gold-primary)', fontSize: '0.78rem' }}>
+                          {ex.id || `EXP-${i + 1}`}
+                        </td>
+                        <td style={{ padding: '12px', fontSize: '0.8rem' }}>
+                          <div>{new Date(ex.date).toLocaleDateString('lo-LA')}</div>
+                          <div style={{ color: 'var(--text-secondary)', fontSize: '0.72rem' }}>{new Date(ex.date).toLocaleTimeString('lo-LA')}</div>
+                        </td>
+                        <td style={{ padding: '12px' }}>
+                          <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)', background: 'rgba(212,175,55,0.08)', padding: '2px 8px', borderRadius: '8px', fontSize: '0.8rem', border: '1px solid rgba(212,175,55,0.2)' }}>
+                            {ex.categoryName || ex.category || '-'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px', fontSize: '0.8rem' }}>
+                          {ex.notes && <div style={{ color: 'white' }}>📝 {ex.notes}</div>}
+                          {ex.supplier && <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: '2px' }}>🏢 {ex.supplier}</div>}
+                          {!ex.notes && !ex.supplier && <span style={{ color: 'rgba(255,255,255,0.2)' }}>-</span>}
+                        </td>
+                        <td style={{ padding: '12px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                          {ex.createdByName || <span style={{ color: 'rgba(255,255,255,0.2)' }}>-</span>}
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'right', color: '#e74c3c', fontWeight: 'bold' }}>
+                          <div>-{ex.amount.toLocaleString()} {ex.currency || 'LAK'}</div>
+                          {ex.currency && ex.currency !== 'LAK' && <small style={{ display: 'block', fontSize: '0.65rem', color: 'var(--text-secondary)' }}>(≈ {ex.convertedAmount?.toLocaleString()} ₭)</small>}
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                          {hasReportsPermission('reportsDelete') && (
+                            <button className="btn btn-danger" style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c' }} onClick={() => handleRequestDelete('expense', ex.id, ex.categoryName || ex.category)}>
+                              🗑️ ລຶບ
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
+          })()}
+        </div>
 
       </div>
 
