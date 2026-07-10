@@ -48,6 +48,11 @@ export default function Reports({ activeUser, isMobile }) {
   // Archive View Receipt Modal
   const [selectedReceipt, setSelectedReceipt] = useState(null);
   const [showReprintModal, setShowReprintModal] = useState(false);
+  const [showDebtModal, setShowDebtModal] = useState(false);
+  const [selectedDebtReceipt, setSelectedDebtReceipt] = useState(null);
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [selectedExpenseReceipt, setSelectedExpenseReceipt] = useState(null);
+
 
   // Delete Bill PIN Modal States
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -1809,7 +1814,7 @@ export default function Reports({ activeUser, isMobile }) {
                         </span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <span style={{ fontWeight: 'bold', color: debt.status === 'unpaid' ? 'var(--alert-red)' : 'var(--success-green)', fontSize: '0.95rem' }}>{debt.total.toLocaleString()} ₭</span>
-                          <button className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '0.7rem', height: '28px' }} onClick={() => handlePrintDebtReceipt(debt)}>🖨️ ເປີດບິນ</button>
+                          <button className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '0.7rem', height: '28px' }} onClick={() => { setSelectedDebtReceipt(debt); setShowDebtModal(true); }}>🖨️ ເປີດບິນ</button>
                           {hasReportsPermission('reportsDelete') && (
                             <button className="btn btn-danger" style={{ padding: '2px 6px', fontSize: '0.7rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c', height: '28px' }} onClick={() => handleRequestDelete('debt', debt.id, 'ຕິດໜີ້')}>🗑️</button>
                           )}
@@ -1825,6 +1830,7 @@ export default function Reports({ activeUser, isMobile }) {
                   <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
                     <th style={{ padding: '12px' }}>ເລກໃບບິນ (ID)</th>
                     <th style={{ padding: '12px' }}>ວັນທີ / ເວລາ</th>
+                    <th style={{ padding: '12px' }}>ພະນັກງານຂາຍ</th>
                     <th style={{ padding: '12px' }}>ຊື່ລູກຄ້າ / ເບີໂທ</th>
                     <th style={{ padding: '12px' }}>ລາຍການ</th>
                     <th style={{ padding: '12px', textAlign: 'right' }}>ສ່ວນຫຼຸດ</th>
@@ -1848,7 +1854,9 @@ export default function Reports({ activeUser, isMobile }) {
                         <td style={{ padding: '12px', fontSize: '0.8rem' }}>
                           <div>{new Date(debt.date).toLocaleDateString('lo-LA')}</div>
                           <div style={{ color: 'var(--text-secondary)', fontSize: '0.72rem' }}>{new Date(debt.date).toLocaleTimeString('lo-LA')}</div>
-                          {debt.cashierName && <div style={{ color: 'var(--text-secondary)', fontSize: '0.7rem' }}>👤 {debt.cashierName}</div>}
+                        </td>
+                        <td style={{ padding: '12px', fontSize: '0.82rem' }}>
+                          {debt.cashierName ? <span style={{ fontWeight: '500' }}>{debt.cashierName}</span> : <span style={{ color: 'rgba(255,255,255,0.2)' }}>-</span>}
                         </td>
                         <td style={{ padding: '12px', fontWeight: '500' }}>
                           <div>{debt.customerName}</div>
@@ -1873,7 +1881,7 @@ export default function Reports({ activeUser, isMobile }) {
                         </td>
                         <td style={{ padding: '12px', textAlign: 'center' }}>
                           <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                            <button className="btn btn-secondary" style={{ padding: '3px 8px', fontSize: '0.75rem', height: '30px' }} onClick={() => handlePrintDebtReceipt(debt)}>🖨️ ເປີດບິນ</button>
+                            <button className="btn btn-secondary" style={{ padding: '3px 8px', fontSize: '0.75rem', height: '30px' }} onClick={() => { setSelectedDebtReceipt(debt); setShowDebtModal(true); }}>🖨️ ເປີດບິນ</button>
                             {hasReportsPermission('reportsDelete') && (
                               <button className="btn btn-danger" style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c' }} onClick={() => handleRequestDelete('debt', debt.id, 'ຕິດໜີ້')}>🗑️ ລຶບ</button>
                             )}
@@ -1934,9 +1942,12 @@ export default function Reports({ activeUser, isMobile }) {
                         <span style={{ fontWeight: 'bold', color: '#e74c3c', fontSize: '0.95rem' }}>-{ex.amount.toLocaleString()} {ex.currency || 'LAK'}</span>
                         {ex.currency && ex.currency !== 'LAK' && <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>≈ {ex.convertedAmount?.toLocaleString()} ₭</div>}
                       </div>
-                      {hasReportsPermission('reportsDelete') && (
-                        <button className="btn btn-danger" style={{ padding: '2px 8px', fontSize: '0.72rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c', height: '28px' }} onClick={() => handleRequestDelete('expense', ex.id, ex.categoryName || ex.category)}>🗑️ ລຶບ</button>
-                      )}
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <button className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '0.72rem', height: '28px' }} onClick={() => { setSelectedExpenseReceipt(ex); setShowExpenseModal(true); }}>🖨️ ເປີດບິນ</button>
+                        {hasReportsPermission('reportsDelete') && (
+                          <button className="btn btn-danger" style={{ padding: '2px 8px', fontSize: '0.72rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c', height: '28px' }} onClick={() => handleRequestDelete('expense', ex.id, ex.categoryName || ex.category)}>🗑️ ລຶບ</button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -1983,11 +1994,14 @@ export default function Reports({ activeUser, isMobile }) {
                           {ex.currency && ex.currency !== 'LAK' && <small style={{ display: 'block', fontSize: '0.65rem', color: 'var(--text-secondary)' }}>(≈ {ex.convertedAmount?.toLocaleString()} ₭)</small>}
                         </td>
                         <td style={{ padding: '12px', textAlign: 'center' }}>
-                          {hasReportsPermission('reportsDelete') && (
-                            <button className="btn btn-danger" style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c' }} onClick={() => handleRequestDelete('expense', ex.id, ex.categoryName || ex.category)}>
-                              🗑️ ລຶບ
-                            </button>
-                          )}
+                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                            <button className="btn btn-secondary" style={{ padding: '3px 8px', fontSize: '0.75rem', height: '30px' }} onClick={() => { setSelectedExpenseReceipt(ex); setShowExpenseModal(true); }}>🖨️ ເປີດບິນ</button>
+                            {hasReportsPermission('reportsDelete') && (
+                              <button className="btn btn-danger" style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c' }} onClick={() => handleRequestDelete('expense', ex.id, ex.categoryName || ex.category)}>
+                                🗑️ ລຶບ
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -2610,6 +2624,137 @@ export default function Reports({ activeUser, isMobile }) {
         </div>
         </Portal>
       )}
+
+      {reportTab === 'treats' && (() => {
+        const treatOrders = rangeOrders.filter(o => o.paymentMethod === 'treat');
+
+      /* ─── DEBT RECEIPT MODAL ─────────────────────────────────────────── */
+      return (<>{showDebtModal && selectedDebtReceipt && (
+        <Portal>
+          <div className="modal-overlay print-modal">
+            <div className="modal-content animate-fade-in" style={{ maxWidth: '400px' }}>
+              <div className="modal-header no-print">
+                <span className="modal-title">ໃບບິນໜີ້ (ID: {selectedDebtReceipt.id})</span>
+                <button style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowDebtModal(false)}>✕</button>
+              </div>
+              <div className="modal-body" style={{ background: 'white', padding: '16px', display: 'flex', justifyContent: 'center' }}>
+                <div className="print-receipt-container">
+                  <div className="print-receipt-header">
+                    {settings.receiptLogoUrl && <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '4px' }}><img src={settings.receiptLogoUrl} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} /></div>}
+                    <div className="print-receipt-title">{settings.shopName || 'ຂອງພຣະ ປາກເຊ'}</div>
+                    {settings.shopSubtitle && <div className="print-receipt-subtitle">{settings.shopSubtitle}</div>}
+                    <div className="print-receipt-subtitle">{settings.shopAddress} | ໂທ: {settings.receiptPhone || settings.shopPhone}</div>
+                    <div className="print-receipt-subtitle" style={{ fontWeight: 'bold', color: selectedDebtReceipt.status === 'unpaid' ? 'red' : 'green', marginTop: '2px' }}>
+                      {selectedDebtReceipt.status === 'unpaid' ? '(ໜີ້ຄ້າງຊຳລະ / UNPAID)' : '(ຊຳລະແລ້ວ / PAID)'}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '8pt', marginBottom: '8px' }}>
+                    <div><b>ເລກບິນ:</b> {selectedDebtReceipt.id}</div>
+                    <div><b>ວັນທີ:</b> {new Date(selectedDebtReceipt.date).toLocaleString('lo-LA')}</div>
+                    {selectedDebtReceipt.cashierName && <div><b>ພະນັກງານ:</b> {selectedDebtReceipt.cashierName}</div>}
+                  </div>
+                  <div style={{ fontSize: '8pt', marginBottom: '8px' }}>
+                    <div><b>ລູກຄ້າ:</b> {selectedDebtReceipt.customerName}</div>
+                    {selectedDebtReceipt.customerPhone && <div><b>ໂທລະສັບ:</b> {selectedDebtReceipt.customerPhone}</div>}
+                    {selectedDebtReceipt.notes && <div><b>ໝາຍເຫດ:</b> {selectedDebtReceipt.notes}</div>}
+                  </div>
+                  <div className="print-receipt-divider"></div>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '8pt' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid black', textAlign: 'left' }}>
+                        <th style={{ paddingBottom: '4px' }}>ລາຍການ</th>
+                        <th style={{ width: '25px', textAlign: 'center', paddingBottom: '4px' }}>ຈຳນວນ</th>
+                        <th style={{ width: '80px', textAlign: 'right', paddingBottom: '4px' }}>ລາຄາ</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(selectedDebtReceipt.items || []).map((item, idx) => (
+                        <tr key={idx}>
+                          <td style={{ paddingTop: '4px', paddingBottom: '4px', lineHeight: '1.2' }}>{item.name}</td>
+                          <td style={{ textAlign: 'center', paddingTop: '4px' }}>{item.qty}</td>
+                          <td style={{ textAlign: 'right', paddingTop: '4px' }}>{(item.total || (item.price * item.qty)).toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <div className="print-receipt-divider"></div>
+                  {(() => { const sub = selectedDebtReceipt.subtotal !== undefined ? selectedDebtReceipt.subtotal : (selectedDebtReceipt.items||[]).reduce((s,i)=>s+(i.total||(i.price*i.qty)),0); return (<>
+                    <div className="print-receipt-totals" style={{ fontWeight: 'normal', fontSize: '9pt' }}><span>ລວມຍອດ:</span><span>{sub.toLocaleString()} ກີບ</span></div>
+                    {selectedDebtReceipt.discount > 0 && <div className="print-receipt-totals" style={{ fontWeight: 'normal', fontSize: '9pt', color: '#e74c3c' }}><span>ສ່ວນຫຼຸດ:</span><span>-{selectedDebtReceipt.discount.toLocaleString()} ກີບ</span></div>}
+                    {selectedDebtReceipt.depositAmount > 0 && <div className="print-receipt-totals" style={{ fontWeight: 'normal', fontSize: '9pt', color: 'green' }}><span>ຫັກມັດຈຳ:</span><span>-{selectedDebtReceipt.depositAmount.toLocaleString()} ກີບ</span></div>}
+                    <div className="print-receipt-totals" style={{ fontSize: '11pt', borderTop: '1px solid black', paddingTop: '4px' }}><span>ຍອດຕິດໜີ້:</span><span>{selectedDebtReceipt.total.toLocaleString()} ກີບ</span></div>
+                  </>); })()}
+                  {settings.bankAccountName && <div style={{ marginTop: '12px', textAlign: 'center', fontSize: '7.5pt', borderTop: '1px dotted black', paddingTop: '8px' }}>
+                    <p style={{ fontWeight: 'bold', marginBottom: '2px' }}>ຊ່ອງທາງຊຳລະເງິນ (BCEL One QR)</p>
+                    <p>ຊື່ບັນຊີ: {settings.bankAccountName}</p>
+                    {settings.bankAccountNumber && <p>ເລກບັນຊີ: {settings.bankAccountNumber}</p>}
+                    {settings.bankQrTemplate && <div style={{ display: 'flex', justifyContent: 'center', marginTop: '6px' }}><img src={`${settings.bankQrTemplate}${selectedDebtReceipt.total}`} alt="QR" style={{ width: '90px', height: '90px' }} /></div>}
+                  </div>}
+                  <div className="print-receipt-footer" style={{ borderTop: '1px dashed black', marginTop: '10px', paddingTop: '5px' }}>
+                    <p>{settings.receiptFooterNote || 'ຂອບໃຈທີ່ໃຊ້ບໍລິການ!'}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer no-print">
+                <button className="btn btn-secondary" onClick={() => setShowDebtModal(false)}>ປິດ</button>
+                <button className="btn btn-primary" onClick={() => { handlePrintDebtReceipt(selectedDebtReceipt); }}>🖨️ ປຣິນໃບບິນຄືນ</button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* ─── EXPENSE RECEIPT MODAL ───────────────────────────────────────── */}
+      {showExpenseModal && selectedExpenseReceipt && (
+        <Portal>
+          <div className="modal-overlay print-modal">
+            <div className="modal-content animate-fade-in" style={{ maxWidth: '400px' }}>
+              <div className="modal-header no-print">
+                <span className="modal-title">ລາຍຈ່າຍ (ID: {selectedExpenseReceipt.id || '-'})</span>
+                <button style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowExpenseModal(false)}>✕</button>
+              </div>
+              <div className="modal-body" style={{ background: 'white', padding: '16px', display: 'flex', justifyContent: 'center' }}>
+                <div className="print-receipt-container">
+                  <div className="print-receipt-header">
+                    {settings.receiptLogoUrl && <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '4px' }}><img src={settings.receiptLogoUrl} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} /></div>}
+                    <div className="print-receipt-title">{settings.shopName || 'ຂອງພຣະ ປາກເຊ'}</div>
+                    {settings.shopSubtitle && <div className="print-receipt-subtitle">{settings.shopSubtitle}</div>}
+                    <div className="print-receipt-subtitle">{settings.shopAddress} | ໂທ: {settings.receiptPhone || settings.shopPhone}</div>
+                    <div className="print-receipt-subtitle" style={{ fontWeight: 'bold', color: '#e74c3c', marginTop: '2px' }}>(ໃບບັນທຶກລາຍຈ່າຍ / EXPENSE RECORD)</div>
+                  </div>
+                  <div style={{ fontSize: '8pt', marginBottom: '8px' }}>
+                    {selectedExpenseReceipt.id && <div><b>ID:</b> {selectedExpenseReceipt.id}</div>}
+                    <div><b>ວັນທີ:</b> {new Date(selectedExpenseReceipt.date).toLocaleString('lo-LA')}</div>
+                    <div><b>ໝວດ:</b> {selectedExpenseReceipt.categoryName || selectedExpenseReceipt.category || '-'}</div>
+                    {selectedExpenseReceipt.supplier && <div><b>ຜູ້ສະໜອນ:</b> {selectedExpenseReceipt.supplier}</div>}
+                    {selectedExpenseReceipt.createdByName && <div><b>ຜູ້ບັນທຶກ:</b> {selectedExpenseReceipt.createdByName}</div>}
+                    {selectedExpenseReceipt.notes && <div><b>ໝາຍເຫດ:</b> {selectedExpenseReceipt.notes}</div>}
+                  </div>
+                  <div className="print-receipt-divider"></div>
+                  <div className="print-receipt-totals" style={{ fontSize: '12pt' }}>
+                    <span>ຈຳນວນລາຍຈ່າຍ:</span>
+                    <span style={{ color: '#e74c3c' }}>-{selectedExpenseReceipt.amount.toLocaleString()} {selectedExpenseReceipt.currency || 'LAK'}</span>
+                  </div>
+                  {selectedExpenseReceipt.currency && selectedExpenseReceipt.currency !== 'LAK' && (
+                    <div className="print-receipt-totals" style={{ fontWeight: 'normal', fontSize: '9pt', color: '#555' }}>
+                      <span>ມູນຄ່າ LAK:</span>
+                      <span>≈ {selectedExpenseReceipt.convertedAmount?.toLocaleString()} ₭</span>
+                    </div>
+                  )}
+                  <div className="print-receipt-footer" style={{ borderTop: '1px dashed black', marginTop: '16px', paddingTop: '5px', textAlign: 'center', fontSize: '7.5pt', color: '#555' }}>
+                    <p>{settings.receiptFooterNote || 'ຂອບໃຈທີ່ໃຊ້ບໍລິການ!'}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer no-print">
+                <button className="btn btn-secondary" onClick={() => setShowExpenseModal(false)}>ປິດ</button>
+                <button className="btn btn-primary" onClick={() => window.print()}>🖨️ ປຣິນໃບບິນຄືນ</button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}</>);
+      })()}
 
       {reportTab === 'treats' && (() => {
         const treatOrders = rangeOrders.filter(o => o.paymentMethod === 'treat');
