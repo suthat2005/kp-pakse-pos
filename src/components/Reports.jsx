@@ -68,6 +68,8 @@ export default function Reports({ activeUser, isMobile }) {
   const [editPin, setEditPin] = useState('');
   const [editError, setEditError] = useState('');
   const [editSaving, setEditSaving] = useState(false);
+  const [searchOnline, setSearchOnline] = useState('');
+  const [searchTreats, setSearchTreats] = useState('');
 
 
   // Load database items on start and when database events fire
@@ -379,6 +381,14 @@ export default function Reports({ activeUser, isMobile }) {
         date: record.date ? record.date.slice(0, 16) : '',
         createdByName: record.createdByName || '',
       });
+    } else if (type === 'online') {
+      setEditForm({
+        customerName: record.customerName || '',
+        customerPhone: record.customerPhone || '',
+        paymentStatus: record.paymentStatus || 'unpaid',
+        shippingStatus: record.shippingStatus || 'pending',
+        notes: record.notes || '',
+      });
     }
     setEditPin('');
     setEditError('');
@@ -422,6 +432,10 @@ export default function Reports({ activeUser, isMobile }) {
         changes.category = changes.categoryName;
         db.updateExpense(editTarget.id, changes);
         db.addAuditLog('success_pin', `ແກ້ໄຂລາຍຈ່າຍ ID: ${editTarget.id} (ອະນຸມັດໂດຍ Admin PIN)`, 'info');
+      } else if (editType === 'online') {
+        const changes = { ...editForm };
+        db.updateOnlineOrder(editTarget.id, changes);
+        db.addAuditLog('success_pin', `ແກ້ໄຂ Online Order ID: ${editTarget.id} (ອະນຸມັດໂດຍ Admin PIN)`, 'info');
       }
       alert('✓ ແກ້ໄຂສຳເລັດ!');
       setShowEditModal(false);
@@ -2189,71 +2203,109 @@ export default function Reports({ activeUser, isMobile }) {
             )}
           </div>
 
-          {/* All online orders table */}
+          {/* All online orders — search + mobile cards + desktop table */}
           <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <h4 style={{ color: 'var(--gold-primary)', margin: 0 }}>📋 ລາຍການ Online Orders ທັງໝົດ</h4>
-            {rangeOnlineOrders.length === 0 ? (
-              <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '20px' }}>ບໍ່ມີ Online Orders ໃນຊ່ວງເວລານີ້</p>
-            ) : (
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', minWidth: '700px' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
-                      <th style={{ padding: '10px' }}>ເລກ Order</th>
-                      <th style={{ padding: '10px' }}>ວັນທີ</th>
-                      <th style={{ padding: '10px' }}>ລູກຄ້າ</th>
-                      <th style={{ padding: '10px', textAlign: 'right' }}>ຍອດ</th>
-                      <th style={{ padding: '10px', textAlign: 'center' }}>ຊຳລະ</th>
-                      <th style={{ padding: '10px', textAlign: 'center' }}>ຂົນສົ່ງ</th>
-                      <th style={{ padding: '10px', textAlign: 'center' }}>ປຣິນບິນຄືນ</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[...rangeOnlineOrders].sort((a, b) => new Date(b.date) - new Date(a.date)).map(o => (
-                      <tr key={o.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
-                        <td style={{ padding: '10px', fontWeight: 'bold', color: '#3498db' }}>{o.id}</td>
-                        <td style={{ padding: '10px' }}>{new Date(o.date).toLocaleDateString('lo-LA')}</td>
-                        <td style={{ padding: '10px' }}>{o.customerName}<br/><span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{o.customerPhone}</span></td>
-                        <td style={{ padding: '10px', textAlign: 'right', fontWeight: 'bold' }}>{o.total.toLocaleString()} ₭</td>
-                        <td style={{ padding: '10px', textAlign: 'center' }}>
-                          <span style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: '10px',
-                            background: o.paymentStatus === 'paid' ? 'rgba(46,204,113,0.15)' : o.paymentStatus === 'pending_verification' ? 'rgba(241,196,15,0.15)' : 'rgba(231,76,60,0.15)',
-                            color: o.paymentStatus === 'paid' ? '#2ecc71' : o.paymentStatus === 'pending_verification' ? '#f1c40f' : '#e74c3c',
-                            border: `1px solid ${o.paymentStatus === 'paid' ? 'rgba(46,204,113,0.3)' : o.paymentStatus === 'pending_verification' ? 'rgba(241,196,15,0.3)' : 'rgba(231,76,60,0.3)'}`
-                          }}>
-                            {o.paymentStatus === 'paid' ? '✅ ຊຳລະແລ້ວ' : o.paymentStatus === 'pending_verification' ? '⏳ ລໍຖ້ານວດ' : '❌ ຍົກເລີກ'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '10px', textAlign: 'center' }}>
-                          <span style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: '10px',
-                            background: o.shippingStatus === 'delivered' ? 'rgba(46,204,113,0.1)' : o.shippingStatus === 'shipped' ? 'rgba(52,152,219,0.1)' : 'rgba(255,255,255,0.06)',
-                            color: o.shippingStatus === 'delivered' ? '#2ecc71' : o.shippingStatus === 'shipped' ? '#3498db' : 'var(--text-secondary)'
-                          }}>
-                            {o.shippingStatus === 'delivered' ? '🏠 ສົ່ງຮອດແລ້ວ' : o.shippingStatus === 'shipped' ? '🚚 ກຳລັງສົ່ງ' : o.shippingStatus === 'packing' ? '📦 ກຳລັງແພັກ' : '🕐 ລໍຖ້າ'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '10px', textAlign: 'center', display: 'flex', gap: '6px', justifyContent: 'center', alignItems: 'center' }}>
-                          <button
-                            className="btn btn-secondary"
-                            style={{ padding: '3px 8px', fontSize: '0.72rem' }}
-                            onClick={() => handleReprint(o)}
-                          >
-                            🖨️ ເປີດເບິ່ງ
-                          </button>
-                          <button
-                            className="btn btn-danger"
-                            style={{ padding: '3px 8px', fontSize: '0.72rem', background: 'rgba(231, 76, 60, 0.2)', border: '1px solid rgba(231, 76, 60, 0.4)', color: '#e74c3c' }}
-                            onClick={() => handleRequestDelete('online', o.id, 'ຂາຍອອນລາຍ')}
-                          >
-                            🗑️ ລຶບ
-                          </button>
-                        </td>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+              <h4 style={{ color: 'var(--gold-primary)', margin: 0 }}>📋 ລາຍການ Online Orders ທັງໝົດ</h4>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="ຄົ້ນຫາ Order, ລູກຄ້າ, ເບີໂທ..."
+                value={searchOnline}
+                onChange={e => setSearchOnline(e.target.value)}
+                style={{ maxWidth: '300px' }}
+              />
+            </div>
+            {(() => {
+              const sq = searchOnline.toLowerCase();
+              const filtered = [...rangeOnlineOrders]
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .filter(o => !sq || o.id?.toLowerCase().includes(sq) || o.customerName?.toLowerCase().includes(sq) || (o.customerPhone || '').includes(sq));
+              
+              const payBadge = (status) => ({
+                background: status === 'paid' ? 'rgba(46,204,113,0.15)' : status === 'pending_verification' ? 'rgba(241,196,15,0.15)' : 'rgba(231,76,60,0.15)',
+                color: status === 'paid' ? '#2ecc71' : status === 'pending_verification' ? '#f1c40f' : '#e74c3c',
+                border: `1px solid ${status === 'paid' ? 'rgba(46,204,113,0.3)' : status === 'pending_verification' ? 'rgba(241,196,15,0.3)' : 'rgba(231,76,60,0.3)'}`,
+              });
+              
+              const shipBadge = (s) => ({
+                background: s === 'delivered' ? 'rgba(46,204,113,0.1)' : s === 'shipped' ? 'rgba(52,152,219,0.1)' : 'rgba(255,255,255,0.06)',
+                color: s === 'delivered' ? '#2ecc71' : s === 'shipped' ? '#3498db' : 'var(--text-secondary)',
+              });
+              
+              const shipLabel = (s) => s === 'delivered' ? '🏠 ສົ່ງຮອດແລ້ວ' : s === 'shipped' ? '🚚 ກຳລັງສົ່ງ' : s === 'packing' ? '📦 ກຳລັງແພັກ' : '🕐 ລໍຖ້າ';
+              const payLabel  = (s) => s === 'paid' ? '✅ ຊຳລະແລ້ວ' : s === 'pending_verification' ? '⏳ ລໍຖ້ານວດ' : '❌ ຍົກເລີກ';
+              
+              const btnOpen = { display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(150,150,180,0.3)', background:'rgba(100,100,130,0.2)', color:'var(--text-primary)', whiteSpace:'nowrap' };
+              const btnEdit = { display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(52,152,219,0.4)', background:'rgba(52,152,219,0.15)', color:'#3498db', whiteSpace:'nowrap' };
+              const btnDel  = { display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(231,76,60,0.4)', background:'rgba(231,76,60,0.15)', color:'#e74c3c', whiteSpace:'nowrap' };
+              
+              if (filtered.length === 0) return <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '20px' }}>ບໍ່ມີ Online Orders ໃນຊ່ວງເວລານີ້</p>;
+              
+              return (<>
+                {/* Mobile cards */}
+                <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {filtered.map(o => (
+                    <div key={o.id} className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px', borderLeft: `4px solid #3498db` }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                          <span style={{ fontWeight: 'bold', color: '#3498db', fontSize: '0.9rem' }}>{o.id}</span>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>{new Date(o.date).toLocaleString('lo-LA')}</div>
+                        </div>
+                        <span style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: '10px', ...payBadge(o.paymentStatus) }}>{payLabel(o.paymentStatus)}</span>
+                      </div>
+                      <div style={{ fontSize: '0.82rem' }}>
+                        <div><b>👤</b> {o.customerName} {o.customerPhone && <span style={{ color: 'var(--text-secondary)' }}>| {o.customerPhone}</span>}</div>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: '10px', ...shipBadge(o.shippingStatus) }}>{shipLabel(o.shippingStatus)}</span>
+                        <span style={{ fontWeight: 'bold', fontSize: '1rem', color: 'white' }}>{(o.total || 0).toLocaleString()} ₭</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        <button style={btnOpen} onClick={() => handleReprint(o)}>🖨️ ເປີດເບິ່ງ</button>
+                        <button style={btnEdit} onClick={() => handleOpenEdit('online', o)}>✏️ ແກ້ໄຂ</button>
+                        {hasReportsPermission('reportsDelete') && <button style={btnDel} onClick={() => handleRequestDelete('online', o.id, 'ຂາຍອອນລາຍ')}>🗑️ ລຶບ</button>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {/* Desktop table */}
+                <div className="desktop-only" style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', minWidth: '780px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+                        <th style={{ padding: '10px', textAlign: 'left' }}>ເລກ Order</th>
+                        <th style={{ padding: '10px', textAlign: 'left' }}>ວັນທີ / ເວລາ</th>
+                        <th style={{ padding: '10px', textAlign: 'left' }}>ລູກຄ້າ</th>
+                        <th style={{ padding: '10px', textAlign: 'right' }}>ຍອດ</th>
+                        <th style={{ padding: '10px', textAlign: 'center' }}>ຊຳລະ</th>
+                        <th style={{ padding: '10px', textAlign: 'center' }}>ຂົນສົ່ງ</th>
+                        <th style={{ padding: '10px', textAlign: 'center' }}>ຈັດການ</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    </thead>
+                    <tbody>
+                      {filtered.map(o => (
+                        <tr key={o.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', borderLeft: '3px solid #3498db' }}>
+                          <td style={{ padding: '10px', fontWeight: 'bold', color: '#3498db' }}>{o.id}</td>
+                          <td style={{ padding: '10px', fontSize: '0.78rem' }}>{new Date(o.date).toLocaleString('lo-LA')}</td>
+                          <td style={{ padding: '10px' }}>{o.customerName}<br/><span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{o.customerPhone}</span></td>
+                          <td style={{ padding: '10px', textAlign: 'right', fontWeight: 'bold' }}>{(o.total || 0).toLocaleString()} ₭</td>
+                          <td style={{ padding: '10px', textAlign: 'center' }}><span style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: '10px', ...payBadge(o.paymentStatus) }}>{payLabel(o.paymentStatus)}</span></td>
+                          <td style={{ padding: '10px', textAlign: 'center' }}><span style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: '10px', ...shipBadge(o.shippingStatus) }}>{shipLabel(o.shippingStatus)}</span></td>
+                          <td style={{ padding: '10px', textAlign: 'center' }}>
+                            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                              <button style={btnOpen} onClick={() => handleReprint(o)}>🖨️ ເປີດເບິ່ງ</button>
+                              <button style={btnEdit} onClick={() => handleOpenEdit('online', o)}>✏️ ແກ້ໄຂ</button>
+                              {hasReportsPermission('reportsDelete') && <button style={btnDel} onClick={() => handleRequestDelete('online', o.id, 'ຂາຍອອນລາຍ')}>🗑️ ລຶบ</button>}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>);
+            })()}
           </div>
 
         </div>
@@ -2838,7 +2890,7 @@ export default function Reports({ activeUser, isMobile }) {
             <div className="modal-content animate-fade-in" style={{ maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
               <div className="modal-header">
                 <span className="modal-title">
-                  ✏️ ແກ້ໄຂ{editType === 'order' ? 'ບິນຂາຍ' : editType === 'debt' ? 'ບິນໜີ້' : 'ລາຍຈ່າຍ'} — {editTarget.id}
+                  ✏️ ແກ້ໄຂ{editType === 'order' ? 'ບິນຂາຍ' : editType === 'debt' ? 'ບິນໜີ້' : editType === 'expense' ? 'ລາຍຈ່າຍ' : 'ບິນອອນລາຍ'} — {editTarget.id}
                 </span>
                 <button style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowEditModal(false)}>✕</button>
               </div>
@@ -2977,6 +3029,44 @@ export default function Reports({ activeUser, isMobile }) {
                     </div>
                   </>)}
 
+                  {/* ── ONLINE fields ── */}
+                  {editType === 'online' && (<>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ຊື່ລູກຄ້າ</label>
+                        <input className="form-control" value={editForm.customerName || ''} onChange={e => setEditForm(f => ({ ...f, customerName: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ເບີໂທ</label>
+                        <input className="form-control" value={editForm.customerPhone || ''} onChange={e => setEditForm(f => ({ ...f, customerPhone: e.target.value }))} />
+                      </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ສະຖານະຊຳລະ</label>
+                        <select className="form-control" value={editForm.paymentStatus || 'unpaid'} onChange={e => setEditForm(f => ({ ...f, paymentStatus: e.target.value }))}>
+                          <option value="unpaid">🔴 ຍັງບໍ່ທັນຊຳລະ</option>
+                          <option value="pending_verification">⏳ ລໍຖ້ານວດສະລິບ</option>
+                          <option value="paid">🟢 ຊຳລະແລ້ວ</option>
+                          <option value="cancelled">❌ ຍົກເລີກ</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ສະຖານະຈັດສົ່ງ</label>
+                        <select className="form-control" value={editForm.shippingStatus || 'pending'} onChange={e => setEditForm(f => ({ ...f, shippingStatus: e.target.value }))}>
+                          <option value="pending">🕐 ລໍຖ້າ</option>
+                          <option value="packing">📦 ກຳລັງແພັກ</option>
+                          <option value="shipped">🚚 ກຳລັງສົ່ງ</option>
+                          <option value="delivered">🏠 ສົ່ງຮອດແລ້ວ</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ໝາຍເຫດ</label>
+                      <input className="form-control" value={editForm.notes || ''} onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))} placeholder="ໝາຍເຫດ" />
+                    </div>
+                  </>)}
+
                   {/* PIN */}
                   <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '14px' }}>
                     <label style={{ fontSize: '0.85rem', color: 'var(--gold-primary)', display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>🔒 ຢືນຢັນດ້ວຍ Admin PIN</label>
@@ -3005,83 +3095,111 @@ export default function Reports({ activeUser, isMobile }) {
       )}
 
       {reportTab === 'treats' && (() => {
-
-        const treatOrders = rangeOrders.filter(o => o.paymentMethod === 'treat');
+        const treatOrders = [...rangeOrders.filter(o => o.paymentMethod === 'treat')].sort((a,b) => new Date(b.date)-new Date(a.date));
         const totalTreatValue = treatOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+        const sq = searchTreats.toLowerCase();
+        const filtered = treatOrders.filter(o => !sq || o.id?.toLowerCase().includes(sq) || (o.cashierName||'').toLowerCase().includes(sq) || (o.treatRemark||'').toLowerCase().includes(sq));
+        
+        const btnOpen = { display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(150,150,180,0.3)', background:'rgba(100,100,130,0.2)', color:'var(--text-primary)', whiteSpace:'nowrap' };
+        const btnEdit = { display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(52,152,219,0.4)', background:'rgba(52,152,219,0.15)', color:'#3498db', whiteSpace:'nowrap' };
+        const btnDel  = { display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(231,76,60,0.4)', background:'rgba(231,76,60,0.15)', color:'#e74c3c', whiteSpace:'nowrap' };
+        
         return (
           <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
-              <div className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>🎁 ຈຳນວນຄັ້ງທີ່ລ້ຽງແຂກ (Total Treats)</span>
-                <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#e67e22' }}>
-                  {treatOrders.length} ຄັ້ງ
-                </span>
+            {/* KPI Row — standardized to match POS tab */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
+              <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #e67e22' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🎁 ຈຳນວນຄັ້ງທີ່ລ້ຽງແຂກ (Total Treats)</span>
+                <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#e67e22' }}>{treatOrders.length} ຄັ້ງ</span>
+                <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ລາຢການລ້ຠງຕຂກທັ່ງຫມິດ</span>
               </div>
-              <div className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>💰 ມູນຄ່າລວມທີ່ລ້ຽງ (Estimated Value)</span>
-                <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--alert-red)' }}>
-                  {totalTreatValue.toLocaleString()} ₭
-                </span>
+              <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid var(--alert-red)' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💰 ມູນຄ່າລວມທີ່ລ້ຽງ (Estimated Value)</span>
+                <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--alert-red)' }}>{totalTreatValue.toLocaleString()} ₭</span>
+                <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ຍອດລວມທຸກລາຍການ</span>
               </div>
             </div>
 
-            <div className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.02rem', margin: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
-                📋 ລາຍລະອຽດການລ້ຽງແຂກ (Treat History & Logs)
-              </h3>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                      <th style={{ padding: '12px' }}>ເລກບິນ (ID)</th>
-                      <th style={{ padding: '12px' }}>ວັນທີ / ເວລາ</th>
-                      <th style={{ padding: '12px' }}>ຜູ້ອະນຸມັດ/ຫົວໜ້າ (Treated By)</th>
-                      <th style={{ padding: '12px' }}>ລາຍການສິນຄ້າ</th>
-                      <th style={{ padding: '12px', textAlign: 'right' }}>ມູນຄ່າ (Value)</th>
-                      <th style={{ padding: '12px' }}>ໝາຍເຫດ/ເຫດຜົນ (Remark)</th>
-                      <th style={{ padding: '12px', textAlign: 'center' }}>ບິນ</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {treatOrders.length === 0 ? (
-                      <tr>
-                        <td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
-                          ບໍ່ມີລາຍການລ້ຽງແຂກໃນຊ່ວງເວລានີ້
-                        </td>
+            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '1.02rem' }}>📋 ລາຍລະອຽດການລ້ຽງແขກ (Treat History)</h4>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="ຄົ້ນຫາ ID, ພະນັກງານ, ໝາຍເຫດ..."
+                  value={searchTreats}
+                  onChange={e => setSearchTreats(e.target.value)}
+                  style={{ maxWidth: '280px' }}
+                />
+              </div>
+
+              {filtered.length === 0 ? (
+                <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '20px' }}>ບ່ິມີລາຢກາຣລ້ຠງຕຂກໃນຊ່ວງເວລານ໅ຍ</p>
+              ) : (<>
+                {/* Mobile cards */}
+                <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {filtered.map(order => (
+                    <div key={order.id} className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px', borderLeft: '4px solid #e67e22' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                          <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)', fontSize: '0.9rem' }}>{order.id}</span>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>{new Date(order.date).toLocaleString('lo-LA')}</div>
+                        </div>
+                        <span style={{ fontWeight: 'bold', color: '#e67e22' }}>{order.cashierName || 'ເຈົ້າຂອງຮ້ານ'}</span>
+                      </div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                        {(order.items || []).map(i => `${i.name} (x${i.qty})`).join(', ')}
+                      </div>
+                      {order.treatRemark && <div style={{ fontSize: '0.8rem', color: '#e67e22', fontStyle: 'italic' }}>📝 {order.treatRemark}</div>}
+                      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <span style={{ fontWeight: 'bold', fontSize: '1rem', color: 'white' }}>{(order.total || 0).toLocaleString()} ₭</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        <button style={btnOpen} onClick={() => handleReprint(order)}>🖨️ ເປີດເບິ່ງ</button>
+                        <button style={btnEdit} onClick={() => handleOpenEdit('order', order)}>✏️ ແກ้ໄຂ</button>
+                        {hasReportsPermission('reportsDelete') && <button style={btnDel} onClick={() => handleRequestDelete('pos', order.id, 'ລ້ຽງແຂກ')}>🗑️ ລຶບ</button>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {/* Desktop table */}
+                <div className="desktop-only" style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '780px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+                        <th style={{ padding: '12px' }}>ເລກບິນ (ID)</th>
+                        <th style={{ padding: '12px' }}>ວັນທີ / ເວລາ</th>
+                        <th style={{ padding: '12px' }}>ຜູ້ອະນຸມັດ (Treated By)</th>
+                        <th style={{ padding: '12px' }}>ລາຍການສິນຄ້າ</th>
+                        <th style={{ padding: '12px', textAlign: 'right' }}>ມູນຄ່າ (Value)</th>
+                        <th style={{ padding: '12px' }}>ໝາຍເຫດ (Remark)</th>
+                        <th style={{ padding: '12px', textAlign: 'center' }}>ຈັດການ</th>
                       </tr>
-                    ) : (
-                      treatOrders.map(order => (
-                        <tr key={order.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', fontSize: '0.85rem' }}>
+                    </thead>
+                    <tbody>
+                      {filtered.map(order => (
+                        <tr key={order.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', fontSize: '0.85rem', borderLeft: '3px solid #e67e22' }}>
                           <td style={{ padding: '12px', fontWeight: 'bold', color: 'var(--gold-primary)' }}>{order.id}</td>
-                          <td style={{ padding: '12px' }}>{new Date(order.date).toLocaleString('lo-LA')}</td>
+                          <td style={{ padding: '12px', fontSize: '0.78rem' }}>{new Date(order.date).toLocaleString('lo-LA')}</td>
                           <td style={{ padding: '12px', fontWeight: 'bold', color: '#e67e22' }}>{order.cashierName || 'ເຈົ້າຂອງຮ້ານ'}</td>
-                          <td style={{ padding: '12px', maxWidth: '250px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <td style={{ padding: '12px', maxWidth: '220px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {(order.items || []).map(i => `${i.name} (x${i.qty})`).join(', ')}
                           </td>
-                          <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>{order.total.toLocaleString()} ₭</td>
-                          <td style={{ padding: '12px', color: '#e67e22', fontStyle: 'italic' }}>{order.treatRemark || 'ບໍ່ມີໝາຍເຫດ'}</td>
-                          <td style={{ padding: '12px', textAlign: 'center', display: 'flex', gap: '6px', justifyContent: 'center', alignItems: 'center' }}>
-                            <button
-                              className="btn btn-secondary"
-                              style={{ padding: '3px 8px', fontSize: '0.75rem' }}
-                              onClick={() => handleReprint(order)}
-                            >
-                              🖨️ ເປີດເບິ່ງ
-                            </button>
-                            <button
-                              className="btn btn-danger"
-                              style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231, 76, 60, 0.2)', border: '1px solid rgba(231, 76, 60, 0.4)', color: '#e74c3c' }}
-                              onClick={() => handleRequestDelete('pos', order.id, 'ລ້ຽງແຂກ')}
-                            >
-                              🗑️ ລຶບ
-                            </button>
+                          <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>{(order.total || 0).toLocaleString()} ₭</td>
+                          <td style={{ padding: '12px', color: '#e67e22', fontStyle: 'italic' }}>{order.treatRemark || '—'}</td>
+                          <td style={{ padding: '12px', textAlign: 'center' }}>
+                            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                              <button style={btnOpen} onClick={() => handleReprint(order)}>🖨️ ເປີດເບິ່ງ</button>
+                              <button style={btnEdit} onClick={() => handleOpenEdit('order', order)}>✏️ ແກ້ໄຂ</button>
+                              {hasReportsPermission('reportsDelete') && <button style={btnDel} onClick={() => handleRequestDelete('pos', order.id, 'ລ້ຽງແຂກ')}>🗑️ ລຶບ</button>}
+                            </div>
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>)}
             </div>
           </div>
         );

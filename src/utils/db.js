@@ -1,4 +1,4 @@
-// Mock database utility using localStorage for "ຂອບພຣະຣັທເກຊ" (Amulet POS & Framing)
+﻿// Mock database utility using localStorage for "ຂອບພຣະຣັທເກຊ" (Amulet POS & Framing)
 // Tailored for Lao language, LAK (ກີບ) currency.
 
 const DEFAULT_CATEGORIES = [
@@ -4512,6 +4512,14 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
   },
   saveOnlineOrders(orders) {
     setStorage('online_orders', orders);
+  },
+  updateOnlineOrder(orderId, changes) {
+    const orders = this.getOnlineOrders();
+    const idx = orders.findIndex(o => o.id === orderId);
+    if (idx === -1) return null;
+    orders[idx] = { ...orders[idx], ...changes };
+    this.saveOnlineOrders(orders);
+    return orders[idx];
   },
   addOnlineOrder(orderData) {
     const orders = this.getOnlineOrders();
