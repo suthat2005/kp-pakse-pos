@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { db } from '../utils/db';
 import Portal from './Portal';
 
@@ -1742,31 +1742,10 @@ export default function Reports({ activeUser, isMobile }) {
                         </span>
 
                         <div style={{ display: 'flex', gap: '6px' }}>
-                          <button
-                            type="button"
-                            className="btn btn-secondary btn-sm"
-                            style={{ padding: '3px 8px', fontSize: '0.75rem', height: '30px' }}
-                            onClick={() => handleReprint(order)}
-                          >
-                            🖨️ ເປີດເບິ່ງ
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn-secondary btn-sm"
-                            style={{ padding: '3px 8px', fontSize: '0.75rem', height: '30px', background: 'rgba(52,152,219,0.15)', border: '1px solid rgba(52,152,219,0.35)', color: '#3498db' }}
-                            onClick={() => handleOpenEdit('order', order)}
-                          >
-                            ✏️ ແກ້ໄຂ
-                          </button>
+                          <button type="button" style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(150,150,180,0.3)', background:'rgba(100,100,130,0.2)', color:'var(--text-primary)', whiteSpace:'nowrap' }} onClick={() => handleReprint(order)}>🖨️ ເປີດເບິ່ງ</button>
+                          <button type="button" style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(52,152,219,0.4)', background:'rgba(52,152,219,0.15)', color:'#3498db', whiteSpace:'nowrap' }} onClick={() => handleOpenEdit('order', order)}>✏️ ແກ້ໄຂ</button>
                           {hasReportsPermission('reportsDelete') && (
-                            <button
-                              type="button"
-                              className="btn btn-danger btn-sm"
-                              style={{ padding: '3px 8px', fontSize: '0.75rem', height: '30px', background: 'rgba(231,76,60,0.15)', border: '1px solid rgba(231,76,60,0.3)', color: 'var(--alert-red)' }}
-                              onClick={() => handleRequestDelete('pos', order.id, order.paymentMethod === 'treat' ? 'ລ້ຽງແຂກ' : 'ຂາຍໜ້າຮ້ານ')}
-                            >
-                              🗑️ ລຶບ
-                            </button>
+                            <button type="button" style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(231,76,60,0.4)', background:'rgba(231,76,60,0.15)', color:'#e74c3c', whiteSpace:'nowrap' }} onClick={() => handleRequestDelete('pos', order.id, order.paymentMethod === 'treat' ? 'ລ້ຽງແຂກ' : 'ຂາຍໜ້າຮ້ານ')}>🗑️ ລຶບ</button>
                           )}
                         </div>
                       </div>
@@ -1841,27 +1820,9 @@ export default function Reports({ activeUser, isMobile }) {
                           </span>
                         </td>
                         <td style={{ padding: '12px', textAlign: 'center', display: 'flex', gap: '6px', justifyContent: 'center', alignItems: 'center' }}>
-                          <button
-                            className="btn btn-secondary"
-                            style={{ padding: '3px 8px', fontSize: '0.75rem' }}
-                            onClick={() => handleReprint(order)}
-                          >
-                            🖨️ ເປີດເບິ່ງ
-                          </button>
-                          <button
-                            className="btn btn-secondary"
-                            style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(52,152,219,0.15)', border: '1px solid rgba(52,152,219,0.35)', color: '#3498db' }}
-                            onClick={() => handleOpenEdit('order', order)}
-                          >
-                            ✏️ ແກ້ໄຂ
-                          </button>
-                          <button
-                            className="btn btn-danger"
-                            style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231, 76, 60, 0.2)', border: '1px solid rgba(231, 76, 60, 0.4)', color: '#e74c3c' }}
-                            onClick={() => handleRequestDelete('pos', order.id, order.paymentMethod === 'treat' ? 'ລ້ຽງແຂກ' : 'ຂາຍໜ້າຮ້ານ')}
-                          >
-                            🗑️ ລຶບ
-                          </button>
+                          <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(150,150,180,0.3)', background:'rgba(100,100,130,0.2)', color:'var(--text-primary)', whiteSpace:'nowrap' }} onClick={() => handleReprint(order)}>🖨️ ເປີດເບິ່ງ</button>
+                          <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(52,152,219,0.4)', background:'rgba(52,152,219,0.15)', color:'#3498db', whiteSpace:'nowrap' }} onClick={() => handleOpenEdit('order', order)}>✏️ ແກ້ໄຂ</button>
+                          <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(231,76,60,0.4)', background:'rgba(231,76,60,0.15)', color:'#e74c3c', whiteSpace:'nowrap' }} onClick={() => handleRequestDelete('pos', order.id, order.paymentMethod === 'treat' ? 'ລ້ຽງແຂກ' : 'ຂາຍໜ້າຮ້ານ')}>🗑️ ລຶບ</button>
                         </td>
                       </tr>
                     ))
@@ -1931,8 +1892,8 @@ export default function Reports({ activeUser, isMobile }) {
                         </span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <span style={{ fontWeight: 'bold', color: debt.status === 'unpaid' ? 'var(--alert-red)' : 'var(--success-green)', fontSize: '0.95rem' }}>{debt.total.toLocaleString()} ₭</span>
-                          <button className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '0.7rem', height: '28px' }} onClick={() => { setSelectedDebtReceipt(debt); setShowDebtModal(true); }}>🖨️ ເປີດບິນ</button>
-                          <button className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '0.7rem', height: '28px', background: 'rgba(52,152,219,0.15)', border: '1px solid rgba(52,152,219,0.35)', color: '#3498db' }} onClick={() => handleOpenEdit('debt', debt)}>✏️ ແກ້ໄຂ</button>
+                          <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(150,150,180,0.3)', background:'rgba(100,100,130,0.2)', color:'var(--text-primary)', whiteSpace:'nowrap' }} onClick={() => { setSelectedDebtReceipt(debt); setShowDebtModal(true); }}>🖨️ ເປີດບິນ</button>
+                          <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(52,152,219,0.4)', background:'rgba(52,152,219,0.15)', color:'#3498db', whiteSpace:'nowrap' }} onClick={() => handleOpenEdit('debt', debt)}>✏️ ແກ້ໄຂ</button>
                           {hasReportsPermission('reportsDelete') && (
                             <button className="btn btn-danger" style={{ padding: '2px 6px', fontSize: '0.7rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c', height: '28px' }} onClick={() => handleRequestDelete('debt', debt.id, 'ຕິດໜີ້')}>🗑️</button>
                           )}
@@ -1999,8 +1960,8 @@ export default function Reports({ activeUser, isMobile }) {
                         </td>
                         <td style={{ padding: '12px', textAlign: 'center' }}>
                           <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                            <button className="btn btn-secondary" style={{ padding: '3px 8px', fontSize: '0.75rem', height: '30px' }} onClick={() => { setSelectedDebtReceipt(debt); setShowDebtModal(true); }}>🖨️ ເປີດບິນ</button>
-                            <button className="btn btn-secondary" style={{ padding: '3px 8px', fontSize: '0.75rem', height: '30px', background: 'rgba(52,152,219,0.15)', border: '1px solid rgba(52,152,219,0.35)', color: '#3498db' }} onClick={() => handleOpenEdit('debt', debt)}>✏️ ແກ້ໄຂ</button>
+                            <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(150,150,180,0.3)', background:'rgba(100,100,130,0.2)', color:'var(--text-primary)', whiteSpace:'nowrap' }} onClick={() => { setSelectedDebtReceipt(debt); setShowDebtModal(true); }}>🖨️ ເປີດບິນ</button>
+                            <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(52,152,219,0.4)', background:'rgba(52,152,219,0.15)', color:'#3498db', whiteSpace:'nowrap' }} onClick={() => handleOpenEdit('debt', debt)}>✏️ ແກ້ໄຂ</button>
                             {hasReportsPermission('reportsDelete') && (
                               <button className="btn btn-danger" style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c' }} onClick={() => handleRequestDelete('debt', debt.id, 'ຕິດໜີ້')}>🗑️ ລຶບ</button>
                             )}
@@ -2062,8 +2023,8 @@ export default function Reports({ activeUser, isMobile }) {
                         {ex.currency && ex.currency !== 'LAK' && <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>≈ {ex.convertedAmount?.toLocaleString()} ₭</div>}
                       </div>
                       <div style={{ display: 'flex', gap: '6px' }}>
-                        <button className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '0.72rem', height: '28px' }} onClick={() => { setSelectedExpenseReceipt(ex); setShowExpenseModal(true); }}>🖨️ ເປີດບິນ</button>
-                        <button className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '0.72rem', height: '28px', background: 'rgba(52,152,219,0.15)', border: '1px solid rgba(52,152,219,0.35)', color: '#3498db' }} onClick={() => handleOpenEdit('expense', ex)}>✏️ ແກ້ໄຂ</button>
+                        <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(150,150,180,0.3)', background:'rgba(100,100,130,0.2)', color:'var(--text-primary)', whiteSpace:'nowrap' }} onClick={() => { setSelectedExpenseReceipt(ex); setShowExpenseModal(true); }}>🖨️ ເປີດບິນ</button>
+                        <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(52,152,219,0.4)', background:'rgba(52,152,219,0.15)', color:'#3498db', whiteSpace:'nowrap' }} onClick={() => handleOpenEdit('expense', ex)}>✏️ ແກ້ໄຂ</button>
                         {hasReportsPermission('reportsDelete') && (
                           <button className="btn btn-danger" style={{ padding: '2px 8px', fontSize: '0.72rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c', height: '28px' }} onClick={() => handleRequestDelete('expense', ex.id, ex.categoryName || ex.category)}>🗑️ ລຶບ</button>
                         )}
@@ -2115,8 +2076,8 @@ export default function Reports({ activeUser, isMobile }) {
                         </td>
                         <td style={{ padding: '12px', textAlign: 'center' }}>
                           <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                            <button className="btn btn-secondary" style={{ padding: '3px 8px', fontSize: '0.75rem', height: '30px' }} onClick={() => { setSelectedExpenseReceipt(ex); setShowExpenseModal(true); }}>🖨️ ເປີດບິນ</button>
-                            <button className="btn btn-secondary" style={{ padding: '3px 8px', fontSize: '0.75rem', height: '30px', background: 'rgba(52,152,219,0.15)', border: '1px solid rgba(52,152,219,0.35)', color: '#3498db' }} onClick={() => handleOpenEdit('expense', ex)}>✏️ ແກ້ໄຂ</button>
+                            <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(150,150,180,0.3)', background:'rgba(100,100,130,0.2)', color:'var(--text-primary)', whiteSpace:'nowrap' }} onClick={() => { setSelectedExpenseReceipt(ex); setShowExpenseModal(true); }}>🖨️ ເປີດບິນ</button>
+                            <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(52,152,219,0.4)', background:'rgba(52,152,219,0.15)', color:'#3498db', whiteSpace:'nowrap' }} onClick={() => handleOpenEdit('expense', ex)}>✏️ ແກ້ໄຂ</button>
                             {hasReportsPermission('reportsDelete') && (
                               <button className="btn btn-danger" style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c' }} onClick={() => handleRequestDelete('expense', ex.id, ex.categoryName || ex.category)}>
                                 🗑️ ລຶບ
@@ -2872,7 +2833,181 @@ export default function Reports({ activeUser, isMobile }) {
         </Portal>
       )}
 
+      {/* ─── EDIT BILL MODAL ─────────────────────────────────────────────── */}
+      {showEditModal && editTarget && (
+        <Portal>
+          <div className="modal-overlay" style={{ zIndex: 3100 }}>
+            <div className="modal-content animate-fade-in" style={{ maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
+              <div className="modal-header">
+                <span className="modal-title">
+                  ✏️ ແກ້ໄຂ{editType === 'order' ? 'ບິນຂາຍ' : editType === 'debt' ? 'ບິນໜີ້' : 'ລາຍຈ່າຍ'} — {editTarget.id}
+                </span>
+                <button style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowEditModal(false)}>✕</button>
+              </div>
+              <form onSubmit={handleSaveEdit}>
+                <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '20px' }}>
+
+                  {/* ── ORDER fields ── */}
+                  {editType === 'order' && (<>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ພະນັກງານຂາຍ</label>
+                        <input className="form-control" value={editForm.cashierName || ''} onChange={e => setEditForm(f => ({ ...f, cashierName: e.target.value }))} placeholder="ຊື່ພະນັກງານ" />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ວິທີຊຳລະ</label>
+                        <select className="form-control" value={editForm.paymentMethod || 'cash'} onChange={e => setEditForm(f => ({ ...f, paymentMethod: e.target.value }))}>
+                          <option value="cash">💵 ເງິນສົດ</option>
+                          <option value="transfer">📱 ໂອນທະນາຄານ</option>
+                          <option value="split">🔀 ເງິນສົດ + ໂອນ</option>
+                          <option value="treat">🎁 ລ້ຽງແຂກ</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ສ່ວນຫຼຸດ (₭)</label>
+                        <input className="form-control" type="number" min="0" value={editForm.discount || 0} onChange={e => setEditForm(f => ({ ...f, discount: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ສະກຸນເງິນ</label>
+                        <select className="form-control" value={editForm.payCurrency || 'LAK'} onChange={e => setEditForm(f => ({ ...f, payCurrency: e.target.value }))}>
+                          <option value="LAK">LAK (ກີບ)</option>
+                          <option value="THB">THB (ບາດ)</option>
+                          <option value="USD">USD (ໂດລາ)</option>
+                        </select>
+                      </div>
+                    </div>
+                    {(editForm.paymentMethod === 'cash' || editForm.paymentMethod === 'split') && (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        <div>
+                          <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ຮັບເງິນ</label>
+                          <input className="form-control" type="number" min="0" value={editForm.cashReceived || 0} onChange={e => setEditForm(f => ({ ...f, cashReceived: e.target.value }))} />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ເງິນທອນ</label>
+                          <input className="form-control" type="number" min="0" value={editForm.change || 0} onChange={e => setEditForm(f => ({ ...f, change: e.target.value }))} />
+                        </div>
+                      </div>
+                    )}
+                    {(editForm.paymentMethod === 'transfer' || editForm.paymentMethod === 'split') && (
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ເລກອ້າງອີງໂອນ (Ref)</label>
+                        <input className="form-control" value={editForm.bankTxRef || ''} onChange={e => setEditForm(f => ({ ...f, bankTxRef: e.target.value }))} placeholder="ເລກ Ref ຈາກ BCEL" />
+                      </div>
+                    )}
+                    <div>
+                      <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ໝາຍເຫດ</label>
+                      <input className="form-control" value={editForm.notes || ''} onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))} placeholder="ໝາຍເຫດ (ຖ້າມີ)" />
+                    </div>
+                  </>)}
+
+                  {/* ── DEBT fields ── */}
+                  {editType === 'debt' && (<>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ຊື່ລູກຄ້າ</label>
+                        <input className="form-control" value={editForm.customerName || ''} onChange={e => setEditForm(f => ({ ...f, customerName: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ເບີໂທ</label>
+                        <input className="form-control" value={editForm.customerPhone || ''} onChange={e => setEditForm(f => ({ ...f, customerPhone: e.target.value }))} />
+                      </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ສ່ວນຫຼຸດ (₭)</label>
+                        <input className="form-control" type="number" min="0" value={editForm.discount || 0} onChange={e => setEditForm(f => ({ ...f, discount: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ມັດຈຳ (₭)</label>
+                        <input className="form-control" type="number" min="0" value={editForm.depositAmount || 0} onChange={e => setEditForm(f => ({ ...f, depositAmount: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ຍອດໜີ້ (₭)</label>
+                        <input className="form-control" type="number" min="0" value={editForm.total || 0} onChange={e => setEditForm(f => ({ ...f, total: e.target.value }))} />
+                      </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ພະນັກງານ</label>
+                        <input className="form-control" value={editForm.cashierName || ''} onChange={e => setEditForm(f => ({ ...f, cashierName: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ສະຖານະ</label>
+                        <select className="form-control" value={editForm.status || 'unpaid'} onChange={e => setEditForm(f => ({ ...f, status: e.target.value }))}>
+                          <option value="unpaid">🔴 ຍັງບໍ່ທັນຊຳລະ</option>
+                          <option value="paid">🟢 ຊຳລະແລ້ວ</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ໝາຍເຫດ</label>
+                      <input className="form-control" value={editForm.notes || ''} onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))} placeholder="ໝາຍເຫດ" />
+                    </div>
+                  </>)}
+
+                  {/* ── EXPENSE fields ── */}
+                  {editType === 'expense' && (<>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ໝວດລາຍຈ່າຍ</label>
+                        <input className="form-control" value={editForm.categoryName || ''} onChange={e => setEditForm(f => ({ ...f, categoryName: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ສະກຸນເງິນ</label>
+                        <select className="form-control" value={editForm.currency || 'LAK'} onChange={e => setEditForm(f => ({ ...f, currency: e.target.value }))}>
+                          <option value="LAK">LAK (ກີບ)</option>
+                          <option value="THB">THB (ບາດ)</option>
+                          <option value="USD">USD (ໂດລາ)</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ຈຳນວນ</label>
+                        <input className="form-control" type="number" min="0" value={editForm.amount || 0} onChange={e => setEditForm(f => ({ ...f, amount: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ຜູ້ສະໜອງ</label>
+                        <input className="form-control" value={editForm.supplier || ''} onChange={e => setEditForm(f => ({ ...f, supplier: e.target.value }))} placeholder="ຊື່ຜູ້ສະໜອງ" />
+                      </div>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>ໝາຍເຫດ</label>
+                      <input className="form-control" value={editForm.notes || ''} onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))} placeholder="ໝາຍເຫດ" />
+                    </div>
+                  </>)}
+
+                  {/* PIN */}
+                  <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '14px' }}>
+                    <label style={{ fontSize: '0.85rem', color: 'var(--gold-primary)', display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>🔒 ຢືນຢັນດ້ວຍ Admin PIN</label>
+                    <input
+                      className="form-control"
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={8}
+                      value={editPin}
+                      onChange={e => { setEditPin(e.target.value); setEditError(''); }}
+                      placeholder="ໃສ່ PIN ເຈົ້າຂອງຮ້ານ"
+                      autoFocus
+                      style={{ letterSpacing: '0.3em', textAlign: 'center', fontSize: '1.1rem' }}
+                    />
+                    {editError && <div style={{ color: 'var(--alert-red)', fontSize: '0.8rem', marginTop: '6px' }}>{editError}</div>}
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowEditModal(false)}>ຍົກເລີກ</button>
+                  <button type="submit" className="btn btn-primary" disabled={editSaving}>{editSaving ? '⏳ ກຳລັງບັນທຶກ...' : '✅ ບັນທຶກການແກ້ໄຂ'}</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </Portal>
+      )}
+
       {reportTab === 'treats' && (() => {
+
         const treatOrders = rangeOrders.filter(o => o.paymentMethod === 'treat');
         const totalTreatValue = treatOrders.reduce((sum, o) => sum + (o.total || 0), 0);
         return (
