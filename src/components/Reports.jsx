@@ -2746,11 +2746,7 @@ export default function Reports({ activeUser, isMobile }) {
         </Portal>
       )}
 
-      {reportTab === 'treats' && (() => {
-        const treatOrders = rangeOrders.filter(o => o.paymentMethod === 'treat');
-
-      /* ─── DEBT RECEIPT MODAL ─────────────────────────────────────────── */
-      return (<>{showDebtModal && selectedDebtReceipt && (
+      {showDebtModal && selectedDebtReceipt && (
         <Portal>
           <div className="modal-overlay print-modal">
             <div className="modal-content animate-fade-in" style={{ maxWidth: '400px' }}>
@@ -2874,8 +2870,7 @@ export default function Reports({ activeUser, isMobile }) {
             </div>
           </div>
         </Portal>
-      )}</>);
-      })()}
+      )}
 
       {reportTab === 'treats' && (() => {
         const treatOrders = rangeOrders.filter(o => o.paymentMethod === 'treat');
