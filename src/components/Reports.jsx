@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { db } from '../utils/db';
 import Portal from './Portal';
 
@@ -1895,7 +1895,7 @@ export default function Reports({ activeUser, isMobile }) {
                           <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(150,150,180,0.3)', background:'rgba(100,100,130,0.2)', color:'var(--text-primary)', whiteSpace:'nowrap' }} onClick={() => { setSelectedDebtReceipt(debt); setShowDebtModal(true); }}>🖨️ ເປີດບິນ</button>
                           <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(52,152,219,0.4)', background:'rgba(52,152,219,0.15)', color:'#3498db', whiteSpace:'nowrap' }} onClick={() => handleOpenEdit('debt', debt)}>✏️ ແກ້ໄຂ</button>
                           {hasReportsPermission('reportsDelete') && (
-                            <button className="btn btn-danger" style={{ padding: '2px 6px', fontSize: '0.7rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c', height: '28px' }} onClick={() => handleRequestDelete('debt', debt.id, 'ຕິດໜີ້')}>🗑️</button>
+                            <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(231,76,60,0.4)', background:'rgba(231,76,60,0.15)', color:'#e74c3c', whiteSpace:'nowrap' }} onClick={() => handleRequestDelete('debt', debt.id, 'ຕິດໜີ້')}>🗑️ ລຶບ</button>
                           )}
                         </div>
                       </div>
@@ -1963,7 +1963,7 @@ export default function Reports({ activeUser, isMobile }) {
                             <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(150,150,180,0.3)', background:'rgba(100,100,130,0.2)', color:'var(--text-primary)', whiteSpace:'nowrap' }} onClick={() => { setSelectedDebtReceipt(debt); setShowDebtModal(true); }}>🖨️ ເປີດບິນ</button>
                             <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(52,152,219,0.4)', background:'rgba(52,152,219,0.15)', color:'#3498db', whiteSpace:'nowrap' }} onClick={() => handleOpenEdit('debt', debt)}>✏️ ແກ້ໄຂ</button>
                             {hasReportsPermission('reportsDelete') && (
-                              <button className="btn btn-danger" style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c' }} onClick={() => handleRequestDelete('debt', debt.id, 'ຕິດໜີ້')}>🗑️ ລຶບ</button>
+                              <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(231,76,60,0.4)', background:'rgba(231,76,60,0.15)', color:'#e74c3c', whiteSpace:'nowrap' }} onClick={() => handleRequestDelete('debt', debt.id, 'ຕິດໜີ້')}>🗑️ ລຶບ</button>
                             )}
                           </div>
                         </td>
@@ -2026,7 +2026,7 @@ export default function Reports({ activeUser, isMobile }) {
                         <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(150,150,180,0.3)', background:'rgba(100,100,130,0.2)', color:'var(--text-primary)', whiteSpace:'nowrap' }} onClick={() => { setSelectedExpenseReceipt(ex); setShowExpenseModal(true); }}>🖨️ ເປີດບິນ</button>
                         <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(52,152,219,0.4)', background:'rgba(52,152,219,0.15)', color:'#3498db', whiteSpace:'nowrap' }} onClick={() => handleOpenEdit('expense', ex)}>✏️ ແກ້ໄຂ</button>
                         {hasReportsPermission('reportsDelete') && (
-                          <button className="btn btn-danger" style={{ padding: '2px 8px', fontSize: '0.72rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c', height: '28px' }} onClick={() => handleRequestDelete('expense', ex.id, ex.categoryName || ex.category)}>🗑️ ລຶບ</button>
+                          <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(231,76,60,0.4)', background:'rgba(231,76,60,0.15)', color:'#e74c3c', whiteSpace:'nowrap' }} onClick={() => handleRequestDelete('expense', ex.id, ex.categoryName || ex.category)}>🗑️ ລຶບ</button>
                         )}
                       </div>
                     </div>
@@ -2079,9 +2079,7 @@ export default function Reports({ activeUser, isMobile }) {
                             <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(150,150,180,0.3)', background:'rgba(100,100,130,0.2)', color:'var(--text-primary)', whiteSpace:'nowrap' }} onClick={() => { setSelectedExpenseReceipt(ex); setShowExpenseModal(true); }}>🖨️ ເປີດບິນ</button>
                             <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(52,152,219,0.4)', background:'rgba(52,152,219,0.15)', color:'#3498db', whiteSpace:'nowrap' }} onClick={() => handleOpenEdit('expense', ex)}>✏️ ແກ້ໄຂ</button>
                             {hasReportsPermission('reportsDelete') && (
-                              <button className="btn btn-danger" style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c' }} onClick={() => handleRequestDelete('expense', ex.id, ex.categoryName || ex.category)}>
-                                🗑️ ລຶບ
-                              </button>
+                              <button style={{ display:'inline-flex', alignItems:'center', gap:'4px', padding:'0 12px', height:'30px', borderRadius:'15px', fontSize:'0.75rem', fontWeight:'600', cursor:'pointer', border:'1px solid rgba(231,76,60,0.4)', background:'rgba(231,76,60,0.15)', color:'#e74c3c', whiteSpace:'nowrap' }} onClick={() => handleRequestDelete('expense', ex.id, ex.categoryName || ex.category)}>🗑️ ລຶບ</button>
                             )}
                           </div>
                         </td>
