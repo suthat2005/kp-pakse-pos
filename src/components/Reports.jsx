@@ -100,6 +100,74 @@ export default function Reports({ activeUser, isMobile }) {
     setShowReprintModal(true);
   };
 
+  const handlePrintDebtReceipt = (debt) => {
+    const s = db.getSettings();
+    const ensureUnit = (val, def = 'mm') => { if (!val) return ''; const t = String(val).trim(); return /^[0-9.]+$/.test(t) ? t + def : t; };
+    const widths = db.getPaperPrintWidths(s.receiptPaperWidth || '80mm');
+    const fontSize = ensureUnit(s.receiptFontSize || '10pt', 'pt');
+    const shopLogo = s.receiptLogoUrl || '';
+    const shopName = s.shopName || 'ຂອງພຣະ ປາກເຊ';
+    const shopSubtitle = s.shopSubtitle || '';
+    const shopAddress = s.shopAddress || '';
+    const shopPhone = s.receiptPhone || '';
+
+    let itemsHtml = '';
+    (debt.items || []).forEach(item => {
+      itemsHtml += '<tr><td style="padding:4px 0;line-height:1.2;">' + item.name + '</td><td style="width:' + (s.receiptQtyColWidth || '35px') + ';text-align:center;padding:4px 0;">' + item.qty + '</td><td style="width:' + (s.receiptPriceColWidth || '95px') + ';text-align:right;padding:4px 0;">' + (item.total || (item.price * item.qty)).toLocaleString() + ' ກີບ</td></tr>';
+    });
+
+    const statusText = debt.status === 'unpaid' ? '🔴 ຍັງບໍ່ທັນຊຳລະ' : '🟢 ຊຳລະແລ້ວ';
+    const subtotal = debt.subtotal !== undefined ? debt.subtotal : (debt.items || []).reduce((s, i) => s + (i.total || (i.price * i.qty)), 0);
+    const discount = debt.discount || 0;
+    const depositAmount = debt.depositAmount || 0;
+
+    let totalsHtml = '';
+    if (s.receiptShowSubtotal !== false) totalsHtml += '<div class="totals" style="font-weight:normal;font-size:calc(' + fontSize + ' - 1pt);padding-right:6mm;"><span>' + db.getLabel('rcpt_subtotal', 'ຍອດລວມ:') + '</span><span>' + subtotal.toLocaleString() + ' ກີບ</span></div>';
+    if (s.receiptShowDiscount !== false && discount > 0) totalsHtml += '<div class="totals" style="font-weight:normal;font-size:calc(' + fontSize + ' - 1.5pt);padding-right:6mm;color:#e74c3c;"><span>' + db.getLabel('rcpt_discount_label', 'ສ່ວນຫຼຸດ:') + '</span><span>-' + discount.toLocaleString() + ' ກີບ</span></div>';
+    if (s.receiptShowDeposit !== false && depositAmount > 0) totalsHtml += '<div class="totals" style="font-weight:normal;font-size:calc(' + fontSize + ' - 1pt);padding-right:6mm;color:green;"><span>' + db.getLabel('rcpt_deposit_offset', 'ຫັກມັດຈຳ:') + '</span><span>-' + depositAmount.toLocaleString() + ' ກີບ</span></div>';
+    totalsHtml += '<div class="totals" style="font-size:calc(' + fontSize + ' + 1pt);padding-right:6mm;border-top:' + (s.receiptDividerThickness || '1px') + ' ' + (s.receiptDividerStyle || 'dashed') + ' black;padding-top:4px;margin-top:4px;"><span>' + db.getLabel('rcpt_balance', 'ຍອດຕິດໜີ້:') + '</span><span>' + debt.total.toLocaleString() + ' ກີບ</span></div>';
+
+    let equivalentHtml = '';
+    if (s.receiptShowEquivalent !== false) {
+      const rT = s.exchangeRateThb || 750; const rU = s.exchangeRateUsd || 26000;
+      equivalentHtml = '<div style="border-top:' + (s.receiptDividerThickness || '1px') + ' ' + (s.receiptDividerStyle || 'dashed') + ' black;margin-top:6px;padding-top:6px;padding-right:6mm;font-size:calc(' + fontSize + ' - 2.5pt);">' +
+        '<div style="font-weight:bold;text-align:center;margin-bottom:2px;">' + db.getLabel('rcpt_equivalent_totals_label', 'ມູນຄ່າທຽບເທົ່າ') + '</div>' +
+        '<table style="width:100%;"><tbody>' +
+        '<tr><td>LAK (ກີບ):</td><td style="text-align:right">' + debt.total.toLocaleString() + ' ₭</td></tr>' +
+        '<tr><td>THB (ບາດ):</td><td style="text-align:right">' + Math.ceil(debt.total / rT).toLocaleString() + ' ฿</td></tr>' +
+        '<tr><td>USD (ໂດລາ):</td><td style="text-align:right">$' + (Math.ceil((debt.total / rU) * 100) / 100).toFixed(2) + '</td></tr>' +
+        '</tbody></table>' +
+        '<div style="font-size:calc(' + fontSize + ' - 3pt);color:#666;margin-top:4px;text-align:center;font-style:italic;">1 THB = ' + rT + ' ₭ | 1 USD = ' + rU + ' ₭</div></div>';
+    }
+
+    const detailsHtml =
+      (s.receiptShowBillId !== false ? '<div><b>' + db.getLabel('rcpt_bill_no', 'ເລກບິນ:') + '</b> ' + debt.id + '</div>' : '') +
+      (s.receiptShowDate !== false ? '<div><b>' + db.getLabel('rcpt_date', 'ວັນທີ:') + '</b> ' + new Date(debt.date).toLocaleString('lo-LA') + '</div>' : '') +
+      (s.receiptShowCustomer !== false ? '<div><b>' + db.getLabel('rcpt_customer', 'ລູກຄ້າ:') + '</b> ' + debt.customerName + '</div><div><b>ໂທລະສັບ:</b> ' + (debt.customerPhone || '-') + '</div>' : '') +
+      (debt.notes ? '<div><b>ໝາຍເຫດ:</b> ' + debt.notes + '</div>' : '');
+
+    const frame = document.createElement('iframe');
+    frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+    document.body.appendChild(frame);
+    const doc = frame.contentWindow.document || frame.contentDocument;
+    doc.write('<html><head><title>ໃບບິນໜີ້ - ' + debt.id + '</title><style>@page{size:' + (widths.paper.includes('landscape') ? 'A5 landscape' : widths.paper === 'A5' ? 'A5' : widths.paper === 'A4' ? 'A4' : 'portrait') + ';margin:0}body{margin:0;padding:10px;font-family:Arial,sans-serif;background:white;color:black;font-size:' + fontSize + ';line-height:1.4}.header{text-align:center;margin-bottom:10px}.logo{width:50px;height:50px;border-radius:50%;object-fit:cover;margin-bottom:6px}.title{font-size:calc(' + fontSize + ' + 2pt);font-weight:bold}.subtitle{font-size:calc(' + fontSize + ' - 1.5pt);color:#555}.divider{border-bottom:' + (s.receiptDividerThickness || '1px') + ' ' + (s.receiptDividerStyle || 'dashed') + ' black;margin:8px 0}.details{font-size:calc(' + fontSize + ' - 1.5pt);margin-bottom:8px}.details div{margin-bottom:2px}.totals{display:flex;justify-content:space-between;font-weight:bold;margin-top:4px}.status-badge{text-align:center;font-weight:bold;font-size:calc(' + fontSize + ' - 0.5pt);margin:8px 0;padding:4px;border:1px solid black}</style></head>' +
+      '<body onload="window.print();"><div style="width:' + widths.printable + ';margin:0 auto;box-sizing:border-box;padding:calc(' + (s.receiptPadding || '3mm') + ' + ' + (s.receiptMarginTop || '0mm') + ') calc(' + (s.receiptPadding || '3mm') + ' + ' + (s.receiptMarginRight || '0mm') + ') calc(' + (s.receiptPadding || '3mm') + ' + ' + (s.receiptMarginBottom || '0mm') + ' + ' + (s.receiptFeedPadding || '8mm') + ') calc(' + (s.receiptPadding || '3mm') + ' + ' + (s.receiptMarginLeft || '0mm') + ');">' +
+      '<div class="header">' + ((s.receiptShowLogo !== false && shopLogo) ? '<img src="' + shopLogo + '" class="logo" />' : '') + (s.receiptShowHeader !== false ? '<div class="title">' + shopName + '</div>' : '') + (s.receiptShowContactInfo !== false ? '<div class="subtitle">' + shopSubtitle + '</div><div class="subtitle">' + shopAddress + ' | ໂທ: ' + shopPhone + '</div>' : '') + '</div>' +
+      '<div class="status-badge">' + statusText + '</div>' +
+      '<div class="details">' + detailsHtml + '</div>' +
+      '<div class="divider"></div>' +
+      '<div style="padding-right:6mm;"><table style="width:100%;border-collapse:collapse;font-size:calc(' + fontSize + ' - 1.5pt);"><thead><tr style="border-bottom:1px solid black;text-align:left;"><th style="padding-bottom:4px;">ລາຍການ</th><th style="width:' + (s.receiptQtyColWidth || '35px') + ';text-align:center;padding-bottom:4px;">ຈຳນວນ</th><th style="width:' + (s.receiptPriceColWidth || '95px') + ';text-align:right;padding-bottom:4px;">ລາຄາ</th></tr></thead><tbody>' + itemsHtml + '</tbody></table></div>' +
+      '<div class="divider"></div>' + totalsHtml + equivalentHtml +
+      (s.receiptShowSignatures !== false ? '<div style="display:flex;justify-content:space-between;font-size:calc(' + fontSize + ' - 2.5pt);margin-top:30px;text-align:center;"><div style="width:45%;"><div>..................................</div><div style="margin-top:4px;">' + db.getLabel('rcpt_paid_by', 'ຜູ້ຈ່າຍເງິນ') + '</div></div><div style="width:45%;"><div>..................................</div><div style="margin-top:4px;">' + db.getLabel('rcpt_received_by', 'ຜູ້ຮັບເງິນ') + '</div></div></div>' : '') +
+      '<div class="divider"></div>' +
+      (s.receiptShowFooter !== false ? '<div style="text-align:center;font-size:calc(' + fontSize + ' - 2pt);margin-top:10px;">' + (s.receiptFooterNote || 'ຂອບໃຈທີ່ໃຊ້ບໍລິການ!') + '</div>' : '') +
+      '</div></body></html>');
+    doc.close();
+    frame.contentWindow.focus();
+    setTimeout(() => { try { document.body.removeChild(frame); } catch(e) {} }, 1500);
+  };
+
+
   const executePrint = () => {
     window.print();
   };
@@ -1741,7 +1809,7 @@ export default function Reports({ activeUser, isMobile }) {
                         </span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <span style={{ fontWeight: 'bold', color: debt.status === 'unpaid' ? 'var(--alert-red)' : 'var(--success-green)', fontSize: '0.95rem' }}>{debt.total.toLocaleString()} ₭</span>
-                          <button className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '0.7rem', height: '28px' }} onClick={() => { const d = db.getDebts().find(x => x.id === debt.id); if (d) { const Debts = window._debtsRef; if (window._handlePrintDebtReceipt) window._handlePrintDebtReceipt(d); } }}>🖨️</button>
+                          <button className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '0.7rem', height: '28px' }} onClick={() => handlePrintDebtReceipt(debt)}>🖨️ ເປີດບິນ</button>
                           {hasReportsPermission('reportsDelete') && (
                             <button className="btn btn-danger" style={{ padding: '2px 6px', fontSize: '0.7rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c', height: '28px' }} onClick={() => handleRequestDelete('debt', debt.id, 'ຕິດໜີ້')}>🗑️</button>
                           )}
@@ -1805,6 +1873,7 @@ export default function Reports({ activeUser, isMobile }) {
                         </td>
                         <td style={{ padding: '12px', textAlign: 'center' }}>
                           <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                            <button className="btn btn-secondary" style={{ padding: '3px 8px', fontSize: '0.75rem', height: '30px' }} onClick={() => handlePrintDebtReceipt(debt)}>🖨️ ເປີດບິນ</button>
                             {hasReportsPermission('reportsDelete') && (
                               <button className="btn btn-danger" style={{ padding: '3px 8px', fontSize: '0.75rem', background: 'rgba(231,76,60,0.2)', border: '1px solid rgba(231,76,60,0.4)', color: '#e74c3c' }} onClick={() => handleRequestDelete('debt', debt.id, 'ຕິດໜີ້')}>🗑️ ລຶບ</button>
                             )}
