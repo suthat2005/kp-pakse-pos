@@ -550,6 +550,26 @@ export default function POS({
     }
   };
 
+  const handleOpenServiceConfig = useCallback((product) => {
+    const targetSlotId = selectedSlotId || 'Walk-In';
+    const targetSlot = slots[targetSlotId];
+    setServiceConfigProduct(product);
+    setServiceConfigQty(1);
+    setServiceConfigDeposit('0');
+    setServiceConfigPickupDate(getLocalDatetimeString(new Date(Date.now() + 86400000))); // Default to tomorrow
+    setServiceConfigAmulets([
+      {
+        id: Date.now() + Math.random(),
+        description: '',
+        image: targetSlot ? targetSlot.amuletImage : '',
+        frameStyle: 'ກອບໃສ',
+        acrylicThickness: '2.0 mm',
+        specialNotes: ''
+      }
+    ]);
+    setShowServiceConfigModal(true);
+  }, [selectedSlotId, slots]);
+
   const handleBarcodeScanned = (product) => {
     if (!selectedSlotId) return;
 
@@ -2238,26 +2258,6 @@ export default function POS({
       ctx.fillText('❌ error generating barcode', canvas.width / 2, canvas.height / 2);
     }
   };
-
-  const handleOpenServiceConfig = useCallback((product) => {
-    const targetSlotId = selectedSlotId || 'Walk-In';
-    const targetSlot = slots[targetSlotId];
-    setServiceConfigProduct(product);
-    setServiceConfigQty(1);
-    setServiceConfigDeposit('0');
-    setServiceConfigPickupDate(getLocalDatetimeString(new Date(Date.now() + 86400000))); // Default to tomorrow
-    setServiceConfigAmulets([
-      {
-        id: Date.now() + Math.random(),
-        description: '',
-        image: targetSlot ? targetSlot.amuletImage : '',
-        frameStyle: 'ກອບໃສ',
-        acrylicThickness: '2.0 mm',
-        specialNotes: ''
-      }
-    ]);
-    setShowServiceConfigModal(true);
-  }, [selectedSlotId, slots]);
 
   const handleServiceQtyChange = (newQty) => {
     const qtyVal = parseInt(newQty) || 0;
