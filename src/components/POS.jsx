@@ -187,7 +187,6 @@ export default function POS({
   // Service configuration modal states
   const [showServiceConfigModal, setShowServiceConfigModal] = useState(false);
   const [serviceConfigProduct, setServiceConfigProduct] = useState(null);
-  const [serviceConfigPrice, setServiceConfigPrice] = useState(0);
   const [serviceConfigQty, setServiceConfigQty] = useState(1);
   const [serviceConfigAmulets, setServiceConfigAmulets] = useState([]);
   const [serviceConfigDeposit, setServiceConfigDeposit] = useState('0');
@@ -2109,7 +2108,6 @@ export default function POS({
     const targetSlotId = selectedSlotId || 'Walk-In';
     const targetSlot = slots[targetSlotId];
     setServiceConfigProduct(product);
-    setServiceConfigPrice(product.price);
     setServiceConfigQty(1);
     setServiceConfigDeposit('0');
     setServiceConfigAmulets([
@@ -2161,7 +2159,7 @@ export default function POS({
     const customerPhone = targetSlot.customerPhone || '';
 
     // Create a framing job with the configured list of amulets
-    const totalPrice = Number(serviceConfigPrice) * serviceConfigQty;
+    const totalPrice = Number(serviceConfigProduct.price) * serviceConfigQty;
     const depositAmount = Number(serviceConfigDeposit || 0);
     const balanceAmount = totalPrice - depositAmount;
 
@@ -2181,7 +2179,7 @@ export default function POS({
         description: a.description,
         frameTypeId: serviceConfigProduct.id,
         frameTypeName: serviceConfigProduct.name,
-        price: Number(serviceConfigPrice),
+        price: Number(serviceConfigProduct.price),
         image: a.image,
         frameStyle: a.frameStyle || 'ກອບໃສ',
         acrylicThickness: a.acrylicThickness || '2.0 mm',
@@ -4093,21 +4091,9 @@ export default function POS({
 
             <form onSubmit={handleConfirmServiceConfig} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
               <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px', overflowY: 'auto' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(255,255,255,0.02)', padding: '12px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div>
-                    <div style={{ fontWeight: 'bold', fontSize: '1rem', color: 'white' }}>{serviceConfigProduct.name}</div>
-                  </div>
-
-                  <div>
-                    <label className="form-label" style={{ marginBottom: '6px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>ລາຄາຕໍ່ອົງ / Unit Price (₭)</label>
-                    <input
-                      type="number"
-                      className="form-input"
-                      style={{ width: '100%', background: '#191613', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px', fontSize: '0.85rem' }}
-                      value={serviceConfigPrice}
-                      onChange={(e) => setServiceConfigPrice(Number(e.target.value) || 0)}
-                    />
-                  </div>
+                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '1rem', color: 'white' }}>{serviceConfigProduct.name}</div>
+                  <div style={{ color: 'var(--gold-primary)', fontWeight: 'bold', marginTop: '4px' }}>₭{(serviceConfigProduct.price || 0).toLocaleString()} / ອົງ</div>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -4275,7 +4261,7 @@ export default function POS({
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.95rem', color: 'var(--text-secondary)', borderTop: '1px solid var(--border-color)', paddingTop: '12px', marginTop: '6px' }}>
                   <span>ຍອດລວມທັງໝົດ / Total:</span>
-                  <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold', fontSize: '1.2rem' }}>₭{((serviceConfigPrice || 0) * serviceConfigQty).toLocaleString()}</span>
+                  <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold', fontSize: '1.2rem' }}>₭{((serviceConfigProduct.price || 0) * serviceConfigQty).toLocaleString()}</span>
                 </div>
               </div>
 
