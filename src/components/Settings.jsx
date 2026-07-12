@@ -790,7 +790,22 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
           <button
             className={`nav-tab ${activeSubTab === 'online_shop_settings' ? 'active' : ''}`}
             style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
-            onClick={() => setActiveSubTab('online_shop_settings')}
+            onClick={() => {
+              if (settings.onlineShopAccessPinRequired) {
+                const pin = prompt('🔒 ປ້ອງກັນການເຂົ້າເຖິງ: ກະລຸນາໃສ່ລະຫັດ PIN ຂອງ Admin:');
+                if (!pin) return;
+                const isMasterPin = pin === settings.masterAdminPin;
+                const users = db.getUsers();
+                const matchedOwner = users.find(u => u.role === 'owner' && u.passcode === pin);
+                if (matchedOwner || isMasterPin) {
+                  setActiveSubTab('online_shop_settings');
+                } else {
+                  alert('❌ ລະຫັດ PIN ບໍ່ຖືກຕ້ອງ!');
+                }
+              } else {
+                setActiveSubTab('online_shop_settings');
+              }
+            }}
           >
             🌐 ຕັ້ງຄ່າຮ້ານອອນລາຍ (Online Shop)
           </button>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { db } from '../utils/db';
 import FramingBoard from './FramingBoard';
 import JsBarcode from 'jsbarcode';
@@ -59,6 +59,61 @@ const compressImage = (file, maxWidth = 800, maxHeight = 800, quality = 0.7) => 
     reader.onerror = (err) => reject(err);
   });
 };
+
+const ProductCard = React.memo(({ p, categories, handleProductSelect }) => {
+  const isService = db.isServiceCategory(p.category);
+  const isLowStock = !isService && p.stock <= p.minStock;
+  const cardStyle = {
+    padding: '10px',
+    border: isService ? '1px solid rgba(229,169,59,0.22)' : '1px solid rgba(39,174,96,0.18)',
+    background: isService ? 'linear-gradient(180deg, rgba(229,169,59,0.10), rgba(255,255,255,0.03))' : 'linear-gradient(180deg, rgba(39,174,96,0.08), rgba(255,255,255,0.03))',
+    boxShadow: isService ? '0 10px 28px rgba(229,169,59,0.08)' : '0 10px 28px rgba(39,174,96,0.06)'
+  };
+  return (
+    <div
+      className="product-card"
+      style={cardStyle}
+      onClick={() => handleProductSelect(p)}
+    >
+      {isLowStock && (
+        <span className="stock-alert-pill">
+          {p.stock === 0 ? 'ໝົດ' : `ໃກ້ໝົດ (${p.stock})`}
+        </span>
+      )}
+      <img src={p.image} alt={p.name} className="product-card-img" style={{ height: '90px' }} />
+      <div className="product-card-name" style={{ fontSize: '0.8rem', height: '32px' }}>{p.name}</div>
+      <div style={{ marginTop: '4px' }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.68rem', padding: '2px 8px', borderRadius: '999px', color: isService ? 'var(--accent-amber)' : 'var(--success-green)', border: `1px solid ${isService ? 'rgba(229,169,59,0.25)' : 'rgba(39,174,96,0.25)'}`, background: isService ? 'rgba(229,169,59,0.08)' : 'rgba(39,174,96,0.08)' }}>
+          {(() => {
+            const cat = categories.find(c => c.id === p.category || c.name === p.category);
+            const catName = cat ? db.getLabel('cat_' + cat.id, cat.name) : p.category;
+            return isService ? `🛠️ ${catName || 'ບໍລິການ'}` : `📦 ${catName || 'ສິນຄ້າ'}`;
+          })()}
+        </span>
+      </div>
+      <div className="product-card-price" style={{ fontSize: '0.9rem' }}>{(p.price || 0).toLocaleString()} ກີບ</div>
+      <div className="product-card-stock" style={{ marginTop: '4px' }}>
+        {isService ? (
+          <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>ບໍ່ຕ້ອງໃຊ້ສະຕັອກ</span>
+        ) : (
+          <span style={{
+            fontSize: '0.7rem',
+            border: '1.5px solid var(--alert-red)',
+            borderRadius: '6px',
+            padding: '2px 8px',
+            color: 'var(--alert-red)',
+            fontWeight: 'bold',
+            background: 'rgba(231, 76, 60, 0.08)',
+            display: 'inline-block',
+            whiteSpace: 'nowrap'
+          }}>
+            ຄົງເຫຼືອ: {p.stock} {p.unit}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+});
 
 export default function POS({ 
   activeUser, 
@@ -137,6 +192,32 @@ export default function POS({
   
   // Product Search / Filter (Always visible in left panel of 'menu' mode)
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  const [failedPinAttempts, setFailedPinAttempts] = useState(0);
+  const [lockoutUntil, setLockoutUntil] = useState(0);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 200);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (!lockoutUntil) return;
+    const interval = setInterval(() => {
+      const remaining = lockoutUntil - Date.now();
+      if (remaining <= 0) {
+        setLockoutUntil(0);
+        setPinError('');
+        clearInterval(interval);
+      } else {
+        const secs = Math.ceil(remaining / 1000);
+        setPinError(`ລະບົບລັອກຊົ່ວຄາວ: ກະລຸນາລໍຖ້າອີກ ${secs} ວິນາທີ`);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [lockoutUntil]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [categories, setCategories] = useState([]);
   const [framingJobs, setFramingJobs] = useState([]);
@@ -416,7 +497,7 @@ export default function POS({
     autoConnectDevices();
   }, []);
 
-  const updateCartQty = (product, targetQty) => {
+  const updateCartQty = useCallback((product, targetQty) => {
     if (!selectedSlotId) return false;
     const updatedSlots = { ...slots };
     const items = [...(updatedSlots[selectedSlotId]?.items || [])];
@@ -451,7 +532,7 @@ export default function POS({
     setSlots(updatedSlots);
     if (onUpdate) onUpdate();
     return true;
-  };
+  }, [selectedSlotId, slots, onUpdate]);
 
   const handleModalQtyChange = (newQty) => {
     const qtyVal = parseInt(newQty) || 0;
@@ -650,7 +731,7 @@ export default function POS({
   const activeSlot = slots[selectedSlotId] || { items: [], label: selectedSlotId };
 
   // 1. Open select qty dialog modal when adding product (Image 3)
-  const handleProductSelect = (product) => {
+  const handleProductSelect = useCallback((product) => {
     if (product.stock <= 0 && !db.isServiceCategory(product.category)) {
       alert('ຂໍອະໄພ: ສິນຄ້າຊິ້ນນີ້ໝົດສະຕັອກແລ້ວ!');
       return;
@@ -670,7 +751,7 @@ export default function POS({
     setInputQty(newQty);
     updateCartQty(product, newQty);
     setShowQtyModal(true);
-  };
+  }, [slots, selectedSlotId, updateCartQty, handleOpenServiceConfig]);
 
   // 2. Confirm quantity modal
   const handleConfirmQty = (e) => {
@@ -717,6 +798,15 @@ export default function POS({
 
   const handleConfirmAdminPin = (e) => {
     e.preventDefault();
+    
+    // Check if locked out
+    const now = Date.now();
+    if (now < lockoutUntil) {
+      const remainingSecs = Math.ceil((lockoutUntil - now) / 1000);
+      setPinError(`ລະບົບລັອກຊົ່ວຄາວ: ກະລຸນາລໍຖ້າອີກ ${remainingSecs} ວິນາທີ`);
+      return;
+    }
+
     const users = db.getUsers();
     const settings = db.getSettings();
     const matchedOwner = users.find(u => u.role === 'owner' && u.passcode === adminPinInput);
@@ -727,6 +817,7 @@ export default function POS({
     const targetItem = items[pendingDeleteIndex];
 
     if (matchedOwner || isMasterPin) {
+      setFailedPinAttempts(0);
       if (targetItem) {
         db.addAuditLog(
           'success_pin',
@@ -763,7 +854,16 @@ export default function POS({
           'warning'
         );
       }
-      setPinError('ລະຫັດ PIN ແອດມິນບໍ່ຖືກຕ້ອງ!');
+      
+      const newAttempts = failedPinAttempts + 1;
+      setFailedPinAttempts(newAttempts);
+      if (newAttempts >= 5) {
+        setLockoutUntil(Date.now() + 60000); // Lockout for 60 seconds
+        setFailedPinAttempts(0);
+        setPinError('ລະຫັດຜິດພາດ 5 ຄັ້ງ! ລະບົບຖືກລັອກຊົ່ວຄາວ 60 ວິນາທີ');
+      } else {
+        setPinError(`ລະຫັດ PIN ແອດມິນບໍ່ຖືກຕ້ອງ! (ລອງໄດ້ອີກ ${5 - newAttempts} ຄັ້ງ)`);
+      }
     }
   };
 
@@ -2139,7 +2239,7 @@ export default function POS({
     }
   };
 
-  const handleOpenServiceConfig = (product) => {
+  const handleOpenServiceConfig = useCallback((product) => {
     const targetSlotId = selectedSlotId || 'Walk-In';
     const targetSlot = slots[targetSlotId];
     setServiceConfigProduct(product);
@@ -2157,7 +2257,7 @@ export default function POS({
       }
     ]);
     setShowServiceConfigModal(true);
-  };
+  }, [selectedSlotId, slots]);
 
   const handleServiceQtyChange = (newQty) => {
     const qtyVal = parseInt(newQty) || 0;
@@ -2537,12 +2637,14 @@ export default function POS({
 
   const slotList = Object.values(slots);
 
-  const filteredProducts = products.filter(p => {
-    const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
-    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          p.barcode.includes(searchQuery);
-    return matchesCategory && matchesSearch;
-  });
+  const filteredProducts = useMemo(() => {
+    return products.filter(p => {
+      const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
+      const matchesSearch = p.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) || 
+                            p.barcode.includes(debouncedSearchQuery);
+      return matchesCategory && matchesSearch;
+    });
+  }, [products, selectedCategory, debouncedSearchQuery]);
 
   // Calculate remaining balance for receipt if open to avoid scope issues in JSX blocks
   let remainingBalanceFinal = 0;
@@ -3305,61 +3407,14 @@ export default function POS({
 
             {/* Products cards grid */}
             <div className="products-scroll">
-              {filteredProducts.map(p => {
-                const isService = db.isServiceCategory(p.category);
-                const isLowStock = !isService && p.stock <= p.minStock;
-                const cardStyle = {
-                  padding: '10px',
-                  border: isService ? '1px solid rgba(229,169,59,0.22)' : '1px solid rgba(39,174,96,0.18)',
-                  background: isService ? 'linear-gradient(180deg, rgba(229,169,59,0.10), rgba(255,255,255,0.03))' : 'linear-gradient(180deg, rgba(39,174,96,0.08), rgba(255,255,255,0.03))',
-                  boxShadow: isService ? '0 10px 28px rgba(229,169,59,0.08)' : '0 10px 28px rgba(39,174,96,0.06)'
-                };
-                return (
-                  <div
-                    key={p.id}
-                    className="product-card"
-                    style={cardStyle}
-                    onClick={() => handleProductSelect(p)}
-                  >
-                    {isLowStock && (
-                      <span className="stock-alert-pill">
-                        {p.stock === 0 ? 'ໝົດ' : `ໃກ້ໝົດ (${p.stock})`}
-                      </span>
-                    )}
-                    <img src={p.image} alt={p.name} className="product-card-img" style={{ height: '90px' }} />
-                    <div className="product-card-name" style={{ fontSize: '0.8rem', height: '32px' }}>{p.name}</div>
-                    <div style={{ marginTop: '4px' }}>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.68rem', padding: '2px 8px', borderRadius: '999px', color: isService ? 'var(--accent-amber)' : 'var(--success-green)', border: `1px solid ${isService ? 'rgba(229,169,59,0.25)' : 'rgba(39,174,96,0.25)'}`, background: isService ? 'rgba(229,169,59,0.08)' : 'rgba(39,174,96,0.08)' }}>
-                        {(() => {
-                          const cat = categories.find(c => c.id === p.category || c.name === p.category);
-                          const catName = cat ? db.getLabel('cat_' + cat.id, cat.name) : p.category;
-                          return isService ? `🛠️ ${catName || 'ບໍລິການ'}` : `📦 ${catName || 'ສິນຄ້າ'}`;
-                        })()}
-                      </span>
-                    </div>
-                    <div className="product-card-price" style={{ fontSize: '0.9rem' }}>{(p.price || 0).toLocaleString()} ກີບ</div>
-                    <div className="product-card-stock" style={{ marginTop: '4px' }}>
-                      {isService ? (
-                        <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>ບໍ່ຕ້ອງໃຊ້ສະຕັອກ</span>
-                      ) : (
-                        <span style={{
-                          fontSize: '0.7rem',
-                          border: '1.5px solid var(--alert-red)',
-                          borderRadius: '6px',
-                          padding: '2px 8px',
-                          color: 'var(--alert-red)',
-                          fontWeight: 'bold',
-                          background: 'rgba(231, 76, 60, 0.08)',
-                          display: 'inline-block',
-                          whiteSpace: 'nowrap'
-                        }}>
-                          ຄົງເຫຼືອ: {p.stock} {p.unit}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+              {filteredProducts.map(p => (
+                <ProductCard
+                  key={p.id}
+                  p={p}
+                  categories={categories}
+                  handleProductSelect={handleProductSelect}
+                />
+              ))}
             </div>
           </div>
 

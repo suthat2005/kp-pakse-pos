@@ -46,6 +46,173 @@ export default function Reports({ activeUser, isMobile }) {
   const [debtSearch, setDebtSearch] = useState('');
   const [expenseSearch, setExpenseSearch] = useState('');
   const [reportTab, setReportTab] = useState('pos'); // 'pos' | 'online' | 'overview'
+
+  const exportToCsv = (data, filename) => {
+    if (!data || data.length === 0) {
+      alert('❌ ບໍ່ມີຂໍ້ມູນເພື່ອດາວໂຫຼດ!');
+      return;
+    }
+    
+    let headers = [];
+    let keys = [];
+    const sample = data[0];
+    
+    if (sample.paymentMethod !== undefined) {
+      headers = ['ເລກທີບິນ (ID)', 'ວັນທີ', 'ລູກຄ້າ', 'ເບີໂທ', 'ການຈ່າຍ', 'ແຄຊເຊຍ', 'ຍອດລວມ (LAK)', 'ໝາຍເຫດ/ລາຍລະອຽດ'];
+      keys = ['id', 'date', 'customerName', 'customerPhone', 'paymentMethod', 'cashierName', 'total', 'treatRemark'];
+    } else if (sample.shippingStatus !== undefined) {
+      headers = ['ເລກທີອໍເດີ້ (ID)', 'ວັນທີ', 'ລູກຄ້າ', 'ເບີໂທ', 'ຍອດລວມ (LAK)', 'ສະຖານະຊຳລະ', 'ສະຖານະຂົນສົ່ງ', 'ຄູປອງ', 'ສ່ວນຫຼຸດຄູປອງ', 'ແລກຄະແນນ', 'ສ່ວນຫຼຸດຄະແນນ'];
+      keys = ['id', 'date', 'customerName', 'customerPhone', 'total', 'paymentStatus', 'shippingStatus', 'couponCode', 'couponDiscount', 'redeemedPoints', 'pointsDiscount'];
+    } else if (sample.amount !== undefined) {
+      headers = ['ເລກທີ (ID)', 'ວັນທີ', 'ໝວດລາຍຈ່າຍ', 'ຜູ້ສະໜອງ', 'ລາຍລະອຽດ/ໝາຍເຫດ', 'ມູນຄ່າ', 'ສະກຸນເງິນ', 'ມູນຄ່າແປງ (LAK)', 'ຜູ້ບັນທຶກ'];
+      keys = ['id', 'date', 'categoryName', 'supplier', 'notes', 'amount', 'currency', 'convertedAmount', 'createdByName'];
+    } else {
+      keys = Object.keys(sample);
+      headers = keys;
+    }
+    
+    const csvRows = [];
+    csvRows.push(headers.join(','));
+    
+    data.forEach(item => {
+      const values = keys.map(key => {
+        let val = item[key];
+        if (val === null || val === undefined) {
+          val = '';
+        } else if (key === 'date') {
+          val = new Date(val).toLocaleString('lo-LA');
+        } else {
+          val = String(val).replace(/"/g, '""');
+        }
+        return `"${val}"`;
+      });
+      csvRows.push(values.join(','));
+    });
+    
+    const csvContent = '\uFEFF' + csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${filename}_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const printReportWindow = (title, data, keys, headers) => {
+    if (!data || data.length === 0) {
+      alert('❌ ບໍ່ມີຂໍ້ມູນເພື່ອພິມ!');
+      return;
+    }
+    const printWin = window.open('', '_blank');
+    if (!printWin) {
+      alert('❌ ກະລຸນາອະນຸຍາດ Pop-ups ເພື່ອພິມລາຍງານ');
+      return;
+    }
+    
+    let tableRows = '';
+    let totalSum = 0;
+    
+    data.forEach((item, idx) => {
+      tableRows += '<tr>';
+      keys.forEach((key) => {
+        let val = item[key];
+        let align = 'left';
+        
+        if (key === 'total' || key === 'amount' || key === 'convertedAmount') {
+          align = 'right';
+          const num = Number(val || 0);
+          totalSum += num;
+          val = num.toLocaleString() + ' ₭';
+        } else if (key === 'date') {
+          val = new Date(val).toLocaleString('lo-LA');
+        } else if (key === 'paymentStatus' || key === 'shippingStatus') {
+          align = 'center';
+        }
+        
+        tableRows += `<td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: ${align};">${val || '-'}</td>`;
+      });
+      tableRows += '</tr>';
+    });
+    
+    const hasTotal = keys.includes('total') || keys.includes('amount') || keys.includes('convertedAmount');
+    let totalRowHtml = '';
+    if (hasTotal) {
+      totalRowHtml = `
+        <tr style="font-weight: bold; background: #f5f5f5;">
+          <td colspan="${keys.length - 1}" style="padding: 8px; text-align: right; border-top: 2px solid #333;">ຍອດລວມທັງໝົດ (Total):</td>
+          <td style="padding: 8px; text-align: right; border-top: 2px solid #333; color: #d35400;">${totalSum.toLocaleString()} ₭</td>
+        </tr>
+      `;
+    }
+    
+    const ths = headers.map(h => `<th style="padding: 10px; background: #f0f0f0; border-bottom: 2px solid #333; text-align: left;">${h}</th>`).join('');
+    
+    printWin.document.write(`
+      <html>
+        <head>
+          <title>${title}</title>
+          <style>
+            body { font-family: 'Phetsarath OT', 'Outfit', sans-serif; color: #333; padding: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 11pt; }
+            h2 { margin: 0 0 5px; color: #111; }
+            .meta-info { font-size: 9pt; color: #666; margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+            .signature-area { margin-top: 50px; display: flex; justify-content: space-between; font-size: 10pt; }
+            .sig-box { text-align: center; width: 200px; }
+            .sig-line { border-bottom: 1px dashed #333; margin-top: 40px; margin-bottom: 8px; }
+            @media print {
+              body { padding: 0; }
+              button { display: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+              <h2>KP PAKSE POS & ONLINE STORE</h2>
+              <div style="font-size: 12pt; font-weight: bold;">${title}</div>
+            </div>
+            <button onclick="window.print()" style="padding: 8px 16px; background: #2ecc71; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">🖨️ ພິມລາຍງານ (Print)</button>
+          </div>
+          <div class="meta-info">
+            ວັນທີພິມລາຍງານ: ${new Date().toLocaleString('lo-LA')} | ຈຳນວນລາຍການທັງໝົດ: ${data.length} ລາຍການ
+          </div>
+          
+          <table>
+            <thead>
+              <tr>${ths}</tr>
+            </thead>
+            <tbody>
+              ${tableRows}
+              ${totalRowHtml}
+            </tbody>
+          </table>
+          
+          <div class="signature-area">
+            <div class="sig-box">
+              <p>ຜູ້ສະຫຼຸບລາຍງານ</p>
+              <div class="sig-line"></div>
+              <span>(..................................................)</span>
+            </div>
+            <div class="sig-box">
+              <p>ຜູ້ກວດສອບ (ແອດມິນ)</p>
+              <div class="sig-line"></div>
+              <span>(..................................................)</span>
+            </div>
+          </div>
+          
+          <script>
+            window.onload = function() {
+              setTimeout(function() { window.print(); }, 500);
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    printWin.document.close();
+  };
   
   // Archive View Receipt Modal
   const [selectedReceipt, setSelectedReceipt] = useState(null);
@@ -60,6 +227,26 @@ export default function Reports({ activeUser, isMobile }) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null); // { type: 'pos' | 'debt' | 'online', id: string, label: string }
   const [deletePin, setDeletePin] = useState('');
+  const [failedPinAttempts, setFailedPinAttempts] = useState(0);
+  const [lockoutUntil, setLockoutUntil] = useState(0);
+
+  useEffect(() => {
+    if (!lockoutUntil) return;
+    const interval = setInterval(() => {
+      const remaining = lockoutUntil - Date.now();
+      if (remaining <= 0) {
+        setLockoutUntil(0);
+        setDeleteError('');
+        setEditError('');
+        clearInterval(interval);
+      } else {
+        const secs = Math.ceil(remaining / 1000);
+        setDeleteError(`ລະບົບລັອກຊົ່ວຄາວ: ກະລຸນາລໍຖ້າອີກ ${secs} ວິນາທີ`);
+        setEditError(`ລະບົບລັອກຊົ່ວຄາວ: ກະລຸນາລໍຖ້າອີກ ${secs} ວິນາທີ`);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [lockoutUntil]);
   const [deleteError, setDeleteError] = useState('');
 
   // Edit Bill Modal States
@@ -200,15 +387,34 @@ export default function Reports({ activeUser, isMobile }) {
 
   const handleConfirmDelete = (e) => {
     e.preventDefault();
+    
+    // Check if locked out
+    const now = Date.now();
+    if (now < lockoutUntil) {
+      const remainingSecs = Math.ceil((lockoutUntil - now) / 1000);
+      setDeleteError(`ລະບົບລັອກຊົ່ວຄາວ: ກະລຸນາລໍຖ້າອີກ ${remainingSecs} ວິນາທີ`);
+      return;
+    }
+
     const users = db.getUsers();
     const currentSettings = db.getSettings();
     const matchedOwner = users.find(u => u.role === 'owner' && u.passcode === deletePin);
     const isMasterPin = deletePin === currentSettings.masterAdminPin;
 
     if (!matchedOwner && !isMasterPin) {
-      setDeleteError('🔒 ລະຫັດ PIN ບໍ່ຖືກຕ້ອງ! ບໍ່ມີສິດລຶບ.');
+      const newAttempts = failedPinAttempts + 1;
+      setFailedPinAttempts(newAttempts);
+      if (newAttempts >= 5) {
+        setLockoutUntil(Date.now() + 60000); // 60 seconds lockout
+        setFailedPinAttempts(0);
+        setDeleteError('ລະຫັດຜິດພາດ 5 ຄັ້ງ! ລະບົບຖືກລັອກຊົ່ວຄາວ 60 ວິນາທີ');
+      } else {
+        setDeleteError(`🔒 ລະຫັດ PIN ບໍ່ຖືກຕ້ອງ! ບໍ່ມີສິດລຶບ (ລອງໄດ້ອີກ ${5 - newAttempts} ຄັ້ງ)`);
+      }
       return;
     }
+    
+    setFailedPinAttempts(0);
 
     if (deleteTarget.type === 'pos') {
       const orders = db.getOrders();
@@ -399,14 +605,33 @@ export default function Reports({ activeUser, isMobile }) {
 
   const handleSaveEdit = (e) => {
     e.preventDefault();
+    
+    // Check if locked out
+    const now = Date.now();
+    if (now < lockoutUntil) {
+      const remainingSecs = Math.ceil((lockoutUntil - now) / 1000);
+      setEditError(`ລະບົບລັອກຊົ່ວຄາວ: ກະລຸນາລໍຖ້າອີກ ${remainingSecs} ວິນາທີ`);
+      return;
+    }
+
     const users = db.getUsers();
     const currentSettings = db.getSettings();
     const matchedOwner = users.find(u => u.role === 'owner' && u.passcode === editPin);
     const isMasterPin = editPin === currentSettings.masterAdminPin;
     if (!matchedOwner && !isMasterPin) {
-      setEditError('🔒 ລະຫັດ PIN ບໍ່ຖືກຕ້ອງ!');
+      const newAttempts = failedPinAttempts + 1;
+      setFailedPinAttempts(newAttempts);
+      if (newAttempts >= 5) {
+        setLockoutUntil(Date.now() + 60000); // 60 seconds lockout
+        setFailedPinAttempts(0);
+        setEditError('ລະຫັດຜິດພາດ 5 ຄັ້ງ! ລະບົບຖືກລັອກຊົ່ວຄາວ 60 ວິນາທີ');
+      } else {
+        setEditError(`🔒 ລະຫັດ PIN ບໍ່ຖືກຕ້ອງ! (ລອງໄດ້ອີກ ${5 - newAttempts} ຄັ້ງ)`);
+      }
       return;
     }
+    
+    setFailedPinAttempts(0);
     setEditSaving(true);
     try {
       if (editType === 'order') {
@@ -1863,14 +2088,32 @@ export default function Reports({ activeUser, isMobile }) {
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
             <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.05rem' }}>🔍 ໃບບິນຂາຍຊ່ວງນີ້ (Bills Lookup)</h3>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="ຄົ້ນຫາໃບບິນຂາຍ..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ maxWidth: '350px' }}
-            />
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="ຄົ້ນຫາໃບບິນຂາຍ..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{ width: '220px' }}
+              />
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => exportToCsv(filteredOrders, 'POS_Sales_Report')}
+                style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', fontSize: '0.78rem', cursor: 'pointer' }}
+              >
+                📥 Excel
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => printReportWindow('POS Sales Report', filteredOrders, ['id', 'date', 'customerName', 'paymentMethod', 'cashierName', 'total'], ['ເລກທີອໍເດີ້', 'ວັນທີ', 'ລູກຄ້າ', 'ການຈ່າຍ', 'ແຄຊເຊຍ', 'ຍອດລວມ'])}
+                style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', fontSize: '0.78rem', cursor: 'pointer' }}
+              >
+                🖨️ Print PDF
+              </button>
+            </div>
           </div>
 
           <div style={{ overflowX: 'auto' }}>
@@ -2182,14 +2425,32 @@ export default function Reports({ activeUser, isMobile }) {
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
             <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.05rem', margin: 0 }}>💸 ບັນທຶກລາຍຈ່າຍຊ່ວງນີ້ (Period Expenses Table)</h3>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="ຄົ້ນຫາລາຍຈ່າຍ, ໝວດ..."
-              value={expenseSearch || ''}
-              onChange={(e) => setExpenseSearch(e.target.value)}
-              style={{ maxWidth: '280px', fontSize: '0.85rem' }}
-            />
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="ຄົ້ນຫາລາຍຈ່າຍ, ໝວດ..."
+                value={expenseSearch || ''}
+                onChange={(e) => setExpenseSearch(e.target.value)}
+                style={{ width: '180px', fontSize: '0.85rem' }}
+              />
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => exportToCsv(sortedExpenses, 'Expenses_Report')}
+                style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', fontSize: '0.78rem', cursor: 'pointer' }}
+              >
+                📥 Excel
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => printReportWindow('Expenses Report', sortedExpenses, ['id', 'date', 'categoryName', 'supplier', 'notes', 'amount'], ['ເລກທີ EXP', 'ວັນທີ', 'ໝວດລາຍຈ່າຍ', 'ຜູ້ສະໜອງ', 'ໝາຍເຫດ', 'ມູນຄ່າ'])}
+                style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', fontSize: '0.78rem', cursor: 'pointer' }}
+              >
+                🖨️ Print PDF
+              </button>
+            </div>
           </div>
           {(() => {
             const sortedExpenses = [...rangeExpenses]
@@ -2394,14 +2655,32 @@ export default function Reports({ activeUser, isMobile }) {
           <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
               <h4 style={{ color: 'var(--gold-primary)', margin: 0 }}>📋 ລາຍການ Online Orders ທັງໝົດ</h4>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="ຄົ້ນຫາ Order, ລູກຄ້າ, ເບີໂທ..."
-                value={searchOnline}
-                onChange={e => setSearchOnline(e.target.value)}
-                style={{ maxWidth: '300px' }}
-              />
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="ຄົ້ນຫາ Order, ລູກຄ້າ, ເບີໂທ..."
+                  value={searchOnline}
+                  onChange={e => setSearchOnline(e.target.value)}
+                  style={{ width: '180px' }}
+                />
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => exportToCsv(filtered, 'Online_Orders_Report')}
+                  style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', fontSize: '0.78rem', cursor: 'pointer' }}
+                >
+                  📥 Excel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => printReportWindow('Online Orders Report', filtered, ['id', 'date', 'customerName', 'total', 'paymentStatus', 'shippingStatus'], ['ເລກທີອໍເດີ້', 'ວັນທີ', 'ລູກຄ້າ', 'ຍອດລວມ', 'ຊຳລະ', 'ຂົນສົ່ງ'])}
+                  style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', fontSize: '0.78rem', cursor: 'pointer' }}
+                >
+                  🖨️ Print PDF
+                </button>
+              </div>
             </div>
             {(() => {
               const sq = searchOnline.toLowerCase();
@@ -3355,15 +3634,33 @@ export default function Reports({ activeUser, isMobile }) {
 
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-                <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '1.02rem' }}>📋 ລາຍລະອຽດການລ້ຽງແขກ (Treat History)</h4>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="ຄົ້ນຫາ ID, ພະນັກງານ, ໝາຍເຫດ..."
-                  value={searchTreats}
-                  onChange={e => setSearchTreats(e.target.value)}
-                  style={{ maxWidth: '280px' }}
-                />
+                <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '1.02rem' }}>📋 ລາຍລະອຽດການລ້ຽງແຂກ (Treat History)</h4>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="ຄົ້ນຫາ ID, ພະນັກງານ, ໝາຍເຫດ..."
+                    value={searchTreats}
+                    onChange={e => setSearchTreats(e.target.value)}
+                    style={{ width: '180px' }}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => exportToCsv(filtered, 'Treats_Hosting_Report')}
+                    style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', fontSize: '0.78rem', cursor: 'pointer' }}
+                  >
+                    📥 Excel
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => printReportWindow('Treats & Hosting Report', filtered, ['id', 'date', 'cashierName', 'total', 'treatRemark'], ['ເລກທີບິນ', 'ວັນທີ', 'ຜູ້ອະນຸມັດ', 'ມູນຄ່າ (LAK)', 'ໝາຍເຫດ'])}
+                    style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', fontSize: '0.78rem', cursor: 'pointer' }}
+                  >
+                    🖨️ Print PDF
+                  </button>
+                </div>
               </div>
 
               {filtered.length === 0 ? (
