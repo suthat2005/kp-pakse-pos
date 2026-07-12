@@ -4513,7 +4513,7 @@ export default function POS({
         return (
         <Portal>
         <div className="modal-overlay" style={{ backdropFilter: 'blur(8px)', background: 'rgba(0,0,0,0.75)' }}>
-          <div className="modal-content animate-fade-in" style={{
+          <div className="modal-content animate-modal-entry" style={{
             maxWidth: '1100px',
             width: '98%',
             padding: 0,
@@ -5508,10 +5508,11 @@ export default function POS({
       )}
 
       {/* Printable Invoice Modal (ພິມບິນ) */}
+      {showReceipt && <ConfettiCanvas active={showReceipt} />}
       {showReceipt && currentReceipt && (
         <Portal>
         <div className="modal-overlay print-modal">
-          <div className="modal-content animate-fade-in" style={{ maxWidth: '400px' }}>
+          <div className="modal-content animate-modal-entry" style={{ maxWidth: '400px' }}>
             <div className="modal-header no-print">
               <span className="modal-title">{db.getLabel('rcpt_title', 'ໃບບິນຮັບເງິນ / RECEIPT')}</span>
               <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowReceipt(false)}>✕</button>
@@ -6941,5 +6942,110 @@ export default function POS({
         </Portal>
       )}
     </div>
+  );
+}
+
+function ConfettiCanvas({ active, duration = 3000 }) {
+  const canvasRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!active) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    let animationFrameId;
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    const handleResize = () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    const colors = ['#f39c12', '#d4af37', '#e74c3c', '#2ecc71', '#3498db', '#9b59b6', '#1abc9c'];
+    const particles = [];
+    
+    // Create particles from bottom corners (left and right launchers)
+    const particleCount = 150;
+    for (let i = 0; i < particleCount; i++) {
+      const isLeft = Math.random() > 0.5;
+      particles.push({
+        x: isLeft ? 0 : width,
+        y: height,
+        vx: (isLeft ? 1 : -1) * (10 + Math.random() * 15),
+        vy: -15 - Math.random() * 15,
+        r: 4 + Math.random() * 6,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rotation: Math.random() * 360,
+        rotationSpeed: -10 + Math.random() * 20,
+        opacity: 1,
+        gravity: 0.45,
+        friction: 0.98
+      });
+    }
+
+    let startTime = Date.now();
+
+    const animate = () => {
+      ctx.clearRect(0, 0, width, height);
+      let alive = false;
+
+      particles.forEach(p => {
+        p.vx *= p.friction;
+        p.vy += p.gravity;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rotation += p.rotationSpeed;
+        
+        // fade out near the end of duration
+        const elapsed = Date.now() - startTime;
+        if (elapsed > duration - 1000) {
+          p.opacity = Math.max(0, 1 - (elapsed - (duration - 1000)) / 1000);
+        }
+
+        if (p.y < height && p.x >= 0 && p.x <= width && p.opacity > 0) {
+          alive = true;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rotation * Math.PI / 180);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = p.opacity;
+          ctx.fillRect(-p.r, -p.r, p.r * 2, p.r * 2);
+          ctx.restore();
+        }
+      });
+
+      if (alive && (Date.now() - startTime < duration)) {
+        animationFrameId = requestAnimationFrame(animate);
+      } else {
+        ctx.clearRect(0, 0, width, height);
+      }
+    };
+
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [active, duration]);
+
+  if (!active) return null;
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        pointerEvents: 'none',
+        zIndex: 9999
+      }}
+    />
   );
 }
