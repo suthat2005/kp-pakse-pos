@@ -26,6 +26,7 @@ export default function FramingBoard({
   const [notifyJob, setNotifyJob] = useState(null);
   const [notifyLang, setNotifyLang] = useState('lao');
   const [serverIp, setServerIp] = useState('127.0.0.1');
+  const [dragOverCol, setDragOverCol] = useState(null);
 
   useEffect(() => {
     fetch('/api/server-ip')
@@ -151,7 +152,29 @@ export default function FramingBoard({
       <div className="kanban-board">
         
         {/* Column 1: Received */}
-        <div className="kanban-col">
+        <div 
+          className="kanban-col"
+          onDragOver={(e) => {
+            e.preventDefault();
+            if (dragOverCol !== 'pending') setDragOverCol('pending');
+          }}
+          onDragLeave={() => setDragOverCol(null)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragOverCol(null);
+            const jobId = e.dataTransfer.getData("jobId");
+            if (jobId && onStatusChange) {
+              onStatusChange(jobId, 'pending');
+            }
+          }}
+          style={{
+            border: dragOverCol === 'pending' ? '2px dashed var(--gold-primary)' : '1px solid rgba(255,255,255,0.05)',
+            background: dragOverCol === 'pending' ? 'rgba(212,175,55,0.05)' : '',
+            borderRadius: '12px',
+            padding: '12px',
+            transition: 'all 0.2s'
+          }}
+        >
           <div className="kanban-col-title">
             <span>{db.getLabel('framing_board_pending', '🔴 ຮັບງານເຂົ້າ (Received)')}</span>
             <span style={{ background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem' }}>
@@ -160,7 +183,16 @@ export default function FramingBoard({
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '600px' }}>
             {pendingJobs.map(job => (
-              <div key={job.id} className="job-card">
+              <div 
+                key={job.id} 
+                className="job-card"
+                draggable={hasFramingPermission('framingUpdateStatus')}
+                onDragStart={(e) => {
+                  e.dataTransfer.setData("jobId", job.id);
+                  e.dataTransfer.effectAllowed = "move";
+                }}
+                style={{ cursor: hasFramingPermission('framingUpdateStatus') ? 'grab' : 'default' }}
+              >
                 <div className="job-card-header">
                   <span 
                     className="job-id" 
@@ -207,7 +239,29 @@ export default function FramingBoard({
         </div>
 
         {/* Column 2: Processing */}
-        <div className="kanban-col">
+        <div 
+          className="kanban-col"
+          onDragOver={(e) => {
+            e.preventDefault();
+            if (dragOverCol !== 'framing') setDragOverCol('framing');
+          }}
+          onDragLeave={() => setDragOverCol(null)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragOverCol(null);
+            const jobId = e.dataTransfer.getData("jobId");
+            if (jobId && onStatusChange) {
+              onStatusChange(jobId, 'framing');
+            }
+          }}
+          style={{
+            border: dragOverCol === 'framing' ? '2px dashed var(--accent-amber)' : '1px solid rgba(255,255,255,0.05)',
+            background: dragOverCol === 'framing' ? 'rgba(243,156,18,0.05)' : '',
+            borderRadius: '12px',
+            padding: '12px',
+            transition: 'all 0.2s'
+          }}
+        >
           <div className="kanban-col-title">
             <span>{db.getLabel('framing_board_doing', '🟡 ກຳລັງເລເຊີ/ເລ່ຽມ (Processing)')}</span>
             <span style={{ background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem' }}>
@@ -216,7 +270,19 @@ export default function FramingBoard({
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '600px' }}>
             {framingJobs.map(job => (
-              <div key={job.id} className="job-card" style={{ borderColor: 'var(--accent-amber)' }}>
+              <div 
+                key={job.id} 
+                className="job-card" 
+                style={{ 
+                  borderColor: 'var(--accent-amber)',
+                  cursor: hasFramingPermission('framingUpdateStatus') ? 'grab' : 'default'
+                }}
+                draggable={hasFramingPermission('framingUpdateStatus')}
+                onDragStart={(e) => {
+                  e.dataTransfer.setData("jobId", job.id);
+                  e.dataTransfer.effectAllowed = "move";
+                }}
+              >
                 <div className="job-card-header">
                   <span 
                     className="job-id" 
@@ -263,7 +329,29 @@ export default function FramingBoard({
         </div>
 
         {/* Column 3: Ready */}
-        <div className="kanban-col">
+        <div 
+          className="kanban-col"
+          onDragOver={(e) => {
+            e.preventDefault();
+            if (dragOverCol !== 'done') setDragOverCol('done');
+          }}
+          onDragLeave={() => setDragOverCol(null)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragOverCol(null);
+            const jobId = e.dataTransfer.getData("jobId");
+            if (jobId && onStatusChange) {
+              onStatusChange(jobId, 'done');
+            }
+          }}
+          style={{
+            border: dragOverCol === 'done' ? '2px dashed var(--success-green)' : '1px solid rgba(255,255,255,0.05)',
+            background: dragOverCol === 'done' ? 'rgba(39,174,96,0.05)' : '',
+            borderRadius: '12px',
+            padding: '12px',
+            transition: 'all 0.2s'
+          }}
+        >
           <div className="kanban-col-title">
             <span>{db.getLabel('framing_board_done', '🟢 ງານເສັດຮອມານັບ (Ready)')}</span>
             <span style={{ background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem' }}>
@@ -272,7 +360,19 @@ export default function FramingBoard({
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '600px' }}>
             {doneJobs.map(job => (
-              <div key={job.id} className="job-card" style={{ borderColor: 'var(--success-green)' }}>
+              <div 
+                key={job.id} 
+                className="job-card" 
+                style={{ 
+                  borderColor: 'var(--success-green)',
+                  cursor: hasFramingPermission('framingUpdateStatus') ? 'grab' : 'default'
+                }}
+                draggable={hasFramingPermission('framingUpdateStatus')}
+                onDragStart={(e) => {
+                  e.dataTransfer.setData("jobId", job.id);
+                  e.dataTransfer.effectAllowed = "move";
+                }}
+              >
                 <div className="job-card-header">
                   <span 
                     className="job-id" 
@@ -326,7 +426,36 @@ export default function FramingBoard({
         </div>
 
         {/* Column 4: Delivered */}
-        <div className="kanban-col">
+        <div 
+          className="kanban-col"
+          onDragOver={(e) => {
+            e.preventDefault();
+            if (dragOverCol !== 'picked_up') setDragOverCol('picked_up');
+          }}
+          onDragLeave={() => setDragOverCol(null)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragOverCol(null);
+            const jobId = e.dataTransfer.getData("jobId");
+            if (jobId) {
+              const job = jobs.find(j => j.id === jobId);
+              if (job) {
+                if (onCollectPayment) {
+                  onCollectPayment(job);
+                } else if (onStatusChange) {
+                  onStatusChange(jobId, 'picked_up');
+                }
+              }
+            }
+          }}
+          style={{
+            border: dragOverCol === 'picked_up' ? '2px dashed var(--text-secondary)' : '1px solid rgba(255,255,255,0.05)',
+            background: dragOverCol === 'picked_up' ? 'rgba(255,255,255,0.02)' : '',
+            borderRadius: '12px',
+            padding: '12px',
+            transition: 'all 0.2s'
+          }}
+        >
           <div className="kanban-col-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span>{db.getLabel('framing_board_delivered', '⚪ ສົ່ງມອບແລ້ວ (Delivered)')}</span>
@@ -347,7 +476,20 @@ export default function FramingBoard({
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '600px' }}>
             {pickedUpJobs.map(job => (
-              <div key={job.id} className="job-card" style={{ opacity: 0.6, borderColor: 'var(--border-color)' }}>
+              <div 
+                key={job.id} 
+                className="job-card" 
+                style={{ 
+                  opacity: 0.6, 
+                  borderColor: 'var(--border-color)',
+                  cursor: hasFramingPermission('framingUpdateStatus') ? 'grab' : 'default'
+                }}
+                draggable={hasFramingPermission('framingUpdateStatus')}
+                onDragStart={(e) => {
+                  e.dataTransfer.setData("jobId", job.id);
+                  e.dataTransfer.effectAllowed = "move";
+                }}
+              >
                 <div className="job-card-header">
                   <span 
                     className="job-id" 
