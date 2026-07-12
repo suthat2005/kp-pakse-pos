@@ -170,6 +170,37 @@ export default function OnlineShop() {
     setSettings(activeSettings);
   };
 
+  // Calculating totals and discounts with markup, coupon, and points
+  const cartSubtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  
+  // Dynamic member discount %
+  const discountPercent = customer ? (customer.discountValue || 0) : 0;
+  const discountAmount = Math.round(cartSubtotal * (discountPercent / 100));
+
+  // Coupon discount
+  let couponDiscount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.type === 'percentage') {
+      couponDiscount = Math.round(cartSubtotal * (appliedCoupon.value / 100));
+    } else {
+      couponDiscount = appliedCoupon.value;
+    }
+  }
+
+  // Points discount
+  const maxRedeemablePoints = Math.floor(Math.max(0, cartSubtotal - discountAmount - couponDiscount) / 100);
+  const actualRedeemPoints = Math.min(redeemPoints, customer ? customer.points : 0, maxRedeemablePoints);
+  const pointsDiscount = actualRedeemPoints * 100;
+
+  // Shipping Fee calculation
+  const customShippingMethods = settings.onlineShopShippingMethods || [];
+  const selectedMethod = customShippingMethods.find(m => m.id === selectedShippingMethodId);
+  const baseShippingFee = selectedMethod ? selectedMethod.baseRate : (settings.onlineShopShippingFee !== undefined ? Number(settings.onlineShopShippingFee) : 15000);
+  const isFreeShipping = settings.onlineShopFreeShippingThreshold > 0 && cartSubtotal >= settings.onlineShopFreeShippingThreshold;
+  const shippingFee = (shippingMethod === 'pickup' || isFreeShipping) ? 0 : baseShippingFee;
+
+  const cartTotal = Math.max(0, cartSubtotal - discountAmount - couponDiscount - pointsDiscount + shippingFee);
+
   useEffect(() => {
     // Restore customer session from localStorage if it exists
     const savedCustomer = localStorage.getItem('online_customer');
@@ -488,37 +519,6 @@ export default function OnlineShop() {
       setCart(cart.map(item => item.productId === productId ? { ...item, qty } : item));
     }
   };
-
-  // Calculating totals and discounts with markup, coupon, and points
-  const cartSubtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-  
-  // Dynamic member discount %
-  const discountPercent = customer ? (customer.discountValue || 0) : 0;
-  const discountAmount = Math.round(cartSubtotal * (discountPercent / 100));
-
-  // Coupon discount
-  let couponDiscount = 0;
-  if (appliedCoupon) {
-    if (appliedCoupon.type === 'percentage') {
-      couponDiscount = Math.round(cartSubtotal * (appliedCoupon.value / 100));
-    } else {
-      couponDiscount = appliedCoupon.value;
-    }
-  }
-
-  // Points discount
-  const maxRedeemablePoints = Math.floor(Math.max(0, cartSubtotal - discountAmount - couponDiscount) / 100);
-  const actualRedeemPoints = Math.min(redeemPoints, customer ? customer.points : 0, maxRedeemablePoints);
-  const pointsDiscount = actualRedeemPoints * 100;
-
-  // Shipping Fee calculation
-  const customShippingMethods = settings.onlineShopShippingMethods || [];
-  const selectedMethod = customShippingMethods.find(m => m.id === selectedShippingMethodId);
-  const baseShippingFee = selectedMethod ? selectedMethod.baseRate : (settings.onlineShopShippingFee !== undefined ? Number(settings.onlineShopShippingFee) : 15000);
-  const isFreeShipping = settings.onlineShopFreeShippingThreshold > 0 && cartSubtotal >= settings.onlineShopFreeShippingThreshold;
-  const shippingFee = (shippingMethod === 'pickup' || isFreeShipping) ? 0 : baseShippingFee;
-
-  const cartTotal = Math.max(0, cartSubtotal - discountAmount - couponDiscount - pointsDiscount + shippingFee);
 
   const handlePlaceOrder = (e) => {
     e.preventDefault();
