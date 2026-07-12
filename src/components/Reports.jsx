@@ -245,7 +245,10 @@ export default function Reports({ activeUser, isMobile }) {
         setEditError(`ລະບົບລັອກຊົ່ວຄາວ: ກະລຸນາລໍຖ້າອີກ ${secs} ວິນາທີ`);
       }
     }, 1000);
-    // 1. Compute Recent Activity Timeline items & Alerts
+    return () => clearInterval(interval);
+  }, [lockoutUntil]);
+
+  // 1. Compute Recent Activity Timeline items & Alerts (with safe date checks)
   const recentTimelineItems = useMemo(() => {
     try {
       const orders = db.getOrders() || [];
@@ -253,20 +256,26 @@ export default function Reports({ activeUser, isMobile }) {
       const items = [];
       
       orders.slice(-10).forEach(o => {
+        if (!o || !o.id) return;
+        const d = new Date(o.date);
+        if (isNaN(d.getTime())) return;
         items.push({
           type: 'success',
           title: `ບິນຂາຍໜ້າຮ້ານ #${o.id.slice(-6)}`,
-          desc: `ຍອດ: ${o.total.toLocaleString()} ₭ (${o.paymentMethod === 'transfer' ? 'ໂອນ' : 'ເງິນສົດ'})`,
-          time: new Date(o.date)
+          desc: `ຍອດ: ${(o.total || 0).toLocaleString()} ₭ (${o.paymentMethod === 'transfer' ? 'ໂອນ' : 'ເງິນສົດ'})`,
+          time: d
         });
       });
       
       expenses.slice(-10).forEach(ex => {
+        if (!ex) return;
+        const d = new Date(ex.date);
+        if (isNaN(d.getTime())) return;
         items.push({
           type: 'danger',
-          title: `ບັນທຶກລາຍຈ່າຍ: ${ex.categoryName || ex.category}`,
-          desc: `ຍອດ: -${ex.amount.toLocaleString()} ₭ (${ex.paymentMethod === 'transfer' ? 'ໂอน' : 'ເງິນສົດ'})`,
-          time: new Date(ex.date)
+          title: `ບັນທຶກລາຍຈ່າຍ: ${ex.categoryName || ex.category || ''}`,
+          desc: `ຍອດ: -${(ex.amount || 0).toLocaleString()} ₭ (${ex.paymentMethod === 'transfer' ? 'ໂອນ' : 'ເງິນສົດ'})`,
+          time: d
         });
       });
       
@@ -292,8 +301,6 @@ export default function Reports({ activeUser, isMobile }) {
     }
   }, [salesUpdated]);
 
-  return () => clearInterval(interval);
-  }, [lockoutUntil]);
   const [deleteError, setDeleteError] = useState('');
 
   // Edit Bill Modal States
