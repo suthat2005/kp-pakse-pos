@@ -65,6 +65,33 @@ export default function OnlineShop() {
   const [selectedDetailProduct, setSelectedDetailProduct] = useState(null);
   const [categories, setCategories] = useState([]);
   const [settings, setSettings] = useState({});
+  const [selectedShippingMethodId, setSelectedShippingMethodId] = useState('');
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [redeemPoints, setRedeemPoints] = useState(0);
+
+  // Translation helper
+  const t = (key, defaultText) => {
+    const lang = settings.onlineShopLang || 'lo';
+    const override = settings.onlineShopTranslations?.[lang]?.[key];
+    if (override !== undefined && override !== '') {
+      return override;
+    }
+    return defaultText;
+  };
+
+  // Online price helper factoring in markup rate
+  const getProductOnlinePrice = (product) => {
+    let unitPrice = product.priceOnline || product.price;
+    if (customer && customer.tier === 'VIP') {
+      unitPrice = product.priceVip || product.price;
+    }
+    const markupPercent = settings.onlineShopMarkupPercent || 0;
+    if (markupPercent > 0) {
+      return Math.round(unitPrice * (1 + markupPercent / 100));
+    }
+    return unitPrice;
+  };
   const [activeTab, setActiveTab] = useState('catalog'); // catalog, cart, profile, tracking, chat
   
   // Auth states
@@ -135,9 +162,12 @@ export default function OnlineShop() {
   const [chatAttachments, setChatAttachments] = useState([]);
 
   const loadData = () => {
-    setProducts(db.getProducts().filter(p => p.showOnline));
-    setCategories(db.getCategories().filter(c => c.type !== 'service'));
-    setSettings(db.getSettings());
+    const activeSettings = db.getSettings();
+    const disabledCategories = activeSettings.onlineShopDisabledCategories || [];
+    
+    setProducts(db.getProducts().filter(p => p.showOnline && !disabledCategories.includes(p.categoryId)));
+    setCategories(db.getCategories().filter(c => c.type !== 'service' && !disabledCategories.includes(c.id)));
+    setSettings(activeSettings);
   };
 
   useEffect(() => {
@@ -273,10 +303,7 @@ export default function OnlineShop() {
     };
 
     const generateQr = async () => {
-      // Compute amount directly from cart to avoid temporal dead zone
-      const sub = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-      const disc = customer ? Math.round(sub * ((customer.discountValue || 0) / 100)) : 0;
-      const amount = Math.max(0, sub - disc);
+      const amount = cartTotal;
       const template = settings.bankQrTemplate;
 
       if (!template) {
@@ -319,7 +346,7 @@ export default function OnlineShop() {
     };
 
     generateQr();
-  }, [settings.bankQrTemplate, cart, customer]);
+  }, [settings.bankQrTemplate, cart, customer, cartTotal]);
 
   useEffect(() => {
     if (customer) {
@@ -442,15 +469,12 @@ export default function OnlineShop() {
       setCart(cart.map(item => item.productId === product.id ? { ...item, qty: item.qty + 1 } : item));
     } else {
       // Determine base price based on customer VIP tier status
-      let unitPrice = product.priceOnline || product.price;
-      if (customer && customer.tier === 'VIP') {
-        unitPrice = product.priceVip || product.price;
-      }
+      const price = getProductOnlinePrice(product);
       setCart([...cart, {
         productId: product.id,
         name: product.name,
         image: product.image,
-        price: unitPrice,
+        price,
         qty: 1
       }]);
     }
@@ -465,14 +489,36 @@ export default function OnlineShop() {
     }
   };
 
-  // Calculating totals and discounts
+  // Calculating totals and discounts with markup, coupon, and points
   const cartSubtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
   
   // Dynamic member discount %
   const discountPercent = customer ? (customer.discountValue || 0) : 0;
   const discountAmount = Math.round(cartSubtotal * (discountPercent / 100));
-  const shippingFee = shippingMethod === 'pickup' ? 0 : (settings.onlineShopShippingFee !== undefined ? Number(settings.onlineShopShippingFee) : 15000);
-  const cartTotal = Math.max(0, cartSubtotal - discountAmount + shippingFee);
+
+  // Coupon discount
+  let couponDiscount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.type === 'percentage') {
+      couponDiscount = Math.round(cartSubtotal * (appliedCoupon.value / 100));
+    } else {
+      couponDiscount = appliedCoupon.value;
+    }
+  }
+
+  // Points discount
+  const maxRedeemablePoints = Math.floor(Math.max(0, cartSubtotal - discountAmount - couponDiscount) / 100);
+  const actualRedeemPoints = Math.min(redeemPoints, customer ? customer.points : 0, maxRedeemablePoints);
+  const pointsDiscount = actualRedeemPoints * 100;
+
+  // Shipping Fee calculation
+  const customShippingMethods = settings.onlineShopShippingMethods || [];
+  const selectedMethod = customShippingMethods.find(m => m.id === selectedShippingMethodId);
+  const baseShippingFee = selectedMethod ? selectedMethod.baseRate : (settings.onlineShopShippingFee !== undefined ? Number(settings.onlineShopShippingFee) : 15000);
+  const isFreeShipping = settings.onlineShopFreeShippingThreshold > 0 && cartSubtotal >= settings.onlineShopFreeShippingThreshold;
+  const shippingFee = (shippingMethod === 'pickup' || isFreeShipping) ? 0 : baseShippingFee;
+
+  const cartTotal = Math.max(0, cartSubtotal - discountAmount - couponDiscount - pointsDiscount + shippingFee);
 
   const handlePlaceOrder = (e) => {
     e.preventDefault();
@@ -507,6 +553,10 @@ export default function OnlineShop() {
           total: i.price * i.qty
         })),
         total: cartTotal,
+        couponCode: appliedCoupon ? appliedCoupon.code : null,
+        couponDiscount: couponDiscount,
+        redeemedPoints: actualRedeemPoints,
+        pointsDiscount: pointsDiscount,
         paymentStatus: 'pending_verification',
         slipImage: slipImage,
         shippingMethod: shippingMethod,
@@ -523,6 +573,30 @@ export default function OnlineShop() {
       };
 
       const newOrder = db.addOnlineOrder(orderData);
+      
+      // Deduct loyalty points if used
+      if (customer && actualRedeemPoints > 0) {
+        db.redeemCustomerPoints(customer.id, actualRedeemPoints, pointsDiscount);
+        // Refresh customer session state
+        const updatedCust = db.getCustomers().find(c => c.id === customer.id);
+        if (updatedCust) {
+          localStorage.setItem('online_customer', JSON.stringify(updatedCust));
+          setCustomer(updatedCust);
+        }
+      }
+
+      // Deduct stock if auto-sync is active
+      if (settings.onlineShopAutoSyncStock !== false) {
+        const prodList = db.getProducts();
+        cart.forEach(item => {
+          const pIdx = prodList.findIndex(p => p.id === item.productId);
+          if (pIdx !== -1) {
+            prodList[pIdx].stock = Math.max(0, prodList[pIdx].stock - item.qty);
+          }
+        });
+        db.saveProducts(prodList);
+      }
+
       alert(`✓ ສັ່ງຊື້ສິນຄ້າສຳເລັດ! ເລກທີອໍເດີ້: ${newOrder.id}\nກະລຸນາລໍຖ້າການກວດສອບສະລິບຈາກຮ້ານ.`);
       setCart([]);
       setSlipImage('');
@@ -531,6 +605,9 @@ export default function OnlineShop() {
       setVillage('');
       setAddressLine('');
       setNotes('');
+      setCouponCode('');
+      setAppliedCoupon(null);
+      setRedeemPoints(0);
       
       // Auto redirect to tracking page
       setTrackedOrder(newOrder);
@@ -560,16 +637,29 @@ export default function OnlineShop() {
     alert('❌ ບໍ່ພົບຂໍ້ມູນອໍເດີ້ ຫຼື ບັດຕິດຕາມເລກທີນີ້!');
   };
 
-  // Catalog filter
-  const filteredProducts = products.filter(p => {
-    const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                        (p.barcode && p.barcode.includes(searchQuery));
-    if (selectedCat === 'wishlist') {
-      return matchSearch && wishlist.includes(p.id);
-    }
-    const matchCat = selectedCat === 'all' || p.category === selectedCat;
-    return matchSearch && matchCat;
-  });
+  // Catalog filter and sort
+  const filteredProducts = products
+    .filter(p => {
+      const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (p.barcode && p.barcode.includes(searchQuery));
+      if (selectedCat === 'wishlist') {
+        return matchSearch && wishlist.includes(p.id);
+      }
+      const matchCat = selectedCat === 'all' || p.category === selectedCat || p.categoryId === selectedCat;
+      return matchSearch && matchCat;
+    })
+    .sort((a, b) => {
+      const sortType = settings.onlineShopProductSort || 'default';
+      const aPrice = getProductOnlinePrice(a);
+      const bPrice = getProductOnlinePrice(b);
+      
+      if (sortType === 'priceAsc') return aPrice - bPrice;
+      if (sortType === 'priceDesc') return bPrice - aPrice;
+      if (sortType === 'newest') {
+        return b.id.localeCompare(a.id);
+      }
+      return 0; // default
+    });
 
   const getOrderStatusColor = (status) => {
     switch (status) {
@@ -582,11 +672,15 @@ export default function OnlineShop() {
   };
 
   return (
-    <div style={{ maxWidth: '480px', margin: '0 auto', background: '#0e0c0a', minHeight: '100vh', paddingBottom: '90px', color: '#fff', fontFamily: 'Outfit, Phetsarath OT, sans-serif' }}>
+    <div className="online-shop-container" style={{ maxWidth: '480px', margin: '0 auto', background: '#0e0c0a', minHeight: '100vh', paddingBottom: '90px', color: '#fff' }}>
       <style>{`
         :root {
           --gold-primary: ${settings.onlineShopThemeColor || '#d4af37'} !important;
           --accent-amber: ${settings.onlineShopAccentColor || '#f1c40f'} !important;
+        }
+        .online-shop-container {
+          font-family: ${settings.onlineShopFontFamily || 'Outfit, Phetsarath OT, sans-serif'} !important;
+          font-size: ${settings.onlineShopFontSize === 'small' ? '13px' : settings.onlineShopFontSize === 'large' ? '17px' : '15px'} !important;
         }
       `}</style>
       
@@ -800,9 +894,9 @@ export default function OnlineShop() {
                 </div>
 
                 {/* Products grid list */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: (settings.onlineShopLayout || 'grid') === 'list' ? '1fr' : '1fr 1fr', gap: '12px' }}>
                   {filteredProducts.map((p, idx) => {
-                    const basePrice = p.priceOnline || p.price;
+                    const basePrice = getProductOnlinePrice(p);
                     const showVipPrice = p.priceVip && p.priceVip !== basePrice;
                     const isWishlisted = wishlist.includes(p.id);
                     
@@ -973,10 +1067,121 @@ export default function OnlineShop() {
                       <span>-{discountAmount.toLocaleString()} ₭</span>
                     </div>
                   )}
+                  {appliedCoupon && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--success-green)' }}>
+                      <span>ສ່ວນຫຼຸດຄູປອງ ({appliedCoupon.code}):</span>
+                      <span>-{couponDiscount.toLocaleString()} ₭</span>
+                    </div>
+                  )}
+                  {redeemPoints > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--gold-primary)' }}>
+                      <span>ສ່ວນຫຼຸດຄະແນນສະສົມ ({redeemPoints} points):</span>
+                      <span>-{pointsDiscount.toLocaleString()} ₭</span>
+                    </div>
+                  )}
+                  {shippingMethod !== 'pickup' && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ccc' }}>
+                      <span>ຄ່າຈັດສົ່ງສິນຄ້າ:</span>
+                      <span>{isFreeShipping ? 'ສົ່ງຟຣີ' : `${shippingFee.toLocaleString()} ₭`}</span>
+                    </div>
+                  )}
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '6px', color: 'var(--gold-primary)', marginTop: '4px' }}>
                     <span>ຍອດຊຳລະສຸດທິ:</span>
                     <span>{cartTotal.toLocaleString()} ₭</span>
                   </div>
+                </div>
+
+                {/* Coupons & Points Inputs */}
+                <div className="glass-card" style={{ padding: '16px', background: '#141210', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '12px', borderRadius: '8px', marginBottom: '14px' }}>
+                  <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.85rem' }}>🎟️ ສ່ວນຫຼຸດ & ຄະແນນສະສົມ (Discounts & Points):</h4>
+                  
+                  {/* Coupon Input */}
+                  <div className="form-group" style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder={t('coupon', 'ລະຫັດສ່ວນຫຼຸດ')}
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                      disabled={!!appliedCoupon}
+                      style={{ background: '#1c1916', flex: 1, textTransform: 'uppercase', padding: '8px', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}
+                    />
+                    {appliedCoupon ? (
+                      <button
+                        type="button"
+                        className="btn"
+                        onClick={() => {
+                          setAppliedCoupon(null);
+                          setCouponCode('');
+                        }}
+                        style={{ color: 'var(--alert-red)', borderColor: 'var(--alert-red)', padding: '8px 12px', background: 'rgba(231,76,60,0.1)', cursor: 'pointer' }}
+                      >✕ ຍົກເລີກ</button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="btn btn-primary"
+                        onClick={() => {
+                          if (!couponCode.trim()) return;
+                          const promo = db.getPromotions().find(p => p.code.toUpperCase() === couponCode.trim().toUpperCase() && p.active);
+                          if (!promo) {
+                            alert('❌ ລະຫັດສ່ວນຫຼຸດນີ້ບໍ່ຖືກຕ້ອງ ຫຼື ໝົດອາຍຸແລ້ວ!');
+                            return;
+                          }
+                          if (cartSubtotal < promo.minPurchase) {
+                            alert(`❌ ຍອດຊື້ຂັ້ນຕ່ຳເພື່ອໃຊ້ຄູປອງນີ້ແມ່ນ: ${promo.minPurchase.toLocaleString()} ₭`);
+                            return;
+                          }
+                          setAppliedCoupon(promo);
+                          alert(`✓ ນຳໃຊ້ຄູປອງສຳເລັດ: ${promo.name}`);
+                        }}
+                        style={{ padding: '8px 16px', cursor: 'pointer' }}
+                      >ນຳໃຊ້</button>
+                    )}
+                  </div>
+                  {appliedCoupon && (
+                    <span style={{ fontSize: '0.72rem', color: 'var(--success-green)' }}>
+                      ✓ ນຳໃຊ້ຄູປອງ: <b>{appliedCoupon.name}</b> (ສ່ວນຫຼຸດ -{couponDiscount.toLocaleString()} ₭)
+                    </span>
+                  )}
+
+                  {/* Loyalty Points Input */}
+                  {customer && customer.points > 0 && (
+                    <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
+                        <span style={{ color: '#888' }}>ຄະແນນສະສົມຂອງທ່ານ:</span>
+                        <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{customer.points} Points</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <input
+                          type="number"
+                          className="form-control"
+                          placeholder="ຈຳນວນຄະແນນທີ່ຈະໃຊ້"
+                          value={redeemPoints || ''}
+                          onChange={(e) => {
+                            const val = Math.max(0, Number(e.target.value));
+                            const maxRedeem = Math.floor(Math.max(0, cartSubtotal - discountAmount - couponDiscount) / 100);
+                            const allowed = Math.min(val, customer.points, maxRedeem);
+                            setRedeemPoints(allowed);
+                          }}
+                          style={{ background: '#1c1916', flex: 1, padding: '8px', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={() => {
+                            const maxRedeem = Math.floor(Math.max(0, cartSubtotal - discountAmount - couponDiscount) / 100);
+                            setRedeemPoints(Math.min(customer.points, maxRedeem));
+                          }}
+                          style={{ whiteSpace: 'nowrap', fontSize: '0.72rem', padding: '8px 12px', cursor: 'pointer' }}
+                        >ໃຊ້ທັງໝົດ</button>
+                      </div>
+                      {redeemPoints > 0 && (
+                        <span style={{ fontSize: '0.72rem', color: 'var(--gold-primary)' }}>
+                          ✓ ໃຊ້ {redeemPoints} ຄະແນນ ແທນສ່ວນຫຼຸດ: <b>-{pointsDiscount.toLocaleString()} ₭</b>
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Shipping Form & QR Payment */}
@@ -1053,6 +1258,27 @@ export default function OnlineShop() {
                     </div>
                   )}
 
+                  {/* Custom Shipping Methods List */}
+                  {shippingMethod === 'delivery' && settings.onlineShopShippingMethods && settings.onlineShopShippingMethods.length > 0 && (
+                    <div className="form-group">
+                      <label className="form-label" style={{ fontSize: '0.75rem' }}>📦 ເລືອກຊ່ອງທາງການຈັດສົ່ງ (Shipping Method):</label>
+                      <select
+                        className="form-control"
+                        required
+                        value={selectedShippingMethodId}
+                        onChange={(e) => setSelectedShippingMethodId(e.target.value)}
+                        style={{ background: '#1c1916', width: '100%', padding: '8px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#fff' }}
+                      >
+                        <option value="">-- ເລືອກຊ່ອງທາງຈັດສົ່ງ --</option>
+                        {settings.onlineShopShippingMethods.map(m => (
+                          <option key={m.id} value={m.id}>
+                            {m.name} (+{m.baseRate.toLocaleString()} ₭)
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
                   <div className="form-group">
                     <label className="form-label" style={{ fontSize: '0.75rem' }}>ຊື່ຜູ້ຮັບສິນຄ້າ *</label>
                     <input type="text" className="form-control" required value={recipientName} onChange={(e) => setRecipientName(e.target.value)} style={{ background: '#1c1916' }} />
@@ -1112,9 +1338,23 @@ export default function OnlineShop() {
                       )}
                     </div>
                     <div style={{ fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '2px', color: '#fff' }}>
-                      <div><b>ທະນາຄານ:</b> {settings.bankName || 'BCEL One'}</div>
-                      <div><b>ຊື່ບັນຊີ:</b> {settings.bankAccountName || 'ຮ້ານຂອບພຣະ'}</div>
-                      <div><b>ເລກບັນຊີ:</b> {settings.bankAccountNumber || '010XXXXXXXXXXXX'}</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left', background: 'rgba(0,0,0,0.2)', padding: '10px', borderRadius: '8px', fontSize: '0.78rem' }}>
+                        {settings.onlineShopBankAccounts && settings.onlineShopBankAccounts.length > 0 ? (
+                          settings.onlineShopBankAccounts.map((acc, idx) => (
+                            <div key={acc.id} style={{ borderBottom: idx < settings.onlineShopBankAccounts.length - 1 ? '1px dashed rgba(255,255,255,0.05)' : 'none', paddingBottom: '6px', marginTop: idx > 0 ? '6px' : '0' }}>
+                              <div><b>ທະນາຄານ:</b> {acc.bankName}</div>
+                              <div><b>ຊື່ບັນຊີ:</b> {acc.accName}</div>
+                              <div><b>ເລກບັນຊີ:</b> <span style={{ fontFamily: 'monospace', color: 'var(--gold-primary)' }}>{acc.accNum}</span></div>
+                            </div>
+                          ))
+                        ) : (
+                          <div>
+                            <div><b>ທະນາຄານ:</b> {settings.bankName || 'BCEL One'}</div>
+                            <div><b>ຊື່ບັນຊີ:</b> {settings.bankAccountName || 'ຮ້ານຂອບພຣະ'}</div>
+                            <div><b>ເລກບັນຊີ:</b> <span style={{ fontFamily: 'monospace', color: 'var(--gold-primary)' }}>{settings.bankAccountNumber || '010XXXXXXXXXXXX'}</span></div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -1645,7 +1885,7 @@ export default function OnlineShop() {
           }}
         >
           <span style={{ fontSize: '1.25rem' }}>🛍️</span>
-          <span>ສິນຄ້າ</span>
+          <span>{t('home', 'ສິນຄ້າ')}</span>
         </button>
 
         <button
@@ -1669,7 +1909,7 @@ export default function OnlineShop() {
               {cart.reduce((sum, i) => sum + i.qty, 0)}
             </span>
           )}
-          <span>ຕະກ່າ</span>
+          <span>{t('cart', 'ຕະກ່າ')}</span>
         </button>
 
         <button
@@ -1687,7 +1927,7 @@ export default function OnlineShop() {
           }}
         >
           <span style={{ fontSize: '1.25rem' }}>🔍</span>
-          <span>ຕິດຕາມ</span>
+          <span>{t('tracking', 'ຕິດຕາມ')}</span>
         </button>
 
         <button
@@ -1705,7 +1945,7 @@ export default function OnlineShop() {
           }}
         >
           <span style={{ fontSize: '1.25rem' }}>💬</span>
-          <span>ສອບຖາມ</span>
+          <span>{t('chat', 'ສອບຖາມ')}</span>
         </button>
 
         <button

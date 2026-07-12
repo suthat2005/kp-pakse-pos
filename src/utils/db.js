@@ -225,7 +225,37 @@ const DEFAULT_SETTINGS = {
   barcodeStickerWidth: '40mm',
   barcodeStickerHeight: '25mm',
   barcodeFontSize: '10pt',
-  };
+  // New Online Store Settings
+  onlineShopEmail: '',
+  onlineShopInstagram: '',
+  onlineShopOpenTime: '08:00',
+  onlineShopCloseTime: '21:00',
+  onlineShopThemeColor: '#3498db',
+  onlineShopAccentColor: '#f1c40f',
+  onlineShopFontFamily: 'Outfit, Phetsarath OT, sans-serif',
+  onlineShopFontSize: 'medium',
+  onlineShopLayout: 'grid',
+  onlineShopProductSort: 'default',
+  onlineShopSalesEnabled: true,
+  onlineShopDisabledCategories: [],
+  onlineShopMarkupPercent: 0,
+  onlineShopMemberDiscountEnabled: true,
+  onlineShopShippingMethods: [
+    { id: 'delivery', name: 'ຈັດສົ່ງເຖິງທີ່ (Delivery)', baseRate: 15000 },
+    { id: 'pickup', name: 'ຮັບຢູ່ໜ້າຮ້ານ (Store Pickup)', baseRate: 0 }
+  ],
+  onlineShopFreeShippingThreshold: 0,
+  onlineShopShippingAreas: [],
+  onlineShopEnableQR: true,
+  onlineShopEnableCOD: false,
+  onlineShopBankAccounts: [],
+  onlineShopAutoSyncStock: true,
+  onlineShopPosRedirectSlot: 'SLOT1',
+  onlineShopLowStockThreshold: 5,
+  onlineShopAlertSound: true,
+  onlineShopAccessPinRequired: false,
+  onlineShopTranslations: {}
+};
 
 export const DEFAULT_LABEL_KEYS = [
   { key: 'tab_pos', defaultValue: "💵 ຂາຍໜ້າຮ້ານ (POS)", desc: 'ແທັບ ຂາຍໜ້າຮ້ານ (POS)', section: 'navigation' },
