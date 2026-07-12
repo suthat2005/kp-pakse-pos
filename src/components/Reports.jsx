@@ -283,7 +283,7 @@ export default function Reports({ activeUser, isMobile }) {
     } catch (e) {
       return [];
     }
-  }, [salesUpdated]);
+  }, [allOrders, allExpenses]);
 
   const lowStockCount = useMemo(() => {
     try {
@@ -291,7 +291,7 @@ export default function Reports({ activeUser, isMobile }) {
     } catch(e) {
       return 0;
     }
-  }, [salesUpdated]);
+  }, [allProducts]);
 
   const pendingOnlineOrders = useMemo(() => {
     try {
@@ -299,7 +299,7 @@ export default function Reports({ activeUser, isMobile }) {
     } catch (e) {
       return 0;
     }
-  }, [salesUpdated]);
+  }, [allOnlineOrders]);
 
   const [deleteError, setDeleteError] = useState('');
 
