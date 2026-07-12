@@ -27,10 +27,12 @@ const hasPermission = (user, tabKey) => {
   if (user.role === 'owner') return true;
   if (user.permissions) {
     if (user.permissions.admin) return true;
+    if (tabKey === 'framing_board') return !!user.permissions.framing;
     return !!user.permissions[tabKey];
   }
   // Fallback defaults for legacy users:
-  if (tabKey === 'pos') return true;
+  if (tabKey === 'pos') return user.role !== 'technician';
+  if (tabKey === 'framing_board') return user.role === 'owner' || user.role === 'technician';
   if (tabKey === 'inventory') return user.role === 'owner';
   if (tabKey === 'hrm') return user.role === 'owner';
   if (tabKey === 'reports') return user.role === 'owner';
@@ -354,7 +356,11 @@ export default function App() {
   };
 
   const adjustDefaultTabForRole = (role) => {
-    setActiveTab('pos');
+    if (role === 'technician') {
+      setActiveTab('framing_board');
+    } else {
+      setActiveTab('pos');
+    }
   };
 
   const handleLoginSuccess = (user) => {
@@ -908,12 +914,26 @@ export default function App() {
               className={`sidebar-item ${activeTab === 'pos' ? 'active' : ''}`}
               onClick={() => { setActiveTab('pos'); setMobileSidebarOpen(false); }}
             >
-              <span className="sidebar-icon">{activeUser.role === 'technician' ? '🛠️' : '💵'}</span>
+              <span className="sidebar-icon">💵</span>
               {!sidebarCollapsed && (
                 <span className="sidebar-label">
-                  {activeUser.role === 'technician'
-                    ? cleanSidebarLabel(db.getLabel('tab_framing', '🛠️ ງານອັດກອບ (Framing)'))
-                    : cleanSidebarLabel(db.getLabel('tab_pos', '💵 ຂາຍໜ້າຮ້ານ (POS)'))}
+                  {cleanSidebarLabel(db.getLabel('tab_pos', '💵 ຂາຍໜ້າຮ້ານ (POS)'))}
+                </span>
+              )}
+            </button>
+          )}
+
+          {/* 2b. Framing Board */}
+          {hasPermission(activeUser, 'framing_board') && !isMobile && (
+            <button
+              type="button"
+              className={`sidebar-item ${activeTab === 'framing_board' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('framing_board'); setMobileSidebarOpen(false); }}
+            >
+              <span className="sidebar-icon">🛠️</span>
+              {!sidebarCollapsed && (
+                <span className="sidebar-label">
+                  {cleanSidebarLabel(db.getLabel('tab_framing', '🛠️ ບອດງານອັດກອບ (Framing Board)'))}
                 </span>
               )}
             </button>
@@ -1028,7 +1048,8 @@ export default function App() {
               ☰
             </button>
             <span className="active-route-name" style={isMobile ? { fontSize: '0.85rem', whiteSpace: 'nowrap', maxWidth: '85px', overflow: 'hidden', textOverflow: 'ellipsis' } : {}}>
-              {activeTab === 'pos' && (isMobile ? 'POS' : (activeUser.role === 'technician' ? '🛠️ ງານອັດກອບ' : '💵 ຂາຍໜ້າຮ້ານ (POS)'))}
+              {activeTab === 'pos' && (isMobile ? 'POS' : '💵 ຂາຍໜ້າຮ້ານ (POS)')}
+              {activeTab === 'framing_board' && (isMobile ? 'ງານອັດກອບ' : '🛠️ ບອດງານອັດກອບ (Framing Board)')}
               {activeTab === 'inventory' && (isMobile ? 'ສະຕັອກ' : '📦 ຈັດການສະຕັອກ & ວັດຖຸດິບ (Inventory)')}
               {activeTab === 'hrm' && (isMobile ? 'HRM' : '👥 ຈັດການບຸກຄະລາກອນ & ເງິນເດືອນ (HRM)')}
               {activeTab === 'reports' && (isMobile ? 'ລາຍງານ' : '📊 ບົດລາຍງານຍອດຂາຍ & ລາຍຈ່າຍ (Reports)')}
@@ -1341,6 +1362,20 @@ export default function App() {
                   onTabChange={setActiveTab}
                   onTrackJob={setTrackingJobId}
                   isMobile={isMobile}
+                />
+              )}
+
+              {activeTab === 'framing_board' && hasPermission(activeUser, 'framing_board') && (
+                <POS
+                  key={`framing-${activeUser.id}`}
+                  activeUser={activeUser}
+                  onUpdate={handleSystemUpdate}
+                  redirectedCartItem={redirectedCartItem}
+                  clearRedirectedCartItem={() => setRedirectedCartItem(null)}
+                  onTabChange={setActiveTab}
+                  onTrackJob={setTrackingJobId}
+                  isMobile={isMobile}
+                  initialViewMode="framing"
                 />
               )}
               
@@ -2020,14 +2055,27 @@ export default function App() {
       {/* Bottom Navigation for Mobile */}
       {activeUser && (
         <nav className="bottom-nav">
-          <button
-            type="button"
-            className={`bottom-nav-item ${activeTab === 'pos' ? 'active' : ''}`}
-            onClick={() => setActiveTab('pos')}
-          >
-            <span className="bottom-nav-icon">💵</span>
-            <span>POS</span>
-          </button>
+          {hasPermission(activeUser, 'pos') && (
+            <button
+              type="button"
+              className={`bottom-nav-item ${activeTab === 'pos' ? 'active' : ''}`}
+              onClick={() => setActiveTab('pos')}
+            >
+              <span className="bottom-nav-icon">💵</span>
+              <span>POS</span>
+            </button>
+          )}
+
+          {hasPermission(activeUser, 'framing_board') && (
+            <button
+              type="button"
+              className={`bottom-nav-item ${activeTab === 'framing_board' ? 'active' : ''}`}
+              onClick={() => setActiveTab('framing_board')}
+            >
+              <span className="bottom-nav-icon">🛠️</span>
+              <span>Framing</span>
+            </button>
+          )}
 
           {activeUser.role === 'owner' && (
             <button

@@ -186,7 +186,7 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
     setTimeout(() => setSuccessMsg(''), 3000);
   };
 
-  const filteredDebts = debts.filter(d =>
+  const filteredDebts = debts.filter(d => d.status === 'unpaid').filter(d =>
     d.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     d.customerPhone.includes(searchQuery) ||
     d.id.toLowerCase().includes(searchQuery.toLowerCase())

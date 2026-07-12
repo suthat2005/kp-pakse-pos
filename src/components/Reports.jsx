@@ -2417,6 +2417,52 @@ export default function Reports({ activeUser, isMobile }) {
             </div>
           </div>
 
+          {/* Charts Section */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+            {/* Trend Chart (Revenue Chart) */}
+            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h4 style={{ color: 'var(--gold-primary)', margin: 0 }}>📈 ແນວໂນ້ມລາຍຮັບ / Revenue Trend</h4>
+                <select
+                  value={trendChartStyle}
+                  onChange={(e) => {
+                    setTrendChartStyle(e.target.value);
+                    localStorage.setItem('rep_trend_style', e.target.value);
+                  }}
+                  style={{ background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.75rem' }}
+                >
+                  <option value="3d-bar">ກຣາຟແທ່ງ 3D (3D Bar)</option>
+                  <option value="3d-ribbon">ກຣາຟເສັ້ນ 3D (3D Ribbon)</option>
+                  <option value="2d-area">ກຣາຟພື້ນທີ່ 2D (2D Area)</option>
+                </select>
+              </div>
+              <div style={{ height: '240px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {renderTrendChart()}
+              </div>
+            </div>
+
+            {/* Category Chart (Product Sales) */}
+            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h4 style={{ color: 'var(--gold-primary)', margin: 0 }}>📊 ສັດສ່ວນຍອດຂາຍສິນຄ້າ / Category Sales</h4>
+                <select
+                  value={categoryChartStyle}
+                  onChange={(e) => {
+                    setCategoryChartStyle(e.target.value);
+                    localStorage.setItem('rep_category_style', e.target.value);
+                  }}
+                  style={{ background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.75rem' }}
+                >
+                  <option value="3d-donut">ກຣາຟວົງມົນ 3D (3D Donut)</option>
+                  <option value="3d-bar">ກຣາຟແທ່ງ 3D (3D Bar)</option>
+                </select>
+              </div>
+              <div style={{ height: '240px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {renderDonutChart()}
+              </div>
+            </div>
+          </div>
+
           {/* Channel contribution bar */}
           {ovTotalRevenue > 0 && (
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
