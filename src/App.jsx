@@ -613,27 +613,30 @@ export default function App() {
           display: flex;
           align-items: center;
           gap: 12px;
-          padding: 10px 12px;
+          padding: 12px 16px;
           background: transparent;
-          border: 1.5px solid transparent;
-          border-radius: var(--user-radius-md, var(--radius-md, 6px));
+          border: none;
+          border-left: 3px solid transparent;
           color: var(--text-secondary);
           font-family: inherit;
-          font-size: 0.85rem;
+          font-size: 0.88rem;
           font-weight: 500;
           text-align: left;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
           width: 100%;
         }
         .sidebar-item:hover {
-          background: rgba(255, 255, 255, 0.03);
-          color: white;
+          background: var(--bg-card-hover);
+          color: var(--text-primary);
+          border-left-color: var(--gold-primary);
+          padding-left: 20px;
         }
         .sidebar-item.active {
-          background: linear-gradient(95deg, var(--user-gold-glow, var(--gold-glow)) 0%, rgba(212,175,55,0.02) 100%);
-          border-color: rgba(212, 175, 55, 0.3);
-          color: var(--user-gold-primary, var(--gold-primary));
+          background: rgba(212, 175, 55, 0.08);
+          border-left-color: var(--gold-primary);
+          color: var(--gold-primary);
+          font-weight: 600;
         }
         .sidebar-icon {
           font-size: 1.1rem;

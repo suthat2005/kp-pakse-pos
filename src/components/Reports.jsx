@@ -245,7 +245,54 @@ export default function Reports({ activeUser, isMobile }) {
         setEditError(`ລະບົບລັອກຊົ່ວຄາວ: ກະລຸນາລໍຖ້າອີກ ${secs} ວິນາທີ`);
       }
     }, 1000);
-    return () => clearInterval(interval);
+    // 1. Compute Recent Activity Timeline items & Alerts
+  const recentTimelineItems = useMemo(() => {
+    try {
+      const orders = db.getOrders() || [];
+      const expenses = db.getExpenses() || [];
+      const items = [];
+      
+      orders.slice(-10).forEach(o => {
+        items.push({
+          type: 'success',
+          title: `ບິນຂາຍໜ້າຮ້ານ #${o.id.slice(-6)}`,
+          desc: `ຍອດ: ${o.total.toLocaleString()} ₭ (${o.paymentMethod === 'transfer' ? 'ໂອນ' : 'ເງິນສົດ'})`,
+          time: new Date(o.date)
+        });
+      });
+      
+      expenses.slice(-10).forEach(ex => {
+        items.push({
+          type: 'danger',
+          title: `ບັນທຶກລາຍຈ່າຍ: ${ex.categoryName || ex.category}`,
+          desc: `ຍອດ: -${ex.amount.toLocaleString()} ₭ (${ex.paymentMethod === 'transfer' ? 'ໂอน' : 'ເງິນສົດ'})`,
+          time: new Date(ex.date)
+        });
+      });
+      
+      return items.sort((a, b) => b.time - a.time).slice(0, 8);
+    } catch (e) {
+      return [];
+    }
+  }, [salesUpdated]);
+
+  const lowStockCount = useMemo(() => {
+    try {
+      return (db.getProducts() || []).filter(p => !db.isServiceCategory(p.category) && p.stock <= p.minStock).length;
+    } catch(e) {
+      return 0;
+    }
+  }, [salesUpdated]);
+
+  const pendingOnlineOrders = useMemo(() => {
+    try {
+      return (db.getOnlineOrders() || []).filter(o => o.status === 'pending').length;
+    } catch (e) {
+      return 0;
+    }
+  }, [salesUpdated]);
+
+  return () => clearInterval(interval);
   }, [lockoutUntil]);
   const [deleteError, setDeleteError] = useState('');
 
@@ -2781,8 +2828,12 @@ export default function Reports({ activeUser, isMobile }) {
       {reportTab === 'overview' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
-          {/* Combined KPI */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
+          {/* Double Column Overview Dashboard Layout */}
+          <div className="reports-dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '24px' }}>
+            
+            {/* Left Column: Interactive Stats & Combined KPI */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
             {/* 1. POS Revenue */}
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #9b59b6' }}>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🏪 ຍອດ POS ໜ້າຮ້ານ</span>
@@ -3024,6 +3075,71 @@ export default function Reports({ activeUser, isMobile }) {
               </div>
             </div>
           )}
+
+            </div>
+
+            {/* Right Column: Alerts, Quick Actions, and Live Activity Timeline */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              
+              {/* Notifications Widget */}
+              <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px' }}>
+                <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.9rem' }}>🔔 ແຈ້ງເຕືອນລະບົບ (System Alerts)</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {lowStockCount > 0 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255, 77, 79, 0.1)', border: '1px solid rgba(255, 77, 79, 0.2)', fontSize: '0.78rem', color: 'var(--alert-red)' }}>
+                      <span>⚠️ ສິນຄ້າໃກ້ໝົດສະຕັອກ: <strong>{lowStockCount}</strong> ລາຍການ</span>
+                    </div>
+                  )}
+                  {pendingOnlineOrders > 0 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(229, 169, 59, 0.1)', border: '1px solid rgba(229, 169, 59, 0.2)', fontSize: '0.78rem', color: 'var(--accent-amber)' }}>
+                      <span>🛒 ອໍເດີ້ອອນລາຍລໍຖ້າກວດສອບ: <strong>{pendingOnlineOrders}</strong> ບິນ</span>
+                    </div>
+                  )}
+                  {lowStockCount === 0 && pendingOnlineOrders === 0 && (
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>✓ ບໍ່ມີແຈ້ງເຕືອນທີ່ຕ້ອງການຈັດການ</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Quick Actions Panel */}
+              <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px' }}>
+                <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.9rem' }}>⚡ ຈັດການດ່ວນ (Quick Actions)</h4>
+                <div className="quick-action-grid">
+                  <div className="quick-action-card" onClick={() => {
+                    const event = new CustomEvent('trigger-expense-modal');
+                    window.dispatchEvent(event);
+                  }}>
+                    <span className="quick-action-icon">💸</span>
+                    <span className="quick-action-label">ບັນທຶກລາຍຈ່າຍ</span>
+                  </div>
+                  <div className="quick-action-card" onClick={() => {
+                    if (onTabChange) onTabChange('customers');
+                  }}>
+                    <span className="quick-action-icon">💳</span>
+                    <span className="quick-action-label">ຈັດການສະມາຊິກ</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Live Timeline Activity Feed */}
+              <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px' }}>
+                <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.9rem' }}>🕒 ປະຫວັດເຄື່ອນໄຫວ (Live Activity)</h4>
+                <div className="timeline-list">
+                  {recentTimelineItems.length === 0 ? (
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ບໍ່ມີການເຄື່ອນໄຫວ</span>
+                  ) : recentTimelineItems.map((item, idx) => (
+                    <div key={idx} className={`timeline-item ${item.type}`}>
+                      <span className="timeline-dot" />
+                      <span className="timeline-content" style={{ fontWeight: '500' }}>{item.title}</span>
+                      <span className="timeline-time">{item.desc} • {item.time.toLocaleTimeString('lo-LA', { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+
+          </div>
 
         </div>
       )}

@@ -3332,25 +3332,35 @@ export default function POS({
           {/* Left Panel: Category selection list + Product cards grid (Image 1 style) */}
           <div className="products-panel" style={{ height: '100%' }}>
             
-            <div className="pos-search-bar" style={{ padding: '8px 12px' }}>
+            <div className="pos-search-bar" style={{ padding: '12px 16px', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', display: 'flex' }}>
               
               {/* Back to Queue Grid button */}
               <button
-                className="btn btn-secondary"
-                style={{ background: '#e67e22', color: 'white', borderColor: '#d35400', padding: '6px 12px', fontSize: '0.85rem', fontWeight: 'bold' }}
+                type="button"
+                className="btn"
+                style={{ background: 'var(--accent-amber)', color: 'black', padding: '8px 16px', fontSize: '0.85rem', fontWeight: 'bold', border: 'none', borderRadius: 'var(--radius-sm)' }}
                 onClick={() => setViewMode('slots')}
               >
-                ⬅️ ໜ້າບັດຄິວ (Queue Grid)
+                ⬅️ ບັດຄິວ (Queue)
               </button>
 
-              <input
-                type="text"
-                className="form-control"
-                placeholder="ຄົ້ນຫາຊື່ສິນຄ້າ..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ flex: 1 }}
-              />
+              <div style={{ position: 'relative', flex: 1 }}>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="ຄົ້ນຫາສິນຄ້າ ຫຼື ສະແກນບາໂຄດ..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{ width: '100%', paddingLeft: '38px', height: '40px', background: 'var(--bg-main)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', borderRadius: 'var(--radius-sm)' }}
+                />
+                <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>🔍</span>
+              </div>
+              
+              {/* Barcode scanner status indicator */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '20px', background: 'rgba(46, 204, 113, 0.08)', border: '1px solid rgba(46, 204, 113, 0.2)', fontSize: '0.72rem', color: 'var(--success-green)', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                <span className="pulse-dot-online" style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--success-green)', display: 'inline-block' }} />
+                <span>ស្កែនន័ររួចរាល់ (Scanner Connected)</span>
+              </div>
             </div>
 
             {/* Categories selector */}
@@ -3494,6 +3504,37 @@ export default function POS({
                       <div style={{ fontSize: '0.75rem', color: 'var(--gold-primary)', marginTop: '2px' }}>
                         {(item.price || 0).toLocaleString()} x {item.qty} {db.isServiceCategory(item.category) ? 'ຄັ້ງ' : 'ອັນ'}
                       </div>
+                    </div>
+
+                    {/* Touch Friendly Qty Control Block */}
+                    <div className="cart-item-controls" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: '8px' }}>
+                      <button
+                        type="button"
+                        className="touch-qty-btn"
+                        onClick={() => {
+                          const newQty = item.qty - 1;
+                          if (newQty <= 0) {
+                            handleDeleteCartItemClick(idx);
+                          } else {
+                            const prod = products.find(p => p.id === item.productId);
+                            if (prod) updateCartQty(prod, newQty);
+                          }
+                        }}
+                      >
+                        -
+                      </button>
+                      <span style={{ fontSize: '0.85rem', fontWeight: '600', minWidth: '16px', textAlign: 'center' }}>{item.qty}</span>
+                      <button
+                        type="button"
+                        className="touch-qty-btn"
+                        onClick={() => {
+                          const newQty = item.qty + 1;
+                          const prod = products.find(p => p.id === item.productId);
+                          if (prod) updateCartQty(prod, newQty);
+                        }}
+                      >
+                        +
+                      </button>
                     </div>
                     
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
