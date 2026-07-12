@@ -2677,25 +2677,7 @@ export default function POS({
         `}
             </style>
       
-      {/* Sub-navigation for Slots Grid vs Kanban Framing Board */}
-      {viewMode !== 'menu' && activeUser.role !== 'technician' && !initialViewMode && (
-        <div className="no-print" style={{ display: 'flex', gap: '10px', marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
-          <button
-            className={`btn ${viewMode === 'slots' ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setViewMode('slots')}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', padding: '6px 12px', borderRadius: '8px' }}
-          >
-            📿 ບັດຄິວອັດກອບພຣະ (Slots Board)
-          </button>
-          <button
-            className={`btn ${viewMode === 'framing' ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setViewMode('framing')}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', padding: '6px 12px', borderRadius: '8px' }}
-          >
-            🛠️ ບອດຈັດການງານອັດກອບ (Framing Board)
-          </button>
-        </div>
-      )}
+
 
       {viewMode === 'slots' ? (
         <div className="glass-card animate-fade-in" style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '16px', background: 'none', border: 'none', padding: 0 } : { height: activeUser.role === 'technician' ? '100%' : 'calc(100% - 58px)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -4113,23 +4095,7 @@ export default function POS({
               <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px', overflowY: 'auto' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(255,255,255,0.02)', padding: '12px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
                   <div>
-                    <label className="form-label" style={{ marginBottom: '6px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>ປະເພດການບໍລິການ / Service Type *</label>
-                    <select
-                      className="form-input"
-                      style={{ width: '100%', background: '#191613', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px', fontSize: '0.85rem' }}
-                      value={serviceConfigProduct.id}
-                      onChange={(e) => {
-                        const newProd = products.find(p => p.id === e.target.value);
-                        if (newProd) {
-                          setServiceConfigProduct(newProd);
-                          setServiceConfigPrice(newProd.price);
-                        }
-                      }}
-                    >
-                      {products.filter(p => db.isServiceCategory(p.category)).map(p => (
-                        <option key={p.id} value={p.id}>{p.name} (₭{(p.price || 0).toLocaleString()})</option>
-                      ))}
-                    </select>
+                    <div style={{ fontWeight: 'bold', fontSize: '1rem', color: 'white' }}>{serviceConfigProduct.name}</div>
                   </div>
 
                   <div>
