@@ -166,8 +166,8 @@ export default function Login({ onLoginSuccess }) {
   };
 
   return (
-    <div className="login-screen">
-      <div className="login-card animate-fade-in" style={{ padding: '35px 30px', maxWidth: '400px', width: '100%' }}>
+    <div className="login-screen" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'radial-gradient(circle at center, #0e1220 0%, var(--bg-main) 100%)', padding: '20px' }}>
+      <div className="login-card glass-card animate-modal-entry" style={{ padding: '40px 32px', maxWidth: '400px', width: '100%', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-lg)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)', background: 'var(--glass-bg)', backdropFilter: 'var(--glass-blur)' }}>
         
         {/* Logo Section (Image or SVG Fallback) */}
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
@@ -218,6 +218,7 @@ export default function Login({ onLoginSuccess }) {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                style={{ height: '44px', borderRadius: 'var(--radius-sm)', background: 'var(--bg-main)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '0 14px' }}
               />
             </div>
 
@@ -230,6 +231,7 @@ export default function Login({ onLoginSuccess }) {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                style={{ height: '44px', borderRadius: 'var(--radius-sm)', background: 'var(--bg-main)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '0 14px' }}
               />
             </div>
 
@@ -243,7 +245,7 @@ export default function Login({ onLoginSuccess }) {
               </button>
             </div>
 
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '12px', fontWeight: 'bold' }}>
+            <button type="submit" className="btn btn-primary" style={{ width: '100%', height: '44px', fontWeight: 'bold', borderRadius: 'var(--radius-sm)', marginTop: '6px' }}>
               {db.getLabel('login_btn_text', '🚀 ເຂົ້າສູ່ລະບົບ')}
             </button>
           </form>
