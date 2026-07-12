@@ -2830,7 +2830,7 @@ export default function POS({
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text'
                 }}>{db.getLabel('pos_board_title', '📿 ບັດຄິວອັດກອບພຣະເຄື່ອງ')}</h2>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', margin: '4px 0 0' }}>{db.getLabel('pos_board_subtitle', 'ແຕະບັດຄິວเพื่อເລີ່ມລາຍການ • ຄລິກ ✏️ ເພື່ອແກ້ໄຂລູກຄ້າ')}</p>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', margin: '4px 0 0' }}>{db.getLabel('pos_board_subtitle', 'ແຕະບັດຄິວເພື່ອເລີ່ມລາຍການ • ຄລິກ ✏️ ເພື່ອແກ້ໄຂລູກຄ້າ')}</p>
               </div>
               <button
                 type="button"
@@ -5235,7 +5235,7 @@ export default function POS({
 
                     {/* Summary of target */}
                     <div style={{ background: 'rgba(212,175,55,0.08)', borderRadius: '10px', padding: '10px 14px', border: '1px solid rgba(212,175,55,0.2)', textAlign: 'center' }}>
-                      <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>ຍອດລວມເງິນສົດและເງິນໂອນ: </span>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>ຍອດລວມເງິນສົດ ແລະ ເງິນໂອນ: </span>
                       <span style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
                         {(Number(cashReceived || 0) + Number(transferAmount || 0)).toLocaleString()} {payCurrency === 'LAK' ? '₭' : payCurrency === 'THB' ? '฿' : '$'}
                       </span>

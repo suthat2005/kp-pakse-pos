@@ -1235,7 +1235,7 @@ export default function AIDetector({ activeUser }) {
                 {stats.manualDrawers > 0 && (
                   <div style={{ background: 'rgba(231, 76, 60, 0.08)', border: '1px solid rgba(231, 76, 60, 0.2)', borderLeft: '4px solid var(--alert-red)', padding: '10px', borderRadius: '6px', fontSize: '0.8rem' }}>
                     <div style={{ color: 'var(--alert-red)', fontWeight: 'bold', marginBottom: '2px' }}>🚨 ເປີດລິ້ນຊັກເປີດດ້ວຍມື ({stats.manualDrawers} ຄັ້ງ)</div>
-                    <p style={{ color: 'var(--text-primary)' }}>ມີການเປີດລິ້ນຊັກເກັບເງິນດ້ວຍມືໂດຍບໍ່ໄດ້ເກີດຈາກການຂາຍ/ອອກບິນສົດ (Manual release). ລະບົບ AI ແນະນຳໃຫ້ກວດສອບກ້ອງວົງຈອນປິດຕາມເວລາໃນບັນທຶກ.</p>
+                    <p style={{ color: 'var(--text-primary)' }}>ມີການເປີດລິ້ນຊັກເກັບເງິນດ້ວຍມືໂດຍບໍ່ໄດ້ເກີດຈາກການຂາຍ/ອອກບິນສົດ (Manual release). ລະບົບ AI ແນະນຳໃຫ້ກວດສອບກ້ອງວົງຈອນປິດຕາມເວລາໃນບັນທຶກ.</p>
                   </div>
                 )}
 

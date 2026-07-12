@@ -4239,7 +4239,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   style={{ width: '20px', height: '20px', cursor: 'pointer' }}
                 />
                 <label htmlFor="dataRetentionEnabled" className="form-label" style={{ margin: 0, cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}>
-                  เปิดใช้งานການລຶບຂໍ້ມູນອັດຕະໂນມັດ (Enable Auto-Delete)
+                  ເປີດໃຊ້ງານການລຶບຂໍ້ມູນອັດຕະໂນມັດ (Enable Auto-Delete)
                 </label>
               </div>
 

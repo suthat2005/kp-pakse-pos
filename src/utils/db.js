@@ -488,7 +488,7 @@ export const DEFAULT_LABEL_KEYS = [
   { key: 'hrm_salary_base', defaultValue: "ເງິນເດືອນພື້ນຖານ", desc: 'ປ້າຍກຳກັບ ເງິນເດືອນພື້ນຖານສະລິບ (HRM)', section: 'hrm' },
   { key: 'hrm_salary_bonus', defaultValue: "ໂບນັດ / ຄ່າຄອມມິດຊັ່ນ", desc: 'ປ້າຍກຳກັບ ໂບນັດ/ຄອມມິດຊັ່ນ (HRM)', section: 'hrm' },
   { key: 'hrm_salary_deduct', defaultValue: "ຫັກການລາພັກ / ຂາດງານ", desc: 'ປ້າຍກຳກັບ ຫັກເງິນລາພັກ (HRM)', section: 'hrm' },
-  { key: 'hrm_btn_pay', defaultValue: "💵 ຈ່າຍເງິນເດືອນ", desc: 'ປຸ່ມ ຈ່າຍเງິນເດືອນ (HRM)', section: 'hrm' }
+  { key: 'hrm_btn_pay', defaultValue: "💵 ຈ່າຍເງິນເດືອນ", desc: 'ປຸ່ມ ຈ່າຍເງິນເດືອນ (HRM)', section: 'hrm' }
 ,
   // --- Product & Service Category Labels ---
   { key: 'cat_all', defaultValue: "ທັງໝົດ", desc: 'ໝວດໝູ່ ທັງໝົດ (All Categories)', section: 'inventory' },
