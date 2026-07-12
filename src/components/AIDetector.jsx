@@ -1279,7 +1279,7 @@ export default function AIDetector({ activeUser }) {
             </div>
 
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', textAlign: 'left' }}>
+              <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--gold-primary)', fontSize: '0.85rem' }}>
                     <th style={{ padding: '10px' }}>ວັນເວລາ (Timestamp)</th>
