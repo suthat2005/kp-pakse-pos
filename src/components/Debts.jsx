@@ -187,9 +187,9 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
   };
 
   const filteredDebts = debts.filter(d => d.status === 'unpaid').filter(d =>
-    d.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    d.customerPhone.includes(searchQuery) ||
-    d.id.toLowerCase().includes(searchQuery.toLowerCase())
+    (d.customerName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (d.customerPhone || '').includes(searchQuery) ||
+    (d.id || '').toLowerCase().includes(searchQuery.toLowerCase())
   ).sort((a, b) => new Date(b.date) - new Date(a.date));
 
   return (

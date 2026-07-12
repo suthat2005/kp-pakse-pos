@@ -2079,6 +2079,49 @@ console.error(e);
 }
 }
 
+function autoTimestampModifiedItems(newList, oldList, keyField = 'id') {
+  if (!Array.isArray(newList)) return newList;
+  const oldMap = new Map();
+  if (Array.isArray(oldList)) {
+    oldList.forEach(item => {
+      if (item && item[keyField] !== undefined) {
+        oldMap.set(String(item[keyField]), item);
+      }
+    });
+  }
+
+  const now = Date.now();
+  return newList.map(item => {
+    if (!item || item[keyField] === undefined) return item;
+    const oldItem = oldMap.get(String(item[keyField]));
+    if (!oldItem) {
+      return { ...item, updatedAt: item.updatedAt || now };
+    } else {
+      let modified = false;
+      for (const [k, v] of Object.entries(item)) {
+        if (k === 'updatedAt') continue;
+        if (JSON.stringify(v) !== JSON.stringify(oldItem[k])) {
+          modified = true;
+          break;
+        }
+      }
+      if (!modified) {
+        for (const k of Object.keys(oldItem)) {
+          if (k === 'updatedAt') continue;
+          if (item[k] === undefined) {
+            modified = true;
+            break;
+          }
+        }
+      }
+      if (modified) {
+        return { ...item, updatedAt: now };
+      }
+      return oldItem;
+    }
+  });
+}
+
 export const db = {
   _initialized: false,
   init() {
@@ -2457,7 +2500,9 @@ this.init();
 return getStorage('debts', DEFAULT_DEBTS);
 },
 saveDebts(debts) {
-setStorage('debts', debts);
+  const oldList = this.getDebts();
+  const timestamped = autoTimestampModifiedItems(debts, oldList);
+  setStorage('debts', timestamped);
 },
 addDebt(debtData) {
     const debts = this.getDebts();
@@ -2602,7 +2647,9 @@ payDebt(debtId) {
     });
   },
 saveProducts(products) {
-setStorage('products', products);
+  const oldList = this.getProducts();
+  const timestamped = autoTimestampModifiedItems(products, oldList);
+  setStorage('products', timestamped);
 },
 addProduct(product) {
 const products = this.getProducts();
@@ -2625,7 +2672,8 @@ id: newId,
 stock: Number(product.stock),
 minStock: Number(product.minStock),
 price: Number(product.price),
-cost: Number(product.cost)
+cost: Number(product.cost),
+updatedAt: Date.now()
 });
 products.push(newProduct);
 this.saveProducts(products);
@@ -2643,7 +2691,8 @@ return newProduct;
         stock: Number(updatedProduct.stock),
         minStock: Number(updatedProduct.minStock),
         price: Number(updatedProduct.price),
-        cost: Number(updatedProduct.cost)
+        cost: Number(updatedProduct.cost),
+        updatedAt: Date.now()
       });
       this.saveProducts(products);
 
@@ -2751,7 +2800,9 @@ setStorage('categories', categories);
     return Array.isArray(orders) ? orders.filter(Boolean) : [];
   },
 saveOrders(orders) {
-setStorage('orders', orders);
+  const oldList = this.getOrders();
+  const timestamped = autoTimestampModifiedItems(orders, oldList);
+  setStorage('orders', timestamped);
 },
   addOrder(orderData) {
     const orders = this.getOrders();
@@ -2871,7 +2922,9 @@ if (hasDuplicates) {
 return jobs;
 },
 saveFramingJobs(jobs) {
-setStorage('framing_jobs', jobs);
+  const oldList = this.getFramingJobs();
+  const timestamped = autoTimestampModifiedItems(jobs, oldList);
+  setStorage('framing_jobs', timestamped);
 },
   // Remove all jobs with status 'picked_up' (Delivered column) from the board
   clearDeliveredJobs() {
@@ -3070,7 +3123,9 @@ this.init();
 return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
 },
   saveAttendance(logs) {
-    setStorage('attendance', logs);
+    const oldList = this.getAttendance();
+    const timestamped = autoTimestampModifiedItems(logs, oldList);
+    setStorage('attendance', timestamped);
   },
   clockInUser(userId, openingCash = 0) {
     const logs = this.getAttendance();
@@ -3255,7 +3310,9 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     return getStorage('expenses', []);
   },
   saveExpenses(expenses) {
-    setStorage('expenses', expenses);
+    const oldList = this.getExpenses();
+    const timestamped = autoTimestampModifiedItems(expenses, oldList);
+    setStorage('expenses', timestamped);
   },
   addExpense(expenseData) {
     const expenses = this.getExpenses();
@@ -4408,7 +4465,9 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     return getStorage('customers', defaultCusts);
   },
   saveCustomers(customers) {
-    setStorage('customers', customers);
+    const oldList = this.getCustomers();
+    const timestamped = autoTimestampModifiedItems(customers, oldList);
+    setStorage('customers', timestamped);
     // triggerDbUpdate(); // Comment out undefined function to avoid ReferenceError
   },
   addCustomer(c) {
@@ -4524,7 +4583,9 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     return getStorage('online_orders', []);
   },
   saveOnlineOrders(orders) {
-    setStorage('online_orders', orders);
+    const oldList = this.getOnlineOrders();
+    const timestamped = autoTimestampModifiedItems(orders, oldList);
+    setStorage('online_orders', timestamped);
   },
   updateOnlineOrder(orderId, changes) {
     const orders = this.getOnlineOrders();

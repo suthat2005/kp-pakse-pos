@@ -43,6 +43,59 @@ try {
   console.error("❌ Failed to initialize Firebase:", err);
 }
 
+// Merge Resolver helpers for Phase 1 Data integrity
+function mergeArrays(arrA, arrB, keyField = 'id') {
+  if (!Array.isArray(arrA)) return Array.isArray(arrB) ? arrB : [];
+  if (!Array.isArray(arrB)) return arrA;
+
+  const map = new Map();
+  arrA.forEach(item => {
+    if (item && item[keyField] !== undefined) {
+      map.set(String(item[keyField]), item);
+    }
+  });
+
+  arrB.forEach(itemB => {
+    if (itemB && itemB[keyField] !== undefined) {
+      const keyStr = String(itemB[keyField]);
+      const itemA = map.get(keyStr);
+      if (!itemA) {
+        map.set(keyStr, itemB);
+      } else {
+        const tsA = Number(itemA.updatedAt || 0);
+        const tsB = Number(itemB.updatedAt || 0);
+        if (tsB > tsA) {
+          map.set(keyStr, itemB);
+        } else if (tsA === tsB) {
+          map.set(keyStr, { ...itemA, ...itemB });
+        }
+      }
+    }
+  });
+
+  return Array.from(map.values());
+}
+
+function mergeObjects(objA, objB) {
+  if (!objA || typeof objA !== 'object') return objB || {};
+  if (!objB || typeof objB !== 'object') return objA;
+
+  const merged = { ...objA };
+  for (const [key, valB] of Object.entries(objB)) {
+    const valA = objA[key];
+    if (!valA) {
+      merged[key] = valB;
+    } else {
+      const tsA = Number(valA.updatedAt || 0);
+      const tsB = Number(valB.updatedAt || 0);
+      if (tsB >= tsA) {
+        merged[key] = valB;
+      }
+    }
+  }
+  return merged;
+}
+
 // Startup cloud sync function
 async function syncFromCloudOnStartup() {
   if (!firestoreDb) return;
@@ -56,7 +109,7 @@ async function syncFromCloudOnStartup() {
     const snapshot = await firestoreDb.collection('pos_db').get();
     let updatedCount = 0;
     
-    snapshot.forEach(doc => {
+    for (const doc of snapshot.docs) {
       const key = doc.id;
       const cloudVal = doc.data();
       const localVal = localDb[key];
@@ -65,17 +118,37 @@ async function syncFromCloudOnStartup() {
       const localTs = Number(localVal?.updatedAt || '0');
       
       if (cloudTs > localTs) {
+        let mergedData;
+        if (Array.isArray(cloudVal.data) && Array.isArray(localVal?.data)) {
+          mergedData = mergeArrays(localVal.data, cloudVal.data);
+        } else if (key === 'slots') {
+          mergedData = mergeObjects(localVal?.data, cloudVal.data);
+        } else if (key === 'settings') {
+          mergedData = { ...localVal?.data, ...cloudVal.data };
+        } else {
+          mergedData = cloudVal.data;
+        }
+
         localDb[key] = {
-          data: cloudVal.data,
-          updatedAt: cloudTs
+          data: mergedData,
+          updatedAt: Math.max(cloudTs, localTs)
         };
         updatedCount++;
       }
-    });
+    }
     
     if (updatedCount > 0) {
       fs.writeFileSync(DB_FILE, JSON.stringify(localDb, null, 2), 'utf8');
-      console.log(`✓ Cloud sync complete. Updated ${updatedCount} tables locally.`);
+      console.log(`✓ Cloud sync complete. Merged updates in ${updatedCount} tables locally.`);
+      
+      // Push merged data back to Firestore to ensure consistency
+      for (const [key, val] of Object.entries(localDb)) {
+        await firestoreDb.collection('pos_db').doc(key).set({
+          data: val.data,
+          updatedAt: val.updatedAt
+        });
+      }
+      console.log(`☁️ Merged database synced back to Cloud Firestore.`);
     } else {
       console.log("✓ Local database is already up to date with Cloud Firestore.");
     }
@@ -406,13 +479,36 @@ const server = http.createServer(async (req, res) => {
             const cloudTs = Number(cloudVal.updatedAt || '0');
             const localTs = Number(localVal?.updatedAt || '0');
             if (cloudTs > localTs) {
-              sharedDb[key] = { data: cloudVal.data, updatedAt: cloudTs };
+              let mergedData;
+              if (Array.isArray(cloudVal.data) && Array.isArray(localVal?.data)) {
+                mergedData = mergeArrays(localVal.data, cloudVal.data);
+              } else if (key === 'slots') {
+                mergedData = mergeObjects(localVal?.data, cloudVal.data);
+              } else if (key === 'settings') {
+                mergedData = { ...localVal?.data, ...cloudVal.data };
+              } else {
+                mergedData = cloudVal.data;
+              }
+
+              sharedDb[key] = { data: mergedData, updatedAt: Math.max(cloudTs, localTs) };
               hasUpdates = true;
             }
           });
           if (hasUpdates) {
             fs.writeFileSync(DB_FILE, JSON.stringify(sharedDb, null, 2), 'utf8');
-            console.log("☁️ Background DB sync from cloud completed: updated local cache.");
+            console.log("☁️ Background DB sync from cloud completed: merged local cache.");
+            
+            // Push merged results back to Firestore to align them
+            snapshot.forEach(doc => {
+              const key = doc.id;
+              const val = sharedDb[key];
+              if (val) {
+                firestoreDb.collection('pos_db').doc(key).set({
+                  data: val.data,
+                  updatedAt: val.updatedAt
+                }).catch(() => {});
+              }
+            });
           }
         }).catch(err => console.warn("Cloud background sync warning:", err.message));
       }
@@ -443,7 +539,52 @@ const server = http.createServer(async (req, res) => {
           sharedDb = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
         }
         const timeNow = updatedAt || Date.now();
-        sharedDb[key] = { data, updatedAt: timeNow };
+        
+        let mergedData = data;
+        const currentServerTable = sharedDb[key];
+        if (currentServerTable) {
+          const arrServer = currentServerTable.data;
+          if (Array.isArray(data) && Array.isArray(arrServer)) {
+            const clientIds = new Set(data.map(item => item.id).filter(id => id !== undefined));
+            const merged = [];
+            
+            // 1. Add/Merge items from the client's payload
+            data.forEach(item => {
+              if (item && item.id !== undefined) {
+                const serverItem = arrServer.find(s => s.id === item.id);
+                if (!serverItem) {
+                  merged.push(item);
+                } else {
+                  const tsC = Number(item.updatedAt || 0);
+                  const tsS = Number(serverItem.updatedAt || 0);
+                  if (tsS > tsC) {
+                    merged.push(serverItem);
+                  } else {
+                    merged.push(item);
+                  }
+                }
+              }
+            });
+
+            // 2. Keep server/cloud items not in client payload if they were updated after client's last pull
+            arrServer.forEach(serverItem => {
+              if (serverItem && serverItem.id !== undefined && !clientIds.has(serverItem.id)) {
+                const tsS = Number(serverItem.updatedAt || 0);
+                if (tsS > updatedAt) {
+                  merged.push(serverItem);
+                }
+              }
+            });
+
+            mergedData = merged;
+          } else if (key === 'slots') {
+            mergedData = mergeObjects(currentServerTable.data, data);
+          } else if (key === 'settings') {
+            mergedData = { ...currentServerTable.data, ...data };
+          }
+        }
+
+        sharedDb[key] = { data: mergedData, updatedAt: timeNow };
         fs.writeFileSync(DB_FILE, JSON.stringify(sharedDb, null, 2), 'utf8');
         
         res.statusCode = 200;
@@ -452,7 +593,7 @@ const server = http.createServer(async (req, res) => {
         // 2. Write to Cloud Firestore database in background
         if (firestoreDb) {
           firestoreDb.collection('pos_db').doc(key).set({
-            data: data,
+            data: mergedData,
             updatedAt: timeNow
           }).then(() => {
             console.log(`☁️ Successfully backed up key [${key}] to Cloud Firestore.`);

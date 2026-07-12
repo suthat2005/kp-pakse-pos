@@ -626,15 +626,15 @@ export default function Reports({ activeUser, isMobile }) {
   const totalDebtors = allDebts.filter(d => d.status === 'unpaid').length;
 
   const filteredOrders = rangeOrders.filter(o => 
-    o.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    o.cashierName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    o.paymentMethod.toLowerCase().includes(searchQuery.toLowerCase())
+    (o.id || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (o.cashierName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (o.paymentMethod || '').toLowerCase().includes(searchQuery.toLowerCase())
   ).sort((a,b) => new Date(b.date) - new Date(a.date));
 
   const filteredDebts = rangeDebts.filter(d =>
-    d.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    d.customerPhone.includes(searchQuery) ||
-    d.id.toLowerCase().includes(searchQuery.toLowerCase())
+    (d.customerName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (d.customerPhone || '').includes(searchQuery) ||
+    (d.id || '').toLowerCase().includes(searchQuery.toLowerCase())
   ).sort((a,b) => new Date(b.date) - new Date(a.date));
 
   // Print Summary receipt template (80mm thermal layout)
@@ -1780,6 +1780,7 @@ export default function Reports({ activeUser, isMobile }) {
                     <th style={{ padding: '12px' }}>ເລກບິນ (ID)</th>
                     <th style={{ padding: '12px' }}>ວັນທີ / ເວລາ</th>
                     <th style={{ padding: '12px' }}>ພະນັກງານຂາຍ</th>
+                    <th style={{ padding: '12px' }}>ລູກຄ້າ / ເບີໂທ</th>
                     <th style={{ padding: '12px', textAlign: 'right' }}>ສ່ວນຫຼຸດ</th>
                     <th style={{ padding: '12px', textAlign: 'right' }}>ຍອດລວມສຸດທິ</th>
                     <th style={{ padding: '12px', textAlign: 'center' }}>ຊ່ອງທາງຊຳລະ</th>
@@ -1789,7 +1790,7 @@ export default function Reports({ activeUser, isMobile }) {
                 <tbody>
                   {filteredOrders.length === 0 ? (
                     <tr>
-                      <td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
+                      <td colSpan="8" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
                         ບໍ່ມີໃບບິນຂາຍໃນຊ່ວງເວລານີ້
                       </td>
                     </tr>
@@ -1812,6 +1813,16 @@ export default function Reports({ activeUser, isMobile }) {
                         </td>
                         <td style={{ padding: '12px' }}>
                           {order.cashierName}
+                        </td>
+                        <td style={{ padding: '12px' }}>
+                          {order.customerName ? (
+                            <>
+                              <div style={{ fontWeight: '500' }}>{order.customerName}</div>
+                              {order.customerPhone && <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{order.customerPhone}</div>}
+                            </>
+                          ) : (
+                            <span style={{ color: 'rgba(255,255,255,0.15)' }}>-</span>
+                          )}
                         </td>
                         <td style={{ padding: '12px', textAlign: 'right', color: 'var(--success-green)' }}>
                           {order.discount > 0 ? `-${order.discount.toLocaleString()} ₭` : '-'}
@@ -1864,11 +1875,11 @@ export default function Reports({ activeUser, isMobile }) {
           <div style={{ overflowX: 'auto' }}>
             {isMobile ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {(filteredDebts.filter(d => !debtSearch || d.id.toLowerCase().includes(debtSearch.toLowerCase()) || d.customerName.toLowerCase().includes(debtSearch.toLowerCase()) || (d.customerPhone || '').includes(debtSearch))).length === 0 ? (
+                {(filteredDebts.filter(d => !debtSearch || (d.id || '').toLowerCase().includes(debtSearch.toLowerCase()) || (d.customerName || '').toLowerCase().includes(debtSearch.toLowerCase()) || (d.customerPhone || '').includes(debtSearch))).length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>ບໍ່ມີລາຍການຕິດໜີ້ໃນຊ່ວງເວລານີ້</div>
                 ) : (
                   filteredDebts
-                    .filter(d => !debtSearch || d.id.toLowerCase().includes(debtSearch.toLowerCase()) || d.customerName.toLowerCase().includes(debtSearch.toLowerCase()) || (d.customerPhone || '').includes(debtSearch))
+                    .filter(d => !debtSearch || (d.id || '').toLowerCase().includes(debtSearch.toLowerCase()) || (d.customerName || '').toLowerCase().includes(debtSearch.toLowerCase()) || (d.customerPhone || '').includes(debtSearch))
                     .map(debt => (
                     <div key={debt.id} className="glass-card" style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px', borderLeft: `4px solid ${debt.status === 'unpaid' ? '#e74c3c' : '#27ae60'}`, border: '1px solid rgba(255,255,255,0.05)' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1935,12 +1946,12 @@ export default function Reports({ activeUser, isMobile }) {
                 </thead>
                 <tbody>
                   {filteredDebts
-                    .filter(d => !debtSearch || d.id.toLowerCase().includes(debtSearch.toLowerCase()) || d.customerName.toLowerCase().includes(debtSearch.toLowerCase()) || (d.customerPhone || '').includes(debtSearch))
+                    .filter(d => !debtSearch || (d.id || '').toLowerCase().includes(debtSearch.toLowerCase()) || (d.customerName || '').toLowerCase().includes(debtSearch.toLowerCase()) || (d.customerPhone || '').includes(debtSearch))
                     .length === 0 ? (
-                    <tr><td colSpan="9" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>ບໍ່ມີລາຍການຕິດໜີ້ໃນຊ່ວງເວລານີ້</td></tr>
+                    <tr><td colSpan="10" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>ບໍ່ມີລາຍການຕິດໜີ້ໃນຊ່ວງເວລານີ້</td></tr>
                   ) : (
                     filteredDebts
-                      .filter(d => !debtSearch || d.id.toLowerCase().includes(debtSearch.toLowerCase()) || d.customerName.toLowerCase().includes(debtSearch.toLowerCase()) || (d.customerPhone || '').includes(debtSearch))
+                      .filter(d => !debtSearch || (d.id || '').toLowerCase().includes(debtSearch.toLowerCase()) || (d.customerName || '').toLowerCase().includes(debtSearch.toLowerCase()) || (d.customerPhone || '').includes(debtSearch))
                       .map(debt => (
                       <tr key={debt.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', fontSize: '0.85rem', borderLeft: `3px solid ${debt.status === 'unpaid' ? '#e74c3c' : '#27ae60'}` }}>
                         <td style={{ padding: '12px', fontWeight: 'bold', color: 'var(--gold-primary)' }}>{debt.id}</td>

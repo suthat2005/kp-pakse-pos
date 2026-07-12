@@ -1807,8 +1807,8 @@ export default function POS({
       alert('ບໍ່ມີລາຍການສິນຄ້າໃນຄິວນີ້!');
       return;
     }
-    setDebtCustomerName('');
-    setDebtCustomerPhone('');
+    setDebtCustomerName(activeSlot.customerName || '');
+    setDebtCustomerPhone(activeSlot.customerPhone || '');
     setDebtNotes('');
     setShowDebtModal(true);
   };
@@ -5305,6 +5305,45 @@ export default function POS({
             </div>
             <form onSubmit={handleProcessDebtSubmit}>
               <div className="modal-body">
+                <div className="form-group" style={{ position: 'relative' }}>
+                  <label className="form-label">🔍 ຄົ້ນຫາຂໍ້ມູນສະມາຊິກ (Search Member)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="ປ້ອນເບີໂທ ຫຼື ຊື່ສະມາຊິກເພື່ອຄົ້ນຫາ..."
+                    value={memberSearchVal}
+                    onChange={(e) => {
+                      setMemberSearchVal(e.target.value);
+                      setShowMemberDropdown(true);
+                    }}
+                    style={{ width: '100%', background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
+                  />
+                  {showMemberDropdown && memberSearchVal.trim() && (
+                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#1c1815', border: '1px solid var(--border-color)', borderRadius: '6px', zIndex: 100, maxHeight: '140px', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                      {customerMembers.filter(m => m.name.toLowerCase().includes(memberSearchVal.toLowerCase()) || m.phone.includes(memberSearchVal)).map(m => (
+                        <div
+                          key={m.id}
+                          onClick={() => {
+                            setDebtCustomerName(m.name);
+                            setDebtCustomerPhone(m.phone);
+                            setMemberSearchVal('');
+                            setShowMemberDropdown(false);
+                          }}
+                          style={{ padding: '8px 12px', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.8rem', color: 'white' }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(212,175,55,0.1)'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        >
+                          👤 {m.name} ({m.phone}) - {m.tier}
+                        </div>
+                      ))}
+                      {customerMembers.filter(m => m.name.toLowerCase().includes(memberSearchVal.toLowerCase()) || m.phone.includes(memberSearchVal)).length === 0 && (
+                        <div style={{ padding: '8px 12px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                          ❌ ບໍ່ພົບຂໍ້ມູນສະມາຊິກ
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
                 <div className="form-group">
                   <label className="form-label">ຊື່ລູກຄ້າທີ່ຕິດໜີ້ (Customer Name)</label>
                   <input
