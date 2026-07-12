@@ -994,13 +994,25 @@ export default function POS({
         return {
           ...item,
           name: isDepositPayment ? `ມັດຈຳ: ${serviceName}` : serviceName,
-          price: linkedJob.totalPrice / amuletCount,
+          price: (linkedJob.totalPrice || 0) / amuletCount,
           qty: amuletCount,
-          total: linkedJob.totalPrice
+          total: linkedJob.totalPrice || 0
+        };
+      } else {
+        return {
+          ...item,
+          price: item.price || 0,
+          qty: item.qty || 1,
+          total: item.total || 0
         };
       }
     }
-    return item;
+    return {
+      ...item,
+      price: item.price || 0,
+      qty: item.qty || 1,
+      total: item.total || 0
+    };
   });
 
   // Subtotal calculations
@@ -2744,11 +2756,11 @@ export default function POS({
                   const labelMatch = slot.label && slot.label.toLowerCase().includes(q);
                   return nameMatch || phoneMatch || labelMatch;
                 }).map(slot => {
-                  const hasItems = slot.items.length > 0;
+                  const hasItems = slot.items && slot.items.length > 0;
                   const isDebt = slot.isDebt;
                   const activeJob = framingJobs.find(j => j.slotId === slot.id && j.status !== 'picked_up');
-                  const totalQty = slot.items.reduce((s, i) => s + i.qty, 0);
-                  const totalValue = slot.items.reduce((s, i) => s + i.total, 0);
+                  const totalQty = slot.items ? slot.items.reduce((s, i) => s + (i.qty || 0), 0) : 0;
+                  const totalValue = slot.items ? slot.items.reduce((s, i) => s + (i.total || 0), 0) : 0;
                   const hasCustomer = !!(slot.customerName || slot.customerPhone || slot.customerId || activeJob || hasItems);
                   const hasDeposit = slot.depositAmount > 0 || (activeJob && parseFloat(activeJob.deposit) > 0);
 
@@ -2904,11 +2916,11 @@ export default function POS({
                   const labelMatch = slot.label && slot.label.toLowerCase().includes(q);
                   return nameMatch || phoneMatch || labelMatch;
                 }).map(slot => {
-                  const hasItems = slot.items.length > 0;
+                  const hasItems = slot.items && slot.items.length > 0;
                   const isDebt = slot.isDebt;
                   const activeJob = framingJobs.find(j => j.slotId === slot.id && j.status !== 'picked_up');
-                  const totalQty = slot.items.reduce((s, i) => s + i.qty, 0);
-                  const totalValue = slot.items.reduce((s, i) => s + i.total, 0);
+                  const totalQty = slot.items ? slot.items.reduce((s, i) => s + (i.qty || 0), 0) : 0;
+                  const totalValue = slot.items ? slot.items.reduce((s, i) => s + (i.total || 0), 0) : 0;
                   const hasCustomer = !!(slot.customerName || slot.customerPhone || slot.customerId || activeJob || hasItems);
                   const hasDeposit = slot.depositAmount > 0 || (activeJob && parseFloat(activeJob.deposit) > 0);
 
