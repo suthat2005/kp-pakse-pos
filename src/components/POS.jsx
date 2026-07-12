@@ -212,6 +212,9 @@ export default function POS({
   // Checkout & Debt registration modals
   const [showCheckout, setShowCheckout] = useState(false);
   const [showDebtModal, setShowDebtModal] = useState(false);
+  const [pointsToRedeem, setPointsToRedeem] = useState('');
+  const [redeemedPoints, setRedeemedPoints] = useState(0);
+  const [redeemedDiscount, setRedeemedDiscount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [treatRemark, setTreatRemark] = useState('');
   const [payCurrency, setPayCurrency] = useState('LAK');
@@ -1084,7 +1087,7 @@ export default function POS({
     return totalDeduction;
   };
 
-  const grandTotal = Math.max(0, subtotal - discount);
+  const grandTotal = Math.max(0, subtotal - discount - redeemedDiscount);
 
   const payRate = payCurrency === 'THB' ? (settings.exchangeRateThb || 750) : payCurrency === 'USD' ? (settings.exchangeRateUsd || 26000) : 1;
   const currentTotalInCurrency = payCurrency === 'LAK' ? grandTotal 
@@ -1397,6 +1400,9 @@ export default function POS({
     setCheckoutIsDepositMode(false);
     setCouponCode('');
     setPayCurrency('LAK');
+    setPointsToRedeem('');
+    setRedeemedPoints(0);
+    setRedeemedDiscount(0);
     const remainingLAK = Math.max(0, grandTotal - (activeSlot.depositAmount || 0));
     setCashReceived(String(remainingLAK));
     setTransferAmount('');
@@ -1615,6 +1621,9 @@ export default function POS({
       discount,
       discountPercent: activeSlot.discountPercent || 0,
       total: grandTotal,
+      pointsEarned: Math.floor(finalLAKAmountToPay / 10000),
+      redeemedPoints: redeemedPoints,
+      redeemedDiscount: redeemedDiscount,
       paymentMethod,
       cashReceived: paymentMethod === 'cash' 
         ? Number(cashReceived) 
@@ -1709,6 +1718,12 @@ export default function POS({
     }
 
     const savedOrder = db.addOrder(orderData);
+    if (activeSlot.customerId) {
+      db.updateCustomerSpend(activeSlot.customerId, finalLAKAmountToPay);
+      if (redeemedPoints > 0) {
+        db.redeemCustomerPoints(activeSlot.customerId, redeemedPoints, redeemedDiscount);
+      }
+    }
     setTreatRemark('');
     
     // Log audit events
@@ -4373,7 +4388,7 @@ export default function POS({
                           onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(212,175,55,0.1)'}
                           onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                         >
-                          👤 {m.name} ({m.phone}) - {m.discountType === 'percent' ? `${m.discountValue}%` : `${m.discountValue.toLocaleString()} ₭`} {m.tier}
+                          👤 {m.name} ({m.phone}) - {m.discountType === 'percent' ? `${m.discountValue}%` : `${m.discountValue.toLocaleString()} ₭`} {m.tier} ({m.points || 0} Pts)
                         </div>
                       ))}
                       {customerMembers.filter(m => m.name.toLowerCase().includes(memberSearchVal.toLowerCase()) || m.phone.includes(memberSearchVal)).length === 0 && (
@@ -4672,6 +4687,56 @@ export default function POS({
                     </div>
                   )}
                 </div>
+
+                {/* Loyalty Points Redemption */}
+                {activeSlot.customerId && (() => {
+                  const customerObj = customerMembers.find(m => m.id === activeSlot.customerId);
+                  if (customerObj && (customerObj.points > 0 || redeemedPoints > 0)) {
+                    return (
+                      <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.07)', padding: '14px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                          <span style={{ fontSize: '0.78rem', color: 'var(--gold-primary)', fontWeight: 'bold' }}>💎 ສະສົມຄະແນນ (Loyalty Points)</span>
+                          <span style={{ fontSize: '0.8rem', color: 'white', fontWeight: 'bold' }}>ມີ {customerObj.points || 0} ຄະແນນ</span>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <input
+                            type="number"
+                            className="form-control"
+                            placeholder="ປ້ອນຈຳນວນຄະແນນ..."
+                            value={pointsToRedeem}
+                            onChange={(e) => {
+                              const val = Math.min(customerObj.points, Math.max(0, parseInt(e.target.value) || 0));
+                              setPointsToRedeem(val);
+                            }}
+                            max={customerObj.points}
+                            min={0}
+                            style={{ fontSize: '0.9rem', padding: '8px 12px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white', flex: 1 }}
+                          />
+                          <button
+                            type="button"
+                            className="btn btn-primary"
+                            onClick={() => {
+                              if (pointsToRedeem > 0) {
+                                setRedeemedPoints(pointsToRedeem);
+                                setRedeemedDiscount(pointsToRedeem * 100);
+                              }
+                            }}
+                            style={{ padding: '8px 16px', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
+                          >
+                            ✓ ແລກສ່ວນຫຼຸດ
+                          </button>
+                        </div>
+                        {redeemedPoints > 0 && (
+                          <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#2ecc71', display: 'flex', justifyContent: 'space-between' }}>
+                            <span>🎉 ແລກຄະແນນ {redeemedPoints} ຄະແນນສຳເລັດ!</span>
+                            <span>-{redeemedDiscount.toLocaleString()} ₭</span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
 
                 {/* Payment Method */}
                 <div>
@@ -5333,7 +5398,7 @@ export default function POS({
                           onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(212,175,55,0.1)'}
                           onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                         >
-                          👤 {m.name} ({m.phone}) - {m.tier}
+                          👤 {m.name} ({m.phone}) - {m.tier} ({m.points || 0} Pts)
                         </div>
                       ))}
                       {customerMembers.filter(m => m.name.toLowerCase().includes(memberSearchVal.toLowerCase()) || m.phone.includes(memberSearchVal)).length === 0 && (
@@ -5591,6 +5656,12 @@ export default function POS({
                             <span>-{currentReceipt.discount.toLocaleString()} ກີບ</span>
                           </div>
                         )}
+                        {currentReceipt.redeemedPoints > 0 && (
+                          <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px', color: '#27ae60' }}>
+                            <span>💎 ແລກຄະແນນ ({currentReceipt.redeemedPoints} Pts):</span>
+                            <span>-{currentReceipt.redeemedDiscount.toLocaleString()} ກີບ</span>
+                          </div>
+                        )}
                         {settings.receiptShowTotal !== false && (
                           <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} + 1pt)`, borderTop: `${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} black`, paddingTop: '4px', marginTop: '4px' }}>
                             <span>{db.getLabel('rcpt_total_label', 'ຍອດລວມສຸດທິ:')}</span>
@@ -5607,6 +5678,12 @@ export default function POS({
                           <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: '#e74c3c', fontStyle: 'italic', fontWeight: 'bold' }}>
                             <span>{db.getLabel('rcpt_balance', 'ຄ້າງຊຳລະ:')}</span>
                             <span>{remainingBalanceFinal.toLocaleString()} ກີບ</span>
+                          </div>
+                        )}
+                        {currentReceipt.pointsEarned > 0 && (
+                          <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px', borderTop: '1px dotted #ccc', paddingTop: '4px', color: '#f39c12' }}>
+                            <span>💎 ຄະແນນທີ່ໄດ້ຮັບ (Points Earned):</span>
+                            <span>+{currentReceipt.pointsEarned} Pts</span>
                           </div>
                         )}
                       </div>

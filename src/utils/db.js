@@ -4458,9 +4458,9 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
   getCustomers() {
     this.init();
     const defaultCusts = [
-      { id: 'CUST10001', name: 'ທ້າວ ບຸນທັນ (VIP 10%)', phone: '02055551111', discountType: 'percent', discountValue: 10, tier: 'VIP', createdDate: '2026-06-30T01:26:37' },
-      { id: 'CUST10002', name: 'ນາງ ນາລີ (ສ່ວນຫຼຸດ 20k)', phone: '02055552222', discountType: 'fixed', discountValue: 20000, tier: 'Regular', createdDate: '2026-06-30T01:26:37' },
-      { id: 'CUST10003', name: 'ທ້າວ ແກ້ວ (Regular 5%)', phone: '02055553333', discountType: 'percent', discountValue: 5, tier: 'Regular', createdDate: '2026-06-30T01:26:37' }
+      { id: 'CUST10001', name: 'ທ້າວ ບຸນທັນ (VIP 10%)', phone: '02055551111', discountType: 'percent', discountValue: 10, tier: 'VIP', points: 350, totalSpend: 12000000, createdDate: '2026-06-30T01:26:37' },
+      { id: 'CUST10002', name: 'ນາງ ນາລີ (ສ່ວນຫຼຸດ 20k)', phone: '02055552222', discountType: 'fixed', discountValue: 20000, tier: 'Regular', points: 80, totalSpend: 800000, createdDate: '2026-06-30T01:26:37' },
+      { id: 'CUST10003', name: 'ທ້າວ ແກ້ວ (Regular 5%)', phone: '02055553333', discountType: 'percent', discountValue: 5, tier: 'Regular', points: 120, totalSpend: 1200000, createdDate: '2026-06-30T01:26:37' }
     ];
     return getStorage('customers', defaultCusts);
   },
@@ -4485,6 +4485,8 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       tier: c.tier || 'Regular',
       password: c.password || '',
       addresses: c.addresses || [],
+      points: 0,
+      totalSpend: 0,
       createdDate: new Date().toISOString()
     };
     list.push(newCust);
@@ -4896,6 +4898,10 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     if (idx !== -1) {
       const currentSpend = Number(list[idx].totalSpend || 0) + Number(amount);
       list[idx].totalSpend = currentSpend;
+
+      // Earn points (1 Point per 10,000 LAK spend)
+      const earnedPoints = Math.floor(Number(amount) / 10000);
+      list[idx].points = (list[idx].points || 0) + earnedPoints;
       
       let newTier = 'Bronze';
       let discountVal = 2;
@@ -4916,5 +4922,18 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       
       this.saveCustomers(list);
     }
+  },
+  redeemCustomerPoints(customerId, pointsToRedeem, discountLAK) {
+    const list = this.getCustomers();
+    const idx = list.findIndex(c => c.id === customerId);
+    if (idx !== -1) {
+      if ((list[idx].points || 0) >= pointsToRedeem) {
+        list[idx].points = (list[idx].points || 0) - pointsToRedeem;
+        this.saveCustomers(list);
+        this.addAuditLog('redeem_points', `Redeemed ${pointsToRedeem} points for customer ${list[idx].name} (Discount: ${discountLAK.toLocaleString()} LAK)`, 'info');
+        return true;
+      }
+    }
+    return false;
   }
 };
