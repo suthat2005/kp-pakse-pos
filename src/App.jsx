@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { db, DEFAULT_LABEL_KEYS } from './utils/db';
-import Login from './components/Login';
-import POS from './components/POS';
-import Inventory from './components/Inventory';
-import FramingBoard from './components/FramingBoard';
-import Reports from './components/Reports';
-import AIDetector from './components/AIDetector';
-import Settings from './components/Settings';
-import Debts from './components/Debts';
-import HRM from './components/HRM';
-import OrderTracking from './components/OrderTracking';
-import Customers from './components/Customers';
-import OnlineShop from './components/OnlineShop';
-import OnlineOrders from './components/OnlineOrders';
 import Portal from './components/Portal';
+
+const Login = lazy(() => import('./components/Login'));
+const POS = lazy(() => import('./components/POS'));
+const Inventory = lazy(() => import('./components/Inventory'));
+const FramingBoard = lazy(() => import('./components/FramingBoard'));
+const Reports = lazy(() => import('./components/Reports'));
+const AIDetector = lazy(() => import('./components/AIDetector'));
+const Settings = lazy(() => import('./components/Settings'));
+const Debts = lazy(() => import('./components/Debts'));
+const HRM = lazy(() => import('./components/HRM'));
+const OrderTracking = lazy(() => import('./components/OrderTracking'));
+const Customers = lazy(() => import('./components/Customers'));
+const OnlineShop = lazy(() => import('./components/OnlineShop'));
+const OnlineOrders = lazy(() => import('./components/OnlineOrders'));
 
 // Authorization helper to check custom permissions with backward-compatible role fallbacks
 const hasPermission = (user, tabKey) => {
@@ -466,15 +467,38 @@ export default function App() {
   const isPosMode = (_cleanPath === '/pos' || _cleanPath === '/pos/index.html' || window.location.search.includes('mode=pos')) && !window.location.search.includes('track=');
 
   if (!isPosMode) {
-    return <OnlineShop />;
+    return (
+      <Suspense fallback={
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: '12px', background: '#0e0c0a', color: '#fff' }}>
+          <div style={{ width: '40px', height: '40px', border: '3px solid rgba(255,255,255,0.05)', borderTopColor: '#d4af37', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+          <span>⏳ ກຳລັງໂຫຼດໜ້າຮ້ານຄ້າອອນລາຍ...</span>
+        </div>
+      }>
+        <OnlineShop />
+      </Suspense>
+    );
   }
 
   if (trackingJobId) {
-    return <OrderTracking jobId={trackingJobId} onClose={() => setTrackingJobId(null)} />;
+    return (
+      <Suspense fallback={<div style={{ padding: '40px', textAlign: 'center', color: '#fff' }}>⏳ Loading tracking...</div>}>
+        <OrderTracking jobId={trackingJobId} onClose={() => setTrackingJobId(null)} />
+      </Suspense>
+    );
   }
 
   if (!activeUser) {
-    return <Login onLoginSuccess={handleLoginSuccess} />;
+    return (
+      <Suspense fallback={<div style={{ padding: '40px', textAlign: 'center', color: '#fff' }}>⏳ Loading login...</div>}>
+        <Login onLoginSuccess={handleLoginSuccess} />
+      </Suspense>
+    );
   }
 
   const cleanSidebarLabel = (text) => {
@@ -1351,7 +1375,19 @@ export default function App() {
               </button>
             </div>
           ) : (
-            <>
+            <Suspense fallback={
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: '12px', color: 'var(--text-secondary)' }}>
+                <div style={{ width: '40px', height: '40px', border: '3px solid rgba(255,255,255,0.05)', borderTopColor: 'var(--gold-primary, #d4af37)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                <style>{`
+                  @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                  }
+                `}</style>
+                <span>⏳ ກຳລັງໂຫຼດຂໍ້ມູນລະບົບ (Loading Component)...</span>
+              </div>
+            }>
+              <>
               {activeTab === 'pos' && hasPermission(activeUser, 'pos') && (
                 <POS
                   key={activeUser.id}
@@ -1417,6 +1453,7 @@ export default function App() {
                 <OnlineOrders activeUser={activeUser} isMobile={isMobile} />
               )}
             </>
+            </Suspense>
           )}
         </main>
       </div>
