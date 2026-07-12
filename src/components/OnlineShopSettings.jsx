@@ -674,8 +674,8 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
           <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>
             📝 ແກ້ໄຂ ແລະ ປັບແຕ່ງຂໍ້ຄວາມສະແດງຜົນໃນໜ້າເວັບອອນລາຍໄດ້ເອງ (Localization Overrides)
           </p>
-          <div style={{ maxHeight: '350px', overflowY: 'auto', border: '1px solid var(--border-color)', borderRadius: '8px', background: 'rgba(0,0,0,0.1)' }}>
-            <table className="table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', textAlign: 'left' }}>
+          <div style={{ maxHeight: '350px', overflowY: 'auto' }}>
+            <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
               <thead>
                 <tr style={{ background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid var(--border-color)' }}>
                   <th style={{ padding: '8px 12px' }}>ປຸ່ມ / ຂໍ້ຄວາມ (Label Key)</th>
