@@ -1830,6 +1830,25 @@ export default function POS({
       notes: debtNotes
     });
 
+    // Also save as an order so it shows up in general sales/bills lookup and reports
+    db.addOrder({
+      id: savedDebt.id,
+      date: new Date().toISOString(),
+      items: adjustedCartItems,
+      customerName: debtCustomerName,
+      customerPhone: debtCustomerPhone,
+      subtotal: subtotal,
+      discount: discount,
+      discountPercent: activeSlot.discountPercent || 0,
+      total: grandTotal,
+      depositAmount: activeSlot.depositAmount || 0,
+      remainingAmount: remainingDebt,
+      paymentMethod: 'debt',
+      payCurrency: 'LAK',
+      cashierName: activeUser ? activeUser.name : 'ພະນັກງານ',
+      cashierId: activeUser ? activeUser.id : ''
+    });
+
     // Update active framing jobs for this slot: keep deposit pending; mark balance/full payments as picked_up
     const allJobs = db.getFramingJobs();
     allJobs.forEach(job => {
