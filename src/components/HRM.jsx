@@ -903,7 +903,7 @@ export default function HRM({ activeUser, onUpdate }) {
             ) : (
               <>
               <div className="desktop-table-view" style={{ overflowX: 'auto' }}>
-                <table className="inventory-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
                   <thead>
                     <tr>
                       <th style={{ textAlign: 'left', padding: '12px' }}>ພະນັກງານ</th>
@@ -1067,7 +1067,7 @@ export default function HRM({ activeUser, onUpdate }) {
             <h4 style={{ color: 'white', marginBottom: '12px', fontSize: '0.95rem' }}>📅 ປະຫວັດການລົງເວລາເຂົ້າ-ອອກງານ (Attendance Timesheet Logs)</h4>
             
             <div className="desktop-table-view" style={{ overflowX: 'auto', maxHeight: '350px', overflowY: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+              <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', textAlign: 'left', position: 'sticky', top: 0, background: '#1a1815', zIndex: 1 }}>
                     <th style={{ padding: '10px' }}>ວັນທີ</th>
@@ -1279,7 +1279,7 @@ export default function HRM({ activeUser, onUpdate }) {
             ) : (
               <>
               <div className="desktop-table-view" style={{ overflowX: 'auto' }}>
-                <table className="inventory-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
                   <thead>
                     <tr>
                       <th style={{ textAlign: 'left', padding: '12px' }}>ພະນັກງານ</th>
@@ -1423,7 +1423,7 @@ export default function HRM({ activeUser, onUpdate }) {
           <div className="glass-card" style={{ padding: '20px' }}>
             <h3 style={{ color: 'var(--gold-primary)', fontSize: '1rem', margin: '0 0 16px' }}>💵 ບັນຊີເງິນເດືອນພະນັກງານ ປະຈຳເດືອນ {selectedMonth}</h3>
             <div className="desktop-table-view" style={{ overflowX: 'auto' }}>
-              <table className="inventory-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
                 <thead>
                   <tr>
                     <th style={{ textAlign: 'left', padding: '12px' }}>ພະນັກງານ</th>
@@ -2511,7 +2511,7 @@ export default function HRM({ activeUser, onUpdate }) {
                 </div>
               </div>
 
-              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>
+              <table className="table-premium" style={{ width: '100%', marginTop: 0, marginBottom: '20px' }}>
                 <thead>
                   <tr style={{ background: '#f5f5f5', borderBottom: '2px solid #000' }}>
                     <th style={{ padding: '8px', textAlign: 'left', fontWeight: 'bold' }}>ລາຍການລາຍຮັບ (Earnings)</th>

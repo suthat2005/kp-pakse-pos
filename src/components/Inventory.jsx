@@ -309,8 +309,8 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
         </div>
       </div>
 
-      <div className="glass-card desktop-table-view" style={{ padding: '20px' }}>
-        <table className="inventory-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div className="desktop-table-view">
+        <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
           <thead>
             <tr>
               <th style={{ textAlign: 'left', padding: '12px' }}>ຊື່ວັດຖຸດິບ</th>
@@ -1121,7 +1121,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                 📜 ປະຫວັດການຜະລິດສິນຄ້າ (Production History)
               </h3>
               <div style={{ overflowX: 'auto', maxHeight: '200px' }}>
-                <table className="inventory-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
                   <thead>
                     <tr>
                       <th style={{ textAlign: 'left', padding: '8px' }}>ວັນທີ</th>
@@ -2627,8 +2627,8 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       </div>
 
       {/* Products Inventory Table */}
-      <div className="glass-card desktop-table-view" style={{ padding: '0px', overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px' }}>
+      <div className="desktop-table-view" style={{ overflowX: 'auto' }}>
+        <table className="table-premium" style={{ minWidth: '800px', marginTop: 0 }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--gold-primary)', fontSize: '0.9rem' }}>
               <th style={{ padding: '16px' }}>ຮູບພາບ</th>
