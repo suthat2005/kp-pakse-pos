@@ -563,8 +563,8 @@ export default function Customers({ activeUser, onUpdate }) {
         </div>
 
         {/* Members Table */}
-        <div style={{ overflowX: 'auto', border: '1px solid var(--border-color)', borderRadius: '12px', background: 'rgba(0,0,0,0.2)' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem', textAlign: 'left' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.02)', color: 'var(--gold-primary)' }}>
                 <th style={{ padding: '14px 20px' }}>{db.getLabel('cust_id_col', 'ລະຫັດສະມາຊິກ')}</th>

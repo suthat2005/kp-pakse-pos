@@ -225,8 +225,8 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
         </div>
 
         {/* Desktop Table */}
-        <div className="glass-card desktop-table-view" style={{ padding: '0px', overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
+        <div className="desktop-table-view" style={{ overflowX: 'auto' }}>
+          <table className="table-premium" style={{ minWidth: '700px', marginTop: 0 }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--gold-primary)', fontSize: '0.9rem' }}>
                 <th style={{ padding: '16px' }}>{'ເລກບິນໜີ້'}</th>
