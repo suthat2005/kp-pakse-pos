@@ -706,7 +706,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                 {/* 1. Items ordered list */}
                 <div>
                   <h4 style={{ color: 'var(--gold-primary)', margin: '0 0 10px' }}>📦 ລາຍການສິນຄ້າໃນອໍເດີ້:</h4>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                  <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
                     <thead>
                       <tr style={{ borderBottom: '1.5px solid var(--border-color)', color: 'var(--text-secondary)' }}>
                         <th style={{ textAlign: 'left', padding: '8px 4px' }}>ສິນຄ້າ</th>
