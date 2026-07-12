@@ -1,4 +1,4 @@
-﻿// Mock database utility using localStorage for "ຂອບພຣະຣັທເກຊ" (Amulet POS & Framing)
+// Mock database utility using localStorage for "ຂອບພຣະຣັທເກຊ" (Amulet POS & Framing)
 // Tailored for Lao language, LAK (ກີບ) currency.
 
 const DEFAULT_CATEGORIES = [
@@ -2275,7 +2275,8 @@ this.runDataRetention();
 
   getSettings() {
     this.init();
-    const settings = getStorage('settings', DEFAULT_SETTINGS);
+    const rawSettings = getStorage('settings', DEFAULT_SETTINGS);
+    const settings = (rawSettings && typeof rawSettings === 'object') ? rawSettings : { ...DEFAULT_SETTINGS };
 
     // Auto-migrate and force perfect, non-clipping layout defaults automatically
     let migrated = false;
@@ -2368,10 +2369,14 @@ this.saveSettings(settings);
     return mapping[widthSetting] || { paper: '80mm', printable: '66mm' };
   },
 
-getSlots() {
-this.init();
-return getStorage('slots', getInitialSlots());
-},
+  getSlots() {
+    this.init();
+    const slots = getStorage('slots', null);
+    if (!slots || typeof slots !== 'object') {
+      return getInitialSlots();
+    }
+    return slots;
+  },
 saveSlots(slots) {
 setStorage('slots', slots);
 },
@@ -2581,20 +2586,21 @@ payDebt(debtId) {
     return expenses[idx];
   },
 
-getProducts() {
-this.init();
-const products = getStorage('products', DEFAULT_PRODUCTS);
-return products.map(p => {
-  const isService = this.isServiceCategory(p.category);
-  return {
-    ...p,
-    showOnline: p.showOnline !== undefined ? p.showOnline : !isService,
-    priceOnline: p.priceOnline !== undefined ? Number(p.priceOnline) : Number(p.price),
-    priceVip: p.priceVip !== undefined ? Number(p.priceVip) : Number(p.price),
-    images: p.images || (p.image ? [p.image] : [])
-  };
-});
-},
+  getProducts() {
+    this.init();
+    const products = getStorage('products', DEFAULT_PRODUCTS);
+    const validProducts = Array.isArray(products) ? products.filter(Boolean) : [];
+    return validProducts.map(p => {
+      const isService = this.isServiceCategory(p.category);
+      return {
+        ...p,
+        showOnline: p.showOnline !== undefined ? p.showOnline : !isService,
+        priceOnline: p.priceOnline !== undefined ? Number(p.priceOnline) : Number(p.price),
+        priceVip: p.priceVip !== undefined ? Number(p.priceVip) : Number(p.price),
+        images: p.images || (p.image ? [p.image] : [])
+      };
+    });
+  },
 saveProducts(products) {
 setStorage('products', products);
 },
@@ -2658,10 +2664,11 @@ return newProduct;
     this.saveProducts(filtered);
   },
 
-getCategories() {
-this.init();
-return getStorage('categories', DEFAULT_CATEGORIES);
-},
+  getCategories() {
+    this.init();
+    const categories = getStorage('categories', DEFAULT_CATEGORIES);
+    return Array.isArray(categories) ? categories.filter(Boolean) : [];
+  },
 saveCategories(categories) {
 setStorage('categories', categories);
 },
@@ -2738,10 +2745,11 @@ setStorage('categories', categories);
     this.saveCategories(filtered);
   },
 
-getOrders() {
-this.init();
-return getStorage('orders', DEFAULT_ORDERS);
-},
+  getOrders() {
+    this.init();
+    const orders = getStorage('orders', DEFAULT_ORDERS);
+    return Array.isArray(orders) ? orders.filter(Boolean) : [];
+  },
 saveOrders(orders) {
 setStorage('orders', orders);
 },
@@ -2828,13 +2836,14 @@ setStorage('orders', orders);
     return orders[idx];
   },
 
-getFramingJobs() {
-this.init();
-const jobs = getStorage('framing_jobs', DEFAULT_FRAMING_JOBS);
-// Deduplicate jobs by ID to prevent Kanban duplication bugs!
-const uniqueJobsMap = {};
-let hasDuplicates = false;
-jobs.forEach(job => {
+  getFramingJobs() {
+    this.init();
+    const rawJobs = getStorage('framing_jobs', DEFAULT_FRAMING_JOBS);
+    const jobs = Array.isArray(rawJobs) ? rawJobs.filter(Boolean) : [];
+    // Deduplicate jobs by ID to prevent Kanban duplication bugs!
+    const uniqueJobsMap = {};
+    let hasDuplicates = false;
+    jobs.forEach(job => {
   if (!job.id) return;
   if (uniqueJobsMap[job.id]) {
     hasDuplicates = true;
@@ -3005,14 +3014,18 @@ const users = this.getUsers();
 const filtered = users.filter(u => u.id !== id);
 this.saveUsers(filtered);
 },
-getActiveUser() {
-this.init();
-const active = getStorage('active_user', null);
-if (!active) return null;
-const users = this.getUsers();
-const latest = users.find(u => u.id === active.id || u.email.toLowerCase() === active.email.toLowerCase());
-return latest ? { ...active, ...latest } : active;
-},
+  getActiveUser() {
+    this.init();
+    const active = getStorage('active_user', null);
+    if (!active) return null;
+    const users = this.getUsers();
+    const latest = users.find(u => {
+      const idMatch = active.id && u.id === active.id;
+      const emailMatch = active.email && u.email && u.email.toLowerCase() === active.email.toLowerCase();
+      return idMatch || emailMatch;
+    });
+    return latest ? { ...active, ...latest } : active;
+  },
 setActiveUser(user) {
 setStorage('active_user', user);
 },
