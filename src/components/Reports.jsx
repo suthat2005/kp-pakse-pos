@@ -15,6 +15,8 @@ export default function Reports({ activeUser, isMobile }) {
   const [trendChartStyle, setTrendChartStyle] = useState(localStorage.getItem('rep_trend_style') || '3d-ribbon');
   const [categoryChartStyle, setCategoryChartStyle] = useState(localStorage.getItem('rep_category_style') || '3d-donut');
   const [debtChartStyle, setDebtChartStyle] = useState(localStorage.getItem('rep_debt_style') || '3d-bar');
+  const [hoveredPoint, setHoveredPoint] = useState(null);
+  const [hoveredSegment, setHoveredSegment] = useState(null);
   
   // Date states
   const [startDate, setStartDate] = useState(todayStr);
@@ -924,7 +926,31 @@ export default function Reports({ activeUser, isMobile }) {
       : '';
 
     return (
-      <div style={{ width: '100%' }}>
+      <div style={{ width: '100%', position: 'relative' }}>
+        {hoveredPoint && (
+          <div style={{
+            position: 'absolute',
+            left: `${(hoveredPoint.x / width) * 100}%`,
+            top: `${(hoveredPoint.y / height) * 100}%`,
+            transform: 'translate(-50%, -120%)',
+            background: 'rgba(22, 20, 17, 0.92)',
+            backdropFilter: 'blur(8px)',
+            border: '1px solid var(--gold-primary)',
+            borderRadius: '8px',
+            padding: '8px 12px',
+            color: 'white',
+            fontSize: '0.75rem',
+            pointerEvents: 'none',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.6)',
+            zIndex: 10,
+            whiteSpace: 'nowrap',
+            transition: 'all 0.15s ease-out'
+          }}>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '0.65rem', marginBottom: '2px' }}>{hoveredPoint.label}</div>
+            <div style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{hoveredPoint.value.toLocaleString()} ₭</div>
+          </div>
+        )}
+
         <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} style={{ overflow: 'visible' }}>
           <defs>
             <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
@@ -968,6 +994,17 @@ export default function Reports({ activeUser, isMobile }) {
                   '#aa882c',
                   'var(--gold-primary)'
                 )}
+                {/* Transparent hover helper */}
+                <rect
+                  x={p.x - w/2 - 4}
+                  y={paddingTop}
+                  width={w + 8}
+                  height={chartHeight}
+                  fill="transparent"
+                  style={{ cursor: 'pointer' }}
+                  onMouseEnter={() => setHoveredPoint({ x: p.x, y: p.y, label: p.label, value: p.value })}
+                  onMouseLeave={() => setHoveredPoint(null)}
+                />
               </g>
             );
           })}
@@ -980,11 +1017,13 @@ export default function Reports({ activeUser, isMobile }) {
                   <circle
                     cx={p.x}
                     cy={p.y}
-                    r="3.5"
+                    r="4.5"
                     fill="var(--gold-primary)"
                     stroke="var(--bg-card, #161411)"
                     strokeWidth="1.5"
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: 'pointer', transition: 'all 0.15s' }}
+                    onMouseEnter={() => setHoveredPoint({ x: p.x, y: p.y, label: p.label, value: p.value })}
+                    onMouseLeave={() => setHoveredPoint(null)}
                   />
                 )}
                 {showLabel && (
@@ -999,7 +1038,6 @@ export default function Reports({ activeUser, isMobile }) {
                     {p.label}
                   </text>
                 )}
-                <title>{`${p.label}: ${p.value.toLocaleString()} ₭`}</title>
               </g>
             );
           })}
@@ -1095,7 +1133,31 @@ export default function Reports({ activeUser, isMobile }) {
       const barHeightMax = 70;
       const maxVal = Math.max(...segments.map(s => s.value), 1);
       return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center', position: 'relative', width: '100%' }}>
+          {hoveredSegment && hoveredSegment.x !== undefined && (
+            <div style={{
+              position: 'absolute',
+              left: `${(hoveredSegment.x / 300) * 100}%`,
+              top: `${(hoveredSegment.y / 150) * 100}%`,
+              transform: 'translate(-50%, -120%)',
+              background: 'rgba(22, 20, 17, 0.92)',
+              backdropFilter: 'blur(8px)',
+              border: `1px solid ${hoveredSegment.color}`,
+              borderRadius: '8px',
+              padding: '6px 10px',
+              color: 'white',
+              fontSize: '0.75rem',
+              pointerEvents: 'none',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+              zIndex: 10,
+              whiteSpace: 'nowrap',
+              transition: 'all 0.15s ease-out'
+            }}>
+              <div style={{ color: 'var(--text-secondary)', fontSize: '0.65rem', marginBottom: '2px' }}>{hoveredSegment.name}</div>
+              <div style={{ fontWeight: 'bold', color: hoveredSegment.color }}>{hoveredSegment.value.toLocaleString()} ₭ ({Math.round(hoveredSegment.percent * 100)}%)</div>
+            </div>
+          )}
+
           <svg width="100%" height="150" viewBox="0 0 300 150" style={{ overflow: 'visible' }}>
             <line x1="20" y1="110" x2="280" y2="110" stroke="rgba(255,255,255,0.08)" />
             {segments.map((seg, idx) => {
@@ -1125,6 +1187,17 @@ export default function Reports({ activeUser, isMobile }) {
                   >
                     {seg.name}
                   </text>
+                  {/* Transparent hover helper */}
+                  <rect
+                    x={x - 4}
+                    y={110 - barHeightMax}
+                    width={colWidth + 8}
+                    height={barHeightMax + 20}
+                    fill="transparent"
+                    style={{ cursor: 'pointer' }}
+                    onMouseEnter={() => setHoveredSegment({ name: seg.name, value: seg.value, percent: seg.percent, color: seg.color, x: x + colWidth/2, y: 110 - h })}
+                    onMouseLeave={() => setHoveredSegment(null)}
+                  />
                 </g>
               );
             })}
@@ -1159,7 +1232,13 @@ export default function Reports({ activeUser, isMobile }) {
                   fill={seg.color}
                   stroke="var(--bg-card, #161411)"
                   strokeWidth="1.5"
-                  style={{ cursor: 'pointer' }}
+                  style={{
+                    cursor: 'pointer',
+                    opacity: hoveredSegment && hoveredSegment.name !== seg.name ? 0.45 : 1,
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={() => setHoveredSegment({ name: seg.name, value: seg.value, percent: seg.percent, color: seg.color })}
+                  onMouseLeave={() => setHoveredSegment(null)}
                 />
               ))}
             </g>
@@ -1185,6 +1264,24 @@ export default function Reports({ activeUser, isMobile }) {
               fill="var(--bg-card, #161411)" 
               transform={categoryChartStyle === '3d-donut' ? "rotate(-15) skewX(20) scale(1, 0.5)" : "translate(0, 0)"} 
             />
+
+            {/* Centered Donut Label */}
+            {hoveredSegment ? (
+              <g transform={categoryChartStyle === '3d-donut' ? "rotate(-15) skewX(20) scale(1, 0.5)" : "translate(0, 0)"}>
+                <text x="100" y="96" fill="white" fontSize="7" fontWeight="bold" textAnchor="middle">
+                  {hoveredSegment.name}
+                </text>
+                <text x="100" y="108" fill="var(--gold-primary)" fontSize="8" fontWeight="bold" textAnchor="middle">
+                  {Math.round(hoveredSegment.percent * 100)}%
+                </text>
+              </g>
+            ) : (
+              <g transform={categoryChartStyle === '3d-donut' ? "rotate(-15) skewX(20) scale(1, 0.5)" : "translate(0, 0)"}>
+                <text x="100" y="102" fill="var(--text-secondary)" fontSize="6.5" textAnchor="middle">
+                  {db.getLabel('rep_cat_total', 'ໝວດໝູ່')}
+                </text>
+              </g>
+            )}
           </svg>
         </div>
 
@@ -1267,7 +1364,20 @@ export default function Reports({ activeUser, isMobile }) {
               ))}
               <g transform="rotate(-15) skewX(20) scale(1, 0.5)">
                 {formatted.map((seg, idx) => (
-                  <path key={idx} d={seg.pathData} fill={seg.color} stroke="var(--bg-card, #161411)" strokeWidth="1.5" />
+                  <path 
+                    key={idx} 
+                    d={seg.pathData} 
+                    fill={seg.color} 
+                    stroke="var(--bg-card, #161411)" 
+                    strokeWidth="1.5" 
+                    style={{
+                      cursor: 'pointer',
+                      opacity: hoveredSegment && hoveredSegment.name !== seg.name ? 0.45 : 1,
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={() => setHoveredSegment({ name: seg.name, value: seg.value, percent: seg.percent, color: seg.color })}
+                    onMouseLeave={() => setHoveredSegment(null)}
+                  />
                 ))}
               </g>
               {Array.from({ length: 12 }).map((_, step) => (
@@ -1284,6 +1394,24 @@ export default function Reports({ activeUser, isMobile }) {
                 />
               ))}
               <ellipse cx="100" cy="100" rx="24" ry="24" fill="var(--bg-card, #161411)" transform="rotate(-15) skewX(20) scale(1, 0.5)" />
+
+              {/* Centered Donut Label */}
+              {hoveredSegment ? (
+                <g transform="rotate(-15) skewX(20) scale(1, 0.5)">
+                  <text x="100" y="96" fill="white" fontSize="7" fontWeight="bold" textAnchor="middle">
+                    {hoveredSegment.name}
+                  </text>
+                  <text x="100" y="108" fill={hoveredSegment.color} fontSize="8" fontWeight="bold" textAnchor="middle">
+                    {Math.round(hoveredSegment.percent * 100)}%
+                  </text>
+                </g>
+              ) : (
+                <g transform="rotate(-15) skewX(20) scale(1, 0.5)">
+                  <text x="100" y="102" fill="var(--text-secondary)" fontSize="6.5" textAnchor="middle">
+                    {db.getLabel('rep_debt_center', 'ໜີ້ສິນ')}
+                  </text>
+                </g>
+              )}
             </svg>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-around', width: '100%' }}>
@@ -1299,7 +1427,31 @@ export default function Reports({ activeUser, isMobile }) {
     }
 
     return (
-      <div style={{ width: '100%', height: '180px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{ width: '100%', height: '180px', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
+        {hoveredSegment && hoveredSegment.x !== undefined && (
+          <div style={{
+            position: 'absolute',
+            left: `${(hoveredSegment.x / 300) * 100}%`,
+            top: `${(hoveredSegment.y / 170) * 100}%`,
+            transform: 'translate(-50%, -120%)',
+            background: 'rgba(22, 20, 17, 0.92)',
+            backdropFilter: 'blur(8px)',
+            border: `1px solid ${hoveredSegment.color}`,
+            borderRadius: '8px',
+            padding: '6px 10px',
+            color: 'white',
+            fontSize: '0.75rem',
+            pointerEvents: 'none',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+            zIndex: 10,
+            whiteSpace: 'nowrap',
+            transition: 'all 0.15s ease-out'
+          }}>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '0.65rem', marginBottom: '2px' }}>{hoveredSegment.name}</div>
+            <div style={{ fontWeight: 'bold', color: hoveredSegment.color }}>{hoveredSegment.value.toLocaleString()} ₭ ({Math.round(hoveredSegment.percent * 100)}%)</div>
+          </div>
+        )}
+
         <svg width="100%" height="170" viewBox="0 0 300 170" style={{ overflow: 'visible' }}>
           <line x1="20" y1="130" x2="280" y2="130" stroke="rgba(255,255,255,0.08)" />
           <line x1="20" y1="85" x2="280" y2="85" stroke="rgba(255,255,255,0.02)" />
@@ -1356,6 +1508,30 @@ export default function Reports({ activeUser, isMobile }) {
           >
             ຍັງບໍ່ຊຳລະ
           </text>
+
+          {/* Paid column hover overlay */}
+          <rect
+            x="46"
+            y="20"
+            width="44"
+            height="130"
+            fill="transparent"
+            style={{ cursor: 'pointer' }}
+            onMouseEnter={() => setHoveredSegment({ name: 'ຊຳລະແລ້ວ', value: paidSum, percent: paidSum / total, color: 'var(--success-green)', x: 68, y: 130 - paidHeight })}
+            onMouseLeave={() => setHoveredSegment(null)}
+          />
+
+          {/* Unpaid column hover overlay */}
+          <rect
+            x="166"
+            y="20"
+            width="44"
+            height="130"
+            fill="transparent"
+            style={{ cursor: 'pointer' }}
+            onMouseEnter={() => setHoveredSegment({ name: 'ຍັງບໍ່ຊຳລະ', value: unpaidSum, percent: unpaidSum / total, color: 'var(--alert-red)', x: 188, y: 130 - unpaidHeight })}
+            onMouseLeave={() => setHoveredSegment(null)}
+          />
         </svg>
       </div>
     );
