@@ -474,10 +474,7 @@ export default function POS({
       return;
     }
 
-    if (db.isServiceCategory(product.category)) {
-      handleOpenServiceConfig(product);
-      return;
-    }
+
 
     if (settings.barcodeBeep !== false) {
       playSound('beep');
@@ -652,10 +649,7 @@ export default function POS({
       alert('ຂໍອະໄພ: ສິນຄ້າຊິ້ນນີ້ໝົດສະຕັອກແລ້ວ!');
       return;
     }
-    if (db.isServiceCategory(product.category)) {
-      handleOpenServiceConfig(product);
-      return;
-    }
+
 
     const activeSlot = slots[selectedSlotId] || { items: [] };
     const existing = activeSlot.items.find(item => item.productId === product.id);
