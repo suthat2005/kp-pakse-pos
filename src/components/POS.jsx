@@ -3319,7 +3319,7 @@ export default function POS({
                         })()}
                       </span>
                     </div>
-                    <div className="product-card-price" style={{ fontSize: '0.9rem' }}>{p.price.toLocaleString()} ກີບ</div>
+                    <div className="product-card-price" style={{ fontSize: '0.9rem' }}>{(p.price || 0).toLocaleString()} ກີບ</div>
                     <div className="product-card-stock" style={{ marginTop: '4px' }}>
                       {isService ? (
                         <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>ບໍ່ຕ້ອງໃຊ້ສະຕັອກ</span>
@@ -3419,7 +3419,7 @@ export default function POS({
                         return null;
                       })()}
                       <div style={{ fontSize: '0.75rem', color: 'var(--gold-primary)', marginTop: '2px' }}>
-                        {item.price.toLocaleString()} x {item.qty} {db.isServiceCategory(item.category) ? 'ຄັ້ງ' : 'ອັນ'}
+                        {(item.price || 0).toLocaleString()} x {item.qty} {db.isServiceCategory(item.category) ? 'ຄັ້ງ' : 'ອັນ'}
                       </div>
                     </div>
                     
@@ -3608,7 +3608,7 @@ export default function POS({
                 
                 <h3 style={{ color: 'var(--text-primary)', fontSize: '1.15rem', fontWeight: '600', marginBottom: '8px' }}>{qtyTargetProd.name}</h3>
                 <p style={{ color: 'var(--gold-primary)', fontSize: '1.3rem', fontWeight: 'bold', marginBottom: '24px' }}>
-                  ₭{qtyTargetProd.price.toLocaleString()}
+                  ₭{(qtyTargetProd.price || 0).toLocaleString()}
                 </p>
  
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', marginBottom: '24px' }}>
@@ -4111,7 +4111,7 @@ export default function POS({
               <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px', overflowY: 'auto' }}>
                 <div style={{ background: 'rgba(255,255,255,0.02)', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
                   <div style={{ fontWeight: 'bold', fontSize: '1rem', color: 'white' }}>{serviceConfigProduct.name}</div>
-                  <div style={{ color: 'var(--gold-primary)', fontWeight: 'bold', marginTop: '4px' }}>₭{serviceConfigProduct.price.toLocaleString()} / ອົງ</div>
+                  <div style={{ color: 'var(--gold-primary)', fontWeight: 'bold', marginTop: '4px' }}>₭{(serviceConfigProduct.price || 0).toLocaleString()} / ອົງ</div>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
