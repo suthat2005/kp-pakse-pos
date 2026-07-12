@@ -3146,7 +3146,7 @@ export default function POS({
                             border: '1px solid rgba(52,152,219,0.3)',
                             lineHeight: '1.2'
                           }}>
-                            💰 ມັດຈຳແລ້ວ: ₭{slot.depositAmount.toLocaleString()}
+                            💰 ມັດຈຳແລ້ວ: ₭{(slot.depositAmount || 0).toLocaleString()}
                           </span>
                         )}
 
