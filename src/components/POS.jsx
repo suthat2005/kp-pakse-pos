@@ -190,6 +190,7 @@ export default function POS({
   const [serviceConfigQty, setServiceConfigQty] = useState(1);
   const [serviceConfigAmulets, setServiceConfigAmulets] = useState([]);
   const [serviceConfigDeposit, setServiceConfigDeposit] = useState('0');
+  const [serviceConfigPickupDate, setServiceConfigPickupDate] = useState('');
 
   // Slot customer details prompt modal before entering menu
   const [showSlotEntryModal, setShowSlotEntryModal] = useState(false);
@@ -2110,6 +2111,7 @@ export default function POS({
     setServiceConfigProduct(product);
     setServiceConfigQty(1);
     setServiceConfigDeposit('0');
+    setServiceConfigPickupDate(getLocalDatetimeString(new Date(Date.now() + 86400000))); // Default to tomorrow
     setServiceConfigAmulets([
       {
         id: Date.now() + Math.random(),
@@ -2171,7 +2173,7 @@ export default function POS({
       customerPhone,
       deposit: depositAmount,
       notes: '',
-      pickupDate: getLocalDatetimeString(new Date(Date.now() + 86400000)), // Tomorrow
+      pickupDate: serviceConfigPickupDate || getLocalDatetimeString(new Date(Date.now() + 86400000)),
       status: 'pending',
       slotId: targetSlotId,
       amulets: serviceConfigAmulets.map(a => ({
@@ -4256,10 +4258,19 @@ export default function POS({
                   ))}
                 </div>
 
-                {/* Deposit Input */}
-                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '10px', borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
+                  <label className="form-label" style={{ fontSize: '0.82rem', margin: 0, color: 'var(--text-secondary)' }}>ກຳນົດເວລາມາຮັບພຣະ (Pickup Date/Time) *</label>
+                  <input
+                    type="datetime-local"
+                    className="form-input"
+                    required
+                    style={{ width: '100%', background: '#191613', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px', fontSize: '0.85rem' }}
+                    value={serviceConfigPickupDate}
+                    onChange={(e) => setServiceConfigPickupDate(e.target.value)}
+                  />
+                </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.95rem', color: 'var(--text-secondary)', borderTop: '1px solid var(--border-color)', paddingTop: '12px', marginTop: '6px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.95rem', color: 'var(--text-secondary)', borderTop: '1px solid var(--border-color)', paddingTop: '12px', marginTop: '12px' }}>
                   <span>ຍອດລວມທັງໝົດ / Total:</span>
                   <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold', fontSize: '1.2rem' }}>₭{((serviceConfigProduct.price || 0) * serviceConfigQty).toLocaleString()}</span>
                 </div>
@@ -6233,54 +6244,15 @@ export default function POS({
                             }}
                           />
 
-                          <select
-                            className="form-control"
-                            style={{ padding: '6px', fontSize: '0.8rem' }}
-                            value={amulet.frameTypeId}
-                            onChange={(e) => {
-                              const newAmulets = [...framingFormData.amulets];
-                              const selProd = products.find(p => p.id === e.target.value);
-                              newAmulets[index].frameTypeId = e.target.value;
-                              newAmulets[index].frameTypeName = selProd ? selProd.name : 'ອັດກອບ';
-                              newAmulets[index].price = selProd ? Number(selProd.price) : 60000;
-                              
-                              const totalPrice = newAmulets.reduce((sum, a) => sum + Number(a.price || 0), 0);
-                              setFramingFormData({
-                                ...framingFormData,
-                                amulets: newAmulets,
-                                totalPrice
-                              });
-                            }}
-                          >
-                            {(products.filter(p => p.category === 'frames' || db.isServiceCategory(p.category) || p.name.toLowerCase().includes('ກອບ') || p.name.toLowerCase().includes('ອັດ')).length > 0
-                              ? products.filter(p => p.category === 'frames' || db.isServiceCategory(p.category) || p.name.toLowerCase().includes('ກອບ') || p.name.toLowerCase().includes('ອັດ'))
-                              : products
-                            ).map(p => (
-                              <option key={p.id} value={p.id}>{p.name} ({Number(p.price).toLocaleString()} ₭)</option>
-                            ))}
-                          </select>
+                          <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.04)', padding: '6px 10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)', fontSize: '0.8rem', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {amulet.frameTypeName || 'ອັດກອບ'}
+                          </div>
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '8px', alignItems: 'center' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ລາຄາ:</span>
-                            <input disabled={!hasPosPermission('posChangePrice')}
-                              type="number"
-                              className="form-control"
-                              style={{ padding: '4px 6px', fontSize: '0.8rem', height: '30px' }}
-                              required
-                              value={amulet.price}
-                              onChange={(e) => {
-                                const newAmulets = [...framingFormData.amulets];
-                                newAmulets[index].price = Number(e.target.value);
-                                const totalPrice = newAmulets.reduce((sum, a) => sum + Number(a.price || 0), 0);
-                                setFramingFormData({
-                                  ...framingFormData,
-                                  amulets: newAmulets,
-                                  totalPrice
-                                });
-                              }}
-                            />
+                            <span style={{ fontSize: '0.85rem', color: 'var(--gold-primary)', fontWeight: 'bold' }}>₭{Number(amulet.price || 0).toLocaleString()}</span>
                           </div>
 
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'flex-end' }}>
@@ -6392,19 +6364,7 @@ export default function POS({
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">ສະຖານະ</label>
-                  <select
-                    className="form-control"
-                    value={framingFormData.status}
-                    onChange={(e) => setFramingFormData({ ...framingFormData, status: e.target.value })}
-                  >
-                    <option value="pending">ລໍຖ້າຄິວ (Pending)</option>
-                    <option value="framing">ກຳລັງອັດ (Framing)</option>
-                    <option value="done">ອັດສຳເລັດ (Ready)</option>
-                    <option value="picked_up">ຮັບໄປແລ້ວ (Picked Up)</option>
-                  </select>
-                </div>
+
 
                 <div className="form-group">
                   <label className="form-label">ກຳນົດເວລາມາຮັບພຣະ (Pickup Date/Time)</label>
