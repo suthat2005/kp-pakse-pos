@@ -281,7 +281,7 @@ const MIME_TYPES = {
 const server = http.createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   // Set Global Security Headers
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -298,6 +298,18 @@ const server = http.createServer(async (req, res) => {
 
   const parsedUrl = new URL(req.url, `http://localhost:${PORT}`);
   const pathname = parsedUrl.pathname;
+
+  // API Authorization Guard
+  if (pathname.startsWith('/api/') && pathname !== '/api/server-ip') {
+    const authHeader = req.headers['authorization'];
+    const expectedToken = 'Bearer KP-Pakse-Secret-Token-2026';
+    if (!authHeader || authHeader !== expectedToken) {
+      res.statusCode = 401;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ success: false, error: 'Unauthorized API Access' }));
+      return;
+    }
+  }
 
   // API: Auto-Discover LAN Printers on subnet (port 9100)
   if (pathname === '/api/discover-printers' && req.method === 'GET') {
