@@ -52,6 +52,14 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   const lastDrawingPos = useRef(null);
   const eraserContainerRef = useRef(null);
 
+  // ─── Dimensions Annotation States ────────────────────────────────────────────
+  const [dimensions, setDimensions] = useState([]); // Array of { id, x1, y1, x2, y2, label, color, thickness, arrowStyle }
+  const [selectedDimId, setSelectedDimId] = useState(null);
+  const [draggedDimPoint, setDraggedDimPoint] = useState(null); // { id, point: 'start' | 'end' }
+
+  const dimensionsRef = useRef(dimensions);
+  useEffect(() => { dimensionsRef.current = dimensions; }, [dimensions]);
+
   // ─── Custom Background Image ─────────────────────────────────────────────────
   const [customBgImage, setCustomBgImage] = useState(null); // HTMLImageElement
   const customBgImageRef = useRef(null);
@@ -572,9 +580,17 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     if (stg.frameType !== 'none') drawFrame(ctx, 800, 800, stg);
 
     // 6. Watermark
+    // 6. Watermark
     if (stg.watermarkType !== 'none') await drawWatermark(ctx, 800, 800, stg);
 
-    // 7. Guides (not saved on export)
+    // 7. Dimension Lines & Text Annotations
+    if (dimensionsRef.current && dimensionsRef.current.length > 0) {
+      dimensionsRef.current.forEach(dim => {
+        drawDimensionLine(ctx, dim, dim.id === selectedDimId, isExport);
+      });
+    }
+
+    // 8. Guides (not saved on export)
     if (!isExport) {
       drawGuides(ctx, 800, 800, stg, anl);
     }
@@ -582,14 +598,14 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     console.error('Render error:', err);
     setRenderError(err.message);
   }
-}, [sourceImg]);
+}, [sourceImg, selectedDimId]);
 
   // ─── Re-render when anything changes ────────────────────────────────────────
   useEffect(() => {
     if (!sourceImg) return;
     drawOriginalCanvas(sourceImg, settings, activeTab);
     renderProcessedImage(settings, analysis);
-  }, [sourceImg, settings, activeTab, analysis]);
+  }, [sourceImg, settings, activeTab, analysis, dimensions]);
 
   // Set default eraseMode to 'keep' when entering background tab
   useEffect(() => {
@@ -686,6 +702,111 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
       default:
         ctx.fillStyle='#0d0d0d'; ctx.fillRect(0,0,w,h); break;
     }
+    ctx.restore();
+  };
+
+  const drawDimensionLine = (ctx, dim, isSelected, isExport) => {
+    const { x1, y1, x2, y2, label, color, thickness = 3, arrowStyle = 'double' } = dim;
+
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = thickness;
+
+    // Draw main line
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+
+    // Calculate angle of the line
+    const angle = Math.atan2(y2 - y1, x2 - x1);
+    const arrowLength = 12 + parseFloat(thickness);
+
+    const drawArrowHead = (x, y, ang) => {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(ang);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(-arrowLength, -arrowLength * 0.5);
+      ctx.lineTo(-arrowLength * 0.7, 0);
+      ctx.lineTo(-arrowLength, arrowLength * 0.5);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    };
+
+    // Draw arrow heads
+    if (arrowStyle === 'double' || arrowStyle === 'start') {
+      drawArrowHead(x1, y1, angle);
+    }
+    if (arrowStyle === 'double' || arrowStyle === 'end') {
+      drawArrowHead(x2, y2, angle + Math.PI);
+    }
+
+    // Draw text label centered along the line
+    if (label) {
+      const mx = (x1 + x2) / 2;
+      const my = (y1 + y2) / 2;
+
+      ctx.font = 'bold 15px Phetsarath OT, Inter, sans-serif';
+      const textWidth = ctx.measureText(label).width;
+      const padX = 10, padY = 6;
+      const rectW = textWidth + padX * 2;
+      const rectH = 22 + padY * 2;
+      const rectX = mx - rectW / 2;
+      const rectY = my - rectH / 2;
+
+      // Draw background pill for text
+      ctx.fillStyle = 'rgba(11, 15, 25, 0.9)';
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(rectX, rectY, rectW, rectH, 6);
+      } else {
+        ctx.rect(rectX, rectY, rectW, rectH);
+      }
+      ctx.fill();
+
+      // Draw pill border
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(rectX, rectY, rectW, rectH, 6);
+      } else {
+        ctx.rect(rectX, rectY, rectW, rectH);
+      }
+      ctx.stroke();
+
+      // Draw text
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(label, mx, my);
+    }
+
+    // Draw control handles if editing (and not exporting)
+    if (!isExport && activeTab === 'dimensions') {
+      // Start point handle
+      ctx.beginPath();
+      ctx.arc(x1, y1, 9, 0, 2 * Math.PI);
+      ctx.fillStyle = isSelected ? 'var(--gold-primary)' : 'rgba(255,255,255,0.75)';
+      ctx.fill();
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // End point handle
+      ctx.beginPath();
+      ctx.arc(x2, y2, 9, 0, 2 * Math.PI);
+      ctx.fillStyle = isSelected ? 'var(--gold-primary)' : 'rgba(255,255,255,0.75)';
+      ctx.fill();
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
     ctx.restore();
   };
 
@@ -924,6 +1045,126 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     }
 
     renderProcessedImage(settingsRef.current, analysisRef.current);
+  };
+
+  const getDistance = (px, py, qx, qy) => {
+    return Math.sqrt((px - qx) ** 2 + (py - qy) ** 2);
+  };
+
+  const getDistanceToLine = (px, py, x1, y1, x2, y2) => {
+    const l2 = (x2 - x1) ** 2 + (y2 - y1) ** 2;
+    if (l2 === 0) return getDistance(px, py, x1, y1);
+    let t = ((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) / l2;
+    t = Math.max(0, Math.min(1, t));
+    return getDistance(px, py, x1 + t * (x2 - x1), y1 + t * (y2 - y1));
+  };
+
+  const handleDimMouseDown = (e) => {
+    e.preventDefault();
+    const c = getCanvasCoords(e.clientX, e.clientY);
+    if (!c) return;
+    const { x, y } = c;
+
+    // Check endpoints handles
+    for (let dim of dimensionsRef.current) {
+      if (getDistance(x, y, dim.x1, dim.y1) < 25) {
+        setSelectedDimId(dim.id);
+        setDraggedDimPoint({ id: dim.id, point: 'start' });
+        return;
+      }
+      if (getDistance(x, y, dim.x2, dim.y2) < 25) {
+        setSelectedDimId(dim.id);
+        setDraggedDimPoint({ id: dim.id, point: 'end' });
+        return;
+      }
+    }
+
+    // Check lines themselves to select them
+    for (let dim of dimensionsRef.current) {
+      if (getDistanceToLine(x, y, dim.x1, dim.y1, dim.x2, dim.y2) < 18) {
+        setSelectedDimId(dim.id);
+        return;
+      }
+    }
+
+    // Deselect if clicked empty space
+    setSelectedDimId(null);
+  };
+
+  const handleDimMouseMove = (e) => {
+    e.preventDefault();
+    const c = getCanvasCoords(e.clientX, e.clientY);
+    if (!c) return;
+    const { x, y } = c;
+
+    if (draggedDimPoint) {
+      setDimensions(prev => prev.map(dim => {
+        if (dim.id === draggedDimPoint.id) {
+          if (draggedDimPoint.point === 'start') {
+            return { ...dim, x1: Math.round(x), y1: Math.round(y) };
+          } else {
+            return { ...dim, x2: Math.round(x), y2: Math.round(y) };
+          }
+        }
+        return dim;
+      }));
+    }
+  };
+
+  const handleDimMouseUp = () => {
+    setDraggedDimPoint(null);
+  };
+
+  const handleCanvasMouseDown = (e) => {
+    if (activeTab === 'dimensions') {
+      handleDimMouseDown(e);
+    } else {
+      handleEraserMouseDown(e);
+    }
+  };
+
+  const handleCanvasMouseMove = (e) => {
+    if (activeTab === 'dimensions') {
+      handleDimMouseMove(e);
+    } else {
+      handleEraserMouseMove(e);
+    }
+  };
+
+  const handleCanvasMouseUp = (e) => {
+    if (activeTab === 'dimensions') {
+      handleDimMouseUp();
+    } else {
+      handleEraserMouseUp();
+    }
+  };
+
+  const handleCanvasTouchStart = (e) => {
+    if (activeTab === 'dimensions') {
+      const t = e.touches[0];
+      const mockEvent = { clientX: t.clientX, clientY: t.clientY, preventDefault: () => {} };
+      handleDimMouseDown(mockEvent);
+    } else {
+      handleEraserTouchStart(e);
+    }
+  };
+
+  const handleCanvasTouchMove = (e) => {
+    if (activeTab === 'dimensions') {
+      const t = e.touches[0];
+      const mockEvent = { clientX: t.clientX, clientY: t.clientY, preventDefault: () => {} };
+      handleDimMouseMove(mockEvent);
+    } else {
+      handleEraserTouchMove(e);
+    }
+  };
+
+  const handleCanvasTouchEnd = (e) => {
+    if (activeTab === 'dimensions') {
+      handleDimMouseUp();
+    } else {
+      handleEraserTouchEnd(e);
+    }
   };
 
   const handleEraserMouseDown = (e) => {
@@ -1185,6 +1426,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
               { id:'enhance',    icon:'✨', label:'ປັບແສງ' },
               { id:'eraser',     icon:'🧹', label:'ຢາງລົບ' },
               { id:'background', icon:'🎨', label:'ພື້ນຫຼັງ' },
+              { id:'dimensions', icon:'📏', label:'ຂະໜາດ' },
               { id:'frame',      icon:'🖼️', label:'ກອບ' },
               { id:'watermark',  icon:'🏷️', label:'ລາຍນ້ຳ' },
               { id:'export',     icon:'💾', label:'ສົ່ງອອກ' },
@@ -1243,26 +1485,27 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                 <p>AI ກຳລັງວິເຄາະຮູບພາບ...</p>
               </div>
             ) : sourceImg ? (
-              (activeTab === 'eraser' || activeTab === 'background') ? (
-                /* ── ERASER / BACKGROUND WORKSPACE ── */
+              (activeTab === 'eraser' || activeTab === 'background' || activeTab === 'dimensions') ? (
+                /* ── ERASER / BACKGROUND / DIMENSIONS WORKSPACE ── */
                 <div ref={eraserContainerRef}
-                  onMouseDown={handleEraserMouseDown}
-                  onMouseMove={handleEraserMouseMove}
-                  onMouseUp={handleEraserMouseUp}
-                  onMouseLeave={handleEraserMouseUp}
-                  onTouchStart={handleEraserTouchStart}
-                  onTouchMove={handleEraserTouchMove}
-                  onTouchEnd={handleEraserTouchEnd}
+                  onMouseDown={handleCanvasMouseDown}
+                  onMouseMove={handleCanvasMouseMove}
+                  onMouseUp={handleCanvasMouseUp}
+                  onMouseLeave={handleCanvasMouseUp}
+                  onTouchStart={handleCanvasTouchStart}
+                  onTouchMove={handleCanvasTouchMove}
+                  onTouchEnd={handleCanvasTouchEnd}
                   style={{
                     position:'relative', width:'100%', maxWidth:'480px', aspectRatio:'1',
                     background:'#0d0d0d', borderRadius:'12px', overflow:'hidden',
                     boxShadow:'0 4px 20px rgba(0,0,0,0.5)',
-                    cursor:'crosshair', userSelect:'none', touchAction:'none'
+                    cursor: activeTab === 'dimensions' ? 'default' : 'crosshair',
+                    userSelect:'none', touchAction:'none'
                   }}
                 >
                   <canvas ref={processedCanvasRef} style={{ width:'100%', height:'100%', display:'block' }} />
-                  {/* Brush cursor indicator */}
-                  {brushPos && eraserContainerRef.current && (
+                  {/* Brush cursor indicator (only for drawing tabs) */}
+                  {brushPos && activeTab !== 'dimensions' && eraserContainerRef.current && (
                     <div style={{
                       position:'absolute',
                       left: brushPos.x,
@@ -1276,14 +1519,28 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                       pointerEvents:'none', zIndex:20
                     }} />
                   )}
-                  <span style={{
-                    position:'absolute', top:'10px', left:'10px',
-                    background: eraseMode==='erase'?'rgba(231,76,60,0.85)':eraseMode==='remove'?'rgba(192,57,43,0.9)':eraseMode==='keep'?'rgba(39,174,96,0.9)':'rgba(46,204,113,0.85)',
-                    color:'white', padding:'3px 10px', borderRadius:'4px',
-                    fontSize:'0.68rem', fontWeight:'bold', zIndex:10
-                  }}>
-                    {eraseMode==='erase' ? '🧽 ລຶບ (Erase)' : eraseMode==='restore' ? '🎨 ກູ້ຄືນ (Restore)' : eraseMode==='keep' ? '🟢 ຮັກສາ (Keep)' : '🔴 ລຶບ AI (Remove)'}
-                  </span>
+                  {activeTab !== 'dimensions' && (
+                    <span style={{
+                      position:'absolute', top:'10px', left:'10px',
+                      background: eraseMode==='erase'?'rgba(231,76,60,0.85)':eraseMode==='remove'?'rgba(192,57,43,0.9)':eraseMode==='keep'?'rgba(39,174,96,0.9)':'rgba(46,204,113,0.85)',
+                      color:'white', padding:'3px 10px', borderRadius:'4px',
+                      fontSize:'0.68rem', fontWeight:'bold', zIndex:10
+                    }}>
+                      {eraseMode==='erase' ? '🧽 ລຶບ (Erase)' : eraseMode==='restore' ? '🎨 ກູ້ຄືນ (Restore)' : eraseMode==='keep' ? '🟢 ຮັກສາ (Keep)' : '🔴 ລຶບ AI (Remove)'}
+                    </span>
+                  )}
+                  {activeTab === 'dimensions' && (
+                    <span style={{
+                      position:'absolute', top:'10px', left:'10px',
+                      background: 'rgba(212,175,55,0.95)',
+                      color:'black', padding:'4px 12px', borderRadius:'6px',
+                      fontSize:'0.72rem', fontWeight:'bold', zIndex:10,
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.4)',
+                      border: '1px solid #ffffff'
+                    }}>
+                      📐 ໂໝດແທກຂະໜາດ (Drag ends to measure)
+                    </span>
+                  )}
                 </div>
               ) : (
                 /* ── BEFORE / AFTER SLIDER WORKSPACE ── */
@@ -1382,6 +1639,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                 {activeTab==='enhance'    && '✨ ປັບແສງ & ສີ'}
                 {activeTab==='eraser'     && '🧹 ຢາງລົບດ້ວຍມື'}
                 {activeTab==='background' && '🎨 ພື້ນຫຼັງ (AI BG)'}
+                {activeTab==='dimensions' && '📏 ໝາຍມິຕິ & ຂະໜາດ'}
                 {activeTab==='frame'      && '🖼️ ໃສ່ກອບ'}
                 {activeTab==='watermark'  && '🏷️ ລາຍນ້ຳ'}
                 {activeTab==='export'     && '💾 ສົ່ງອອກ & ບັນທຶກ'}
@@ -1800,6 +2058,141 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                       ))}
                     </div>
                   </div>
+                </>
+              )}
+
+              {/* ── DIMENSIONS TAB ── */}
+              {activeTab === 'dimensions' && (
+                <>
+                  <button onClick={() => {
+                    const newDim = {
+                      id: Date.now(),
+                      x1: 250, y1: 300,
+                      x2: 550, y2: 300,
+                      label: '3.5 cm',
+                      color: '#d4af37',
+                      thickness: 3,
+                      arrowStyle: 'double'
+                    };
+                    setDimensions(prev => [...prev, newDim]);
+                    setSelectedDimId(newDim.id);
+                  }} style={{
+                    width:'100%', padding:'12px', background:'var(--gold-primary)', color:'black',
+                    border:'none', borderRadius:'8px', cursor:'pointer', fontSize:'0.82rem',
+                    fontWeight:'bold', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
+                    boxShadow:'0 2px 6px rgba(212,175,55,0.3)'
+                  }}>
+                    ➕ ເພີ່ມເສັ້ນແທກຂະໜາດ (Add Dimension)
+                  </button>
+
+                  <div style={{ background:'rgba(255,255,255,0.03)', border:'1px dashed rgba(255,255,255,0.1)', borderRadius:'8px', padding:'10px', fontSize:'0.71rem', color:'#aaa', lineHeight:1.4 }}>
+                    💡 <b>ວິທີໃຊ້:</b> ກົດປຸ່ມເພີ່ມເສັ້ນ ຈາກນັ້ນລາກຈຸດວົງກົມຢູ່ປາຍເສັ້ນເທິງຮູບເພື່ອຊີ້ບອກມິຕິ ແລະ ຂະໜາດຕ່າງໆ. ກົດເລືອກເສັ້ນເພື່ອປ່ຽນຂໍ້ຄວາມ ແລະ ສີ.
+                  </div>
+
+                  {dimensions.length > 0 && (
+                    <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'12px' }}>
+                      <p style={{ fontSize:'0.75rem', color:'#888', marginBottom:'8px' }}>📏 <b>ລາຍການເສັ້ນແທກ ({dimensions.length}):</b></p>
+                      <div style={{ display:'flex', flexDirection:'column', gap:'6px', maxHeight:'140px', overflowY:'auto', paddingRight:'4px' }}>
+                        {dimensions.map(dim => (
+                          <div key={dim.id} onClick={() => setSelectedDimId(dim.id)} style={{
+                            display:'flex', justifyContent:'space-between', alignItems:'center',
+                            padding:'6px 10px', background: selectedDimId===dim.id ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.04)',
+                            border: selectedDimId===dim.id ? '1px solid var(--gold-primary)' : '1px solid transparent',
+                            borderRadius:'6px', cursor:'pointer', fontSize:'0.75rem'
+                          }}>
+                            <span style={{ color: dim.color, fontWeight:'bold' }}>↔ {dim.label || '(ບໍ່ມີຂໍ້ຄວາມ)'}</span>
+                            <span style={{ fontSize:'0.65rem', color:'#666' }}>ID: {String(dim.id).slice(-4)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedDimId && dimensions.find(d => d.id === selectedDimId) && (() => {
+                    const selDim = dimensions.find(d => d.id === selectedDimId);
+                    return (
+                      <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'12px', display:'flex', flexDirection:'column', gap:'12px' }}>
+                        <p style={{ fontSize:'0.78rem', color:'var(--gold-primary)', fontWeight:'bold', margin:0 }}>⚙️ ແກ້ໄຂເສັ້ນແທກທີ່ເລືອກ:</p>
+
+                        {/* Label Text Input */}
+                        <div>
+                          <label style={{ fontSize:'0.72rem', color:'#aaa', display:'block', marginBottom:'4px' }}>📝 ຂໍ້ຄວາມ (Text Label):</label>
+                          <input type="text" value={selDim.label} onChange={e => {
+                            const val = e.target.value;
+                            setDimensions(prev => prev.map(d => d.id === selDim.id ? { ...d, label: val } : d));
+                          }} style={{
+                            width:'100%', padding:'8px', background:'rgba(255,255,255,0.06)',
+                            border:'1px solid rgba(255,255,255,0.1)', borderRadius:'6px', color:'white',
+                            fontSize:'0.78rem', boxSizing:'border-box'
+                          }} placeholder="ຕົວຢ່າງ: 3.5 cm ຫຼື ກວ້າງ 2 cm" />
+                        </div>
+
+                        {/* Arrow Style Selector */}
+                        <div>
+                          <label style={{ fontSize:'0.72rem', color:'#aaa', display:'block', marginBottom:'4px' }}>🎯 ຫົວລູກສອນ (Arrow Style):</label>
+                          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'4px' }}>
+                            {[
+                              { id:'double', label:'↔ ສອງຫົວ' },
+                              { id:'end',    label:'→ ຫົວຂວາ' },
+                              { id:'none',   label:'— ເສັ້ນຊື່' },
+                            ].map(styleOpt => (
+                              <button key={styleOpt.id} onClick={() => {
+                                setDimensions(prev => prev.map(d => d.id === selDim.id ? { ...d, arrowStyle: styleOpt.id } : d));
+                              }} style={{
+                                padding:'6px 2px', borderRadius:'4px', border:'none', cursor:'pointer', fontSize:'0.7rem',
+                                background: selDim.arrowStyle === styleOpt.id ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.06)',
+                                color: selDim.arrowStyle === styleOpt.id ? 'var(--gold-primary)' : '#bbb',
+                                outline: selDim.arrowStyle === styleOpt.id ? '1px solid var(--gold-primary)' : 'none',
+                                fontWeight:'bold'
+                              }}>{styleOpt.label}</button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Thickness Slider */}
+                        <SliderRow label="📏 ຄວາມໜາ (Line Thickness)" value={selDim.thickness || 3} min={1} max={8} step={1} unit="px"
+                          onChange={v => {
+                            setDimensions(prev => prev.map(d => d.id === selDim.id ? { ...d, thickness: v } : d));
+                          }} />
+
+                        {/* Color Picker */}
+                        <div>
+                          <label style={{ fontSize:'0.72rem', color:'#aaa', display:'block', marginBottom:'6px' }}>🎨 ສີຂອງເສັ້ນ (Color):</label>
+                          <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
+                            {[
+                              { color: '#d4af37', label: 'Gold' },
+                              { color: '#ffffff', label: 'White' },
+                              { color: '#e74c3c', label: 'Red' },
+                              { color: '#2ecc71', label: 'Green' },
+                              { color: '#3498db', label: 'Blue' },
+                            ].map(cOpt => (
+                              <button key={cOpt.color} onClick={() => {
+                                setDimensions(prev => prev.map(d => d.id === selDim.id ? { ...d, color: cOpt.color } : d));
+                              }} style={{
+                                width:'24px', height:'24px', borderRadius:'50%', border: selDim.color === cOpt.color ? '2px solid var(--gold-primary)' : '1px solid rgba(255,255,255,0.2)',
+                                background: cOpt.color, cursor:'pointer', boxSizing:'border-box',
+                                boxShadow: selDim.color === cOpt.color ? '0 0 8px var(--gold-primary)' : 'none'
+                              }} title={cOpt.label} />
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Delete Button */}
+                        <button onClick={() => {
+                          if (window.confirm('ຕ້ອງການລຶບເສັ້ນແທກຂະໜາດນີ້ ຫຼື ບໍ່?')) {
+                            setDimensions(prev => prev.filter(d => d.id !== selDim.id));
+                            setSelectedDimId(null);
+                          }
+                        }} style={{
+                          width:'100%', padding:'8px', background:'rgba(231,76,60,0.12)', border:'1px solid rgba(231,76,60,0.25)',
+                          color:'var(--alert-red)', borderRadius:'6px', cursor:'pointer', fontSize:'0.75rem', fontWeight:'bold',
+                          marginTop:'4px'
+                        }}>
+                          🗑️ ລຶບເສັ້ນແທກຂະໜາດນີ້ (Delete Line)
+                        </button>
+                      </div>
+                    );
+                  })()}
                 </>
               )}
 
