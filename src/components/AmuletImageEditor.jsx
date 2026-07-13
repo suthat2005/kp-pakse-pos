@@ -297,23 +297,26 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     }
   }, []);
 
+  const [renderError, setRenderError] = useState('');
+
   // ═══════════════════════════════════════════════════════════════════════════════
   // DRAW PROCESSED CANVAS (After) — main render pipeline
   // ═══════════════════════════════════════════════════════════════════════════════
   const renderProcessedImage = useCallback(async (overrideSettings, overrideAnalysis, isExport = false) => {
-    const stg = overrideSettings || settingsRef.current;
-    const anl = overrideAnalysis !== undefined ? overrideAnalysis : analysisRef.current;
-    const src = sourceImg;
+    try {
+      const stg = overrideSettings || settingsRef.current;
+      const anl = overrideAnalysis !== undefined ? overrideAnalysis : analysisRef.current;
+      const src = sourceImg;
 
-    const canvas = processedCanvasRef.current;
-    if (!canvas || !src) return;
+      const canvas = processedCanvasRef.current;
+      if (!canvas || !src) return;
 
-    canvas.width = 800; canvas.height = 800;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0,0,800,800);
+      canvas.width = 800; canvas.height = 800;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0,0,800,800);
 
-    // 1. Background template
-    drawBgTemplate(ctx, 800, 800, stg);
+      // 1. Background template
+      drawBgTemplate(ctx, 800, 800, stg);
 
     // 2. Image with transforms
     ctx.save();
@@ -547,7 +550,11 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     if (!isExport) {
       drawGuides(ctx, 800, 800, stg, anl);
     }
-  }, [sourceImg]);
+  } catch (err) {
+    console.error('Render error:', err);
+    setRenderError(err.message);
+  }
+}, [sourceImg]);
 
   // ─── Re-render when anything changes ────────────────────────────────────────
   useEffect(() => {
@@ -1181,6 +1188,13 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                 <span>✨ <b>ຄວາມຄົມ:</b> <span style={{color:analysis.sharpness>60?'#2ecc71':'#f1c40f'}}>{analysis.sharpness}%</span>
                   &nbsp;|&nbsp;💡 <b>ມຸມ:</b> <span style={{color:Math.abs(analysis.skewAngle)>2?'#e74c3c':'#2ecc71'}}>{analysis.skewAngle}°</span>
                 </span>
+              </div>
+            )}
+
+            {renderError && (
+              <div style={{ background:'rgba(231,76,60,0.12)', border:'1px solid rgba(231,76,60,0.3)', color:'var(--alert-red)', padding:'10px', borderRadius:'8px', fontSize:'0.78rem', maxWidth:'400px', textAlign:'center', zIndex:100 }}>
+                ⚠️ <b>ຂໍ້ຜິດພາດໃນການແຕ້ມຮູບ:</b> {renderError}<br/>
+                <button onClick={() => setRenderError('')} style={{ marginTop:'6px', padding:'3px 8px', background:'var(--alert-red)', color:'white', border:'none', borderRadius:'4px', cursor:'pointer', fontSize:'0.7rem', fontWeight:'bold' }}>ປິດ</button>
               </div>
             )}
 
