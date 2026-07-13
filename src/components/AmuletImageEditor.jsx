@@ -1566,7 +1566,18 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
               )
             ) : (
               <div style={{ textAlign:'center', color:'var(--text-secondary)' }}>
-                <p>ບໍ່ມີຮູບພາບທີ່ຈະແກ້ໄຂ</p>
+                <input type="file" accept="image/*" onChange={handleLocalUpload} style={{ display:'none' }} id="editorInitUpload" />
+                <label htmlFor="editorInitUpload" style={{
+                  display:'flex', flexDirection:'column', alignItems:'center', gap:'16px',
+                  padding:'50px 70px', border:'2.5px dashed rgba(212,175,55,0.3)', borderRadius:'16px',
+                  background:'rgba(212,175,55,0.02)', cursor:'pointer', transition:'all 0.25s',
+                  color:'var(--gold-primary)', fontWeight:'bold', borderStyle:'dashed',
+                  boxShadow:'inset 0 0 20px rgba(0,0,0,0.4)'
+                }}>
+                  <span style={{ fontSize:'3rem', filter:'drop-shadow(0 0 10px rgba(212,175,55,0.2))' }}>📸</span>
+                  <span style={{ fontSize:'0.9rem' }}>📂 ກົດບ່ອນນີ້ເພື່ອອັບໂຫຼດຮູບພາບ (Upload Photo)</span>
+                  <span style={{ fontSize:'0.72rem', color:'#777', fontWeight:'normal' }}>ຮອງຮັບໄຟລ໌ PNG, JPG, JPEG, WEBP</span>
+                </label>
               </div>
             )}
 
