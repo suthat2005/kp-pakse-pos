@@ -274,7 +274,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   // ═══════════════════════════════════════════════════════════════════════════════
   // DRAW PROCESSED CANVAS (After) — main render pipeline
   // ═══════════════════════════════════════════════════════════════════════════════
-  const renderProcessedImage = useCallback(async (overrideSettings, overrideAnalysis) => {
+  const renderProcessedImage = useCallback(async (overrideSettings, overrideAnalysis, isExport = false) => {
     const stg = overrideSettings || settingsRef.current;
     const anl = overrideAnalysis !== undefined ? overrideAnalysis : analysisRef.current;
     const src = sourceImg;
@@ -326,40 +326,43 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     try { tCtx.filter = 'none'; } catch(e) {}
 
     // ════════════════════════════════════════════════════════════════════════
-    // AI BG REMOVAL — Flood-Fill BFS from all border edges
+    // AI BG REMOVAL — Flood-Fill BFS restricted to image boundary bounds
     // ════════════════════════════════════════════════════════════════════════
     if (stg.removeBackground) {
-      let corsBlocked = false;
       try {
         const id = tCtx.getImageData(0, 0, 800, 800);
         const d = id.data;
         const W = 800, H = 800;
         const thr = stg.bgThreshold;
 
-        // ─── Sample BG colour from corners (fixed — never mutated during BFS) ───
+        // Calculate the bounding box of the drawn image on tCtx
+        const minX = Math.max(0, Math.floor(ddx));
+        const maxX = Math.min(W - 1, Math.floor(ddx + dw) - 1);
+        const minY = Math.max(0, Math.floor(ddy));
+        const maxY = Math.min(H - 1, Math.floor(ddy + dh) - 1);
+
+        // ─── Sample BG colour from corners of the image bounds ───
         let bgR = 0, bgG = 0, bgB = 0, sc = 0;
-        // Use analysis result if available (most accurate)
         if (anl && anl.bgR !== undefined) {
           bgR = anl.bgR; bgG = anl.bgG; bgB = anl.bgB; sc = 1;
         } else {
-          // Average of 4 corners
-          [[0,0],[W-1,0],[0,H-1],[W-1,H-1]].forEach(([x,y]) => {
+          // Average of 4 corners of the actual image rect bounds
+          [[minX, minY], [maxX, minY], [minX, maxY], [maxX, maxY]].forEach(([x, y]) => {
             const i = (y * W + x) * 4;
             if (d[i+3] > 0) { bgR += d[i]; bgG += d[i+1]; bgB += d[i+2]; sc++; }
           });
           if (sc > 0) { bgR = Math.round(bgR/sc); bgG = Math.round(bgG/sc); bgB = Math.round(bgB/sc); }
         }
-        // FIXED reference — do NOT mutate during BFS
         const fixedBgR = bgR, fixedBgG = bgG, fixedBgB = bgB;
 
-        // ─── Collect all border seed pixels ───
+        // ─── Seed the boundary of the image bounds ───
         const visited  = new Uint8Array(W * H);
         const toRemove = new Uint8Array(W * H);
-        // Use typed array as BFS queue for speed
         const queue = new Int32Array(W * H * 2);
         let qHead = 0, qTail = 0;
 
         const enqueue = (x, y) => {
+          if (x < minX || x > maxX || y < minY || y > maxY) return;
           const pi = y * W + x;
           if (visited[pi]) return;
           visited[pi] = 1;
@@ -367,18 +370,28 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
           queue[qTail++] = y;
         };
 
-        // Seed all 4 edges
-        for (let x = 0; x < W; x++) { enqueue(x, 0); enqueue(x, H-1); }
-        for (let y = 1; y < H-1; y++) { enqueue(0, y); enqueue(W-1, y); }
+        // Seed edges of the image rectangle bounds
+        for (let x = minX; x <= maxX; x++) { enqueue(x, minY); enqueue(x, maxY); }
+        for (let y = minY + 1; y < maxY; y++) { enqueue(minX, y); enqueue(maxX, y); }
 
-        // ─── BFS with FIXED colour comparison ───
+        // ─── BFS with Fixed colour comparison (tolerates internal alpha=0 padding) ───
         while (qHead < qTail) {
           const cx = queue[qHead++];
           const cy = queue[qHead++];
           const pi = cy * W + cx;
           const di = pi * 4;
 
-          if (d[di+3] === 0) continue; // already transparent
+          const isTransparent = (d[di+3] === 0);
+
+          if (isTransparent) {
+            toRemove[pi] = 1;
+            // Propagate through transparent regions to reach actual bg edges
+            if (cx+1 <= maxX) enqueue(cx+1, cy);
+            if (cx-1 >= minX) enqueue(cx-1, cy);
+            if (cy+1 <= maxY) enqueue(cx, cy+1);
+            if (cy-1 >= minY) enqueue(cx, cy-1);
+            continue;
+          }
 
           const dr = d[di]   - fixedBgR;
           const dg = d[di+1] - fixedBgG;
@@ -387,15 +400,14 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
 
           if (dist <= thr) {
             toRemove[pi] = 1;
-            // Spread to 4 neighbours
-            if (cx+1 < W) enqueue(cx+1, cy);
-            if (cx-1 >= 0) enqueue(cx-1, cy);
-            if (cy+1 < H)  enqueue(cx, cy+1);
-            if (cy-1 >= 0) enqueue(cx, cy-1);
+            if (cx+1 <= maxX) enqueue(cx+1, cy);
+            if (cx-1 >= minX) enqueue(cx-1, cy);
+            if (cy+1 <= maxY) enqueue(cx, cy+1);
+            if (cy-1 >= minY) enqueue(cx, cy-1);
           }
         }
 
-        // ─── Apply: respect keep/remove brushes ───
+        // ─── Apply: respect keep/remove brush overlays ───
         const kData = getKeepMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
         const rData = getRemoveMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
 
@@ -412,7 +424,6 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
         tCtx.putImageData(id, 0, 0);
         setBgRemoveCorsError(false);
       } catch (err) {
-        corsBlocked = true;
         console.warn('BG removal blocked (CORS):', err.message);
         setBgRemoveCorsError(true);
       }
@@ -421,7 +432,6 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     // Apply manual eraser mask (black pixels → transparent)
     const mc = getMaskCanvas();
     const mData = mc.getContext('2d').getImageData(0,0,800,800).data;
-    // Only apply if mask has any black painted pixels
     let hasMask = false;
     for (let i=0; i<mData.length; i+=4) {
       if (mData[i+3] > 0) { hasMask=true; break; }
@@ -431,11 +441,25 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
         const id2 = tCtx.getImageData(0,0,800,800);
         const d2 = id2.data;
         for (let i=0; i<d2.length; i+=4) {
-          // mask is black = erase → make source pixel transparent
           if (mData[i+3] > 0) d2[i+3] = Math.max(0, d2[i+3] - mData[i+3]);
         }
         tCtx.putImageData(id2, 0, 0);
       } catch(e) {}
+    }
+
+    // ─── Draw Keep/Remove brush stroke overlays on tmp canvas for preview ───
+    if (!isExport) {
+      tCtx.save();
+      // Draw keep mask (green)
+      tCtx.globalAlpha = 0.35;
+      tCtx.drawImage(getKeepMaskCanvas(), 0, 0);
+      tCtx.restore();
+
+      tCtx.save();
+      // Draw remove mask (red)
+      tCtx.globalAlpha = 0.35;
+      tCtx.drawImage(getRemoveMaskCanvas(), 0, 0);
+      tCtx.restore();
     }
 
     ctx.drawImage(tmp, 0, 0);
@@ -466,7 +490,9 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     if (stg.watermarkType !== 'none') await drawWatermark(ctx, 800, 800, stg);
 
     // 7. Guides (not saved on export)
-    drawGuides(ctx, 800, 800, stg, anl);
+    if (!isExport) {
+      drawGuides(ctx, 800, 800, stg, anl);
+    }
   }, [sourceImg]);
 
   // ─── Re-render when anything changes ────────────────────────────────────────
@@ -726,11 +752,41 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   const getCanvasCoords = (clientX, clientY) => {
     if (!eraserContainerRef.current) return null;
     const rect = eraserContainerRef.current.getBoundingClientRect();
+    const viewX = clientX - rect.left;
+    const viewY = clientY - rect.top;
+
+    // 1. Screen viewport coords mapped to 800x800 canvas space
+    const canvasX = (viewX / rect.width) * 800;
+    const canvasY = (viewY / rect.height) * 800;
+
+    // 2. Invert the rendering transforms step-by-step to get local image coordinates
+    // forward: translate(400,400) -> rotate(rad) -> scale(s,s) -> translate(tx-400, ty-400)
+    const stg = settingsRef.current;
+    
+    // Step A: Invert translation 1 (shift relative to center)
+    const x3 = canvasX - 400;
+    const y3 = canvasY - 400;
+
+    // Step B: Invert rotation
+    const rad = (stg.rotate * Math.PI) / 180;
+    const cos = Math.cos(rad);
+    const sin = Math.sin(rad);
+    const x2 = x3 * cos + y3 * sin;
+    const y2 = -x3 * sin + y3 * cos;
+
+    // Step C: Invert scale
+    const x1 = x2 / (stg.scale || 1);
+    const y1 = y2 / (stg.scale || 1);
+
+    // Step D: Invert translation 2
+    const lx = x1 - (stg.translateX - 400);
+    const ly = y1 - (stg.translateY - 400);
+
     return {
-      x: ((clientX - rect.left) / rect.width) * 800,
-      y: ((clientY - rect.top) / rect.height) * 800,
-      viewX: clientX - rect.left,
-      viewY: clientY - rect.top
+      x: lx,
+      y: ly,
+      viewX,
+      viewY
     };
   };
 
@@ -880,34 +936,42 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   // ═══════════════════════════════════════════════════════════════════════════════
   // EXPORT / SAVE
   // ═══════════════════════════════════════════════════════════════════════════════
-  const generateExportDataUrl = () => {
+  const generateExportDataUrl = async () => {
     let size = 800;
     if (exportSize==='thumbnail') size=150;
     if (exportSize==='zoom') size=1200;
     if (exportSize==='social') size=1080;
+
+    // 1. Temporarily render without guides or brush stroke overlays
+    await renderProcessedImage(settingsRef.current, analysisRef.current, true);
+
     const c = document.createElement('canvas');
     c.width=size; c.height=size;
     const ctx = c.getContext('2d');
     const pc = processedCanvasRef.current;
     if (pc) ctx.drawImage(pc, 0, 0, size, size);
+
+    // 2. Restore editing guides and brush overlays on screen
+    await renderProcessedImage(settingsRef.current, analysisRef.current, false);
+
     let type = 'image/webp';
     if (exportFormat==='png') type='image/png';
     if (exportFormat==='jpeg') type='image/jpeg';
     return c.toDataURL(type, 0.92);
   };
 
-  const handleSaveAction = () => {
+  const handleSaveAction = async () => {
     try {
-      const url = generateExportDataUrl();
+      const url = await generateExportDataUrl();
       if (onSave) onSave(url);
     } catch(err) {
       alert('❌ ບໍ່ສາມາດບັນທຶກໄດ້: ' + err.message);
     }
   };
 
-  const handleExportDownload = () => {
+  const handleExportDownload = async () => {
     try {
-      const url = generateExportDataUrl();
+      const url = await generateExportDataUrl();
       const a = document.createElement('a');
       a.download = `amulet_${exportSize}.${exportFormat}`;
       a.href = url; a.click();
