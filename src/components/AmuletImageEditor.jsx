@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import QRCode from 'qrcode';
-import { db } from '../utils/db';
 
 export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = false }) {
   // ─── Source image & analysis ────────────────────────────────────────────────
@@ -9,6 +8,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [bgRemoveCorsError, setBgRemoveCorsError] = useState(false);
+  const [renderError, setRenderError] = useState('');
 
   // ─── History (undo/redo) ─────────────────────────────────────────────────────
   const [history, setHistory] = useState([]);
@@ -16,17 +16,16 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
 
   // ─── Settings ────────────────────────────────────────────────────────────────
   const defaultSettings = {
-    // Crop
+    // Crop & Transform
     rotate: 0, scale: 1, translateX: 0, translateY: 0,
     cropLeft: 0, cropRight: 0, cropTop: 0, cropBottom: 0,
-    // Enhance
+    // Enhance Filters
     brightness: 1, contrast: 1, saturation: 1, hueRotate: 0,
     blur: 0, sharpness: 0, vignette: 0,
     selectiveClarity: false,
-    // Background removal
+    // Background Removal
     removeBackground: false, bgThreshold: 45,
-    // Background template
-    backgroundType: 'none',
+    backgroundType: 'none', // 'none' | 'transparent' | 'white' | 'black' | 'luxury' | etc.
     // Frame
     frameType: 'none', frameSize: 20, frameOpacity: 1,
     // Watermark
@@ -44,21 +43,18 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   const [exportFormat, setExportFormat] = useState('webp');
   const [exportSize, setExportSize] = useState('product');
 
-  // ─── Eraser States ────────────────────────────────────────────────────────────
-  const [brushSize, setBrushSize] = useState(35);
-  const [eraseMode, setEraseMode] = useState('erase'); // 'erase' | 'restore' | 'keep' | 'remove'
+  // ─── Eraser / Brush States ────────────────────────────────────────────────────
+  const [brushSize, setBrushSize] = useState(30);
+  const [eraseMode, setEraseMode] = useState('keep'); // 'keep' | 'remove' | 'erase' | 'restore'
   const [isDrawing, setIsDrawing] = useState(false);
   const [brushPos, setBrushPos] = useState(null);
   const lastDrawingPos = useRef(null);
   const eraserContainerRef = useRef(null);
 
-  // ─── Dimensions Annotation States ────────────────────────────────────────────
+  // ─── Dimensions / Annotations States ──────────────────────────────────────────
   const [dimensions, setDimensions] = useState([]); // Array of { id, x1, y1, x2, y2, label, color, thickness, arrowStyle }
   const [selectedDimId, setSelectedDimId] = useState(null);
   const [draggedDimPoint, setDraggedDimPoint] = useState(null); // { id, point: 'start' | 'end' }
-
-  const dimensionsRef = useRef(dimensions);
-  useEffect(() => { dimensionsRef.current = dimensions; }, [dimensions]);
 
   // ─── Custom Background Image ─────────────────────────────────────────────────
   const [customBgImage, setCustomBgImage] = useState(null); // HTMLImageElement
@@ -69,11 +65,11 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   const originalCanvasRef = useRef(null);
   const processedCanvasRef = useRef(null);
   const sliderContainerRef = useRef(null);
-  const maskCanvasRef = useRef(null);       // offscreen 800×800 alpha mask (eraser)
-  const keepMaskCanvasRef = useRef(null);   // offscreen: green = force keep
-  const removeMaskCanvasRef = useRef(null); // offscreen: red   = force remove
+  const maskCanvasRef = useRef(null);       // manual eraser mask (800x800 alpha)
+  const keepMaskCanvasRef = useRef(null);   // green keep brush mask (800x800 alpha)
+  const removeMaskCanvasRef = useRef(null); // red remove brush mask (800x800 alpha)
 
-  // ─── Current settings ref (for use inside callbacks without re-render) ───────
+  // Refs for callbacks to avoid stale closures
   const settingsRef = useRef(settings);
   useEffect(() => { settingsRef.current = settings; }, [settings]);
   const eraseModeRef = useRef(eraseMode);
@@ -82,9 +78,11 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   useEffect(() => { brushSizeRef.current = brushSize; }, [brushSize]);
   const analysisRef = useRef(analysis);
   useEffect(() => { analysisRef.current = analysis; }, [analysis]);
+  const dimensionsRef = useRef(dimensions);
+  useEffect(() => { dimensionsRef.current = dimensions; }, [dimensions]);
 
   // ═══════════════════════════════════════════════════════════════════════════════
-  // MASK CANVAS HELPERS
+  // OFF-SCREEN MASK CANVAS ACCESSORS
   // ═══════════════════════════════════════════════════════════════════════════════
   const getMaskCanvas = () => {
     if (!maskCanvasRef.current) {
@@ -133,6 +131,9 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     img.src = dataUrl;
   }, []);
 
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // AUTO KEEP-MASK GENERATOR
+  // ═══════════════════════════════════════════════════════════════════════════════
   const autoDrawKeepMask = (anl) => {
     try {
       const km = getKeepMaskCanvas();
@@ -156,13 +157,14 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   };
 
   // ═══════════════════════════════════════════════════════════════════════════════
-  // LOAD IMAGE  — uses fetch→blob to bypass CORS canvas taint
+  // CORS-FRIENDLY IMAGE LOADER
   // ═══════════════════════════════════════════════════════════════════════════════
   const initImage = (img) => {
     setSourceImg(img);
     clearMask();
     setBgRemoveCorsError(false);
     setSettings(defaultSettings);
+    setDimensions([]);
     setHistory([{ settings: defaultSettings, maskDataUrl: '' }]);
     setHistoryIndex(0);
     runAnalysis(img);
@@ -171,30 +173,30 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   useEffect(() => {
     if (!imageUrl) return;
     setBgRemoveCorsError(false);
+    setErrorMsg('');
 
     const load = async () => {
-      // If already a data URL / blob URL — load directly (no CORS issue)
+      // Direct load if already data URI or blob
       if (imageUrl.startsWith('data:') || imageUrl.startsWith('blob:')) {
         const img = new Image();
         img.onload = () => initImage(img);
-        img.onerror = () => setErrorMsg('ໂຫຼດຮູບຜິດພາດ');
+        img.onerror = () => setErrorMsg('ໂຫຼດຮູບພາບຫຼົ້ມເຫຼວ');
         img.src = imageUrl;
         return;
       }
 
-      // Try fetch → blob URL (avoids canvas CORS taint for pixel ops)
+      // Fetch blob first to bypass CORS canvas security errors
       try {
         const resp = await fetch(imageUrl, { mode: 'cors', cache: 'no-cache' });
-        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        if (!resp.ok) throw new Error('HTTP status ' + resp.status);
         const blob = await resp.blob();
         const blobUrl = URL.createObjectURL(blob);
         const img = new Image();
         img.onload = () => { URL.revokeObjectURL(blobUrl); initImage(img); };
-        img.onerror = () => { URL.revokeObjectURL(blobUrl); setErrorMsg('ໂຫຼດຮູບຜິດພາດ'); };
+        img.onerror = () => { URL.revokeObjectURL(blobUrl); setErrorMsg('ໂຫຼດຮູບພາບຫຼົ້ມເຫຼວ'); };
         img.src = blobUrl;
       } catch (fetchErr) {
-        // Fallback: load directly (works for display but getImageData will be CORS-blocked)
-        console.warn('fetch failed, loading directly (CORS may block pixel ops):', fetchErr);
+        console.warn('CORS blob fetch failed. Falling back to direct load.', fetchErr);
         const img = new Image();
         img.crossOrigin = 'anonymous';
         img.onload = () => initImage(img);
@@ -207,7 +209,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   }, [imageUrl]);
 
   // ═══════════════════════════════════════════════════════════════════════════════
-  // ANALYSIS
+  // AMULET ANALYZER & FEATURE DETECTOR
   // ═══════════════════════════════════════════════════════════════════════════════
   const runAnalysis = (imgEl) => {
     setIsAnalyzing(true);
@@ -217,63 +219,85 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
         c.width = 300; c.height = 300;
         const ctx = c.getContext('2d');
         ctx.drawImage(imgEl, 0, 0, 300, 300);
-        const { data } = ctx.getImageData(0, 0, 300, 300);
+        const data = ctx.getImageData(0,0,300,300).data;
 
-        // Sample corners for background colour
-        const corners = [[0,0],[299,0],[0,299],[299,299]];
-        let bgR=0, bgG=0, bgB=0;
-        corners.forEach(([x,y]) => {
-          const i = (y*300+x)*4;
-          bgR += data[i]; bgG += data[i+1]; bgB += data[i+2];
-        });
-        bgR = Math.round(bgR/4); bgG = Math.round(bgG/4); bgB = Math.round(bgB/4);
+        // Simple bounding box analysis based on non-bg pixels
+        let minX=300, maxX=0, minY=300, maxY=0;
+        let bgR = data[0], bgG = data[1], bgB = data[2];
 
-        let minX=300,maxX=0,minY=300,maxY=0,totX=0,totY=0,cnt=0;
-        for (let y=0; y<300; y+=3) for (let x=0; x<300; x+=3) {
-          const i=(y*300+x)*4;
-          const dist=Math.sqrt((data[i]-bgR)**2+(data[i+1]-bgG)**2+(data[i+2]-bgB)**2);
-          if (data[i+3]>50 && dist>30) {
-            if(x<minX)minX=x; if(x>maxX)maxX=x;
-            if(y<minY)minY=y; if(y>maxY)maxY=y;
-            totX+=x; totY+=y; cnt++;
+        // Sample edges to get average background color
+        let sampleCount = 0, sumBgR = 0, sumBgG = 0, sumBgB = 0;
+        for (let x = 0; x < 300; x += 10) {
+          const iTop = x * 4;
+          const iBottom = (299 * 300 + x) * 4;
+          sumBgR += data[iTop] + data[iBottom];
+          sumBgG += data[iTop+1] + data[iBottom+1];
+          sumBgB += data[iTop+2] + data[iBottom+2];
+          sampleCount += 2;
+        }
+        if (sampleCount > 0) {
+          bgR = sumBgR / sampleCount;
+          bgG = sumBgG / sampleCount;
+          bgB = sumBgB / sampleCount;
+        }
+
+        let totX = 0, totY = 0, cnt = 0;
+        for (let y = 10; y < 290; y++) {
+          for (let x = 10; x < 290; x++) {
+            const i = (y * 300 + x) * 4;
+            const r = data[i], g = data[i+1], b = data[i+2];
+            const diff = Math.sqrt((r-bgR)**2 + (g-bgG)**2 + (b-bgB)**2);
+
+            if (diff > 42) {
+              if (x < minX) minX = x;
+              if (x > maxX) maxX = x;
+              if (y < minY) minY = y;
+              if (y > maxY) maxY = y;
+              totX += x; totY += y; cnt++;
+            }
           }
         }
-        if(cnt===0){minX=60;maxX=240;minY=60;maxY=240;cnt=1;totX=150;totY=150;}
+        if (cnt === 0) { minX = 60; maxX = 240; minY = 60; maxY = 240; cnt = 1; totX = 150; totY = 150; }
 
-        let sumG=0,sumSq=0,gc=0;
-        for(let y=20;y<280;y+=12) for(let x=20;x<280;x+=12){
-          const i=(y*300+x)*4;
-          const v=(data[i]+data[i+1]+data[i+2])/3;
-          const r=(data[i+4]+data[i+5]+data[i+6])/3;
-          const d=Math.abs(v-r);
-          sumG+=d; sumSq+=d*d; gc++;
+        let sumG = 0, sumSq = 0, gc = 0;
+        for (let y = 20; y < 280; y += 12) {
+          for (let x = 20; x < 280; x += 12) {
+            const i = (y * 300 + x) * 4;
+            const v = (data[i] + data[i+1] + data[i+2]) / 3;
+            const r = (data[i+4] + data[i+5] + data[i+6]) / 3;
+            const d = Math.abs(v - r);
+            sumG += d; sumSq += d * d; gc++;
+          }
         }
-        const meanG=sumG/gc;
-        const varG=(sumSq/gc)-(meanG*meanG);
-        const sharpness=Math.min(100,Math.max(15,Math.round(varG*1.2)));
+        const meanG = sumG / gc;
+        const varG = (sumSq / gc) - (meanG * meanG);
+        const sharpness = Math.min(100, Math.max(15, Math.round(varG * 1.2)));
 
-        const scaleX = imgEl.naturalWidth/300;
-        const scaleY = imgEl.naturalHeight/300;
+        const scaleX = imgEl.naturalWidth / 300;
+        const scaleY = imgEl.naturalHeight / 300;
         const anlData = {
-          minX:Math.round(minX*scaleX), maxX:Math.round(maxX*scaleX),
-          minY:Math.round(minY*scaleY), maxY:Math.round(maxY*scaleY),
-          width:Math.round((maxX-minX)*scaleX), height:Math.round((maxY-minY)*scaleY),
-          centerX:Math.round((totX/cnt)*scaleX), centerY:Math.round((totY/cnt)*scaleY),
-          sharpness, skewAngle:parseFloat((Math.sin(totX/cnt)*3).toFixed(1)),
-          noise:Math.max(5,40-Math.round(sharpness/2.5)),
-          bgR,bgG,bgB
+          minX: Math.round(minX * scaleX), maxX: Math.round(maxX * scaleX),
+          minY: Math.round(minY * scaleY), maxY: Math.round(maxY * scaleY),
+          width: Math.round((maxX - minX) * scaleX), height: Math.round((maxY - minY) * scaleY),
+          centerX: Math.round((totX / cnt) * scaleX), centerY: Math.round((totY / cnt) * scaleY),
+          sharpness, skewAngle: parseFloat((Math.sin(totX / cnt) * 3).toFixed(1)),
+          noise: Math.max(5, 40 - Math.round(sharpness / 2.5)),
+          bgR, bgG, bgB
         };
+
         setAnalysis(anlData);
         autoDrawKeepMask(anlData);
-        // Immediately render
         renderProcessedImage(settingsRef.current, anlData);
-      } catch(err){ console.error('Analysis failed:', err); }
-      finally { setIsAnalyzing(false); }
+      } catch (err) {
+        console.error('Image analysis failed:', err);
+      } finally {
+        setIsAnalyzing(false);
+      }
     }, 600);
   };
 
   // ═══════════════════════════════════════════════════════════════════════════════
-  // DRAW ORIGINAL CANVAS (Before)
+  // DRAW ORIGINAL CANVAS (Left preview / Before tab)
   // ═══════════════════════════════════════════════════════════════════════════════
   const drawOriginalCanvas = useCallback((src, stg, tab) => {
     const canvas = originalCanvasRef.current;
@@ -284,31 +308,32 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
 
     const aspect = src.naturalWidth / src.naturalHeight;
     let dw = 800, dh = 800;
-    if (aspect > 1) dh = 800/aspect; else dw = 800*aspect;
-    const dx = (800-dw)/2, dy = (800-dh)/2;
+    if (aspect > 1) dh = 800 / aspect; else dw = 800 * aspect;
+    const dx = (800 - dw) / 2, dy = (800 - dh) / 2;
     ctx.drawImage(src, dx, dy, dw, dh);
 
+    // Draw active crop boundaries indicator in CROP tab
     if (tab === 'crop') {
-      const cx = dx + (stg.cropLeft/100)*dw;
-      const cy = dy + (stg.cropTop/100)*dh;
-      const cw = Math.max(10, (1-(stg.cropLeft+stg.cropRight)/100)*dw);
-      const ch = Math.max(10, (1-(stg.cropTop+stg.cropBottom)/100)*dh);
+      const cx = dx + (stg.cropLeft/100) * dw;
+      const cy = dy + (stg.cropTop/100) * dh;
+      const cw = Math.max(10, (1 - (stg.cropLeft + stg.cropRight)/100) * dw);
+      const ch = Math.max(10, (1 - (stg.cropTop + stg.cropBottom)/100) * dh);
+
       ctx.fillStyle = 'rgba(0,0,0,0.55)';
       ctx.fillRect(0,0,800,cy);
       ctx.fillRect(0,cy+ch,800,800-(cy+ch));
       ctx.fillRect(0,cy,cx,ch);
       ctx.fillRect(cx+cw,cy,800-(cx+cw),ch);
-      ctx.strokeStyle='rgba(212,175,55,0.9)';
-      ctx.lineWidth=3; ctx.setLineDash([8,6]);
+
+      ctx.strokeStyle = 'rgba(212,175,55,0.9)';
+      ctx.lineWidth = 3; ctx.setLineDash([8,6]);
       ctx.strokeRect(cx,cy,cw,ch);
       ctx.setLineDash([]);
     }
   }, []);
 
-  const [renderError, setRenderError] = useState('');
-
   // ═══════════════════════════════════════════════════════════════════════════════
-  // DRAW PROCESSED CANVAS (After) — main render pipeline
+  // MAIN RENDERING PIPELINE (After canvas)
   // ═══════════════════════════════════════════════════════════════════════════════
   const renderProcessedImage = useCallback(async (overrideSettings, overrideAnalysis, isExport = false) => {
     try {
@@ -323,291 +348,247 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0,0,800,800);
 
-      // 1. Background template
+      // 1. Draw Selected Background Template
       drawBgTemplate(ctx, 800, 800, stg, isExport);
 
-    // 2. Image with transforms
-    ctx.save();
-    ctx.translate(400, 400);
-    ctx.rotate((stg.rotate * Math.PI) / 180);
-    ctx.scale(stg.scale, stg.scale);
-    ctx.translate(stg.translateX - 400, stg.translateY - 400);
+      // 2. Draw Transformed Image Content
+      ctx.save();
+      ctx.translate(400, 400);
+      ctx.rotate((stg.rotate * Math.PI) / 180);
+      ctx.scale(stg.scale, stg.scale);
+      ctx.translate(stg.translateX - 400, stg.translateY - 400);
 
-    // Temp canvas for image + filters + BG removal + eraser mask
-    const tmp = document.createElement('canvas');
-    tmp.width = 800; tmp.height = 800;
-    const tCtx = tmp.getContext('2d');
+      // Render image on offscreen temp canvas to apply filters and masks
+      const tmp = document.createElement('canvas');
+      tmp.width = 800; tmp.height = 800;
+      const tCtx = tmp.getContext('2d');
 
-    // Crop source rect
-    const sx = (stg.cropLeft/100) * src.naturalWidth;
-    const sy = (stg.cropTop/100) * src.naturalHeight;
-    const sw = Math.max(10, (1-(stg.cropLeft+stg.cropRight)/100) * src.naturalWidth);
-    const sh = Math.max(10, (1-(stg.cropTop+stg.cropBottom)/100) * src.naturalHeight);
-    const asp = sw/sh;
-    let dw=800, dh=800;
-    if (asp>1) dh=800/asp; else dw=800*asp;
-    const ddx=(800-dw)/2, ddy=(800-dh)/2;
+      const sx = (stg.cropLeft/100) * src.naturalWidth;
+      const sy = (stg.cropTop/100) * src.naturalHeight;
+      const sw = Math.max(10, (1 - (stg.cropLeft + stg.cropRight)/100) * src.naturalWidth);
+      const sh = Math.max(10, (1 - (stg.cropTop + stg.cropBottom)/100) * src.naturalHeight);
+      const asp = sw / sh;
+      let dw = 800, dh = 800;
+      if (asp > 1) dh = 800 / asp; else dw = 800 * asp;
+      const ddx = (800 - dw) / 2, ddy = (800 - dh) / 2;
 
-    // Apply CSS filters on temp context
-    try {
-      tCtx.filter = [
-        `brightness(${stg.brightness})`,
-        `contrast(${stg.contrast})`,
-        `saturate(${stg.saturation})`,
-        `hue-rotate(${stg.hueRotate}deg)`,
-        stg.blur > 0 ? `blur(${stg.blur}px)` : ''
-      ].filter(Boolean).join(' ');
-    } catch(e) {}
+      // Apply CSS style filters
+      tCtx.filter = `
+        brightness(${stg.brightness})
+        contrast(${stg.contrast})
+        saturate(${stg.saturation})
+        hue-rotate(${stg.hueRotate}deg)
+        blur(${stg.blur}px)
+      `;
+      tCtx.drawImage(src, sx, sy, sw, sh, ddx, ddy, dw, dh);
+      tCtx.filter = 'none';
 
-    tCtx.drawImage(src, sx, sy, sw, sh, ddx, ddy, dw, dh);
-    try { tCtx.filter = 'none'; } catch(e) {}
+      // ─── Apply Background Removal / Extraction ───
+      if (stg.removeBackground) {
+        try {
+          const id = tCtx.getImageData(0, 0, 800, 800);
+          const d = id.data;
+          const W = 800, H = 800;
+          const thr = stg.bgThreshold;
 
-    // ════════════════════════════════════════════════════════════════════════
-    // AI BG REMOVAL — Flood-Fill BFS restricted to image boundary bounds
-    // ════════════════════════════════════════════════════════════════════════
-    if (stg.removeBackground) {
-      try {
-        const id = tCtx.getImageData(0, 0, 800, 800);
-        const d = id.data;
-        const W = 800, H = 800;
-        const thr = stg.bgThreshold;
+          const minX = Math.max(0, Math.floor(ddx));
+          const maxX = Math.min(W - 1, Math.floor(ddx + dw) - 1);
+          const minY = Math.max(0, Math.floor(ddy));
+          const maxY = Math.min(H - 1, Math.floor(ddy + dh) - 1);
 
-        // Calculate the bounding box of the drawn image on tCtx
-        const minX = Math.max(0, Math.floor(ddx));
-        const maxX = Math.min(W - 1, Math.floor(ddx + dw) - 1);
-        const minY = Math.max(0, Math.floor(ddy));
-        const maxY = Math.min(H - 1, Math.floor(ddy + dh) - 1);
+          const kData = getKeepMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
+          const rData = getRemoveMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
 
-        // ─── Sample BG colour from corners of the image bounds ───
-        let bgR = 0, bgG = 0, bgB = 0, sc = 0;
-        if (anl && anl.bgR !== undefined) {
-          bgR = anl.bgR; bgG = anl.bgG; bgB = anl.bgB; sc = 1;
-        } else {
-          // Average of 4 corners of the actual image rect bounds
-          [[minX, minY], [maxX, minY], [minX, maxY], [maxX, maxY]].forEach(([x, y]) => {
-            const i = (y * W + x) * 4;
-            if (d[i+3] > 0) { bgR += d[i]; bgG += d[i+1]; bgB += d[i+2]; sc++; }
-          });
-          if (sc > 0) { bgR = Math.round(bgR/sc); bgG = Math.round(bgG/sc); bgB = Math.round(bgB/sc); }
-        }
-        const fixedBgR = bgR, fixedBgG = bgG, fixedBgB = bgB;
-
-        // ─── Extract background based on auto-generated / user-painted Keep Mask ───
-        const kData = getKeepMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
-        const rData = getRemoveMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
-
-        // Check if there is any green keep-mask painted (either auto or manual)
-        let hasKeepMask = false;
-        for (let i = 0; i < W * H; i++) {
-          if (kData[i*4+1] > 128 && kData[i*4+3] > 0) {
-            hasKeepMask = true;
-            break;
-          }
-        }
-
-        if (hasKeepMask) {
-          // 1. DIRECT EXTRACTION: Keep ONLY green mask pixels, remove everything else (including red marks)
+          // Check if keep mask has drawn pixels
+          let hasKeepMask = false;
           for (let i = 0; i < W * H; i++) {
-            const di4 = i * 4;
-            const inKeep = (kData[di4+1] > 128 && kData[di4+3] > 0);
-            const inRemove = (rData[di4] > 128 && rData[di4+3] > 0);
-
-            if (inRemove || !inKeep) {
-              d[di4+3] = 0; // transparent
+            if (kData[i*4+1] > 128 && kData[i*4+3] > 0) {
+              hasKeepMask = true;
+              break;
             }
           }
-        } else {
-          // 2. FALLBACK: Flood-fill BFS (when no keep mask is generated yet)
-          // Shift bounds inward by 2px to ensure seeds are sampled from actual image pixels (not transparent margins)
-          const seedMinX = Math.max(0, Math.floor(ddx) + 2);
-          const seedMaxX = Math.min(W - 1, Math.floor(ddx + dw) - 3);
-          const seedMinY = Math.max(0, Math.floor(ddy) + 2);
-          const seedMaxY = Math.min(H - 1, Math.floor(ddy + dh) - 3);
 
-          const visited  = new Uint8Array(W * H);
-          const toRemove = new Uint8Array(W * H);
-          const queue = new Int32Array(W * H * 5); // x, y, r, g, b
-          let qHead = 0, qTail = 0;
+          if (hasKeepMask) {
+            // Extract using Keep Mask: remove anything not green or anything marked red
+            for (let i = 0; i < W * H; i++) {
+              const di4 = i * 4;
+              const inKeep = (kData[di4+1] > 128 && kData[di4+3] > 0);
+              const inRemove = (rData[di4] > 128 && rData[di4+3] > 0);
+              if (inRemove || !inKeep) {
+                d[di4+3] = 0;
+              }
+            }
+          } else {
+            // Fallback: flood-fill BFS from corners
+            const seedMinX = Math.max(0, Math.floor(ddx) + 2);
+            const seedMaxX = Math.min(W - 1, Math.floor(ddx + dw) - 3);
+            const seedMinY = Math.max(0, Math.floor(ddy) + 2);
+            const seedMaxY = Math.min(H - 1, Math.floor(ddy + dh) - 3);
 
-          const enqueue = (x, y, sr, sg, sb) => {
-            if (x < seedMinX || x > seedMaxX || y < seedMinY || y > seedMaxY) return;
-            const pi = y * W + x;
-            if (visited[pi]) return;
-            visited[pi] = 1;
-            queue[qTail++] = x;
-            queue[qTail++] = y;
-            queue[qTail++] = sr;
-            queue[qTail++] = sg;
-            queue[qTail++] = sb;
-          };
+            const visited = new Uint8Array(W * H);
+            const toRemove = new Uint8Array(W * H);
+            const queue = new Int32Array(W * H * 5);
+            let qHead = 0, qTail = 0;
 
-          // Seed boundaries of the image bounds
-          for (let x = seedMinX; x <= seedMaxX; x++) {
-            const iTop = seedMinY * W + x;
-            enqueue(x, seedMinY, d[iTop*4], d[iTop*4+1], d[iTop*4+2]);
-            const iBottom = seedMaxY * W + x;
-            enqueue(x, seedMaxY, d[iBottom*4], d[iBottom*4+1], d[iBottom*4+2]);
-          }
-          for (let y = seedMinY + 1; y < seedMaxY; y++) {
-            const iLeft = y * W + seedMinX;
-            enqueue(seedMinX, y, d[iLeft*4], d[iLeft*4+1], d[iLeft*4+2]);
-            const iRight = y * W + seedMaxX;
-            enqueue(seedMaxX, y, d[iRight*4], d[iRight*4+1], d[iRight*4+2]);
-          }
-
-          // Seed user red remove marks
-          for (let y = seedMinY; y <= seedMaxY; y++) {
-            for (let x = seedMinX; x <= seedMaxX; x++) {
+            const enqueue = (x, y, sr, sg, sb) => {
+              if (x < seedMinX || x > seedMaxX || y < seedMinY || y > seedMaxY) return;
               const pi = y * W + x;
-              const ri = pi * 4;
-              if (rData[ri] > 128 && rData[ri+3] > 0) {
-                enqueue(x, y, d[ri], d[ri+1], d[ri+2]);
+              if (visited[pi]) return;
+              visited[pi] = 1;
+              queue[qTail++] = x;
+              queue[qTail++] = y;
+              queue[qTail++] = sr;
+              queue[qTail++] = sg;
+              queue[qTail++] = sb;
+            };
+
+            for (let x = seedMinX; x <= seedMaxX; x++) {
+              const iTop = seedMinY * W + x;
+              enqueue(x, seedMinY, d[iTop*4], d[iTop*4+1], d[iTop*4+2]);
+              const iBottom = seedMaxY * W + x;
+              enqueue(x, seedMaxY, d[iBottom*4], d[iBottom*4+1], d[iBottom*4+2]);
+            }
+            for (let y = seedMinY + 1; y < seedMaxY; y++) {
+              const iLeft = y * W + seedMinX;
+              enqueue(seedMinX, y, d[iLeft*4], d[iLeft*4+1], d[iLeft*4+2]);
+              const iRight = y * W + seedMaxX;
+              enqueue(seedMaxX, y, d[iRight*4], d[iRight*4+1], d[iRight*4+2]);
+            }
+
+            // BFS queue loop
+            while (qHead < qTail) {
+              const cx = queue[qHead++];
+              const cy = queue[qHead++];
+              const sr = queue[qHead++];
+              const sg = queue[qHead++];
+              const sb = queue[qHead++];
+
+              const pi = cy * W + cx;
+              const di = pi * 4;
+
+              if (d[di+3] === 0) {
+                toRemove[pi] = 1;
+                if (cx+1 <= seedMaxX) enqueue(cx+1, cy, sr, sg, sb);
+                if (cx-1 >= seedMinX) enqueue(cx-1, cy, sr, sg, sb);
+                if (cy+1 <= seedMaxY) enqueue(cx, cy+1, sr, sg, sb);
+                if (cy-1 >= seedMinY) enqueue(cx, cy-1, sr, sg, sb);
+                continue;
+              }
+
+              const dr = d[di] - sr;
+              const dg = d[di+1] - sg;
+              const db = d[di+2] - sb;
+              const dist = Math.sqrt(dr*dr + dg*dg + db*db);
+
+              if (dist <= thr) {
+                toRemove[pi] = 1;
+                if (cx+1 <= seedMaxX) enqueue(cx+1, cy, sr, sg, sb);
+                if (cx-1 >= seedMinX) enqueue(cx-1, cy, sr, sg, sb);
+                if (cy+1 <= seedMaxY) enqueue(cx, cy+1, sr, sg, sb);
+                if (cy-1 >= seedMinY) enqueue(cx, cy-1, sr, sg, sb);
+              }
+            }
+
+            for (let i = 0; i < W * H; i++) {
+              const di4 = i * 4;
+              if (rData[di4] > 128 && rData[di4+3] > 0) {
+                d[di4+3] = 0;
+              } else if (kData[di4+1] > 128 && kData[di4+3] > 0) {
+                // Protect
+              } else if (toRemove[i]) {
+                d[di4+3] = 0;
               }
             }
           }
 
-          // Run BFS
-          while (qHead < qTail) {
-            const cx = queue[qHead++];
-            const cy = queue[qHead++];
-            const sr = queue[qHead++];
-            const sg = queue[qHead++];
-            const sb = queue[qHead++];
-
-            const pi = cy * W + cx;
-            const di = pi * 4;
-
-            const isTransparent = (d[di+3] === 0);
-
-            if (isTransparent) {
-              toRemove[pi] = 1;
-              if (cx+1 <= seedMaxX) enqueue(cx+1, cy, sr, sg, sb);
-              if (cx-1 >= seedMinX) enqueue(cx-1, cy, sr, sg, sb);
-              if (cy+1 <= seedMaxY) enqueue(cx, cy+1, sr, sg, sb);
-              if (cy-1 >= seedMinY) enqueue(cx, cy-1, sr, sg, sb);
-              continue;
-            }
-
-            const dr = d[di]   - sr;
-            const dg = d[di+1] - sg;
-            const db = d[di+2] - sb;
-            const dist = Math.sqrt(dr*dr + dg*dg + db*db);
-
-            if (dist <= thr) {
-              toRemove[pi] = 1;
-              if (cx+1 <= seedMaxX) enqueue(cx+1, cy, sr, sg, sb);
-              if (cx-1 >= seedMinX) enqueue(cx-1, cy, sr, sg, sb);
-              if (cy+1 <= seedMaxY) enqueue(cx, cy+1, sr, sg, sb);
-              if (cy-1 >= seedMinY) enqueue(cx, cy-1, sr, sg, sb);
-            }
-          }
-
-          // Apply BFS results
-          for (let i = 0; i < W * H; i++) {
-            const di4 = i * 4;
-            if (rData[di4] > 128 && rData[di4+3] > 0) {
-              d[di4+3] = 0;
-            } else if (kData[di4+1] > 128 && kData[di4+3] > 0) {
-              // Keep
-            } else if (toRemove[i]) {
-              d[di4+3] = 0;
-            }
-          }
+          tCtx.putImageData(id, 0, 0);
+          setBgRemoveCorsError(false);
+        } catch (e) {
+          console.warn('Image segmentation blocked by CORS:', e.message);
+          setBgRemoveCorsError(true);
         }
-        tCtx.putImageData(id, 0, 0);
-        setBgRemoveCorsError(false);
-      } catch (err) {
-        console.warn('BG removal blocked (CORS):', err.message);
-        setBgRemoveCorsError(true);
       }
-    }
 
-    // Apply manual eraser mask (black pixels → transparent)
-    const mc = getMaskCanvas();
-    const mData = mc.getContext('2d').getImageData(0,0,800,800).data;
-    let hasMask = false;
-    for (let i=0; i<mData.length; i+=4) {
-      if (mData[i+3] > 0) { hasMask=true; break; }
-    }
-    if (hasMask) {
-      try {
+      // ─── Apply Manual Eraser Mask ───
+      const mc = getMaskCanvas();
+      const mData = mc.getContext('2d').getImageData(0,0,800,800).data;
+      let hasManualMask = false;
+      for (let i = 0; i < mData.length; i += 4) {
+        if (mData[i+3] > 0) { hasManualMask = true; break; }
+      }
+      if (hasManualMask) {
         const id2 = tCtx.getImageData(0,0,800,800);
         const d2 = id2.data;
-        for (let i=0; i<d2.length; i+=4) {
+        for (let i = 0; i < d2.length; i += 4) {
           if (mData[i+3] > 0) d2[i+3] = Math.max(0, d2[i+3] - mData[i+3]);
         }
         tCtx.putImageData(id2, 0, 0);
-      } catch(e) {}
-    }
+      }
 
-    // ─── Draw Keep/Remove brush stroke overlays on tmp canvas for preview ───
-    if (!isExport) {
-      tCtx.save();
-      // Draw keep mask (green)
-      tCtx.globalAlpha = 0.35;
-      tCtx.drawImage(getKeepMaskCanvas(), 0, 0);
-      tCtx.restore();
+      // Draw keep/remove masks overlay on canvas during editing preview
+      if (!isExport) {
+        tCtx.save();
+        tCtx.globalAlpha = 0.35;
+        tCtx.drawImage(getKeepMaskCanvas(), 0, 0);
+        tCtx.restore();
 
-      tCtx.save();
-      // Draw remove mask (red)
-      tCtx.globalAlpha = 0.35;
-      tCtx.drawImage(getRemoveMaskCanvas(), 0, 0);
-      tCtx.restore();
-    }
+        tCtx.save();
+        tCtx.globalAlpha = 0.35;
+        tCtx.drawImage(getRemoveMaskCanvas(), 0, 0);
+        tCtx.restore();
+      }
 
-    ctx.drawImage(tmp, 0, 0);
-    ctx.restore();
-
-    // 3. Vignette overlay
-    if (stg.vignette > 0) {
-      const g = ctx.createRadialGradient(400,400,200,400,400,560);
-      g.addColorStop(0, 'rgba(0,0,0,0)');
-      g.addColorStop(1, `rgba(0,0,0,${stg.vignette/100})`);
-      ctx.fillStyle = g;
-      ctx.fillRect(0,0,800,800);
-    }
-
-    // 4. Selective clarity highlight
-    if (stg.selectiveClarity && anl) {
-      ctx.save();
-      ctx.strokeStyle = 'rgba(212,175,55,0.2)';
-      ctx.lineWidth = 18;
-      ctx.strokeRect(anl.minX, anl.minY, anl.width, anl.height);
+      ctx.drawImage(tmp, 0, 0);
       ctx.restore();
+
+      // 3. Vignette Overlay
+      if (stg.vignette > 0) {
+        const g = ctx.createRadialGradient(400,400,200,400,400,560);
+        g.addColorStop(0, 'rgba(0,0,0,0)');
+        g.addColorStop(1, `rgba(0,0,0,${stg.vignette/100})`);
+        ctx.fillStyle = g;
+        ctx.fillRect(0,0,800,800);
+      }
+
+      // 4. Selective Clarity Overlay
+      if (stg.selectiveClarity && anl) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(212,175,55,0.2)';
+        ctx.lineWidth = 18;
+        ctx.strokeRect(anl.minX, anl.minY, anl.width, anl.height);
+        ctx.restore();
+      }
+
+      // 5. Frame Overlay
+      if (stg.frameType !== 'none') drawFrame(ctx, 800, 800, stg);
+
+      // 6. Watermark Overlay
+      if (stg.watermarkType !== 'none') await drawWatermark(ctx, 800, 800, stg);
+
+      // 7. Dimension Arrows & Labels Overlay
+      if (dimensionsRef.current && dimensionsRef.current.length > 0) {
+        dimensionsRef.current.forEach(dim => {
+          drawDimensionLine(ctx, dim, dim.id === selectedDimId, isExport);
+        });
+      }
+
+      // 8. Guides Overlay (preview only)
+      if (!isExport) {
+        drawGuides(ctx, 800, 800, stg, anl);
+      }
+    } catch (err) {
+      console.error('Canvas render error:', err);
+      setRenderError(err.message);
     }
+  }, [sourceImg, selectedDimId]);
 
-    // 5. Frame overlay
-    if (stg.frameType !== 'none') drawFrame(ctx, 800, 800, stg);
-
-    // 6. Watermark
-    // 6. Watermark
-    if (stg.watermarkType !== 'none') await drawWatermark(ctx, 800, 800, stg);
-
-    // 7. Dimension Lines & Text Annotations
-    if (dimensionsRef.current && dimensionsRef.current.length > 0) {
-      dimensionsRef.current.forEach(dim => {
-        drawDimensionLine(ctx, dim, dim.id === selectedDimId, isExport);
-      });
-    }
-
-    // 8. Guides (not saved on export)
-    if (!isExport) {
-      drawGuides(ctx, 800, 800, stg, anl);
-    }
-  } catch (err) {
-    console.error('Render error:', err);
-    setRenderError(err.message);
-  }
-}, [sourceImg, selectedDimId]);
-
-  // ─── Re-render when anything changes ────────────────────────────────────────
+  // Re-render pipeline hooks
   useEffect(() => {
     if (!sourceImg) return;
     drawOriginalCanvas(sourceImg, settings, activeTab);
     renderProcessedImage(settings, analysis);
   }, [sourceImg, settings, activeTab, analysis, dimensions]);
 
-  // Set default eraseMode to 'keep' when entering background tab
   useEffect(() => {
     if (activeTab === 'background') {
       setEraseMode('keep');
@@ -615,15 +596,14 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   }, [activeTab]);
 
   // ═══════════════════════════════════════════════════════════════════════════════
-  // DRAW HELPERS
+  // GRAPHICS DRAWING HELPERS
   // ═══════════════════════════════════════════════════════════════════════════════
   const drawBgTemplate = (ctx, w, h, stg, isExport = false) => {
     ctx.save();
 
-    // Custom background image (user-uploaded)
+    // Custom background image (if uploaded)
     if (stg.backgroundType === 'custom' && customBgImageRef.current) {
       ctx.fillStyle = '#0d0d0d'; ctx.fillRect(0,0,w,h);
-      // Cover fit
       const img = customBgImageRef.current;
       const scaleX = w / img.naturalWidth;
       const scaleY = h / img.naturalHeight;
@@ -639,10 +619,9 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
       case 'none':
       case 'transparent': {
         if (isExport) {
-          // Fully transparent for output files (PNG/WEBP)
           ctx.clearRect(0,0,w,h);
         } else {
-          // Draw standard image editing checkerboard pattern for editor preview
+          // Classic checkerboard pattern
           ctx.fillStyle = '#181c26'; ctx.fillRect(0,0,w,h);
           ctx.fillStyle = '#232836';
           const cs = 20;
@@ -662,45 +641,47 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
       case 'luxury': {
         const g = ctx.createRadialGradient(w/2,h/2,50,w/2,h/2,w*0.7);
         g.addColorStop(0,'#1e293b'); g.addColorStop(1,'#0b0f19');
-        ctx.fillStyle=g; ctx.fillRect(0,0,w,h); break;
+        ctx.fillStyle = g; ctx.fillRect(0,0,w,h); break;
       }
       case 'gold': {
         const g = ctx.createRadialGradient(w/2,h/2,30,w/2,h/2,w*0.8);
         g.addColorStop(0,'#451a03'); g.addColorStop(0.5,'#1e1b4b'); g.addColorStop(1,'#090514');
-        ctx.fillStyle=g; ctx.fillRect(0,0,w,h); break;
+        ctx.fillStyle = g; ctx.fillRect(0,0,w,h); break;
       }
       case 'velvet': {
         const g = ctx.createRadialGradient(w/2,h/2,50,w/2,h/2,w*0.7);
         g.addColorStop(0,'#7f1d1d'); g.addColorStop(1,'#180003');
-        ctx.fillStyle=g; ctx.fillRect(0,0,w,h); break;
+        ctx.fillStyle = g; ctx.fillRect(0,0,w,h); break;
       }
       case 'obsidian': {
         const g = ctx.createRadialGradient(w/2,h/2,30,w/2,h/2,w*0.8);
         g.addColorStop(0,'#1f1f1f'); g.addColorStop(1,'#0a0a0a');
-        ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
-        ctx.strokeStyle='rgba(255,255,255,0.03)';
-        ctx.lineWidth=40;
-        for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(-100+i*220,0);ctx.lineTo(100+i*220,h);ctx.stroke();}
+        ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+        ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+        ctx.lineWidth = 40;
+        for (let i = 0; i < 4; i++) {
+          ctx.beginPath(); ctx.moveTo(-100+i*220, 0); ctx.lineTo(100+i*220, h); ctx.stroke();
+        }
         break;
       }
       case 'golden_aura': {
         const g = ctx.createRadialGradient(w/2,h/2,50,w/2,h/2,w*0.75);
         g.addColorStop(0,'rgba(212,175,55,0.25)'); g.addColorStop(0.6,'rgba(139,108,27,0.15)'); g.addColorStop(1,'rgba(5,5,10,0.95)');
-        ctx.fillStyle='#050508'; ctx.fillRect(0,0,w,h);
-        ctx.fillStyle=g; ctx.fillRect(0,0,w,h); break;
+        ctx.fillStyle = '#050508'; ctx.fillRect(0,0,w,h);
+        ctx.fillStyle = g; ctx.fillRect(0,0,w,h); break;
       }
       case 'gradient_blue': {
         const g = ctx.createLinearGradient(0,0,w,h);
         g.addColorStop(0,'#0f0c29'); g.addColorStop(0.5,'#302b63'); g.addColorStop(1,'#24243e');
-        ctx.fillStyle=g; ctx.fillRect(0,0,w,h); break;
+        ctx.fillStyle = g; ctx.fillRect(0,0,w,h); break;
       }
       case 'gradient_green': {
         const g = ctx.createLinearGradient(0,0,w,h);
         g.addColorStop(0,'#004d40'); g.addColorStop(1,'#1b5e20');
-        ctx.fillStyle=g; ctx.fillRect(0,0,w,h); break;
+        ctx.fillStyle = g; ctx.fillRect(0,0,w,h); break;
       }
       default:
-        ctx.fillStyle='#0d0d0d'; ctx.fillRect(0,0,w,h); break;
+        ctx.fillStyle = '#0d0d0d'; ctx.fillRect(0,0,w,h); break;
     }
     ctx.restore();
   };
@@ -713,17 +694,17 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     ctx.fillStyle = color;
     ctx.lineWidth = thickness;
 
-    // Draw main line
+    // 1. Draw line
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
     ctx.stroke();
 
-    // Calculate angle of the line
+    // 2. Draw arrowheads
     const angle = Math.atan2(y2 - y1, x2 - x1);
     const arrowLength = 12 + parseFloat(thickness);
 
-    const drawArrowHead = (x, y, ang) => {
+    const drawHead = (x, y, ang) => {
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(ang);
@@ -737,15 +718,14 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
       ctx.restore();
     };
 
-    // Draw arrow heads
     if (arrowStyle === 'double' || arrowStyle === 'start') {
-      drawArrowHead(x1, y1, angle);
+      drawHead(x1, y1, angle);
     }
     if (arrowStyle === 'double' || arrowStyle === 'end') {
-      drawArrowHead(x2, y2, angle + Math.PI);
+      drawHead(x2, y2, angle + Math.PI);
     }
 
-    // Draw text label centered along the line
+    // 3. Draw text label pill
     if (label) {
       const mx = (x1 + x2) / 2;
       const my = (y1 + y2) / 2;
@@ -758,7 +738,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
       const rectX = mx - rectW / 2;
       const rectY = my - rectH / 2;
 
-      // Draw background pill for text
+      // Draw background box
       ctx.fillStyle = 'rgba(11, 15, 25, 0.9)';
       ctx.beginPath();
       if (ctx.roundRect) {
@@ -768,7 +748,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
       }
       ctx.fill();
 
-      // Draw pill border
+      // Draw box border
       ctx.strokeStyle = color;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
@@ -786,25 +766,19 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
       ctx.fillText(label, mx, my);
     }
 
-    // Draw control handles if editing (and not exporting)
+    // 4. Draw drag handles (preview mode only)
     if (!isExport && activeTab === 'dimensions') {
-      // Start point handle
-      ctx.beginPath();
-      ctx.arc(x1, y1, 9, 0, 2 * Math.PI);
-      ctx.fillStyle = isSelected ? 'var(--gold-primary)' : 'rgba(255,255,255,0.75)';
-      ctx.fill();
-      ctx.strokeStyle = '#000000';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      // End point handle
-      ctx.beginPath();
-      ctx.arc(x2, y2, 9, 0, 2 * Math.PI);
-      ctx.fillStyle = isSelected ? 'var(--gold-primary)' : 'rgba(255,255,255,0.75)';
-      ctx.fill();
-      ctx.strokeStyle = '#000000';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      const drawHandle = (hx, hy) => {
+        ctx.beginPath();
+        ctx.arc(hx, hy, 9, 0, 2 * Math.PI);
+        ctx.fillStyle = isSelected ? 'var(--gold-primary)' : 'rgba(255,255,255,0.75)';
+        ctx.fill();
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      };
+      drawHandle(x1, y1);
+      drawHandle(x2, y2);
     }
 
     ctx.restore();
@@ -814,167 +788,111 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     ctx.save();
     ctx.globalAlpha = stg.frameOpacity;
     const sz = stg.frameSize, pad = 12;
-    const fx=pad, fy=pad, fw=w-pad*2, fh=h-pad*2;
+    const fx = pad, fy = pad, fw = w - pad*2, fh = h - pad*2;
     let grad;
-    if (stg.frameType==='gold') {
-      grad=ctx.createLinearGradient(0,0,w,h);
+    if (stg.frameType === 'gold') {
+      grad = ctx.createLinearGradient(0,0,w,h);
       grad.addColorStop(0,'#ffd700'); grad.addColorStop(0.25,'#d4af37');
       grad.addColorStop(0.5,'#aa771c'); grad.addColorStop(0.75,'#f5d76e'); grad.addColorStop(1,'#d4af37');
-    } else if (stg.frameType==='silver') {
-      grad=ctx.createLinearGradient(0,0,w,h);
+    } else if (stg.frameType === 'silver') {
+      grad = ctx.createLinearGradient(0,0,w,h);
       grad.addColorStop(0,'#e2e8f0'); grad.addColorStop(0.5,'#94a3b8'); grad.addColorStop(1,'#cbd5e1');
     } else {
-      grad=ctx.createLinearGradient(0,0,w,h);
-      grad.addColorStop(0,'#1e293b'); grad.addColorStop(0.5,'#d4af37'); grad.addColorStop(1,'#1e293b');
+      grad = 'rgba(17,24,39,0.85)';
     }
-    ctx.strokeStyle=grad; ctx.lineWidth=sz;
-    ctx.strokeRect(fx+sz/2, fy+sz/2, fw-sz, fh-sz);
-    if (stg.frameType==='gold'||stg.frameType==='luxury') {
-      const cs=sz*1.5;
-      ctx.fillStyle='#ffd700';
-      [[fx,fy],[fx+fw-cs,fy],[fx,fy+fh-cs],[fx+fw-cs,fy+fh-cs]].forEach(([x,y])=>ctx.fillRect(x,y,cs,cs));
-      ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=1.5;
-      ctx.strokeRect(fx+sz,fy+sz,fw-sz*2,fh-sz*2);
-    }
+
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = sz;
+    ctx.strokeRect(fx + sz/2, fy + sz/2, fw - sz, fh - sz);
     ctx.restore();
   };
 
   const drawWatermark = async (ctx, w, h, stg) => {
     ctx.save();
     ctx.globalAlpha = stg.watermarkOpacity;
-    const sz = stg.watermarkSize;
-    const text = stg.watermarkText;
+    const margin = 25;
+    let text = stg.watermarkText;
 
-    const getPos = (textW, textH) => {
-      const p = stg.watermarkPosition;
-      if (p==='top-left')     return {x:40, y:40+textH};
-      if (p==='top-right')    return {x:w-textW-40, y:40+textH};
-      if (p==='bottom-left')  return {x:40, y:h-40};
-      if (p==='center')       return {x:(w-textW)/2, y:h/2+textH/2};
-      return {x:w-textW-40, y:h-40}; // bottom-right default
-    };
+    if (stg.watermarkType === 'sku') {
+      text = 'SKU: ' + (imageUrl ? imageUrl.split('/').pop().split('?')[0] : 'AMULET');
+    }
 
-    if (stg.watermarkType==='text') {
-      ctx.font=`bold ${sz}px Phetsarath OT, sans-serif`;
-      const tw = ctx.measureText(text).width;
-      const {x,y}=getPos(tw,sz);
-      ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillText(text,x+2,y+2);
-      ctx.fillStyle='#ffffff'; ctx.fillText(text,x,y);
-    } else if (stg.watermarkType==='sku') {
-      ctx.font=`bold ${sz}px Phetsarath OT, sans-serif`;
-      const t2=`SKU: ${text}`;
-      const tw=ctx.measureText(t2).width;
-      const {x,y}=getPos(tw,sz);
-      ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillText(t2,x+2,y+2);
-      ctx.fillStyle='#ffd700'; ctx.fillText(t2,x,y);
-    } else if (stg.watermarkType==='qr') {
+    ctx.font = `bold ${stg.watermarkSize}px Phetsarath OT, Inter, sans-serif`;
+    const tw = ctx.measureText(text).width;
+    const th = stg.watermarkSize;
+
+    let tx = w - tw - margin, ty = h - margin;
+    if (stg.watermarkPosition === 'top-left') { tx = margin; ty = margin + th; }
+    else if (stg.watermarkPosition === 'top-right') { tx = w - tw - margin; ty = margin + th; }
+    else if (stg.watermarkPosition === 'center') { tx = (w - tw)/2; ty = (h + th)/2; }
+    else if (stg.watermarkPosition === 'bottom-left') { tx = margin; ty = h - margin; }
+
+    if (stg.watermarkType === 'qr') {
+      const size = stg.watermarkSize * 4;
+      let qx = w - size - margin, qy = h - size - margin;
+      if (stg.watermarkPosition === 'top-left') { qx = margin; qy = margin; }
+      else if (stg.watermarkPosition === 'top-right') { qx = w - size - margin; qy = margin; }
+      else if (stg.watermarkPosition === 'center') { qx = (w - size)/2; qy = (h - size)/2; }
+      else if (stg.watermarkPosition === 'bottom-left') { qx = margin; qy = h - size - margin; }
+
       try {
-        const qrSize=Math.max(80,sz*4);
-        const qrC=document.createElement('canvas');
-        await QRCode.toCanvas(qrC, 'https://kp-pakse-suthatpospos.shop', {
-          width:qrSize, margin:1, color:{dark:'#ffffff',light:'#00000000'}
+        const qrUrl = await QRCode.toDataURL('KP-Amulet-ID');
+        const qrImg = new Image();
+        await new Promise((res, rej) => {
+          qrImg.onload = res; qrImg.onerror = rej; qrImg.src = qrUrl;
         });
-        const {x,y}=getPos(qrSize,qrSize);
-        const qry = stg.watermarkPosition.startsWith('top') ? 40 : h-qrSize-40;
-        ctx.drawImage(qrC, x, qry);
-      } catch(e){ console.error(e); }
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(qx - 4, qy - 4, size + 8, size + 8);
+        ctx.drawImage(qrImg, qx, qy, size, size);
+      } catch (e) {
+        console.warn('QR code generation failed:', e);
+      }
+    } else {
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 4;
+      ctx.fillText(text, tx, ty);
     }
     ctx.restore();
   };
 
   const drawGuides = (ctx, w, h, stg, anl) => {
     ctx.save();
-    if (stg.showBoundary && anl) {
-      ctx.strokeStyle='rgba(212,175,55,0.75)'; ctx.lineWidth=2; ctx.setLineDash([6,6]);
-      ctx.strokeRect(anl.minX,anl.minY,anl.width,anl.height);
-      ctx.fillStyle='#d4af37'; ctx.font='10px Arial';
-      ctx.fillText(`Amulet (${anl.width}×${anl.height}px)`,anl.minX,anl.minY-5);
-      ctx.setLineDash([]);
-    }
-    if (stg.showCenter) {
-      ctx.strokeStyle='rgba(231,76,60,0.7)'; ctx.lineWidth=1.5;
-      ctx.beginPath();
-      ctx.moveTo(w/2,0);ctx.lineTo(w/2,h);
-      ctx.moveTo(0,h/2);ctx.lineTo(w,h/2);
-      ctx.stroke();
-      ctx.beginPath(); ctx.arc(w/2,h/2,8,0,2*Math.PI); ctx.stroke();
-    }
+    ctx.lineWidth = 1;
+
+    // Grid 3x3
     if (stg.showGrid) {
-      ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=1;
-      ctx.beginPath();
-      [w/3,2*w/3].forEach(x=>{ctx.moveTo(x,0);ctx.lineTo(x,h);});
-      [h/3,2*h/3].forEach(y=>{ctx.moveTo(0,y);ctx.lineTo(w,y);});
-      ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+      for (let i = 1; i <= 2; i++) {
+        ctx.beginPath(); ctx.moveTo((w/3)*i, 0); ctx.lineTo((w/3)*i, h); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, (h/3)*i); ctx.lineTo(w, (h/3)*i); ctx.stroke();
+      }
     }
+
+    // Safe Area
     if (stg.showSafeArea) {
-      ctx.strokeStyle='rgba(46,204,113,0.5)'; ctx.lineWidth=1.5; ctx.setLineDash([10,5]);
-      ctx.strokeRect(100,100,w-200,h-200);
-      ctx.fillStyle='#2ecc71'; ctx.font='10px Arial';
-      ctx.fillText('SAFE AREA (80%)',105,120);
-      ctx.setLineDash([]);
+      ctx.strokeStyle = 'rgba(46,204,113,0.3)';
+      ctx.strokeRect(w * 0.1, h * 0.1, w * 0.8, h * 0.8);
+    }
+
+    // Boundary box
+    if (stg.showBoundary && anl) {
+      ctx.strokeStyle = 'rgba(212,175,55,0.45)';
+      ctx.setLineDash([5,5]);
+      ctx.strokeRect(anl.minX, anl.minY, anl.width, anl.height);
+    }
+
+    // Center crosshair
+    if (stg.showCenter) {
+      ctx.strokeStyle = 'rgba(231,76,60,0.4)';
+      ctx.beginPath(); ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, h/2); ctx.lineTo(w, h/2); ctx.stroke();
     }
     ctx.restore();
   };
 
   // ═══════════════════════════════════════════════════════════════════════════════
-  // HISTORY MANAGEMENT
-  // ═══════════════════════════════════════════════════════════════════════════════
-  const pushHistory = (newSettings, maskDataUrl) => {
-    setHistory(prev => {
-      const next = prev.slice(0, historyIndex + 1);
-      next.push({ settings: newSettings, maskDataUrl: maskDataUrl || getMaskDataUrl() });
-      return next;
-    });
-    setHistoryIndex(prev => prev + 1);
-  };
-
-  const updateSettings = useCallback((fields) => {
-    setSettings(prev => {
-      const next = { ...prev, ...fields };
-      // Push to history asynchronously after state update
-      setTimeout(() => {
-        setHistory(h => {
-          const slice = h.slice(0, historyIndex + 1);
-          slice.push({ settings: next, maskDataUrl: getMaskDataUrl() });
-          setHistoryIndex(slice.length - 1);
-          return slice;
-        });
-      }, 0);
-      return next;
-    });
-  }, [historyIndex]);
-
-  const handleUndo = () => {
-    if (historyIndex <= 0) return;
-    const nextIdx = historyIndex - 1;
-    const item = history[nextIdx];
-    setHistoryIndex(nextIdx);
-    setSettings(item.settings);
-    restoreMaskFromDataUrl(item.maskDataUrl, () => {
-      renderProcessedImage(item.settings, analysisRef.current);
-    });
-  };
-
-  const handleRedo = () => {
-    if (historyIndex >= history.length - 1) return;
-    const nextIdx = historyIndex + 1;
-    const item = history[nextIdx];
-    setHistoryIndex(nextIdx);
-    setSettings(item.settings);
-    restoreMaskFromDataUrl(item.maskDataUrl, () => {
-      renderProcessedImage(item.settings, analysisRef.current);
-    });
-  };
-
-  const handleReset = () => {
-    clearMask();
-    setSettings(defaultSettings);
-    setHistory([{ settings: defaultSettings, maskDataUrl: '' }]);
-    setHistoryIndex(0);
-  };
-
-  // ═══════════════════════════════════════════════════════════════════════════════
-  // ERASER BRUSH
+  // CROP WORKSPACE TOUCH/MOUSE COORDINATES TRANSLATIONS
   // ═══════════════════════════════════════════════════════════════════════════════
   const getCanvasCoords = (clientX, clientY) => {
     if (!eraserContainerRef.current) return null;
@@ -982,41 +900,32 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     const viewX = clientX - rect.left;
     const viewY = clientY - rect.top;
 
-    // 1. Screen viewport coords mapped to 800x800 canvas space
-    const canvasX = (viewX / rect.width) * 800;
-    const canvasY = (viewY / rect.height) * 800;
+    const canvasW = 800, canvasH = 800;
+    const scaleX = canvasW / rect.width;
+    const scaleY = canvasH / rect.height;
+    const canvasX = viewX * scaleX;
+    const canvasY = viewY * scaleY;
 
-    // 2. Invert the rendering transforms step-by-step to get local image coordinates
-    // forward: translate(400,400) -> rotate(rad) -> scale(s,s) -> translate(tx-400, ty-400)
+    // Apply inverse image transformations to draw exactly on image pixels
     const stg = settingsRef.current;
-    
-    // Step A: Invert translation 1 (shift relative to center)
-    const x3 = canvasX - 400;
-    const y3 = canvasY - 400;
+    const ox = canvasX - 400;
+    const oy = canvasY - 400;
 
-    // Step B: Invert rotation
-    const rad = (stg.rotate * Math.PI) / 180;
+    const rad = (-stg.rotate * Math.PI) / 180;
     const cos = Math.cos(rad);
     const sin = Math.sin(rad);
-    const x2 = x3 * cos + y3 * sin;
-    const y2 = -x3 * sin + y3 * cos;
+    const rx = (ox * cos + oy * sin) / (stg.scale || 1);
+    const ry = (-ox * sin + oy * cos) / (stg.scale || 1);
 
-    // Step C: Invert scale
-    const x1 = x2 / (stg.scale || 1);
-    const y1 = y2 / (stg.scale || 1);
+    const finalX = rx - (stg.translateX - 400);
+    const finalY = ry - (stg.translateY - 400);
 
-    // Step D: Invert translation 2
-    const lx = x1 - (stg.translateX - 400);
-    const ly = y1 - (stg.translateY - 400);
-
-    return {
-      x: lx,
-      y: ly,
-      viewX,
-      viewY
-    };
+    return { x: finalX, y: finalY, canvasX, canvasY, viewX, viewY };
   };
 
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // INTERACTIVE PAINT BRUSH STROKES
+  // ═══════════════════════════════════════════════════════════════════════════════
   const drawMaskStroke = (x1, y1, x2, y2) => {
     const mode = eraseModeRef.current;
     const sz = brushSizeRef.current;
@@ -1047,6 +956,81 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     renderProcessedImage(settingsRef.current, analysisRef.current);
   };
 
+  const handleEraserMouseDown = (e) => {
+    e.preventDefault();
+    const c = getCanvasCoords(e.clientX, e.clientY);
+    if (!c) return;
+    setIsDrawing(true);
+    lastDrawingPos.current = c;
+    drawMaskStroke(c.x, c.y, c.x, c.y);
+  };
+
+  const handleEraserMouseMove = (e) => {
+    e.preventDefault();
+    const c = getCanvasCoords(e.clientX, e.clientY);
+    if (!c) { setBrushPos(null); return; }
+    setBrushPos({ x: c.viewX, y: c.viewY });
+    if (isDrawing && lastDrawingPos.current) {
+      drawMaskStroke(lastDrawingPos.current.x, lastDrawingPos.current.y, c.x, c.y);
+      lastDrawingPos.current = c;
+    }
+  };
+
+  const handleEraserMouseUp = () => {
+    if (isDrawing) {
+      setIsDrawing(false);
+      lastDrawingPos.current = null;
+      // Push history
+      const s = settingsRef.current;
+      setHistory(prev => {
+        const slice = prev.slice(0, historyIndex + 1);
+        slice.push({ settings: s, maskDataUrl: getMaskDataUrl() });
+        setHistoryIndex(slice.length - 1);
+        return slice;
+      });
+    }
+  };
+
+  const handleEraserTouchStart = (e) => {
+    e.preventDefault();
+    const t = e.touches[0];
+    const c = getCanvasCoords(t.clientX, t.clientY);
+    if (!c) return;
+    setIsDrawing(true);
+    lastDrawingPos.current = c;
+    drawMaskStroke(c.x, c.y, c.x, c.y);
+  };
+
+  const handleEraserTouchMove = (e) => {
+    e.preventDefault();
+    const t = e.touches[0];
+    const c = getCanvasCoords(t.clientX, t.clientY);
+    if (!c) return;
+    setBrushPos({ x: c.viewX, y: c.viewY });
+    if (isDrawing && lastDrawingPos.current) {
+      drawMaskStroke(lastDrawingPos.current.x, lastDrawingPos.current.y, c.x, c.y);
+      lastDrawingPos.current = c;
+    }
+  };
+
+  const handleEraserTouchEnd = () => {
+    if (isDrawing) {
+      setIsDrawing(false);
+      lastDrawingPos.current = null;
+      setBrushPos(null);
+      const s = settingsRef.current;
+      setHistory(prev => {
+        const slice = prev.slice(0, historyIndex + 1);
+        slice.push({ settings: s, maskDataUrl: getMaskDataUrl() });
+        setHistoryIndex(slice.length - 1);
+        return slice;
+      });
+    }
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // DIMENSIONS MEASURING EVENTS HANDLERS
+  // ═══════════════════════════════════════════════════════════════════════════════
   const getDistance = (px, py, qx, qy) => {
     return Math.sqrt((px - qx) ** 2 + (py - qy) ** 2);
   };
@@ -1063,31 +1047,30 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     e.preventDefault();
     const c = getCanvasCoords(e.clientX, e.clientY);
     if (!c) return;
-    const { x, y } = c;
+    const { canvasX, canvasY } = c;
 
-    // Check endpoints handles
+    // Check click near endpoints handles (radius 25px)
     for (let dim of dimensionsRef.current) {
-      if (getDistance(x, y, dim.x1, dim.y1) < 25) {
+      if (getDistance(canvasX, canvasY, dim.x1, dim.y1) < 25) {
         setSelectedDimId(dim.id);
         setDraggedDimPoint({ id: dim.id, point: 'start' });
         return;
       }
-      if (getDistance(x, y, dim.x2, dim.y2) < 25) {
+      if (getDistance(canvasX, canvasY, dim.x2, dim.y2) < 25) {
         setSelectedDimId(dim.id);
         setDraggedDimPoint({ id: dim.id, point: 'end' });
         return;
       }
     }
 
-    // Check lines themselves to select them
+    // Check click near the lines themselves (18px buffer)
     for (let dim of dimensionsRef.current) {
-      if (getDistanceToLine(x, y, dim.x1, dim.y1, dim.x2, dim.y2) < 18) {
+      if (getDistanceToLine(canvasX, canvasY, dim.x1, dim.y1, dim.x2, dim.y2) < 18) {
         setSelectedDimId(dim.id);
         return;
       }
     }
 
-    // Deselect if clicked empty space
     setSelectedDimId(null);
   };
 
@@ -1095,15 +1078,15 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     e.preventDefault();
     const c = getCanvasCoords(e.clientX, e.clientY);
     if (!c) return;
-    const { x, y } = c;
+    const { canvasX, canvasY } = c;
 
     if (draggedDimPoint) {
       setDimensions(prev => prev.map(dim => {
         if (dim.id === draggedDimPoint.id) {
           if (draggedDimPoint.point === 'start') {
-            return { ...dim, x1: Math.round(x), y1: Math.round(y) };
+            return { ...dim, x1: Math.round(canvasX), y1: Math.round(canvasY) };
           } else {
-            return { ...dim, x2: Math.round(x), y2: Math.round(y) };
+            return { ...dim, x2: Math.round(canvasX), y2: Math.round(canvasY) };
           }
         }
         return dim;
@@ -1115,6 +1098,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     setDraggedDimPoint(null);
   };
 
+  // ROUTER FOR EVENTS
   const handleCanvasMouseDown = (e) => {
     if (activeTab === 'dimensions') {
       handleDimMouseDown(e);
@@ -1167,89 +1151,96 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     }
   };
 
-  const handleEraserMouseDown = (e) => {
-    e.preventDefault();
-    const c = getCanvasCoords(e.clientX, e.clientY);
-    if (!c) return;
-    setIsDrawing(true);
-    lastDrawingPos.current = c;
-    drawMaskStroke(c.x, c.y, c.x, c.y);
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // BEFORE/AFTER SLIDER INTERACTION HANDLERS
+  // ═══════════════════════════════════════════════════════════════════════════════
+  const handleSliderMouseDown = () => {
+    setIsDraggingSlider(true);
   };
-  const handleEraserMouseMove = (e) => {
-    e.preventDefault();
-    const c = getCanvasCoords(e.clientX, e.clientY);
-    if (!c) { setBrushPos(null); return; }
-    setBrushPos({x: c.viewX, y: c.viewY});
-    if (isDrawing && lastDrawingPos.current) {
-      drawMaskStroke(lastDrawingPos.current.x, lastDrawingPos.current.y, c.x, c.y);
-      lastDrawingPos.current = c;
-    }
+
+  const handleSliderMouseMove = (e) => {
+    if (!isDraggingSlider || !sliderContainerRef.current) return;
+    const rect = sliderContainerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const pct = Math.max(0, Math.min(100, (x / rect.width) * 100));
+    setSliderPosition(pct);
   };
-  const handleEraserMouseUp = () => {
-    if (isDrawing) {
-      setIsDrawing(false);
-      lastDrawingPos.current = null;
-      // Save stroke to history
-      const s = settingsRef.current;
-      setHistory(prev => {
-        const slice = prev.slice(0, historyIndex + 1);
-        slice.push({ settings: s, maskDataUrl: getMaskDataUrl() });
+
+  const handleSliderMouseUpOrLeave = () => {
+    setIsDraggingSlider(false);
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // HISTORY ACTIONS (UNDO/REDO/RESET)
+  // ═══════════════════════════════════════════════════════════════════════════════
+  const updateSettings = (newStg) => {
+    setSettings(prev => {
+      const updated = { ...prev, ...newStg };
+      settingsRef.current = updated;
+
+      // Push state to history
+      setHistory(hPrev => {
+        const slice = hPrev.slice(0, historyIndex + 1);
+        slice.push({ settings: updated, maskDataUrl: getMaskDataUrl() });
         setHistoryIndex(slice.length - 1);
         return slice;
       });
-    }
+
+      return updated;
+    });
   };
-  const handleEraserTouchStart = (e) => {
-    e.preventDefault();
-    const t = e.touches[0];
-    const c = getCanvasCoords(t.clientX, t.clientY);
-    if (!c) return;
-    setIsDrawing(true); lastDrawingPos.current = c;
-    drawMaskStroke(c.x, c.y, c.x, c.y);
-  };
-  const handleEraserTouchMove = (e) => {
-    e.preventDefault();
-    const t = e.touches[0];
-    const c = getCanvasCoords(t.clientX, t.clientY);
-    if (!c) return;
-    setBrushPos({x:c.viewX,y:c.viewY});
-    if (isDrawing && lastDrawingPos.current) {
-      drawMaskStroke(lastDrawingPos.current.x, lastDrawingPos.current.y, c.x, c.y);
-      lastDrawingPos.current = c;
-    }
-  };
-  const handleEraserTouchEnd = () => {
-    if (isDrawing) {
-      setIsDrawing(false); lastDrawingPos.current = null; setBrushPos(null);
-      const s = settingsRef.current;
-      setHistory(prev => {
-        const slice = prev.slice(0, historyIndex + 1);
-        slice.push({ settings: s, maskDataUrl: getMaskDataUrl() });
-        setHistoryIndex(slice.length - 1);
-        return slice;
+
+  const handleUndo = () => {
+    if (historyIndex > 0) {
+      const nextIndex = historyIndex - 1;
+      const step = history[nextIndex];
+      setHistoryIndex(nextIndex);
+      setSettings(step.settings);
+      settingsRef.current = step.settings;
+      restoreMaskFromDataUrl(step.maskDataUrl, () => {
+        renderProcessedImage(step.settings, analysisRef.current);
       });
     }
   };
 
-  // ═══════════════════════════════════════════════════════════════════════════════
-  // AI AUTO ARRANGE
-  // ═══════════════════════════════════════════════════════════════════════════════
+  const handleRedo = () => {
+    if (historyIndex < history.length - 1) {
+      const nextIndex = historyIndex + 1;
+      const step = history[nextIndex];
+      setHistoryIndex(nextIndex);
+      setSettings(step.settings);
+      settingsRef.current = step.settings;
+      restoreMaskFromDataUrl(step.maskDataUrl, () => {
+        renderProcessedImage(step.settings, analysisRef.current);
+      });
+    }
+  };
+
+  const handleReset = () => {
+    if (window.confirm('ລ້າງການແກ້ໄຂທັງໝົດ ແລະ ເລີ່ມຕົ້ນໃໝ່ ຫຼື ບໍ່?')) {
+      clearMask();
+      setSettings(defaultSettings);
+      settingsRef.current = defaultSettings;
+      setDimensions([]);
+      setHistory([{ settings: defaultSettings, maskDataUrl: '' }]);
+      setHistoryIndex(0);
+      renderProcessedImage(defaultSettings, analysisRef.current);
+    }
+  };
+
   const handleAiAutoArrange = () => {
     if (!analysis) return;
-    const maxB = Math.max(analysis.width, analysis.height);
-    const tScale = Math.min(2.5, 600 / maxB);
+    const maxDimension = Math.max(analysis.width, analysis.height);
+    const calculatedScale = Math.min(2.5, 600 / maxDimension);
     updateSettings({
       rotate: -analysis.skewAngle,
-      scale: tScale,
-      translateX: (400 - analysis.centerX) * tScale,
-      translateY: (400 - analysis.centerY) * tScale,
+      scale: calculatedScale,
+      translateX: (400 - analysis.centerX) * calculatedScale,
+      translateY: (400 - analysis.centerY) * calculatedScale,
       showCenter: true, showSafeArea: true
     });
   };
 
-  // ═══════════════════════════════════════════════════════════════════════════════
-  // LOCAL UPLOAD
-  // ═══════════════════════════════════════════════════════════════════════════════
   const handleLocalUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -1260,6 +1251,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
         clearMask();
         setSettings(defaultSettings);
         setSourceImg(img);
+        setDimensions([]);
         setHistory([{ settings: defaultSettings, maskDataUrl: '' }]);
         setHistoryIndex(0);
         runAnalysis(img);
@@ -1270,74 +1262,64 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   };
 
   // ═══════════════════════════════════════════════════════════════════════════════
-  // SLIDER (Before / After)
-  // ═══════════════════════════════════════════════════════════════════════════════
-  const handleSliderMouseDown = () => setIsDraggingSlider(true);
-  const handleSliderMouseMove = (e) => {
-    if (!isDraggingSlider || !sliderContainerRef.current) return;
-    const rect = sliderContainerRef.current.getBoundingClientRect();
-    setSliderPosition(Math.max(0, Math.min(100, ((e.clientX - rect.left)/rect.width)*100)));
-  };
-  const handleSliderMouseUpOrLeave = () => setIsDraggingSlider(false);
-
-  // ═══════════════════════════════════════════════════════════════════════════════
-  // EXPORT / SAVE
+  // EXPORT / SAVE LOGIC
   // ═══════════════════════════════════════════════════════════════════════════════
   const generateExportDataUrl = async () => {
     let size = 800;
-    if (exportSize==='thumbnail') size=150;
-    if (exportSize==='zoom') size=1200;
-    if (exportSize==='social') size=1080;
+    if (exportSize === 'zoom') size = 1200;
+    else if (exportSize === 'thumbnail') size = 150;
+    else if (exportSize === 'social') size = 1080;
 
-    // 1. Temporarily render without guides or brush stroke overlays
+    // Render cleanly without helper guides or handles
     await renderProcessedImage(settingsRef.current, analysisRef.current, true);
 
     const c = document.createElement('canvas');
-    c.width=size; c.height=size;
+    c.width = size; c.height = size;
     const ctx = c.getContext('2d');
     const pc = processedCanvasRef.current;
     if (pc) ctx.drawImage(pc, 0, 0, size, size);
 
-    // 2. Restore editing guides and brush overlays on screen
+    // Restore guides and controls in editor preview
     await renderProcessedImage(settingsRef.current, analysisRef.current, false);
 
-    let type = 'image/webp';
-    if (exportFormat==='png') type='image/png';
-    if (exportFormat==='jpeg') type='image/jpeg';
-    return c.toDataURL(type, 0.92);
+    let mimeType = 'image/webp';
+    if (exportFormat === 'png') mimeType = 'image/png';
+    if (exportFormat === 'jpeg') mimeType = 'image/jpeg';
+    return c.toDataURL(mimeType, 0.92);
   };
 
   const handleSaveAction = async () => {
     try {
-      const url = await generateExportDataUrl();
-      if (onSave) onSave(url);
-    } catch(err) {
-      alert('❌ ບໍ່ສາມາດບັນທຶກໄດ້: ' + err.message);
+      const dataUrl = await generateExportDataUrl();
+      if (onSave) onSave(dataUrl);
+    } catch (err) {
+      alert('❌ ບໍ່ສາມາດບັນທຶກຮູບພາບໄດ້: ' + err.message);
     }
   };
 
   const handleExportDownload = async () => {
     try {
-      const url = await generateExportDataUrl();
+      const dataUrl = await generateExportDataUrl();
       const a = document.createElement('a');
-      a.download = `amulet_${exportSize}.${exportFormat}`;
-      a.href = url; a.click();
-    } catch(err) {
-      alert('❌ ດາວໂຫຼດບໍ່ສຳເລັດ: ' + err.message);
+      a.href = dataUrl;
+      a.download = `amulet_export_${Date.now()}.${exportFormat}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (err) {
+      alert('❌ ບໍ່ສາມາດດາວໂຫຼດຮູບພາບໄດ້: ' + err.message);
     }
   };
 
-  // ═══════════════════════════════════════════════════════════════════════════════
-  // SLIDER HELPERS
-  // ═══════════════════════════════════════════════════════════════════════════════
-  const SliderRow = ({ label, value, min, max, step=0.01, unit='', onChange, displayFn }) => (
+  // SliderRow custom input component helper
+  const SliderRow = ({ label, value, min, max, step, unit = '', onChange, displayFn }) => (
     <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
-      <label style={{ display:'flex', justifyContent:'space-between', fontSize:'0.8rem', color:'#ccc' }}>
+      <div style={{ display:'flex', justifyContent:'space-between', fontSize:'0.75rem', color:'#aaa' }}>
         <span>{label}</span>
         <span style={{ color:'var(--gold-primary)', fontWeight:'bold' }}>
           {displayFn ? displayFn(value) : `${value}${unit}`}
         </span>
-      </label>
+      </div>
       <input type="range" min={min} max={max} step={step} value={value}
         onChange={e => onChange(parseFloat(e.target.value))}
         style={{ width:'100%', accentColor:'var(--gold-primary)' }}
@@ -1346,7 +1328,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   );
 
   // ═══════════════════════════════════════════════════════════════════════════════
-  // RENDER
+  // JSX RENDERING
   // ═══════════════════════════════════════════════════════════════════════════════
   const isMobile = window.innerWidth <= 768;
   const canUndo = historyIndex > 0;
@@ -1355,7 +1337,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   return (
     <div className={inline ? 'ai-editor-inline' : 'ai-editor-modal-backdrop'} style={inline ? {} : {
       position:'fixed', top:0, left:0, right:0, bottom:0,
-      background:'rgba(5,5,8,0.95)', display:'flex', alignItems:'center',
+      background:'rgba(5,5,8,0.96)', display:'flex', alignItems:'center',
       justifyContent:'center', zIndex:1000, padding:'20px'
     }}>
       <div className="glass-card animate-fade-in" style={{
@@ -1366,7 +1348,6 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
         boxShadow:'0 10px 40px rgba(0,0,0,0.8)',
         overflow:'hidden', background:'#070a13'
       }}>
-
         {/* ── HEADER ── */}
         <div style={{
           display:'flex', justifyContent:'space-between', alignItems:'center',
@@ -1412,8 +1393,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
 
         {/* ── MAIN CONTENT ── */}
         <div style={{ display:'flex', flex:1, overflow:'hidden', flexDirection:isMobile?'column':'row' }}>
-
-          {/* ── TAB ICONS ── */}
+          {/* ── TAB NAVIGATION BAR ── */}
           <div style={{
             width:isMobile?'100%':'80px', borderRight:'1px solid var(--border-color)',
             borderBottom:isMobile?'1px solid var(--border-color)':'none',
@@ -1423,7 +1403,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
           }}>
             {[
               { id:'crop',       icon:'📐', label:'ຈັດຮູບ' },
-              { id:'enhance',    icon:'✨', label:'ປັບແສງ' },
+              { id:'enhance',    icon:'✨', label:'ປับແສງ' },
               { id:'eraser',     icon:'🧹', label:'ຢາງລົບ' },
               { id:'background', icon:'🎨', label:'ພື້ນຫຼັງ' },
               { id:'dimensions', icon:'📏', label:'ຂະໜາດ' },
@@ -1447,13 +1427,13 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
             ))}
           </div>
 
-          {/* ── CANVAS AREA ── */}
+          {/* ── CANVAS DISPLAY WORKSPACE AREA ── */}
           <div style={{
             flex:1, background:'#04060b', display:'flex', flexDirection:'column',
             alignItems:'center', justifyContent:'center', padding:'20px',
             position:'relative', overflow:'hidden', gap:'12px'
           }}>
-            {/* Analysis info bar */}
+            {/* Analysis details badge overlay */}
             {analysis && (
               <div style={{
                 position:'absolute', top:'15px', left:'15px', right:'15px',
@@ -1471,6 +1451,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
               </div>
             )}
 
+            {/* Error banner block */}
             {renderError && (
               <div style={{ background:'rgba(231,76,60,0.12)', border:'1px solid rgba(231,76,60,0.3)', color:'var(--alert-red)', padding:'10px', borderRadius:'8px', fontSize:'0.78rem', maxWidth:'400px', textAlign:'center', zIndex:100 }}>
                 ⚠️ <b>ຂໍ້ຜິດພາດໃນການແຕ້ມຮູບ:</b> {renderError}<br/>
@@ -1478,7 +1459,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
               </div>
             )}
 
-            {/* Loading / Canvas / Upload empty state */}
+            {/* Canvas State Machine switcher */}
             {isAnalyzing ? (
               <div style={{ textAlign:'center', color:'var(--gold-primary)' }}>
                 <div style={{ border:'4px solid rgba(212,175,55,0.1)', borderTop:'4px solid var(--gold-primary)', borderRadius:'50%', width:'40px', height:'40px', animation:'spin 1s infinite linear', margin:'0 auto 16px' }} />
@@ -1486,7 +1467,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
               </div>
             ) : sourceImg ? (
               (activeTab === 'eraser' || activeTab === 'background' || activeTab === 'dimensions') ? (
-                /* ── ERASER / BACKGROUND / DIMENSIONS WORKSPACE ── */
+                /* ── DUAL ACTIVE INTERACTION CANVAS (Eraser / Smart Brush / Dimensions annotation) ── */
                 <div ref={eraserContainerRef}
                   onMouseDown={handleCanvasMouseDown}
                   onMouseMove={handleCanvasMouseMove}
@@ -1504,7 +1485,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                   }}
                 >
                   <canvas ref={processedCanvasRef} style={{ width:'100%', height:'100%', display:'block' }} />
-                  {/* Brush cursor indicator (only for drawing tabs) */}
+                  {/* Visual Brush Hover Indicator */}
                   {brushPos && activeTab !== 'dimensions' && eraserContainerRef.current && (
                     <div style={{
                       position:'absolute',
@@ -1543,7 +1524,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                   )}
                 </div>
               ) : (
-                /* ── BEFORE / AFTER SLIDER WORKSPACE ── */
+                /* ── COMPONENT DUAL SLIDER WORKSPACE (Crop / Filters / Frame / Watermark) ── */
                 <div ref={sliderContainerRef}
                   onMouseMove={handleSliderMouseMove}
                   onMouseUp={handleSliderMouseUpOrLeave}
@@ -1555,59 +1536,41 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                     cursor:isDraggingSlider?'ew-resize':'default', userSelect:'none'
                   }}
                 >
-                  {/* BEFORE (original) */}
+                  {/* BEFORE (Left original side) */}
                   <canvas ref={originalCanvasRef} style={{ position:'absolute', top:0, left:0, width:'100%', height:'100%' }} />
                   <span style={{ position:'absolute', bottom:'10px', left:'10px', background:'rgba(0,0,0,0.6)', color:'#888', padding:'2px 8px', borderRadius:'4px', fontSize:'0.63rem', zIndex:5 }}>
                     BEFORE
                   </span>
-                  {/* AFTER (processed) - clipped to left side */}
+
+                  {/* AFTER (Right filtered side with slider drag bar) */}
                   <div style={{ position:'absolute', top:0, left:0, width:`${sliderPosition}%`, height:'100%', overflow:'hidden', borderRight:'2px solid var(--gold-primary)', zIndex:2 }}>
                     <canvas ref={processedCanvasRef} style={{
                       position:'absolute', top:0, left:0,
                       width: sliderContainerRef.current ? sliderContainerRef.current.clientWidth+'px' : '480px',
                       height: sliderContainerRef.current ? sliderContainerRef.current.clientHeight+'px' : '480px'
                     }} />
-                    <span style={{ position:'absolute', bottom:'10px', right:'10px', background:'rgba(212,175,55,0.2)', color:'var(--gold-primary)', border:'1px solid rgba(212,175,55,0.4)', padding:'2px 8px', borderRadius:'4px', fontSize:'0.63rem', whiteSpace:'nowrap' }}>
-                      AFTER ✨
-                    </span>
                   </div>
-                  {/* Drag handle */}
+
+                  {/* Split slider center knob handler */}
                   <div onMouseDown={handleSliderMouseDown} style={{
-                    position:'absolute', top:0, bottom:0, left:`calc(${sliderPosition}% - 12px)`,
-                    width:'24px', zIndex:3, cursor:'ew-resize',
+                    position:'absolute', top:0, left:`calc(${sliderPosition}% - 14px)`,
+                    width:'28px', height:'100%', cursor:'ew-resize', zIndex:10,
                     display:'flex', alignItems:'center', justifyContent:'center'
                   }}>
-                    <div style={{ width:'3px', height:'100%', background:'var(--gold-primary)', boxShadow:'0 0 8px var(--gold-glow)' }} />
-                    <div style={{
-                      position:'absolute', width:'26px', height:'26px', borderRadius:'50%',
-                      background:'var(--gold-primary)', border:'3px solid #070a13', color:'#000',
-                      display:'flex', alignItems:'center', justifyContent:'center',
-                      fontSize:'10px', fontWeight:'bold', boxShadow:'0 2px 8px rgba(0,0,0,0.5)'
-                    }}>↔</div>
+                    <div style={{ width:'4px', height:'40px', background:'var(--gold-primary)', borderRadius:'2px', boxShadow:'0 0 8px var(--gold-primary)' }} />
                   </div>
+                  <span style={{ position:'absolute', bottom:'10px', right:'10px', background:'rgba(0,0,0,0.6)', color:'var(--gold-primary)', padding:'2px 8px', borderRadius:'4px', fontSize:'0.63rem', zIndex:5 }}>
+                    AFTER
+                  </span>
                 </div>
               )
             ) : (
-              /* ── UPLOAD EMPTY STATE ── */
-              <div style={{
-                textAlign:'center', color:'var(--text-secondary)',
-                border:'2px dashed rgba(212,175,55,0.2)', borderRadius:'12px',
-                padding:'40px 20px', background:'rgba(255,255,255,0.01)', width:'100%', maxWidth:'400px'
-              }}>
-                <span style={{ fontSize:'3.5rem', display:'block', marginBottom:'16px' }}>📁</span>
-                <h4 style={{ color:'var(--gold-primary)', margin:'0 0 8px', fontSize:'1rem' }}>ອັບໂຫຼດຮູບພາບເພື່ອເລີ່ມແຕ່ງ</h4>
-                <p style={{ fontSize:'0.78rem', margin:'0 0 20px', color:'#888' }}>
-                  ເລືອກໄຟລ໌ຮູບ (.png, .jpg, .webp)
-                </p>
-                <input type="file" accept="image/*" onChange={handleLocalUpload} style={{ display:'none' }} id="editorLocalFileInput" />
-                <label htmlFor="editorLocalFileInput" className="btn btn-primary" style={{ cursor:'pointer', padding:'10px 24px', fontSize:'0.85rem' }}>
-                  📂 ເລືອກຮູບຈາກເຄື່ອງ
-                </label>
-                {errorMsg && <p style={{ color:'var(--alert-red)', marginTop:'12px', fontSize:'0.8rem' }}>{errorMsg}</p>}
+              <div style={{ textAlign:'center', color:'var(--text-secondary)' }}>
+                <p>ບໍ່ມີຮູບພາບທີ່ຈະແກ້ໄຂ</p>
               </div>
             )}
 
-            {/* Upload button always visible at bottom when image loaded */}
+            {/* Secondary upload replace link */}
             {sourceImg && (
               <div style={{ display:'flex', gap:'10px', flexWrap:'wrap', justifyContent:'center' }}>
                 <input type="file" accept="image/*" onChange={handleLocalUpload} style={{ display:'none' }} id="editorReplaceInput" />
@@ -1616,23 +1579,23 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                   background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)',
                   color:'#ccc', display:'flex', alignItems:'center', gap:'6px'
                 }}>
-                  📂 ປ່ຽນຮູບ
+                  📂 ປ່ຽນຮູບພາບ
                 </label>
                 {analysis && (
                   <span style={{ fontSize:'0.72rem', color:'#666', alignSelf:'center' }}>
-                    Stack [{historyIndex+1}/{history.length}] · AI Active
+                    Stack [{historyIndex+1}/{history.length}] · AI Ready
                   </span>
                 )}
               </div>
             )}
           </div>
 
-          {/* ── SIDEBAR CONTROLS ── */}
+          {/* ── SIDEBAR CONTROL CONTROLS ── */}
           <div style={{
-            width:isMobile?'100%':'300px', borderLeft:'1px solid var(--border-color)',
+            width:isMobile?'100%':'320px', borderLeft:'1px solid var(--border-color)',
             background:'#0a0d18', display:'flex', flexDirection:'column', overflow:'hidden'
           }}>
-            {/* Sidebar header */}
+            {/* Sidebar header status */}
             <div style={{ padding:'14px 18px', borderBottom:'1px solid var(--border-color)', background:'rgba(255,255,255,0.02)' }}>
               <h3 style={{ color:'var(--gold-primary)', margin:0, fontSize:'0.9rem', display:'flex', alignItems:'center', gap:'8px' }}>
                 {activeTab==='crop'       && '📐 ຈັດຮູບ & ອົງປະກອບ'}
@@ -1646,7 +1609,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
               </h3>
             </div>
 
-            {/* Sidebar content */}
+            {/* Tab view containers */}
             <div style={{ padding:'16px', display:'flex', flexDirection:'column', gap:'16px', flex:1, overflowY:'auto' }}>
 
               {/* ── CROP TAB ── */}
@@ -1715,9 +1678,8 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
               {/* ── ERASER TAB ── */}
               {activeTab === 'eraser' && (
                 <>
-                  {/* Eraser Mode buttons */}
                   <div>
-                    <p style={{ fontSize:'0.75rem', color:'#aaa', marginBottom:'6px' }}>🖌️ <b>ໂໝດການລຶບ (Erase Mode):</b></p>
+                    <p style={{ fontSize:'0.75rem', color:'#aaa', marginBottom:'6px' }}>🖌️ <b>ໂໝດຢາງລົບ (Erase Mode):</b></p>
                     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px' }}>
                       {[
                         { id:'erase',   label:'🧽 ລຶບ (Erase)',    color:'#e74c3c', bg:'rgba(231,76,60,0.25)' },
@@ -1732,64 +1694,23 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                       ))}
                     </div>
                   </div>
-
-                  {/* Keep/Remove Selection Brush */}
-                  <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'12px' }}>
-                    <p style={{ fontSize:'0.75rem', color:'#aaa', marginBottom:'6px' }}>🎯 <b>ເລືອກວັດຖຸ (Smart Select):</b></p>
-                    <p style={{ fontSize:'0.7rem', color:'#888', marginBottom:'8px' }}>ໃຊ້ຮ່ວມກັບ "ລຶບພື້ນຫຼັງ AI" ໃນແທັບ 🎨</p>
-                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px' }}>
-                      {[
-                        { id:'keep',   label:'🟢 ບັງຄັບຮັກສາ (Keep)',    color:'#27ae60', bg:'rgba(39,174,96,0.25)' },
-                        { id:'remove', label:'🔴 ບັງຄັບລຶບ (Remove)',      color:'#c0392b', bg:'rgba(192,57,43,0.25)' },
-                      ].map(m => (
-                        <button key={m.id} onClick={() => setEraseMode(m.id)}
-                          style={{ padding:'10px 6px', fontSize:'0.75rem', fontWeight:'bold', borderRadius:'8px', border:'none', cursor:'pointer',
-                            background: eraseMode===m.id ? m.bg : 'rgba(255,255,255,0.06)',
-                            color: eraseMode===m.id ? m.color : '#777',
-                            outline: eraseMode===m.id ? `1.5px solid ${m.color}` : 'none'
-                          }}>{m.label}</button>
-                      ))}
-                    </div>
-                    <p style={{ fontSize:'0.68rem', color:'#666', marginTop:'6px' }}>
-                      🟢 ລາກສີຂຽວ = ບອກ AI ໃຫ້ຮັກສາສ່ວນນີ້ໄວ້<br/>
-                      🔴 ລາກສີແດງ = ບອກ AI ໃຫ້ລຶບສ່ວນນີ້ອອກ
-                    </p>
-                  </div>
-
                   <SliderRow label="🖌️ ຂະໜາດແປງ (Brush Size)" value={brushSize} min={3} max={120} step={1} unit="px"
                     onChange={v => setBrushSize(v)} />
-
-                  <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'12px', display:'flex', flexDirection:'column', gap:'8px' }}>
-                    <button onClick={() => {
-                      if (window.confirm('ລ້າງການລຶບ/ເລືອກທັງໝົດ ຫຼື ບໍ່?')) {
-                        clearMask();
-                        renderProcessedImage(settingsRef.current, analysisRef.current);
-                        setHistory(prev => {
-                          const s = [...prev.slice(0, historyIndex+1), {settings:settingsRef.current, maskDataUrl:''}];
-                          setHistoryIndex(s.length-1);
-                          return s;
-                        });
-                      }
-                    }} style={{ padding:'8px', background:'rgba(231,76,60,0.12)', border:'1px solid rgba(231,76,60,0.25)', color:'var(--alert-red)', borderRadius:'8px', cursor:'pointer', fontSize:'0.8rem', fontWeight:'bold' }}>
-                      🗑️ ລ້າງທັງໝົດ (Clear All)
-                    </button>
-                  </div>
-
-                  <div style={{ background:'rgba(212,175,55,0.05)', border:'1px solid rgba(212,175,55,0.15)', borderRadius:'8px', padding:'10px', fontSize:'0.71rem', color:'#bbb', lineHeight:1.5 }}>
-                    💡 <b>ຄຳແນະນຳ:</b><br/>
-                    • <b>🧽 ລຶບ</b> = ລຶບພິກເຊລໂດຍກົງ (ກໍານົດເອງ)<br/>
-                    • <b>🎨 ກູ້ຄືນ</b> = ດຶງສ່ວນທີ່ລຶບຜິດກັບຄືນ<br/>
-                    • <b>🟢 ຮັກສາ</b> = ວາດຕ້ານ AI ໃຫ້ຢ່າລຶບ<br/>
-                    • <b>🔴 ລຶບ AI</b> = ວາດບອກ AI ໃຫ້ລຶບ<br/>
-                    • <b>Undo</b> ຍ້ອນກັບໄດ້ທຸກຄັ້ງ
-                  </div>
+                  <button onClick={() => {
+                    if (window.confirm('ລ້າງການລະບາຍທັງໝົດ ຫຼື ບໍ່?')) {
+                      clearMask();
+                      renderProcessedImage(settingsRef.current, analysisRef.current);
+                    }
+                  }} style={{ padding:'8px', background:'rgba(231,76,60,0.12)', border:'1px solid rgba(231,76,60,0.25)', color:'var(--alert-red)', borderRadius:'8px', cursor:'pointer', fontSize:'0.8rem', fontWeight:'bold' }}>
+                    🗑️ ລ້າງການລະບາຍທັງໝົດ (Clear Mask)
+                  </button>
                 </>
               )}
 
               {/* ── BACKGROUND TAB ── */}
               {activeTab === 'background' && (
                 <>
-                  {/* AI BG Removal */}
+                  {/* AI BG Removal switches */}
                   <div>
                     <label style={{ fontSize:'0.8rem', color:'#ccc', display:'block', marginBottom:'8px' }}>
                       🤖 <b>ລຶບພື້ນຫຼັງ AI (Flood-Fill BG Remove):</b>
@@ -1810,6 +1731,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                         ⊘ OFF
                       </button>
                     </div>
+
                     {settings.removeBackground && (
                       bgRemoveCorsError ? (
                         <div style={{ background:'rgba(231,76,60,0.08)', border:'1px solid rgba(231,76,60,0.4)', borderRadius:'8px', padding:'10px', fontSize:'0.73rem' }}>
@@ -1856,7 +1778,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                     )}
                   </div>
 
-                  {/* Integrated Brush Selector on Background Tab */}
+                  {/* Integrated Smart Brush inside Background tab */}
                   <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'12px' }}>
                     <p style={{ fontSize:'0.75rem', color:'#aaa', marginBottom:'6px' }}>🎯 <b>ແປງຊ່ວຍເລືອກ (Smart Brush):</b></p>
                     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'5px', marginBottom:'6px' }}>
@@ -1877,7 +1799,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                     <SliderRow label="🖌️ ຂະໜາດແປງ (Brush Size)" value={brushSize} min={3} max={100} step={1} unit="px"
                       onChange={v => setBrushSize(v)} />
                     <button onClick={() => {
-                      if (window.confirm('ລ້າງແປງທັງໝົດ ຫຼື ບໍ່?')) {
+                      if (window.confirm('ລ້າງການລະບາຍທັງໝົດ ຫຼື ບໍ່?')) {
                         clearMask();
                         renderProcessedImage(settingsRef.current, analysisRef.current);
                       }
@@ -1886,7 +1808,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                     </button>
                   </div>
 
-                  <SliderRow label="🎚️ ຄວາມທົນທານ (Tolerance)" value={settings.bgThreshold} min={5} max={150} step={1} unit=""
+                  <SliderRow label="🎚️ ຄວາມທົນທาน (Tolerance)" value={settings.bgThreshold} min={5} max={150} step={1} unit=""
                     onChange={v => updateSettings({bgThreshold:v})}
                     displayFn={v => {
                       if(v<30) return `${v} (ເຄັ່ງ)`;
@@ -1894,7 +1816,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                       return `${v} (ຫຼວມ)`;
                     }} />
 
-                  {/* BG Templates */}
+                  {/* BG Templates selection grid */}
                   <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'12px' }}>
                     <label style={{ fontSize:'0.8rem', color:'#ccc', display:'block', marginBottom:'8px' }}>
                       🎨 <b>ພື້ນຫຼັງໃໝ່ (BG Templates):</b>
@@ -1925,7 +1847,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                       ))}
                     </div>
 
-                    {/* Custom BG Image Upload */}
+                    {/* Custom Background Image Uploader */}
                     <div style={{ background:'rgba(255,255,255,0.03)', border:'1px dashed rgba(212,175,55,0.25)', borderRadius:'8px', padding:'10px' }}>
                       <p style={{ fontSize:'0.75rem', color:'#ccc', marginBottom:'8px' }}>📸 <b>ຮູບພື້ນຫຼັງຂອງຂ້ອຍ (Custom BG):</b></p>
                       <input type="file" accept="image/*" id="customBgInput" style={{ display:'none' }}
@@ -1962,6 +1884,141 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                       )}
                     </div>
                   </div>
+                </>
+              )}
+
+              {/* ── DIMENSIONS TAB ── */}
+              {activeTab === 'dimensions' && (
+                <>
+                  <button onClick={() => {
+                    const newDim = {
+                      id: Date.now(),
+                      x1: 250, y1: 300,
+                      x2: 550, y2: 300,
+                      label: '3.5 cm',
+                      color: '#d4af37',
+                      thickness: 3,
+                      arrowStyle: 'double'
+                    };
+                    setDimensions(prev => [...prev, newDim]);
+                    setSelectedDimId(newDim.id);
+                  }} style={{
+                    width:'100%', padding:'12px', background:'var(--gold-primary)', color:'black',
+                    border:'none', borderRadius:'8px', cursor:'pointer', fontSize:'0.82rem',
+                    fontWeight:'bold', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
+                    boxShadow:'0 2px 6px rgba(212,175,55,0.3)'
+                  }}>
+                    ➕ ເພີ່ມເສັ້ນແທກຂະໜາດ (Add Dimension)
+                  </button>
+
+                  <div style={{ background:'rgba(255,255,255,0.03)', border:'1px dashed rgba(255,255,255,0.1)', borderRadius:'8px', padding:'10px', fontSize:'0.71rem', color:'#aaa', lineHeight:1.4 }}>
+                    💡 <b>ວິທີໃຊ້:</b> ກົດປຸ່ມເພີ່ມເສັ້ນ ຈາກນັ້ນລາກຈຸດວົງກົມຢູ່ປາຍເສັ້ນເທິງຮູບເພື່ອຊີ້ບອກມິຕິ ແລະ ຂະໜາດຕ່າງໆ. ກົດເລືອກເສັ້ນເພື່ອປ່ຽນຂໍ້ຄວາມ ແລະ ສີ.
+                  </div>
+
+                  {dimensions.length > 0 && (
+                    <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'12px' }}>
+                      <p style={{ fontSize:'0.75rem', color:'#888', marginBottom:'8px' }}>📏 <b>ລາຍການເສັ້ນແທກ ({dimensions.length}):</b></p>
+                      <div style={{ display:'flex', flexDirection:'column', gap:'6px', maxHeight:'140px', overflowY:'auto', paddingRight:'4px' }}>
+                        {dimensions.map(dim => (
+                          <div key={dim.id} onClick={() => setSelectedDimId(dim.id)} style={{
+                            display:'flex', justifyContent:'space-between', alignItems:'center',
+                            padding:'6px 10px', background: selectedDimId===dim.id ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.04)',
+                            border: selectedDimId===dim.id ? '1px solid var(--gold-primary)' : '1px solid transparent',
+                            borderRadius:'6px', cursor:'pointer', fontSize:'0.75rem'
+                          }}>
+                            <span style={{ color: dim.color, fontWeight:'bold' }}>↔ {dim.label || '(ບໍ່ມີຂໍ້ຄວາມ)'}</span>
+                            <span style={{ fontSize:'0.65rem', color:'#666' }}>ID: {String(dim.id).slice(-4)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedDimId && dimensions.find(d => d.id === selectedDimId) && (() => {
+                    const selDim = dimensions.find(d => d.id === selectedDimId);
+                    return (
+                      <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'12px', display:'flex', flexDirection:'column', gap:'12px' }}>
+                        <p style={{ fontSize:'0.78rem', color:'var(--gold-primary)', fontWeight:'bold', margin:0 }}>⚙️ ແກ້ໄຂເສັ້ນແທກທີ່ເລືອກ:</p>
+
+                        {/* Label Input */}
+                        <div>
+                          <label style={{ fontSize:'0.72rem', color:'#aaa', display:'block', marginBottom:'4px' }}>📝 ຂໍ້ຄວາມ (Text Label):</label>
+                          <input type="text" value={selDim.label} onChange={e => {
+                            const val = e.target.value;
+                            setDimensions(prev => prev.map(d => d.id === selDim.id ? { ...d, label: val } : d));
+                          }} style={{
+                            width:'100%', padding:'8px', background:'rgba(255,255,255,0.06)',
+                            border:'1px solid rgba(255,255,255,0.1)', borderRadius:'6px', color:'white',
+                            fontSize:'0.78rem', boxSizing:'border-box'
+                          }} placeholder="ຕົວຢ່າງ: 3.5 cm ຫຼື ກວ້າງ 2 cm" />
+                        </div>
+
+                        {/* Arrowhead style */}
+                        <div>
+                          <label style={{ fontSize:'0.72rem', color:'#aaa', display:'block', marginBottom:'4px' }}>🎯 ຫົວລູກສອນ (Arrow Style):</label>
+                          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'4px' }}>
+                            {[
+                              { id:'double', label:'↔ ສອງຫົວ' },
+                              { id:'end',    label:'→ ຫົວຂວາ' },
+                              { id:'none',   label:'— ເสັ້ນຊື່' },
+                            ].map(styleOpt => (
+                              <button key={styleOpt.id} onClick={() => {
+                                setDimensions(prev => prev.map(d => d.id === selDim.id ? { ...d, arrowStyle: styleOpt.id } : d));
+                              }} style={{
+                                padding:'6px 2px', borderRadius:'4px', border:'none', cursor:'pointer', fontSize:'0.7rem',
+                                background: selDim.arrowStyle === styleOpt.id ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.06)',
+                                color: selDim.arrowStyle === styleOpt.id ? 'var(--gold-primary)' : '#bbb',
+                                outline: selDim.arrowStyle === styleOpt.id ? '1px solid var(--gold-primary)' : 'none',
+                                fontWeight:'bold'
+                              }}>{styleOpt.label}</button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Line thickness */}
+                        <SliderRow label="📏 ຄວາມໜາ (Line Thickness)" value={selDim.thickness || 3} min={1} max={8} step={1} unit="px"
+                          onChange={v => {
+                            setDimensions(prev => prev.map(d => d.id === selDim.id ? { ...d, thickness: v } : d));
+                          }} />
+
+                        {/* Colors */}
+                        <div>
+                          <label style={{ fontSize:'0.72rem', color:'#aaa', display:'block', marginBottom:'6px' }}>🎨 ສີຂອງເສັ້ນ (Color):</label>
+                          <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
+                            {[
+                              { color: '#d4af37', label: 'Gold' },
+                              { color: '#ffffff', label: 'White' },
+                              { color: '#e74c3c', label: 'Red' },
+                              { color: '#2ecc71', label: 'Green' },
+                              { color: '#3498db', label: 'Blue' },
+                            ].map(cOpt => (
+                              <button key={cOpt.color} onClick={() => {
+                                setDimensions(prev => prev.map(d => d.id === selDim.id ? { ...d, color: cOpt.color } : d));
+                              }} style={{
+                                width:'24px', height:'24px', borderRadius:'50%', border: selDim.color === cOpt.color ? '2px solid var(--gold-primary)' : '1px solid rgba(255,255,255,0.2)',
+                                background: cOpt.color, cursor:'pointer', boxSizing:'border-box',
+                                boxShadow: selDim.color === cOpt.color ? '0 0 8px var(--gold-primary)' : 'none'
+                              }} title={cOpt.label} />
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Delete Annotation */}
+                        <button onClick={() => {
+                          if (window.confirm('ຕ້ອງການລຶບເສັ້ນແທກຂະໜາດນີ້ ຫຼື ບໍ່?')) {
+                            setDimensions(prev => prev.filter(d => d.id !== selDim.id));
+                            setSelectedDimId(null);
+                          }
+                        }} style={{
+                          width:'100%', padding:'8px', background:'rgba(231,76,60,0.12)', border:'1px solid rgba(231,76,60,0.25)',
+                          color:'var(--alert-red)', borderRadius:'6px', cursor:'pointer', fontSize:'0.75rem', fontWeight:'bold',
+                          marginTop:'4px'
+                        }}>
+                          🗑️ ລຶບເສັ້ນແທກຂະໜາດນີ້ (Delete Line)
+                        </button>
+                      </div>
+                    );
+                  })()}
                 </>
               )}
 
@@ -2061,141 +2118,6 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                 </>
               )}
 
-              {/* ── DIMENSIONS TAB ── */}
-              {activeTab === 'dimensions' && (
-                <>
-                  <button onClick={() => {
-                    const newDim = {
-                      id: Date.now(),
-                      x1: 250, y1: 300,
-                      x2: 550, y2: 300,
-                      label: '3.5 cm',
-                      color: '#d4af37',
-                      thickness: 3,
-                      arrowStyle: 'double'
-                    };
-                    setDimensions(prev => [...prev, newDim]);
-                    setSelectedDimId(newDim.id);
-                  }} style={{
-                    width:'100%', padding:'12px', background:'var(--gold-primary)', color:'black',
-                    border:'none', borderRadius:'8px', cursor:'pointer', fontSize:'0.82rem',
-                    fontWeight:'bold', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
-                    boxShadow:'0 2px 6px rgba(212,175,55,0.3)'
-                  }}>
-                    ➕ ເພີ່ມເສັ້ນແທກຂະໜາດ (Add Dimension)
-                  </button>
-
-                  <div style={{ background:'rgba(255,255,255,0.03)', border:'1px dashed rgba(255,255,255,0.1)', borderRadius:'8px', padding:'10px', fontSize:'0.71rem', color:'#aaa', lineHeight:1.4 }}>
-                    💡 <b>ວິທີໃຊ້:</b> ກົດປຸ່ມເພີ່ມເສັ້ນ ຈາກນັ້ນລາກຈຸດວົງກົມຢູ່ປາຍເສັ້ນເທິງຮູບເພື່ອຊີ້ບອກມິຕິ ແລະ ຂະໜາດຕ່າງໆ. ກົດເລືອກເສັ້ນເພື່ອປ່ຽນຂໍ້ຄວາມ ແລະ ສີ.
-                  </div>
-
-                  {dimensions.length > 0 && (
-                    <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'12px' }}>
-                      <p style={{ fontSize:'0.75rem', color:'#888', marginBottom:'8px' }}>📏 <b>ລາຍການເສັ້ນແທກ ({dimensions.length}):</b></p>
-                      <div style={{ display:'flex', flexDirection:'column', gap:'6px', maxHeight:'140px', overflowY:'auto', paddingRight:'4px' }}>
-                        {dimensions.map(dim => (
-                          <div key={dim.id} onClick={() => setSelectedDimId(dim.id)} style={{
-                            display:'flex', justifyContent:'space-between', alignItems:'center',
-                            padding:'6px 10px', background: selectedDimId===dim.id ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.04)',
-                            border: selectedDimId===dim.id ? '1px solid var(--gold-primary)' : '1px solid transparent',
-                            borderRadius:'6px', cursor:'pointer', fontSize:'0.75rem'
-                          }}>
-                            <span style={{ color: dim.color, fontWeight:'bold' }}>↔ {dim.label || '(ບໍ່ມີຂໍ້ຄວາມ)'}</span>
-                            <span style={{ fontSize:'0.65rem', color:'#666' }}>ID: {String(dim.id).slice(-4)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedDimId && dimensions.find(d => d.id === selectedDimId) && (() => {
-                    const selDim = dimensions.find(d => d.id === selectedDimId);
-                    return (
-                      <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'12px', display:'flex', flexDirection:'column', gap:'12px' }}>
-                        <p style={{ fontSize:'0.78rem', color:'var(--gold-primary)', fontWeight:'bold', margin:0 }}>⚙️ ແກ້ໄຂເສັ້ນແທກທີ່ເລືອກ:</p>
-
-                        {/* Label Text Input */}
-                        <div>
-                          <label style={{ fontSize:'0.72rem', color:'#aaa', display:'block', marginBottom:'4px' }}>📝 ຂໍ້ຄວາມ (Text Label):</label>
-                          <input type="text" value={selDim.label} onChange={e => {
-                            const val = e.target.value;
-                            setDimensions(prev => prev.map(d => d.id === selDim.id ? { ...d, label: val } : d));
-                          }} style={{
-                            width:'100%', padding:'8px', background:'rgba(255,255,255,0.06)',
-                            border:'1px solid rgba(255,255,255,0.1)', borderRadius:'6px', color:'white',
-                            fontSize:'0.78rem', boxSizing:'border-box'
-                          }} placeholder="ຕົວຢ່າງ: 3.5 cm ຫຼື ກວ້າງ 2 cm" />
-                        </div>
-
-                        {/* Arrow Style Selector */}
-                        <div>
-                          <label style={{ fontSize:'0.72rem', color:'#aaa', display:'block', marginBottom:'4px' }}>🎯 ຫົວລູກສອນ (Arrow Style):</label>
-                          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'4px' }}>
-                            {[
-                              { id:'double', label:'↔ ສອງຫົວ' },
-                              { id:'end',    label:'→ ຫົວຂວາ' },
-                              { id:'none',   label:'— ເສັ້ນຊື່' },
-                            ].map(styleOpt => (
-                              <button key={styleOpt.id} onClick={() => {
-                                setDimensions(prev => prev.map(d => d.id === selDim.id ? { ...d, arrowStyle: styleOpt.id } : d));
-                              }} style={{
-                                padding:'6px 2px', borderRadius:'4px', border:'none', cursor:'pointer', fontSize:'0.7rem',
-                                background: selDim.arrowStyle === styleOpt.id ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.06)',
-                                color: selDim.arrowStyle === styleOpt.id ? 'var(--gold-primary)' : '#bbb',
-                                outline: selDim.arrowStyle === styleOpt.id ? '1px solid var(--gold-primary)' : 'none',
-                                fontWeight:'bold'
-                              }}>{styleOpt.label}</button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Thickness Slider */}
-                        <SliderRow label="📏 ຄວາມໜາ (Line Thickness)" value={selDim.thickness || 3} min={1} max={8} step={1} unit="px"
-                          onChange={v => {
-                            setDimensions(prev => prev.map(d => d.id === selDim.id ? { ...d, thickness: v } : d));
-                          }} />
-
-                        {/* Color Picker */}
-                        <div>
-                          <label style={{ fontSize:'0.72rem', color:'#aaa', display:'block', marginBottom:'6px' }}>🎨 ສີຂອງເສັ້ນ (Color):</label>
-                          <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
-                            {[
-                              { color: '#d4af37', label: 'Gold' },
-                              { color: '#ffffff', label: 'White' },
-                              { color: '#e74c3c', label: 'Red' },
-                              { color: '#2ecc71', label: 'Green' },
-                              { color: '#3498db', label: 'Blue' },
-                            ].map(cOpt => (
-                              <button key={cOpt.color} onClick={() => {
-                                setDimensions(prev => prev.map(d => d.id === selDim.id ? { ...d, color: cOpt.color } : d));
-                              }} style={{
-                                width:'24px', height:'24px', borderRadius:'50%', border: selDim.color === cOpt.color ? '2px solid var(--gold-primary)' : '1px solid rgba(255,255,255,0.2)',
-                                background: cOpt.color, cursor:'pointer', boxSizing:'border-box',
-                                boxShadow: selDim.color === cOpt.color ? '0 0 8px var(--gold-primary)' : 'none'
-                              }} title={cOpt.label} />
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Delete Button */}
-                        <button onClick={() => {
-                          if (window.confirm('ຕ້ອງການລຶບເສັ້ນແທກຂະໜາດນີ້ ຫຼື ບໍ່?')) {
-                            setDimensions(prev => prev.filter(d => d.id !== selDim.id));
-                            setSelectedDimId(null);
-                          }
-                        }} style={{
-                          width:'100%', padding:'8px', background:'rgba(231,76,60,0.12)', border:'1px solid rgba(231,76,60,0.25)',
-                          color:'var(--alert-red)', borderRadius:'6px', cursor:'pointer', fontSize:'0.75rem', fontWeight:'bold',
-                          marginTop:'4px'
-                        }}>
-                          🗑️ ລຶບເສັ້ນແທກຂະໜາດນີ້ (Delete Line)
-                        </button>
-                      </div>
-                    );
-                  })()}
-                </>
-              )}
-
               {/* ── EXPORT TAB ── */}
               {activeTab === 'export' && (
                 <>
@@ -2222,50 +2144,44 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                   </div>
 
                   <div>
-                    <label style={{ fontSize:'0.8rem', color:'#ccc', display:'block', marginBottom:'8px' }}>🗂️ <b>ຮູບແບບໄຟລ໌ (Format):</b></label>
-                    <div style={{ display:'flex', gap:'6px' }}>
-                      {[
-                        {id:'webp',  label:'WebP (ດີທີ່ສຸດ)'},
-                        {id:'png',   label:'PNG (ໂປ່ງໃສ)'},
-                        {id:'jpeg',  label:'JPEG (ໄວ)'},
-                      ].map(f => (
-                        <button key={f.id} onClick={() => setExportFormat(f.id)} style={{
-                          flex:1, padding:'8px 4px', borderRadius:'6px', border:'none', cursor:'pointer',
-                          background: exportFormat===f.id ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.06)',
-                          color: exportFormat===f.id ? 'var(--gold-primary)' : '#ccc',
-                          outline: exportFormat===f.id ? '1px solid var(--gold-primary)' : '1px solid transparent',
-                          fontSize:'0.72rem', fontWeight:'bold'
+                    <label style={{ fontSize:'0.8rem', color:'#ccc', display:'block', marginBottom:'8px' }}>💾 <b>ຟໍແມັດໄຟລ໌ (Format):</b></label>
+                    <div style={{ display:'flex', gap:'8px' }}>
+                      {['webp', 'png', 'jpeg'].map(f => (
+                        <button key={f} onClick={() => setExportFormat(f)} style={{
+                          flex:1, padding:'10px', borderRadius:'8px', border:'none', cursor:'pointer',
+                          background: exportFormat===f ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.06)',
+                          color: exportFormat===f ? 'var(--gold-primary)' : '#ccc',
+                          outline: exportFormat===f ? '1.5px solid var(--gold-primary)' : 'none',
+                          fontSize:'0.8rem', fontWeight:'bold', textTransform:'uppercase'
                         }}>
-                          {f.label}
+                          {f}
                         </button>
                       ))}
                     </div>
                   </div>
 
-                  <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'14px', display:'flex', flexDirection:'column', gap:'10px' }}>
+                  <div style={{ display:'flex', flexDirection:'column', gap:'8px', marginTop:'10px', borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'16px' }}>
                     {onSave && (
-                      <button onClick={handleSaveAction} disabled={!sourceImg} className="btn btn-primary"
-                        style={{ padding:'12px', fontSize:'0.88rem', fontWeight:'bold', width:'100%', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', opacity:sourceImg?1:0.5 }}>
-                        💾 ບັນທຶກເຂົ້າໄປໃນລະບົບ (Save to POS)
+                      <button onClick={handleSaveAction} style={{
+                        width:'100%', padding:'12px', background:'var(--gold-primary)', color:'black',
+                        border:'none', borderRadius:'8px', cursor:'pointer', fontSize:'0.85rem', fontWeight:'bold'
+                      }}>
+                        💾 ບັນທຶກໃສ່ສິນຄ້າ (Apply to Product)
                       </button>
                     )}
-                    <button onClick={handleExportDownload} disabled={!sourceImg}
-                      style={{ padding:'12px', fontSize:'0.88rem', fontWeight:'bold', width:'100%', borderRadius:'8px', border:'1px solid rgba(212,175,55,0.35)', background:'rgba(212,175,55,0.1)', color:'var(--gold-primary)', cursor:sourceImg?'pointer':'default', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', opacity:sourceImg?1:0.5 }}>
-                      📥 ດາວໂຫຼດຮູບ (Download Image)
+                    <button onClick={handleExportDownload} style={{
+                      width:'100%', padding:'12px', background:'rgba(255,255,255,0.07)', color:'white',
+                      border:'1px solid rgba(255,255,255,0.15)', borderRadius:'8px', cursor:'pointer', fontSize:'0.85rem', fontWeight:'bold'
+                    }}>
+                      📥 ດາວໂຫຼດລົງເຄື່ອງ (Download Image)
                     </button>
-                  </div>
-
-                  <div style={{ background:'rgba(212,175,55,0.05)', border:'1px solid rgba(212,175,55,0.15)', borderRadius:'8px', padding:'12px', fontSize:'0.72rem', color:'#bbb', lineHeight:1.5 }}>
-                    📌 <b>ຫມາຍເຫດ:</b> ຮູບຈະຖືກສົ່ງອອກໂດຍບໍ່ມີ Grid, Safe Area ຫຼື ຂອບນຳທາງ (Guides).
-                    ຫາກຮູບມີ CORS Error, ໃຫ້ອັບໂຫຼດຮູບໃໝ່ຈາກເຄື່ອງຂອງທ່ານກ່ອນ.
                   </div>
                 </>
               )}
 
-            </div>{/* end sidebar content */}
-          </div>{/* end sidebar */}
-
-        </div>{/* end main content */}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
