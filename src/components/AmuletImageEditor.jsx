@@ -71,6 +71,15 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   const originalCanvasRef = useRef(null);
   const processedCanvasRef = useRef(null);
   const sliderContainerRef = useRef(null);
+  
+  // Eraser states
+  const [brushSize, setBrushSize] = useState(35);
+  const [eraseMode, setEraseMode] = useState('erase'); // erase, restore
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [brushPos, setBrushPos] = useState(null); // { x, y } in view coordinates
+  const lastDrawingPos = useRef(null); // { x, y } in 800x800 coordinates
+  const eraserContainerRef = useRef(null);
+  const maskCanvasRef = useRef(null);
 
   // Load image
   useEffect(() => {
@@ -85,9 +94,13 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
       setSourceImg(img);
       runAnalysis(img);
       
-      // Initialize history stack with starting settings
-      const initialSettingsStr = JSON.stringify(settings);
-      setHistory([initialSettingsStr]);
+      // Clear manual mask
+      if (maskCanvasRef.current) {
+        const mCtx = maskCanvasRef.current.getContext('2d');
+        mCtx.clearRect(0, 0, 800, 800);
+      }
+      // Initialize history stack with starting settings and blank mask
+      setHistory([{ settings: { ...settings }, maskDataUrl: '' }]);
       setHistoryIndex(0);
     };
     img.onerror = () => {
@@ -331,6 +344,14 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
       } catch (err) {
         console.warn("CORS Security Error: Background removal is disabled for remote cross-origin images", err);
       }
+    }
+
+    // Apply manual eraser mask
+    if (maskCanvasRef.current) {
+      tempCtx.save();
+      tempCtx.globalCompositeOperation = 'destination-out';
+      tempCtx.drawImage(maskCanvasRef.current, 0, 0);
+      tempCtx.restore();
     }
 
     // Draw temp canvas to main context
@@ -602,9 +623,12 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   const updateSettings = (newFields) => {
     setSettings(prev => {
       const next = { ...prev, ...newFields };
-      const nextStr = JSON.stringify(next);
+      const maskCanvas = getMaskCanvas();
       const newHistory = history.slice(0, historyIndex + 1);
-      newHistory.push(nextStr);
+      newHistory.push({
+        settings: next,
+        maskDataUrl: maskCanvas.toDataURL()
+      });
       
       setHistory(newHistory);
       setHistoryIndex(newHistory.length - 1);
@@ -613,11 +637,40 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     });
   };
 
+  const pushHistoryState = () => {
+    const maskCanvas = getMaskCanvas();
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push({
+      settings: { ...settings },
+      maskDataUrl: maskCanvas.toDataURL()
+    });
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+  };
+
+  const restoreMaskFromDataUrl = (dataUrl) => {
+    const maskCanvas = getMaskCanvas();
+    const mCtx = maskCanvas.getContext('2d');
+    mCtx.clearRect(0, 0, 800, 800);
+    if (dataUrl) {
+      const img = new Image();
+      img.onload = () => {
+        mCtx.drawImage(img, 0, 0);
+        renderProcessedImage();
+      };
+      img.src = dataUrl;
+    } else {
+      renderProcessedImage();
+    }
+  };
+
   const handleUndo = () => {
     if (historyIndex > 0) {
       const nextIdx = historyIndex - 1;
       setHistoryIndex(nextIdx);
-      setSettings(JSON.parse(history[nextIdx]));
+      const histItem = history[nextIdx];
+      setSettings(histItem.settings);
+      restoreMaskFromDataUrl(histItem.maskDataUrl);
     }
   };
 
@@ -625,21 +678,36 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     if (historyIndex < history.length - 1) {
       const nextIdx = historyIndex + 1;
       setHistoryIndex(nextIdx);
-      setSettings(JSON.parse(history[nextIdx]));
+      const histItem = history[nextIdx];
+      setSettings(histItem.settings);
+      restoreMaskFromDataUrl(histItem.maskDataUrl);
     }
   };
 
   const handleReset = () => {
+    // Clear mask
+    if (maskCanvasRef.current) {
+      const mCtx = maskCanvasRef.current.getContext('2d');
+      mCtx.clearRect(0, 0, 800, 800);
+    }
     const defaultSettings = {
       rotate: 0,
       scale: 1,
       translateX: 0,
       translateY: 0,
+      cropLeft: 0,
+      cropRight: 0,
+      cropTop: 0,
+      cropBottom: 0,
       brightness: 1,
       contrast: 1,
       sharpness: 0,
       noiseReduction: 0,
       selectiveClarity: false,
+      saturation: 1.0,
+      hueRotate: 0,
+      blur: 0,
+      vignette: 0,
       removeBackground: false,
       bgThreshold: 45,
       backgroundType: 'none',
@@ -657,6 +725,112 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
       showSafeArea: false,
     };
     updateSettings(defaultSettings);
+  };
+
+  const getCanvasCoords = (clientX, clientY) => {
+    if (!eraserContainerRef.current) return null;
+    const rect = eraserContainerRef.current.getBoundingClientRect();
+    const x = ((clientX - rect.left) / rect.width) * 800;
+    const y = ((clientY - rect.top) / rect.height) * 800;
+    return { x, y, viewX: clientX - rect.left, viewY: clientY - rect.top, rectWidth: rect.width };
+  };
+
+  const getMaskCanvas = () => {
+    if (!maskCanvasRef.current) {
+      const c = document.createElement('canvas');
+      c.width = 800;
+      c.height = 800;
+      maskCanvasRef.current = c;
+    }
+    return maskCanvasRef.current;
+  };
+
+  const drawMaskStroke = (x1, y1, x2, y2) => {
+    const maskCanvas = getMaskCanvas();
+    const mCtx = maskCanvas.getContext('2d');
+    
+    mCtx.lineJoin = 'round';
+    mCtx.lineCap = 'round';
+    mCtx.lineWidth = brushSize;
+    
+    if (eraseMode === 'erase') {
+      mCtx.globalCompositeOperation = 'source-over';
+      mCtx.strokeStyle = '#000000'; // Draw black to mask out
+    } else {
+      mCtx.globalCompositeOperation = 'destination-out';
+      mCtx.strokeStyle = 'rgba(0,0,0,1)'; // Erase mask to restore
+    }
+    
+    mCtx.beginPath();
+    mCtx.moveTo(x1, y1);
+    mCtx.lineTo(x2, y2);
+    mCtx.stroke();
+    
+    renderProcessedImage();
+  };
+
+  const handleEraserMouseDown = (e) => {
+    const coords = getCanvasCoords(e.clientX, e.clientY);
+    if (!coords) return;
+    setIsDrawing(true);
+    lastDrawingPos.current = { x: coords.x, y: coords.y };
+    drawMaskStroke(coords.x, coords.y, coords.x, coords.y);
+  };
+
+  const handleEraserMouseMove = (e) => {
+    const coords = getCanvasCoords(e.clientX, e.clientY);
+    if (!coords) {
+      setBrushPos(null);
+      return;
+    }
+    
+    setBrushPos({ x: coords.viewX, y: coords.viewY });
+    
+    if (isDrawing && lastDrawingPos.current) {
+      drawMaskStroke(lastDrawingPos.current.x, lastDrawingPos.current.y, coords.x, coords.y);
+      lastDrawingPos.current = { x: coords.x, y: coords.y };
+    }
+  };
+
+  const handleEraserMouseUp = () => {
+    if (isDrawing) {
+      setIsDrawing(false);
+      lastDrawingPos.current = null;
+      pushHistoryState();
+    }
+  };
+
+  const handleEraserTouchStart = (e) => {
+    if (e.touches.length === 0) return;
+    const touch = e.touches[0];
+    const coords = getCanvasCoords(touch.clientX, touch.clientY);
+    if (!coords) return;
+    setIsDrawing(true);
+    lastDrawingPos.current = { x: coords.x, y: coords.y };
+    drawMaskStroke(coords.x, coords.y, coords.x, coords.y);
+  };
+
+  const handleEraserTouchMove = (e) => {
+    if (e.touches.length === 0) return;
+    const touch = e.touches[0];
+    const coords = getCanvasCoords(touch.clientX, touch.clientY);
+    if (!coords) return;
+    
+    setBrushPos({ x: coords.viewX, y: coords.viewY });
+    
+    if (isDrawing && lastDrawingPos.current) {
+      drawMaskStroke(lastDrawingPos.current.x, lastDrawingPos.current.y, coords.x, coords.y);
+      lastDrawingPos.current = { x: coords.x, y: coords.y };
+    }
+  };
+
+  const handleEraserTouchEnd = () => {
+    if (isDrawing) {
+      setIsDrawing(false);
+      lastDrawingPos.current = null;
+      setBrushPos(null);
+      pushHistoryState();
+    }
   };
 
   const handleAiAutoArrange = () => {
@@ -844,6 +1018,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
             {[
               { id: 'crop', label: '📐 ຈັດຮູບ', icon: '📐' },
               { id: 'enhance', label: '✨ ປັບແສງ', icon: '✨' },
+              { id: 'eraser', label: '🧹 ຢາງລົບ', icon: '🧹' },
               { id: 'background', label: '🎨 ພື້ນຫຼັງ', icon: '🎨' },
               { id: 'frame', label: '🖼️ ໃສ່ກອບ', icon: '🖼️' },
               { id: 'watermark', label: '🏷️ ລາຍນ້ຳ', icon: '🏷️' },
@@ -916,97 +1091,155 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                 <p>AI ກຳລັງວິເຄາະຮູບພາບພຣະເຄື່ອງ (AI Analyzing Image...)</p>
               </div>
             ) : sourceImg ? (
-              <div 
-                ref={sliderContainerRef}
-                onMouseMove={handleSliderMouseMove}
-                onMouseUp={handleSliderMouseUpOrLeave}
-                onMouseLeave={handleSliderMouseUpOrLeave}
-                style={{
-                  position: 'relative',
-                  width: '100%',
-                  maxWidth: '480px',
-                  aspectRatio: '1',
-                  background: '#0d0d0d',
-                  borderRadius: '12px',
-                  overflow: 'hidden',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
-                  cursor: isDraggingSlider ? 'ew-resize' : 'default',
-                  userSelect: 'none'
-                }}
-              >
-                <canvas
-                  ref={originalCanvasRef}
+              activeTab === 'eraser' ? (
+                /* Eraser Workspace */
+                <div
+                  ref={eraserContainerRef}
+                  onMouseDown={handleEraserMouseDown}
+                  onMouseMove={handleEraserMouseMove}
+                  onMouseUp={handleEraserMouseUp}
+                  onMouseLeave={handleEraserMouseUp}
+                  onTouchStart={handleEraserTouchStart}
+                  onTouchMove={handleEraserTouchMove}
+                  onTouchEnd={handleEraserTouchEnd}
                   style={{
-                    position: 'absolute', top: 0, left: 0,
-                    width: '100%', height: '100%', objectFit: 'contain'
+                    position: 'relative',
+                    width: '100%',
+                    maxWidth: '480px',
+                    aspectRatio: '1',
+                    background: '#0d0d0d',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+                    cursor: 'crosshair',
+                    userSelect: 'none',
+                    touchAction: 'none'
                   }}
-                />
-                
-                <span style={{
-                  position: 'absolute', bottom: '12px', left: '12px',
-                  background: 'rgba(0,0,0,0.6)', color: '#888',
-                  padding: '3px 8px', borderRadius: '4px', fontSize: '0.65rem', zIndex: 10
-                }}>
-                  BEFORE (ຕົ້ນສະບັບ)
-                </span>
-
-                <div style={{
-                  position: 'absolute', top: 0, left: 0,
-                  width: `${sliderPosition}%`, height: '100%',
-                  overflow: 'hidden', borderRight: '2px solid var(--gold-primary)',
-                  zIndex: 2
-                }}>
+                >
                   <canvas
                     ref={processedCanvasRef}
                     style={{
+                      width: '100%', height: '100%', objectFit: 'contain'
+                    }}
+                  />
+                  {brushPos && (
+                    <div style={{
+                      position: 'absolute',
+                      left: brushPos.x,
+                      top: brushPos.y,
+                      width: `${(brushSize / 800) * (eraserContainerRef.current ? eraserContainerRef.current.clientWidth : 480)}px`,
+                      height: `${(brushSize / 800) * (eraserContainerRef.current ? eraserContainerRef.current.clientWidth : 480)}px`,
+                      borderRadius: '50%',
+                      border: '2px solid var(--gold-primary)',
+                      transform: 'translate(-50%, -50%)',
+                      pointerEvents: 'none',
+                      background: 'rgba(212,175,55,0.15)',
+                      zIndex: 20
+                    }} />
+                  )}
+                  <span style={{
+                    position: 'absolute', top: '12px', left: '12px',
+                    background: 'rgba(212,175,55,0.85)', color: 'black',
+                    padding: '4px 10px', borderRadius: '4px', fontSize: '0.68rem',
+                    fontWeight: 'bold', zIndex: 10, boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
+                  }}>
+                    🧹 ໂໝດລຶບດ້ວຍມື (Manual Eraser Mode)
+                  </span>
+                </div>
+              ) : (
+                /* Slider Workspace */
+                <div 
+                  ref={sliderContainerRef}
+                  onMouseMove={handleSliderMouseMove}
+                  onMouseUp={handleSliderMouseUpOrLeave}
+                  onMouseLeave={handleSliderMouseUpOrLeave}
+                  style={{
+                    position: 'relative',
+                    width: '100%',
+                    maxWidth: '480px',
+                    aspectRatio: '1',
+                    background: '#0d0d0d',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+                    cursor: isDraggingSlider ? 'ew-resize' : 'default',
+                    userSelect: 'none'
+                  }}
+                >
+                  <canvas
+                    ref={originalCanvasRef}
+                    style={{
                       position: 'absolute', top: 0, left: 0,
-                      width: sliderContainerRef.current ? sliderContainerRef.current.clientWidth : '480px',
-                      height: sliderContainerRef.current ? sliderContainerRef.current.clientHeight : '480px',
-                      objectFit: 'contain'
+                      width: '100%', height: '100%', objectFit: 'contain'
                     }}
                   />
                   
                   <span style={{
-                    position: 'absolute', bottom: '12px', right: '12px',
-                    background: 'rgba(212,175,55,0.2)', color: 'var(--gold-primary)',
-                    border: '1px solid rgba(212,175,55,0.4)',
-                    padding: '3px 8px', borderRadius: '4px', fontSize: '0.65rem',
-                    whiteSpace: 'nowrap'
+                    position: 'absolute', bottom: '12px', left: '12px',
+                    background: 'rgba(0,0,0,0.6)', color: '#888',
+                    padding: '3px 8px', borderRadius: '4px', fontSize: '0.65rem', zIndex: 10
                   }}>
-                    AFTER (AI ແຕ່ງແລ້ວ)
+                    BEFORE (ຕົ້ນສະບັບ)
                   </span>
-                </div>
 
-                <div 
-                  onMouseDown={handleSliderMouseDown}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    bottom: 0,
-                    left: `calc(${sliderPosition}% - 12px)`,
-                    width: '24px',
-                    zIndex: 3,
-                    cursor: 'ew-resize',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
                   <div style={{
-                    width: '4px', height: '100%', background: 'var(--gold-primary)',
-                    boxShadow: '0 0 8px var(--gold-glow)'
-                  }} />
-                  <div style={{
-                    position: 'absolute', width: '28px', height: '28px',
-                    borderRadius: '50%', background: 'var(--gold-primary)',
-                    border: '3px solid #070a13', color: '#000',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '10px', fontWeight: 'bold', boxShadow: '0 2px 8px rgba(0,0,0,0.5)'
+                    position: 'absolute', top: 0, left: 0,
+                    width: `${sliderPosition}%`, height: '100%',
+                    overflow: 'hidden', borderRight: '2px solid var(--gold-primary)',
+                    zIndex: 2
                   }}>
-                    ↔
+                    <canvas
+                      ref={processedCanvasRef}
+                      style={{
+                        position: 'absolute', top: 0, left: 0,
+                        width: sliderContainerRef.current ? sliderContainerRef.current.clientWidth : '480px',
+                        height: sliderContainerRef.current ? sliderContainerRef.current.clientHeight : '480px',
+                        objectFit: 'contain'
+                      }}
+                    />
+                    
+                    <span style={{
+                      position: 'absolute', bottom: '12px', right: '12px',
+                      background: 'rgba(212,175,55,0.2)', color: 'var(--gold-primary)',
+                      border: '1px solid rgba(212,175,55,0.4)',
+                      padding: '3px 8px', borderRadius: '4px', fontSize: '0.65rem',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      AFTER (AI ແຕ່ງແລ້ວ)
+                    </span>
+                  </div>
+
+                  <div 
+                    onMouseDown={handleSliderMouseDown}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      bottom: 0,
+                      left: `calc(${sliderPosition}% - 12px)`,
+                      width: '24px',
+                      zIndex: 3,
+                      cursor: 'ew-resize',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <div style={{
+                      width: '4px', height: '100%', background: 'var(--gold-primary)',
+                      boxShadow: '0 0 8px var(--gold-glow)'
+                    }} />
+                    <div style={{
+                      position: 'absolute', width: '28px', height: '28px',
+                      borderRadius: '50%', background: 'var(--gold-primary)',
+                      border: '3px solid #070a13', color: '#000',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '10px', fontWeight: 'bold', boxShadow: '0 2px 8px rgba(0,0,0,0.5)'
+                    }}>
+                      ↔
+                    </div>
                   </div>
                 </div>
-              </div>
+              )
             ) : (
               <div style={{
                 textAlign: 'center', color: 'var(--text-secondary)',
@@ -1104,6 +1337,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
               <h3 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {activeTab === 'crop' && '📐 ຈັດຮູບ & ອົງປະກອບ (Crop & Align)'}
                 {activeTab === 'enhance' && '✨ ປັບແສງ & ສີ (Enhance & Color)'}
+                {activeTab === 'eraser' && '🧹 ຢາງລົບພື້ນຫຼັງ (Manual Eraser)'}
                 {activeTab === 'background' && '🎨 ປັບພື້ນຫຼັງ (AI Background)'}
                 {activeTab === 'frame' && '🖼️ ໃສ່ກອບພຣະເຄື່ອງ (Amulet Frame)'}
                 {activeTab === 'watermark' && '🏷️ ໃສ່ລາຍນ້ຳ/SKU (Watermark)'}
@@ -1415,6 +1649,80 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                     />
                     <span>AI Highlight (ເນັ້ນຄວາມຊັດສະເພາະອົງພຣະ)</span>
                   </label>
+                </>
+              )}
+              {activeTab === 'eraser' && (
+                <>
+                  <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label className="form-label">
+                      🧹 <b>ໂໝດການທຳງານ (Eraser Tool Mode):</b>
+                    </label>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setEraseMode('erase')}
+                        className={`btn ${eraseMode === 'erase' ? 'btn-primary' : 'btn-secondary'}`}
+                        style={{ flex: 1, padding: '10px 0', fontSize: '0.82rem', fontWeight: 'bold' }}
+                      >
+                        🧽 ຢາງລົບ (Erase)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEraseMode('restore')}
+                        className={`btn ${eraseMode === 'restore' ? 'btn-primary' : 'btn-secondary'}`}
+                        style={{ flex: 1, padding: '10px 0', fontSize: '0.82rem', fontWeight: 'bold' }}
+                      >
+                        🎨 ກູ້ຄືນ (Restore)
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span>ຂະໜາດແປງຢາງລົບ (Brush Size):</span>
+                      <span style={{ color: 'var(--gold-primary)' }}>{brushSize}px</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="5"
+                      max="100"
+                      value={brushSize}
+                      onChange={(e) => setBrushSize(parseInt(e.target.value))}
+                      style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
+                    />
+                  </div>
+
+                  <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '10px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
+                    <h4 style={{ color: 'white', fontSize: '0.8rem', margin: '0 0 5px' }}>⚡ ຈັດການໜ້າກາກ (Mask Actions):</h4>
+                    
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => {
+                        if (confirm('ທ່ານຕ້ອງການລ້າງການລຶບທັງໝົດ ຫຼື ບໍ່? (Clear all eraser strokes?)')) {
+                          const maskCanvas = getMaskCanvas();
+                          const mCtx = maskCanvas.getContext('2d');
+                          mCtx.clearRect(0, 0, 800, 800);
+                          renderProcessedImage();
+                          pushHistoryState();
+                        }
+                      }}
+                      style={{ padding: '8px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                    >
+                      🗑️ ລ້າງການລຶບທັງໝົດ (Clear Eraser)
+                    </button>
+                  </div>
+
+                  <div style={{
+                    marginTop: '15px', background: 'rgba(212,175,55,0.05)',
+                    border: '1px solid rgba(212,175,55,0.15)', borderRadius: '8px',
+                    padding: '12px', fontSize: '0.75rem', color: '#ccc', lineHeight: 1.4
+                  }}>
+                    💡 <b>ຄຳແນະນຳ (Tips):</b><br/>
+                    - ໃຊ້ເມົາສ໌ ຫຼື ນິ້ວມື (ເທິງມືຖື) ລະບາຍລົງເທິງຮູບເບື້ອງຊ້າຍ ເພື່ອລຶບພື້ນຫຼັງສ່ວນເກີນທີ່ AI ລຶບບໍ່ໝົດອອກ.<br/>
+                    - ປ່ຽນເປັນໂໝດ <b>"ກູ້ຄືນ"</b> ຫາກຕ້ອງການດຶງສ່ວນທີ່ລຶບຜິດພາດກັບຄືນມາ.<br/>
+                    - ທ່ານສາມາດກົດ <b>Undo (ຍ້ອນກັບ)</b> ໄດ້ທຸກເວລາຫາກເຮັດຜິດພາດ.
+                  </div>
                 </>
               )}
 
