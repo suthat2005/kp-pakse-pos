@@ -316,7 +316,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
       ctx.clearRect(0,0,800,800);
 
       // 1. Background template
-      drawBgTemplate(ctx, 800, 800, stg);
+      drawBgTemplate(ctx, 800, 800, stg, isExport);
 
     // 2. Image with transforms
     ctx.save();
@@ -384,98 +384,126 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
         }
         const fixedBgR = bgR, fixedBgG = bgG, fixedBgB = bgB;
 
-        // ─── Seed from 🔴 Remove brush mask (starts flood-fill from user-marked areas) ───
+        // ─── Extract background based on auto-generated / user-painted Keep Mask ───
         const kData = getKeepMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
         const rData = getRemoveMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
 
-        const visited  = new Uint8Array(W * H);
-        const toRemove = new Uint8Array(W * H);
-        const queue = new Int32Array(W * H * 5); // x, y, r, g, b
-        let qHead = 0, qTail = 0;
-
-        const enqueue = (x, y, sr, sg, sb) => {
-          if (x < minX || x > maxX || y < minY || y > maxY) return;
-          const pi = y * W + x;
-          if (visited[pi]) return;
-          visited[pi] = 1;
-          queue[qTail++] = x;
-          queue[qTail++] = y;
-          queue[qTail++] = sr;
-          queue[qTail++] = sg;
-          queue[qTail++] = sb;
-        };
-
-        // 1. Seed edges of the image rectangle bounds with their local colors
-        for (let x = minX; x <= maxX; x++) {
-          const iTop = minY * W + x;
-          enqueue(x, minY, d[iTop*4], d[iTop*4+1], d[iTop*4+2]);
-          const iBottom = maxY * W + x;
-          enqueue(x, maxY, d[iBottom*4], d[iBottom*4+1], d[iBottom*4+2]);
-        }
-        for (let y = minY + 1; y < maxY; y++) {
-          const iLeft = y * W + minX;
-          enqueue(minX, y, d[iLeft*4], d[iLeft*4+1], d[iLeft*4+2]);
-          const iRight = y * W + maxX;
-          enqueue(maxX, y, d[iRight*4], d[iRight*4+1], d[iRight*4+2]);
+        // Check if there is any green keep-mask painted (either auto or manual)
+        let hasKeepMask = false;
+        for (let i = 0; i < W * H; i++) {
+          if (kData[i*4+1] > 128 && kData[i*4+3] > 0) {
+            hasKeepMask = true;
+            break;
+          }
         }
 
-        // 2. Seed from user 🔴 Remove brush marks
-        for (let y = minY; y <= maxY; y++) {
-          for (let x = minX; x <= maxX; x++) {
-            const pi = y * W + x;
-            const ri = pi * 4;
-            if (rData[ri] > 128 && rData[ri+3] > 0) {
-              enqueue(x, y, d[ri], d[ri+1], d[ri+2]);
+        if (hasKeepMask) {
+          // 1. DIRECT EXTRACTION: Keep ONLY green mask pixels, remove everything else (including red marks)
+          for (let i = 0; i < W * H; i++) {
+            const di4 = i * 4;
+            const inKeep = (kData[di4+1] > 128 && kData[di4+3] > 0);
+            const inRemove = (rData[di4] > 128 && rData[di4+3] > 0);
+
+            if (inRemove || !inKeep) {
+              d[di4+3] = 0; // transparent
             }
           }
-        }
+        } else {
+          // 2. FALLBACK: Flood-fill BFS (when no keep mask is generated yet)
+          // Shift bounds inward by 2px to ensure seeds are sampled from actual image pixels (not transparent margins)
+          const seedMinX = Math.max(0, Math.floor(ddx) + 2);
+          const seedMaxX = Math.min(W - 1, Math.floor(ddx + dw) - 3);
+          const seedMinY = Math.max(0, Math.floor(ddy) + 2);
+          const seedMaxY = Math.min(H - 1, Math.floor(ddy + dh) - 3);
 
-        // ─── BFS with Local seed color comparison ───
-        while (qHead < qTail) {
-          const cx = queue[qHead++];
-          const cy = queue[qHead++];
-          const sr = queue[qHead++];
-          const sg = queue[qHead++];
-          const sb = queue[qHead++];
+          const visited  = new Uint8Array(W * H);
+          const toRemove = new Uint8Array(W * H);
+          const queue = new Int32Array(W * H * 5); // x, y, r, g, b
+          let qHead = 0, qTail = 0;
 
-          const pi = cy * W + cx;
-          const di = pi * 4;
+          const enqueue = (x, y, sr, sg, sb) => {
+            if (x < seedMinX || x > seedMaxX || y < seedMinY || y > seedMaxY) return;
+            const pi = y * W + x;
+            if (visited[pi]) return;
+            visited[pi] = 1;
+            queue[qTail++] = x;
+            queue[qTail++] = y;
+            queue[qTail++] = sr;
+            queue[qTail++] = sg;
+            queue[qTail++] = sb;
+          };
 
-          const isTransparent = (d[di+3] === 0);
-
-          if (isTransparent) {
-            toRemove[pi] = 1;
-            // Propagate transparent pixels using the same seed color
-            if (cx+1 <= maxX) enqueue(cx+1, cy, sr, sg, sb);
-            if (cx-1 >= minX) enqueue(cx-1, cy, sr, sg, sb);
-            if (cy+1 <= maxY) enqueue(cx, cy+1, sr, sg, sb);
-            if (cy-1 >= minY) enqueue(cx, cy-1, sr, sg, sb);
-            continue;
+          // Seed boundaries of the image bounds
+          for (let x = seedMinX; x <= seedMaxX; x++) {
+            const iTop = seedMinY * W + x;
+            enqueue(x, seedMinY, d[iTop*4], d[iTop*4+1], d[iTop*4+2]);
+            const iBottom = seedMaxY * W + x;
+            enqueue(x, seedMaxY, d[iBottom*4], d[iBottom*4+1], d[iBottom*4+2]);
+          }
+          for (let y = seedMinY + 1; y < seedMaxY; y++) {
+            const iLeft = y * W + seedMinX;
+            enqueue(seedMinX, y, d[iLeft*4], d[iLeft*4+1], d[iLeft*4+2]);
+            const iRight = y * W + seedMaxX;
+            enqueue(seedMaxX, y, d[iRight*4], d[iRight*4+1], d[iRight*4+2]);
           }
 
-          const dr = d[di]   - sr;
-          const dg = d[di+1] - sg;
-          const db = d[di+2] - sb;
-          const dist = Math.sqrt(dr*dr + dg*dg + db*db);
-
-          if (dist <= thr) {
-            toRemove[pi] = 1;
-            if (cx+1 <= maxX) enqueue(cx+1, cy, sr, sg, sb);
-            if (cx-1 >= minX) enqueue(cx-1, cy, sr, sg, sb);
-            if (cy+1 <= maxY) enqueue(cx, cy+1, sr, sg, sb);
-            if (cy-1 >= minY) enqueue(cx, cy-1, sr, sg, sb);
+          // Seed user red remove marks
+          for (let y = seedMinY; y <= seedMaxY; y++) {
+            for (let x = seedMinX; x <= seedMaxX; x++) {
+              const pi = y * W + x;
+              const ri = pi * 4;
+              if (rData[ri] > 128 && rData[ri+3] > 0) {
+                enqueue(x, y, d[ri], d[ri+1], d[ri+2]);
+              }
+            }
           }
-        }
 
-        // ─── Apply: respect keep/remove brush overlays ───
-        for (let i = 0; i < W * H; i++) {
-          const di4 = i * 4;
-          if (rData[di4] > 128 && rData[di4+3] > 0) {
-            d[di4+3] = 0;            // force remove (red brush)
-          } else if (kData[di4+1] > 128 && kData[di4+3] > 0) {
-            // force keep (green brush) — do nothing
-          } else if (toRemove[i]) {
-            d[di4+3] = 0;            // auto flood-fill removal
+          // Run BFS
+          while (qHead < qTail) {
+            const cx = queue[qHead++];
+            const cy = queue[qHead++];
+            const sr = queue[qHead++];
+            const sg = queue[qHead++];
+            const sb = queue[qHead++];
+
+            const pi = cy * W + cx;
+            const di = pi * 4;
+
+            const isTransparent = (d[di+3] === 0);
+
+            if (isTransparent) {
+              toRemove[pi] = 1;
+              if (cx+1 <= seedMaxX) enqueue(cx+1, cy, sr, sg, sb);
+              if (cx-1 >= seedMinX) enqueue(cx-1, cy, sr, sg, sb);
+              if (cy+1 <= seedMaxY) enqueue(cx, cy+1, sr, sg, sb);
+              if (cy-1 >= seedMinY) enqueue(cx, cy-1, sr, sg, sb);
+              continue;
+            }
+
+            const dr = d[di]   - sr;
+            const dg = d[di+1] - sg;
+            const db = d[di+2] - sb;
+            const dist = Math.sqrt(dr*dr + dg*dg + db*db);
+
+            if (dist <= thr) {
+              toRemove[pi] = 1;
+              if (cx+1 <= seedMaxX) enqueue(cx+1, cy, sr, sg, sb);
+              if (cx-1 >= seedMinX) enqueue(cx-1, cy, sr, sg, sb);
+              if (cy+1 <= seedMaxY) enqueue(cx, cy+1, sr, sg, sb);
+              if (cy-1 >= seedMinY) enqueue(cx, cy-1, sr, sg, sb);
+            }
+          }
+
+          // Apply BFS results
+          for (let i = 0; i < W * H; i++) {
+            const di4 = i * 4;
+            if (rData[di4] > 128 && rData[di4+3] > 0) {
+              d[di4+3] = 0;
+            } else if (kData[di4+1] > 128 && kData[di4+3] > 0) {
+              // Keep
+            } else if (toRemove[i]) {
+              d[di4+3] = 0;
+            }
           }
         }
         tCtx.putImageData(id, 0, 0);
@@ -573,7 +601,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   // ═══════════════════════════════════════════════════════════════════════════════
   // DRAW HELPERS
   // ═══════════════════════════════════════════════════════════════════════════════
-  const drawBgTemplate = (ctx, w, h, stg) => {
+  const drawBgTemplate = (ctx, w, h, stg, isExport = false) => {
     ctx.save();
 
     // Custom background image (user-uploaded)
@@ -592,6 +620,25 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     }
 
     switch (stg.backgroundType) {
+      case 'none':
+      case 'transparent': {
+        if (isExport) {
+          // Fully transparent for output files (PNG/WEBP)
+          ctx.clearRect(0,0,w,h);
+        } else {
+          // Draw standard image editing checkerboard pattern for editor preview
+          ctx.fillStyle = '#181c26'; ctx.fillRect(0,0,w,h);
+          ctx.fillStyle = '#232836';
+          const cs = 20;
+          for (let y = 0; y < h; y += cs * 2) {
+            for (let x = 0; x < w; x += cs * 2) {
+              ctx.fillRect(x, y, cs, cs);
+              ctx.fillRect(x + cs, y + cs, cs, cs);
+            }
+          }
+        }
+        break;
+      }
       case 'white':
         ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,w,h); break;
       case 'black':
@@ -635,15 +682,6 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
         const g = ctx.createLinearGradient(0,0,w,h);
         g.addColorStop(0,'#004d40'); g.addColorStop(1,'#1b5e20');
         ctx.fillStyle=g; ctx.fillRect(0,0,w,h); break;
-      }
-      case 'transparent': {
-        ctx.fillStyle='#181c26'; ctx.fillRect(0,0,w,h);
-        ctx.fillStyle='#232836';
-        const cs=20;
-        for(let y=0;y<h;y+=cs*2) for(let x=0;x<w;x+=cs*2){
-          ctx.fillRect(x,y,cs,cs); ctx.fillRect(x+cs,y+cs,cs,cs);
-        }
-        break;
       }
       default:
         ctx.fillStyle='#0d0d0d'; ctx.fillRect(0,0,w,h); break;
