@@ -355,29 +355,60 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
         }
         const fixedBgR = bgR, fixedBgG = bgG, fixedBgB = bgB;
 
-        // ─── Seed the boundary of the image bounds ───
+        // ─── Seed from 🔴 Remove brush mask (starts flood-fill from user-marked areas) ───
+        const kData = getKeepMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
+        const rData = getRemoveMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
+
         const visited  = new Uint8Array(W * H);
         const toRemove = new Uint8Array(W * H);
-        const queue = new Int32Array(W * H * 2);
+        const queue = new Int32Array(W * H * 5); // x, y, r, g, b
         let qHead = 0, qTail = 0;
 
-        const enqueue = (x, y) => {
+        const enqueue = (x, y, sr, sg, sb) => {
           if (x < minX || x > maxX || y < minY || y > maxY) return;
           const pi = y * W + x;
           if (visited[pi]) return;
           visited[pi] = 1;
           queue[qTail++] = x;
           queue[qTail++] = y;
+          queue[qTail++] = sr;
+          queue[qTail++] = sg;
+          queue[qTail++] = sb;
         };
 
-        // Seed edges of the image rectangle bounds
-        for (let x = minX; x <= maxX; x++) { enqueue(x, minY); enqueue(x, maxY); }
-        for (let y = minY + 1; y < maxY; y++) { enqueue(minX, y); enqueue(maxX, y); }
+        // 1. Seed edges of the image rectangle bounds with their local colors
+        for (let x = minX; x <= maxX; x++) {
+          const iTop = minY * W + x;
+          enqueue(x, minY, d[iTop*4], d[iTop*4+1], d[iTop*4+2]);
+          const iBottom = maxY * W + x;
+          enqueue(x, maxY, d[iBottom*4], d[iBottom*4+1], d[iBottom*4+2]);
+        }
+        for (let y = minY + 1; y < maxY; y++) {
+          const iLeft = y * W + minX;
+          enqueue(minX, y, d[iLeft*4], d[iLeft*4+1], d[iLeft*4+2]);
+          const iRight = y * W + maxX;
+          enqueue(maxX, y, d[iRight*4], d[iRight*4+1], d[iRight*4+2]);
+        }
 
-        // ─── BFS with Fixed colour comparison (tolerates internal alpha=0 padding) ───
+        // 2. Seed from user 🔴 Remove brush marks
+        for (let y = minY; y <= maxY; y++) {
+          for (let x = minX; x <= maxX; x++) {
+            const pi = y * W + x;
+            const ri = pi * 4;
+            if (rData[ri] > 128 && rData[ri+3] > 0) {
+              enqueue(x, y, d[ri], d[ri+1], d[ri+2]);
+            }
+          }
+        }
+
+        // ─── BFS with Local seed color comparison ───
         while (qHead < qTail) {
           const cx = queue[qHead++];
           const cy = queue[qHead++];
+          const sr = queue[qHead++];
+          const sg = queue[qHead++];
+          const sb = queue[qHead++];
+
           const pi = cy * W + cx;
           const di = pi * 4;
 
@@ -385,32 +416,29 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
 
           if (isTransparent) {
             toRemove[pi] = 1;
-            // Propagate through transparent regions to reach actual bg edges
-            if (cx+1 <= maxX) enqueue(cx+1, cy);
-            if (cx-1 >= minX) enqueue(cx-1, cy);
-            if (cy+1 <= maxY) enqueue(cx, cy+1);
-            if (cy-1 >= minY) enqueue(cx, cy-1);
+            // Propagate transparent pixels using the same seed color
+            if (cx+1 <= maxX) enqueue(cx+1, cy, sr, sg, sb);
+            if (cx-1 >= minX) enqueue(cx-1, cy, sr, sg, sb);
+            if (cy+1 <= maxY) enqueue(cx, cy+1, sr, sg, sb);
+            if (cy-1 >= minY) enqueue(cx, cy-1, sr, sg, sb);
             continue;
           }
 
-          const dr = d[di]   - fixedBgR;
-          const dg = d[di+1] - fixedBgG;
-          const db = d[di+2] - fixedBgB;
+          const dr = d[di]   - sr;
+          const dg = d[di+1] - sg;
+          const db = d[di+2] - sb;
           const dist = Math.sqrt(dr*dr + dg*dg + db*db);
 
           if (dist <= thr) {
             toRemove[pi] = 1;
-            if (cx+1 <= maxX) enqueue(cx+1, cy);
-            if (cx-1 >= minX) enqueue(cx-1, cy);
-            if (cy+1 <= maxY) enqueue(cx, cy+1);
-            if (cy-1 >= minY) enqueue(cx, cy-1);
+            if (cx+1 <= maxX) enqueue(cx+1, cy, sr, sg, sb);
+            if (cx-1 >= minX) enqueue(cx-1, cy, sr, sg, sb);
+            if (cy+1 <= maxY) enqueue(cx, cy+1, sr, sg, sb);
+            if (cy-1 >= minY) enqueue(cx, cy-1, sr, sg, sb);
           }
         }
 
         // ─── Apply: respect keep/remove brush overlays ───
-        const kData = getKeepMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
-        const rData = getRemoveMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
-
         for (let i = 0; i < W * H; i++) {
           const di4 = i * 4;
           if (rData[di4] > 128 && rData[di4+3] > 0) {
