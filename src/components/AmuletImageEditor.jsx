@@ -45,17 +45,24 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
 
   // ─── Eraser States ────────────────────────────────────────────────────────────
   const [brushSize, setBrushSize] = useState(35);
-  const [eraseMode, setEraseMode] = useState('erase');
+  const [eraseMode, setEraseMode] = useState('erase'); // 'erase' | 'restore' | 'keep' | 'remove'
   const [isDrawing, setIsDrawing] = useState(false);
   const [brushPos, setBrushPos] = useState(null);
   const lastDrawingPos = useRef(null);
   const eraserContainerRef = useRef(null);
 
+  // ─── Custom Background Image ─────────────────────────────────────────────────
+  const [customBgImage, setCustomBgImage] = useState(null); // HTMLImageElement
+  const customBgImageRef = useRef(null);
+  useEffect(() => { customBgImageRef.current = customBgImage; }, [customBgImage]);
+
   // ─── Canvas Refs ─────────────────────────────────────────────────────────────
   const originalCanvasRef = useRef(null);
   const processedCanvasRef = useRef(null);
   const sliderContainerRef = useRef(null);
-  const maskCanvasRef = useRef(null);   // offscreen 800×800 alpha mask
+  const maskCanvasRef = useRef(null);       // offscreen 800×800 alpha mask (eraser)
+  const keepMaskCanvasRef = useRef(null);   // offscreen: green = force keep
+  const removeMaskCanvasRef = useRef(null); // offscreen: red   = force remove
 
   // ─── Current settings ref (for use inside callbacks without re-render) ───────
   const settingsRef = useRef(settings);
@@ -79,9 +86,28 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     return maskCanvasRef.current;
   };
 
+  const getKeepMaskCanvas = () => {
+    if (!keepMaskCanvasRef.current) {
+      const c = document.createElement('canvas');
+      c.width = 800; c.height = 800;
+      keepMaskCanvasRef.current = c;
+    }
+    return keepMaskCanvasRef.current;
+  };
+
+  const getRemoveMaskCanvas = () => {
+    if (!removeMaskCanvasRef.current) {
+      const c = document.createElement('canvas');
+      c.width = 800; c.height = 800;
+      removeMaskCanvasRef.current = c;
+    }
+    return removeMaskCanvasRef.current;
+  };
+
   const clearMask = () => {
-    const mc = getMaskCanvas();
-    mc.getContext('2d').clearRect(0, 0, 800, 800);
+    getMaskCanvas().getContext('2d').clearRect(0, 0, 800, 800);
+    getKeepMaskCanvas().getContext('2d').clearRect(0, 0, 800, 800);
+    getRemoveMaskCanvas().getContext('2d').clearRect(0, 0, 800, 800);
   };
 
   const getMaskDataUrl = () => {
@@ -266,16 +292,92 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     tCtx.drawImage(src, sx, sy, sw, sh, ddx, ddy, dw, dh);
     try { tCtx.filter = 'none'; } catch(e) {}
 
-    // AI Background removal
-    if (stg.removeBackground && anl) {
+    // AI Background removal — Flood-Fill from corners + edges
+    if (stg.removeBackground) {
       try {
         const id = tCtx.getImageData(0,0,800,800);
         const d = id.data;
-        const {bgR,bgG,bgB} = anl;
+        const W = 800, H = 800;
         const thr = stg.bgThreshold;
-        for (let i=0; i<d.length; i+=4) {
-          const dist = Math.sqrt((d[i]-bgR)**2+(d[i+1]-bgG)**2+(d[i+2]-bgB)**2);
-          if (dist < thr && d[i+3] > 0) d[i+3] = 0;
+
+        // Get keep/remove mask data
+        const kData = getKeepMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
+        const rData = getRemoveMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
+
+        // Sample background color from multiple border points
+        const borderSamples = [];
+        const step = 20;
+        for (let x=0; x<W; x+=step) { borderSamples.push([x,0]); borderSamples.push([x,H-1]); }
+        for (let y=0; y<H; y+=step) { borderSamples.push([0,y]); borderSamples.push([W-1,y]); }
+
+        // BFS Flood-fill from border: mark background pixels
+        const visited = new Uint8Array(W * H);
+        const toRemove = new Uint8Array(W * H);
+        const queue = [];
+
+        for (const [sx, sy] of borderSamples) {
+          const pi = sy * W + sx;
+          if (!visited[pi] && d[pi*4+3] > 0) {
+            queue.push(sx | (sy << 16));
+            visited[pi] = 1;
+          }
+        }
+
+        // Sample background color from corner average
+        let bgR=0,bgG=0,bgB=0,sc=0;
+        [[0,0],[W-1,0],[0,H-1],[W-1,H-1]].forEach(([x,y])=>{
+          const i=(y*W+x)*4;
+          if(d[i+3]>0){bgR+=d[i];bgG+=d[i+1];bgB+=d[i+2];sc++;}
+        });
+        if(sc>0){bgR=Math.round(bgR/sc);bgG=Math.round(bgG/sc);bgB=Math.round(bgB/sc);}
+        // If analysis gives us a better sample, use it
+        if(anl){bgR=anl.bgR;bgG=anl.bgG;bgB=anl.bgB;}
+
+        let head = 0;
+        while (head < queue.length) {
+          const packed = queue[head++];
+          const cx = packed & 0xFFFF;
+          const cy = (packed >> 16) & 0xFFFF;
+          const pi = cy * W + cx;
+          const di = pi * 4;
+
+          const dr = d[di]-bgR, dg = d[di+1]-bgG, db = d[di+2]-bgB;
+          const dist = Math.sqrt(dr*dr + dg*dg + db*db);
+
+          if (dist <= thr && d[di+3] > 0) {
+            toRemove[pi] = 1;
+            // Update local bg color for better propagation
+            bgR = Math.round((bgR*3 + d[di]) / 4);
+            bgG = Math.round((bgG*3 + d[di+1]) / 4);
+            bgB = Math.round((bgB*3 + d[di+2]) / 4);
+            // Spread to 4 neighbors
+            const neighbors = [
+              cx+1 < W ? ((cx+1) | (cy << 16)) : -1,
+              cx-1 >= 0 ? ((cx-1) | (cy << 16)) : -1,
+              cy+1 < H ? (cx | ((cy+1) << 16)) : -1,
+              cy-1 >= 0 ? (cx | ((cy-1) << 16)) : -1,
+            ];
+            for (const np of neighbors) {
+              if (np >= 0) {
+                const nx = np & 0xFFFF, ny = (np >> 16) & 0xFFFF;
+                const npi = ny * W + nx;
+                if (!visited[npi]) { visited[npi] = 1; queue.push(np); }
+              }
+            }
+          }
+        }
+
+        // Apply removal + keep/remove override brushes
+        for (let i=0; i < W*H; i++) {
+          const di = i * 4;
+          if (rData[i*4] > 128 && rData[i*4+3] > 0) {
+            // Force remove (red brush)
+            d[di+3] = 0;
+          } else if (kData[i*4+1] > 128 && kData[i*4+3] > 0) {
+            // Force keep (green brush) — do nothing
+          } else if (toRemove[i]) {
+            d[di+3] = 0;
+          }
         }
         tCtx.putImageData(id, 0, 0);
       } catch(err) {
@@ -346,6 +448,22 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   // ═══════════════════════════════════════════════════════════════════════════════
   const drawBgTemplate = (ctx, w, h, stg) => {
     ctx.save();
+
+    // Custom background image (user-uploaded)
+    if (stg.backgroundType === 'custom' && customBgImageRef.current) {
+      ctx.fillStyle = '#0d0d0d'; ctx.fillRect(0,0,w,h);
+      // Cover fit
+      const img = customBgImageRef.current;
+      const scaleX = w / img.naturalWidth;
+      const scaleY = h / img.naturalHeight;
+      const scale = Math.max(scaleX, scaleY);
+      const dw = img.naturalWidth * scale;
+      const dh = img.naturalHeight * scale;
+      ctx.drawImage(img, (w-dw)/2, (h-dh)/2, dw, dh);
+      ctx.restore();
+      return;
+    }
+
     switch (stg.backgroundType) {
       case 'white':
         ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,w,h); break;
@@ -370,7 +488,6 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
         const g = ctx.createRadialGradient(w/2,h/2,30,w/2,h/2,w*0.8);
         g.addColorStop(0,'#1f1f1f'); g.addColorStop(1,'#0a0a0a');
         ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
-        // shine lines
         ctx.strokeStyle='rgba(255,255,255,0.03)';
         ctx.lineWidth=40;
         for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(-100+i*220,0);ctx.lineTo(100+i*220,h);ctx.stroke();}
@@ -382,8 +499,17 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
         ctx.fillStyle='#050508'; ctx.fillRect(0,0,w,h);
         ctx.fillStyle=g; ctx.fillRect(0,0,w,h); break;
       }
+      case 'gradient_blue': {
+        const g = ctx.createLinearGradient(0,0,w,h);
+        g.addColorStop(0,'#0f0c29'); g.addColorStop(0.5,'#302b63'); g.addColorStop(1,'#24243e');
+        ctx.fillStyle=g; ctx.fillRect(0,0,w,h); break;
+      }
+      case 'gradient_green': {
+        const g = ctx.createLinearGradient(0,0,w,h);
+        g.addColorStop(0,'#004d40'); g.addColorStop(1,'#1b5e20');
+        ctx.fillStyle=g; ctx.fillRect(0,0,w,h); break;
+      }
       case 'transparent': {
-        // checkerboard
         ctx.fillStyle='#181c26'; ctx.fillRect(0,0,w,h);
         ctx.fillStyle='#232836';
         const cs=20;
@@ -576,27 +702,32 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   };
 
   const drawMaskStroke = (x1, y1, x2, y2) => {
-    const mc = getMaskCanvas();
-    const mCtx = mc.getContext('2d');
-    mCtx.lineCap = 'round'; mCtx.lineJoin = 'round';
-    mCtx.lineWidth = brushSizeRef.current;
+    const mode = eraseModeRef.current;
+    const sz = brushSizeRef.current;
 
-    if (eraseModeRef.current === 'erase') {
-      // Paint black (opaque) pixels onto mask → these will subtract from image alpha
-      mCtx.globalCompositeOperation = 'source-over';
-      mCtx.strokeStyle = 'rgba(0,0,0,1)';
-    } else {
-      // Erase the mask (restore image)
-      mCtx.globalCompositeOperation = 'destination-out';
-      mCtx.strokeStyle = 'rgba(0,0,0,1)';
+    const strokeTo = (canvas, color, composite) => {
+      const c = canvas.getContext('2d');
+      c.lineCap = 'round'; c.lineJoin = 'round'; c.lineWidth = sz;
+      c.globalCompositeOperation = composite;
+      c.strokeStyle = color;
+      c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke();
+      c.globalCompositeOperation = 'source-over';
+    };
+
+    if (mode === 'erase') {
+      strokeTo(getMaskCanvas(), 'rgba(0,0,0,1)', 'source-over');
+    } else if (mode === 'restore') {
+      strokeTo(getMaskCanvas(), 'rgba(0,0,0,1)', 'destination-out');
+      strokeTo(getKeepMaskCanvas(), 'rgba(0,0,0,1)', 'destination-out');
+      strokeTo(getRemoveMaskCanvas(), 'rgba(0,0,0,1)', 'destination-out');
+    } else if (mode === 'keep') {
+      strokeTo(getKeepMaskCanvas(), 'rgba(0,255,0,1)', 'source-over');
+      strokeTo(getRemoveMaskCanvas(), 'rgba(0,0,0,1)', 'destination-out');
+    } else if (mode === 'remove') {
+      strokeTo(getRemoveMaskCanvas(), 'rgba(255,0,0,1)', 'source-over');
+      strokeTo(getKeepMaskCanvas(), 'rgba(0,0,0,1)', 'destination-out');
     }
-    mCtx.beginPath();
-    mCtx.moveTo(x1, y1);
-    mCtx.lineTo(x2, y2);
-    mCtx.stroke();
-    mCtx.globalCompositeOperation = 'source-over';
 
-    // Immediately re-render the processed canvas
     renderProcessedImage(settingsRef.current, analysisRef.current);
   };
 
@@ -929,19 +1060,19 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                       width: `${(brushSizeRef.current / 800) * eraserContainerRef.current.clientWidth}px`,
                       height: `${(brushSizeRef.current / 800) * eraserContainerRef.current.clientWidth}px`,
                       borderRadius:'50%',
-                      border: eraseMode==='erase' ? '2px solid rgba(231,76,60,0.9)' : '2px solid rgba(46,204,113,0.9)',
-                      background: eraseMode==='erase' ? 'rgba(231,76,60,0.1)' : 'rgba(46,204,113,0.1)',
+                      border: eraseMode==='erase'||eraseMode==='remove' ? '2px solid rgba(231,76,60,0.9)' : '2px solid rgba(46,204,113,0.9)',
+                      background: eraseMode==='remove' ? 'rgba(255,0,0,0.2)' : eraseMode==='keep' ? 'rgba(0,255,0,0.15)' : eraseMode==='erase' ? 'rgba(231,76,60,0.1)' : 'rgba(46,204,113,0.1)',
                       transform:'translate(-50%,-50%)',
                       pointerEvents:'none', zIndex:20
                     }} />
                   )}
                   <span style={{
                     position:'absolute', top:'10px', left:'10px',
-                    background: eraseMode==='erase'?'rgba(231,76,60,0.85)':'rgba(46,204,113,0.85)',
+                    background: eraseMode==='erase'?'rgba(231,76,60,0.85)':eraseMode==='remove'?'rgba(192,57,43,0.9)':eraseMode==='keep'?'rgba(39,174,96,0.9)':'rgba(46,204,113,0.85)',
                     color:'white', padding:'3px 10px', borderRadius:'4px',
                     fontSize:'0.68rem', fontWeight:'bold', zIndex:10
                   }}>
-                    {eraseMode==='erase' ? '🧽 ໂໝດລຶບ (Erase)' : '🎨 ໂໝດກູ້ຄືນ (Restore)'}
+                    {eraseMode==='erase' ? '🧽 ລຶບ (Erase)' : eraseMode==='restore' ? '🎨 ກູ້ຄືນ (Restore)' : eraseMode==='keep' ? '🟢 ຮັກສາ (Keep)' : '🔴 ລຶບ AI (Remove)'}
                   </span>
                 </div>
               ) : (
@@ -1116,23 +1247,45 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
               {/* ── ERASER TAB ── */}
               {activeTab === 'eraser' && (
                 <>
-                  <div style={{ display:'flex', gap:'8px' }}>
-                    <button onClick={() => setEraseMode('erase')}
-                      style={{ flex:1, padding:'10px', fontSize:'0.8rem', fontWeight:'bold', borderRadius:'8px', border:'none', cursor:'pointer',
-                        background: eraseMode==='erase' ? 'rgba(231,76,60,0.3)' : 'rgba(255,255,255,0.06)',
-                        color: eraseMode==='erase' ? '#e74c3c' : '#888',
-                        outline: eraseMode==='erase' ? '1px solid rgba(231,76,60,0.5)' : 'none'
-                      }}>
-                      🧽 ລຶບ (Erase)
-                    </button>
-                    <button onClick={() => setEraseMode('restore')}
-                      style={{ flex:1, padding:'10px', fontSize:'0.8rem', fontWeight:'bold', borderRadius:'8px', border:'none', cursor:'pointer',
-                        background: eraseMode==='restore' ? 'rgba(46,204,113,0.3)' : 'rgba(255,255,255,0.06)',
-                        color: eraseMode==='restore' ? '#2ecc71' : '#888',
-                        outline: eraseMode==='restore' ? '1px solid rgba(46,204,113,0.5)' : 'none'
-                      }}>
-                      🎨 ກູ້ຄືນ (Restore)
-                    </button>
+                  {/* Eraser Mode buttons */}
+                  <div>
+                    <p style={{ fontSize:'0.75rem', color:'#aaa', marginBottom:'6px' }}>🖌️ <b>ໂໝດການລຶບ (Erase Mode):</b></p>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px' }}>
+                      {[
+                        { id:'erase',   label:'🧽 ລຶບ (Erase)',    color:'#e74c3c', bg:'rgba(231,76,60,0.25)' },
+                        { id:'restore', label:'🎨 ກູ້ຄືນ (Restore)', color:'#2ecc71', bg:'rgba(46,204,113,0.25)' },
+                      ].map(m => (
+                        <button key={m.id} onClick={() => setEraseMode(m.id)}
+                          style={{ padding:'10px 6px', fontSize:'0.78rem', fontWeight:'bold', borderRadius:'8px', border:'none', cursor:'pointer',
+                            background: eraseMode===m.id ? m.bg : 'rgba(255,255,255,0.06)',
+                            color: eraseMode===m.id ? m.color : '#777',
+                            outline: eraseMode===m.id ? `1.5px solid ${m.color}` : 'none'
+                          }}>{m.label}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Keep/Remove Selection Brush */}
+                  <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'12px' }}>
+                    <p style={{ fontSize:'0.75rem', color:'#aaa', marginBottom:'6px' }}>🎯 <b>ເລືອກວັດຖຸ (Smart Select):</b></p>
+                    <p style={{ fontSize:'0.7rem', color:'#888', marginBottom:'8px' }}>ໃຊ້ຮ່ວມກັບ "ລຶບພື້ນຫຼັງ AI" ໃນແທັບ 🎨</p>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px' }}>
+                      {[
+                        { id:'keep',   label:'🟢 ບັງຄັບຮັກສາ (Keep)',    color:'#27ae60', bg:'rgba(39,174,96,0.25)' },
+                        { id:'remove', label:'🔴 ບັງຄັບລຶບ (Remove)',      color:'#c0392b', bg:'rgba(192,57,43,0.25)' },
+                      ].map(m => (
+                        <button key={m.id} onClick={() => setEraseMode(m.id)}
+                          style={{ padding:'10px 6px', fontSize:'0.75rem', fontWeight:'bold', borderRadius:'8px', border:'none', cursor:'pointer',
+                            background: eraseMode===m.id ? m.bg : 'rgba(255,255,255,0.06)',
+                            color: eraseMode===m.id ? m.color : '#777',
+                            outline: eraseMode===m.id ? `1.5px solid ${m.color}` : 'none'
+                          }}>{m.label}</button>
+                      ))}
+                    </div>
+                    <p style={{ fontSize:'0.68rem', color:'#666', marginTop:'6px' }}>
+                      🟢 ລາກສີຂຽວ = ບອກ AI ໃຫ້ຮັກສາສ່ວນນີ້ໄວ້<br/>
+                      🔴 ລາກສີແດງ = ບອກ AI ໃຫ້ລຶບສ່ວນນີ້ອອກ
+                    </p>
                   </div>
 
                   <SliderRow label="🖌️ ຂະໜາດແປງ (Brush Size)" value={brushSize} min={3} max={120} step={1} unit="px"
@@ -1140,7 +1293,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
 
                   <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'12px', display:'flex', flexDirection:'column', gap:'8px' }}>
                     <button onClick={() => {
-                      if (window.confirm('ລ້າງການລຶບທັງໝົດ ຫຼື ບໍ່?')) {
+                      if (window.confirm('ລ້າງການລຶບ/ເລືອກທັງໝົດ ຫຼື ບໍ່?')) {
                         clearMask();
                         renderProcessedImage(settingsRef.current, analysisRef.current);
                         setHistory(prev => {
@@ -1150,14 +1303,16 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                         });
                       }
                     }} style={{ padding:'8px', background:'rgba(231,76,60,0.12)', border:'1px solid rgba(231,76,60,0.25)', color:'var(--alert-red)', borderRadius:'8px', cursor:'pointer', fontSize:'0.8rem', fontWeight:'bold' }}>
-                      🗑️ ລ້າງການລຶບທັງໝົດ (Clear All)
+                      🗑️ ລ້າງທັງໝົດ (Clear All)
                     </button>
                   </div>
 
-                  <div style={{ background:'rgba(212,175,55,0.05)', border:'1px solid rgba(212,175,55,0.15)', borderRadius:'8px', padding:'12px', fontSize:'0.73rem', color:'#bbb', lineHeight:1.5 }}>
+                  <div style={{ background:'rgba(212,175,55,0.05)', border:'1px solid rgba(212,175,55,0.15)', borderRadius:'8px', padding:'10px', fontSize:'0.71rem', color:'#bbb', lineHeight:1.5 }}>
                     💡 <b>ຄຳແນະນຳ:</b><br/>
-                    • ໃຊ້ເມົາສ໌ຫຼືນິ້ວ ລາກເທິງຮູບ (ທາງຊ້າຍ) ເພື່ອລຶບ<br/>
-                    • ໂໝດ <b>"ກູ້ຄືນ"</b> ດຶງສ່ວນທີ່ລຶບຜິດກັບ<br/>
+                    • <b>🧽 ລຶບ</b> = ລຶບພິກເຊລໂດຍກົງ (ກໍານົດເອງ)<br/>
+                    • <b>🎨 ກູ້ຄືນ</b> = ດຶງສ່ວນທີ່ລຶບຜິດກັບຄືນ<br/>
+                    • <b>🟢 ຮັກສາ</b> = ວາດຕ້ານ AI ໃຫ້ຢ່າລຶບ<br/>
+                    • <b>🔴 ລຶບ AI</b> = ວາດບອກ AI ໃຫ້ລຶບ<br/>
                     • <b>Undo</b> ຍ້ອນກັບໄດ້ທຸກຄັ້ງ
                   </div>
                 </>
@@ -1166,52 +1321,109 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
               {/* ── BACKGROUND TAB ── */}
               {activeTab === 'background' && (
                 <>
+                  {/* AI BG Removal */}
                   <div>
                     <label style={{ fontSize:'0.8rem', color:'#ccc', display:'block', marginBottom:'8px' }}>
-                      💡 <b>ລຶບພື້ນຫຼັງ (AI BG Remove):</b>
+                      🤖 <b>ລຶບພື້ນຫຼັງ AI (Flood-Fill BG Remove):</b>
                     </label>
-                    <div style={{ display:'flex', gap:'8px' }}>
+                    <div style={{ display:'flex', gap:'8px', marginBottom:'8px' }}>
                       <button onClick={() => updateSettings({removeBackground:true})}
-                        className={`btn ${settings.removeBackground?'btn-primary':'btn-secondary'}`}
-                        style={{ flex:1, padding:'8px', fontSize:'0.8rem' }}>
-                        ✂️ ລຶບພື້ນຫຼັງ
+                        style={{ flex:1, padding:'10px', fontSize:'0.8rem', fontWeight:'bold', borderRadius:'8px', border:'none', cursor:'pointer',
+                          background:settings.removeBackground?'rgba(46,204,113,0.25)':'rgba(255,255,255,0.07)',
+                          color:settings.removeBackground?'#2ecc71':'#888',
+                          outline:settings.removeBackground?'1.5px solid #2ecc71':'none' }}>
+                        ✂️ ລຶບພື້ນຫຼັງ ON
                       </button>
                       <button onClick={() => updateSettings({removeBackground:false})}
-                        className={`btn ${!settings.removeBackground?'btn-primary':'btn-secondary'}`}
-                        style={{ flex:1, padding:'8px', fontSize:'0.8rem' }}>
-                        ⚠️ ເຫຼືອໄວ້ເດີມ
+                        style={{ flex:1, padding:'10px', fontSize:'0.8rem', fontWeight:'bold', borderRadius:'8px', border:'none', cursor:'pointer',
+                          background:!settings.removeBackground?'rgba(231,76,60,0.2)':'rgba(255,255,255,0.07)',
+                          color:!settings.removeBackground?'#e74c3c':'#888',
+                          outline:!settings.removeBackground?'1.5px solid #e74c3c':'none' }}>
+                        ⊘ OFF
                       </button>
                     </div>
+                    {settings.removeBackground && (
+                      <div style={{ background:'rgba(46,204,113,0.05)', border:'1px solid rgba(46,204,113,0.2)', borderRadius:'6px', padding:'8px', fontSize:'0.7rem', color:'#aaa' }}>
+                        ✅ ລະບົບໃຊ້ <b>Flood-Fill</b> ຈາກຂອບຮູບ — ລຶບໄດ້ຊັດເຈນກວ່າເກົ່າ.<br/>
+                        ຫາກຍັງມີສ່ວນທີ່ເຫຼືອ ໃຫ້ໃຊ້ <b>🧹 ຢາງລົບ</b> ຫຼື <b>🔴 ລຶບ AI</b> ຊ່ວຍ.
+                      </div>
+                    )}
                   </div>
 
-                  <SliderRow label="🎚️ ຄວາມທົນທານ (Tolerance)" value={settings.bgThreshold} min={5} max={120} step={1} unit=""
-                    onChange={v => updateSettings({bgThreshold:v})} />
+                  <SliderRow label="🎚️ ຄວາມທົນທານ (Tolerance)" value={settings.bgThreshold} min={5} max={150} step={1} unit=""
+                    onChange={v => updateSettings({bgThreshold:v})}
+                    displayFn={v => {
+                      if(v<30) return `${v} (ເຄັ່ງ)`;
+                      if(v<70) return `${v} (ປານກາງ)`;
+                      return `${v} (ຫຼວມ)`;
+                    }} />
 
-                  <div>
+                  {/* BG Templates */}
+                  <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'12px' }}>
                     <label style={{ fontSize:'0.8rem', color:'#ccc', display:'block', marginBottom:'8px' }}>
                       🎨 <b>ພື້ນຫຼັງໃໝ່ (BG Templates):</b>
                     </label>
-                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px' }}>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'5px', marginBottom:'8px' }}>
                       {[
-                        {id:'none',         label:'❌ ບໍ່ມີ',         bg:'#111'},
-                        {id:'transparent',  label:'🔲 ໂປ່ງໃສ',        bg:'repeating-linear-gradient(45deg,#222 0,#222 10px,#333 10px,#333 20px)'},
-                        {id:'white',        label:'⬜ ຂາວ',            bg:'#fff', color:'#000'},
-                        {id:'black',        label:'⬛ ດຳ',             bg:'#111'},
-                        {id:'luxury',       label:'💎 Luxury',         bg:'linear-gradient(135deg,#1e293b,#0b0f19)'},
-                        {id:'gold',         label:'✨ Gold',            bg:'linear-gradient(135deg,#451a03,#1e1b4b)'},
-                        {id:'velvet',       label:'🔴 Velvet',          bg:'linear-gradient(135deg,#7f1d1d,#180003)'},
-                        {id:'obsidian',     label:'🪨 Obsidian',        bg:'linear-gradient(135deg,#1f1f1f,#0a0a0a)'},
-                        {id:'golden_aura',  label:'👑 Golden Aura',    bg:'linear-gradient(135deg,rgba(212,175,55,0.3),#050508)'},
+                        {id:'none',          label:'❌ ບໍ່ມີ',           bg:'#111'},
+                        {id:'transparent',   label:'🔲 ໂປ່ງໃສ',          bg:'repeating-linear-gradient(45deg,#222 0,#222 10px,#333 10px,#333 20px)'},
+                        {id:'white',         label:'⬜ ຂາວ',              bg:'#fff', color:'#000'},
+                        {id:'black',         label:'⬛ ດຳ',               bg:'#0f0f0f'},
+                        {id:'luxury',        label:'💎 Luxury',           bg:'linear-gradient(135deg,#1e293b,#0b0f19)'},
+                        {id:'gold',          label:'✨ Gold',              bg:'linear-gradient(135deg,#451a03,#1e1b4b)'},
+                        {id:'velvet',        label:'🔴 Velvet',            bg:'linear-gradient(135deg,#7f1d1d,#180003)'},
+                        {id:'obsidian',      label:'🪨 Obsidian',          bg:'linear-gradient(135deg,#1f1f1f,#0a0a0a)'},
+                        {id:'golden_aura',   label:'👑 Golden Aura',      bg:'linear-gradient(135deg,rgba(212,175,55,0.35),#050508)'},
+                        {id:'gradient_blue', label:'🔵 Ocean Blue',       bg:'linear-gradient(135deg,#0f0c29,#302b63)'},
+                        {id:'gradient_green',label:'🌿 Forest Green',     bg:'linear-gradient(135deg,#004d40,#1b5e20)'},
+                        {id:'custom',        label:'📸 ຮູບຂອງຂ້ອຍ',      bg:'linear-gradient(135deg,rgba(212,175,55,0.1),rgba(0,0,0,0.8))', special:true},
                       ].map(bg => (
                         <button key={bg.id} onClick={() => updateSettings({backgroundType:bg.id})} style={{
                           padding:'8px 4px', borderRadius:'6px', border:'none', cursor:'pointer',
-                          background: bg.bg, color: bg.color||'#fff', fontSize:'0.72rem', fontWeight:'bold',
+                          background: bg.bg, color: bg.color||'#fff', fontSize:'0.7rem', fontWeight:'bold',
                           outline: settings.backgroundType===bg.id ? '2px solid var(--gold-primary)' : '2px solid transparent',
-                          transition:'outline 0.15s'
+                          transition:'outline 0.15s', minHeight:'36px'
                         }}>
                           {bg.label}
                         </button>
                       ))}
+                    </div>
+
+                    {/* Custom BG Image Upload */}
+                    <div style={{ background:'rgba(255,255,255,0.03)', border:'1px dashed rgba(212,175,55,0.25)', borderRadius:'8px', padding:'10px' }}>
+                      <p style={{ fontSize:'0.75rem', color:'#ccc', marginBottom:'8px' }}>📸 <b>ຮູບພື້ນຫຼັງຂອງຂ້ອຍ (Custom BG):</b></p>
+                      <input type="file" accept="image/*" id="customBgInput" style={{ display:'none' }}
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            const img = new Image();
+                            img.onload = () => {
+                              setCustomBgImage(img);
+                              updateSettings({ backgroundType: 'custom' });
+                            };
+                            img.src = reader.result;
+                          };
+                          reader.readAsDataURL(file);
+                        }}
+                      />
+                      <label htmlFor="customBgInput" style={{
+                        display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
+                        padding:'10px', borderRadius:'6px', cursor:'pointer', fontSize:'0.8rem',
+                        background: settings.backgroundType==='custom' ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.07)',
+                        color: settings.backgroundType==='custom' ? 'var(--gold-primary)' : '#ccc',
+                        border: settings.backgroundType==='custom' ? '1.5px solid var(--gold-primary)' : '1.5px solid rgba(255,255,255,0.1)',
+                        fontWeight:'bold'
+                      }}>
+                        📁 {customBgImage ? '✅ ຮູບພື້ນຫຼັງໂຫຼດແລ້ວ (ກົດເພື່ອປ່ຽນ)' : '+ ອັບໂຫຼດຮູບພື້ນຫຼັງ'}
+                      </label>
+                      {customBgImage && (
+                        <button onClick={() => { setCustomBgImage(null); updateSettings({backgroundType:'none'}); }}
+                          style={{ marginTop:'6px', width:'100%', padding:'6px', background:'rgba(231,76,60,0.15)', border:'1px solid rgba(231,76,60,0.3)', color:'#e74c3c', borderRadius:'6px', cursor:'pointer', fontSize:'0.75rem' }}>
+                          🗑️ ລຶບຮູບພື້ນຫຼັງທີ່ອັບໂຫຼດ
+                        </button>
+                      )}
                     </div>
                   </div>
                 </>
