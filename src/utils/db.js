@@ -212,7 +212,7 @@ const DEFAULT_SETTINGS = {
   onlineShopTitle: 'ຂອບພຣະຣັທເກຊ Online',
   onlineShopLogo: '',
   onlineShopBannerImg: '',
-  onlineShopDescription: 'ຍິນດີຕ້ອນຮັບສູ່ ຮ້ានອອນລາຍ KP Pakse! ເລືອກຊື້ຂອບພຣະ ແລະ ພຣະເຄື່ອງຄຸນນະພາບດີ.',
+  onlineShopDescription: 'ຍິນດີຕ້ອນຮັບສູ່ ຮ້ານອອນລາຍ KP Pakse! ເລືອກຊື້ຂອບພຣະ ແລະ ພຣະເຄື່ອງຄຸນນະພາບດີ.',
   onlineShopAddress: 'ປາກເຊ, ແຂວງຈຳປາສັກ',
   onlineShopPhone: '02023304555',
   onlineShopFacebook: 'https://facebook.com',
@@ -403,7 +403,7 @@ export const DEFAULT_LABEL_KEYS = [
   { key: 'track_step_received', defaultValue: "ຮັບຝາກພຣະ (Order Received)", desc: 'ຂັ້ນຕອນທີ 1: ຮັບຝາກພຣະ', section: 'tracking' },
   { key: 'track_step_progress', defaultValue: "ກຳລັງດຳເນີນການອັດກອບ (In Progress)", desc: 'ຂັ້ນຕອນທີ 2: ກຳລັງອັດກອບ', section: 'tracking' },
   { key: 'track_step_ready', defaultValue: "ອັດກອບສຳເລັດ ພ້ອມຮັບພຣະ (Ready to Pick Up)", desc: 'ຂັ້ນຕອນທີ 3: ອັດກອບສຳເລັດ', section: 'tracking' },
-  { key: 'track_step_picked_up', defaultValue: "ຮັບພຣະກັບບ້ានແລ້ວ (Picked Up / Delivered)", desc: 'ຂັ້ນຕອນທີ 4: ຮັບພຣະກັບບ້ານແລ້ວ', section: 'tracking' },
+  { key: 'track_step_picked_up', defaultValue: "ຮັບພຣະກັບບ້ານແລ້ວ (Picked Up / Delivered)", desc: 'ຂັ້ນຕອນທີ 4: ຮັບພຣະກັບບ້ານແລ້ວ', section: 'tracking' },
   { key: 'track_step_progress_done', defaultValue: "ສຳເລັດການອັດກອບ", desc: 'ຂໍ້ຄວາມ ດຳເນີນການອັດກອບສຳເລັດ', section: 'tracking' },
   { key: 'track_step_progress_doing', defaultValue: "ກຳລັງເລັ່ງມືອັດກອບພຣະ...", desc: 'ຂໍ້ຄວາມ ກຳລັງອັດກອບພຣະ', section: 'tracking' },
   { key: 'track_step_ready_done', defaultValue: "ພ້ອມຮັບກັບບ້ານ", desc: 'ຂໍ້ຄວາມ ພ້ອມຮັບກັບບ້ານ', section: 'tracking' },
@@ -2576,7 +2576,7 @@ addDebt(debtData) {
     if (lowStockItemsList.length > 0) {
       let message = `⚠️ *ແຈ້ງເຕືອນສິນຄ້າໃກ້ໝົດສະຕັອກ (ຈາກການຕິດໜີ້)!*\n`;
       lowStockItemsList.forEach(item => {
-        message += `• ${item.name} (ເຫຼືອ ${item.stock} ${item.unit || 'ອັນ'}, ເកນຕໍ່າສຸດ ${item.minStock} ${item.unit || 'ອັນ'})\n`;
+        message += `• ${item.name} (ເຫຼືອ ${item.stock} ${item.unit || 'ອັນ'}, ເກນຕໍ່າສຸດ ${item.minStock} ${item.unit || 'ອັນ'})\n`;
       });
       this.sendNotification(message);
     }

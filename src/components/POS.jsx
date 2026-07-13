@@ -3359,7 +3359,7 @@ export default function POS({
               {/* Barcode scanner status indicator */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '20px', background: 'rgba(46, 204, 113, 0.08)', border: '1px solid rgba(46, 204, 113, 0.2)', fontSize: '0.72rem', color: 'var(--success-green)', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
                 <span className="pulse-dot-online" style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--success-green)', display: 'inline-block' }} />
-                <span>ស្កែនន័ររួចរាល់ (Scanner Connected)</span>
+                <span>ສະແກນເນີພ້ອມແລ້ວ (Scanner Connected)</span>
               </div>
             </div>
 
