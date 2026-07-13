@@ -20,6 +20,10 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     scale: 1,
     translateX: 0,
     translateY: 0,
+    cropLeft: 0,
+    cropRight: 0,
+    cropTop: 0,
+    cropBottom: 0,
     
     // Enhancements
     brightness: 1,
@@ -193,7 +197,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     }, 600);
   };
 
-  // Re-draw canvases when settings or image changes
+  // Re-draw canvases when settings, activeTab, or image changes
   useEffect(() => {
     if (!sourceImg) return;
     
@@ -214,12 +218,36 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
       } else {
         drawW = 800 * aspect;
       }
-      oCtx.drawImage(sourceImg, (800 - drawW) / 2, (800 - drawH) / 2, drawW, drawH);
+      const dx = (800 - drawW) / 2;
+      const dy = (800 - drawH) / 2;
+      oCtx.drawImage(sourceImg, dx, dy, drawW, drawH);
+      
+      // Draw crop overlay if in crop tab
+      if (activeTab === 'crop') {
+        const cx = dx + (settings.cropLeft / 100) * drawW;
+        const cy = dy + (settings.cropTop / 100) * drawH;
+        const cw = Math.max(10, (1 - (settings.cropLeft + settings.cropRight) / 100) * drawW);
+        const ch = Math.max(10, (1 - (settings.cropTop + settings.cropBottom) / 100) * drawH);
+        
+        // Darken cropped out region
+        oCtx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+        oCtx.fillRect(0, 0, 800, cy); // Top
+        oCtx.fillRect(0, cy + ch, 800, 800 - (cy + ch)); // Bottom
+        oCtx.fillRect(0, cy, cx, ch); // Left
+        oCtx.fillRect(cx + cw, cy, 800 - (cx + cw), ch); // Right
+        
+        // Draw dotted yellow crop border
+        oCtx.strokeStyle = 'rgba(212, 175, 55, 0.9)';
+        oCtx.lineWidth = 3;
+        oCtx.setLineDash([8, 6]);
+        oCtx.strokeRect(cx, cy, cw, ch);
+        oCtx.setLineDash([]); // Reset
+      }
     }
 
     // Draw processed canvas (After)
     renderProcessedImage();
-  }, [sourceImg, settings]);
+  }, [sourceImg, settings, activeTab]);
 
   // Main rendering logic on the processed canvas
   const renderProcessedImage = async () => {
@@ -249,8 +277,13 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     tempCanvas.height = 800;
     const tempCtx = tempCanvas.getContext('2d');
     
-    // Draw raw image centered in temp canvas
-    const aspect = sourceImg.naturalWidth / sourceImg.naturalHeight;
+    // Draw cropped portion of image centered in temp canvas
+    const sx = (settings.cropLeft / 100) * sourceImg.naturalWidth;
+    const sy = (settings.cropTop / 100) * sourceImg.naturalHeight;
+    const sw = Math.max(10, (1 - (settings.cropLeft + settings.cropRight) / 100) * sourceImg.naturalWidth);
+    const sh = Math.max(10, (1 - (settings.cropTop + settings.cropBottom) / 100) * sourceImg.naturalHeight);
+    
+    const aspect = sw / sh;
     let drawW = 800;
     let drawH = 800;
     if (aspect > 1) {
@@ -258,7 +291,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     } else {
       drawW = 800 * aspect;
     }
-    tempCtx.drawImage(sourceImg, (800 - drawW) / 2, (800 - drawH) / 2, drawW, drawH);
+    tempCtx.drawImage(sourceImg, sx, sy, sw, sh, (800 - drawW) / 2, (800 - drawH) / 2, drawW, drawH);
 
     // Apply background removal
     if (settings.removeBackground && analysis) {
@@ -1120,6 +1153,70 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                       onChange={(e) => updateSettings({ translateY: parseInt(e.target.value) })}
                       style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
                     />
+                  </div>
+
+                  <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid var(--border-color)', paddingTop: '15px' }}>
+                    <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.82rem', margin: '0 0 5px' }}>✂️ ຕັດຂອບຮູບພາບດ້ວຍຕົນເອງ (Manual Crop):</h4>
+                    
+                    <div className="form-group" style={{ marginBottom: '4px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem' }}>
+                        <span>ຕັດຂອບຊ້າຍ (Left Crop):</span>
+                        <span style={{ color: 'var(--gold-primary)' }}>{settings.cropLeft}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="45"
+                        value={settings.cropLeft}
+                        onChange={(e) => updateSettings({ cropLeft: parseInt(e.target.value) })}
+                        style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
+                      />
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: '4px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem' }}>
+                        <span>ຕັດຂອບຂວາ (Right Crop):</span>
+                        <span style={{ color: 'var(--gold-primary)' }}>{settings.cropRight}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="45"
+                        value={settings.cropRight}
+                        onChange={(e) => updateSettings({ cropRight: parseInt(e.target.value) })}
+                        style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
+                      />
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: '4px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem' }}>
+                        <span>ຕັດຂອບເທິງ (Top Crop):</span>
+                        <span style={{ color: 'var(--gold-primary)' }}>{settings.cropTop}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="45"
+                        value={settings.cropTop}
+                        onChange={(e) => updateSettings({ cropTop: parseInt(e.target.value) })}
+                        style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
+                      />
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: '4px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem' }}>
+                        <span>ຕັດຂອບລຸ່ມ (Bottom Crop):</span>
+                        <span style={{ color: 'var(--gold-primary)' }}>{settings.cropBottom}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="45"
+                        value={settings.cropBottom}
+                        onChange={(e) => updateSettings({ cropBottom: parseInt(e.target.value) })}
+                        style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
+                      />
+                    </div>
                   </div>
 
                   <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '10px', borderTop: '1px solid var(--border-color)', paddingTop: '15px' }}>
