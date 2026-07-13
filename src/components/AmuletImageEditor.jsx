@@ -1,1100 +1,910 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import QRCode from 'qrcode';
 import { db } from '../utils/db';
 
 export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = false }) {
-  // Image states
+  // ─── Source image & analysis ────────────────────────────────────────────────
   const [sourceImg, setSourceImg] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  
-  // History & Undo/Redo
+
+  // ─── History (undo/redo) ─────────────────────────────────────────────────────
   const [history, setHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
 
-  // Editor settings
-  const [settings, setSettings] = useState({
-    // Crop & Alignment
-    rotate: 0,
-    scale: 1,
-    translateX: 0,
-    translateY: 0,
-    cropLeft: 0,
-    cropRight: 0,
-    cropTop: 0,
-    cropBottom: 0,
-    
-    // Enhancements
-    brightness: 1,
-    contrast: 1,
-    sharpness: 0,
-    noiseReduction: 0,
+  // ─── Settings ────────────────────────────────────────────────────────────────
+  const defaultSettings = {
+    // Crop
+    rotate: 0, scale: 1, translateX: 0, translateY: 0,
+    cropLeft: 0, cropRight: 0, cropTop: 0, cropBottom: 0,
+    // Enhance
+    brightness: 1, contrast: 1, saturation: 1, hueRotate: 0,
+    blur: 0, sharpness: 0, vignette: 0,
     selectiveClarity: false,
-    saturation: 1.0,
-    hueRotate: 0,
-    blur: 0,
-    vignette: 0,
-    
-    // Background
-    removeBackground: false,
-    bgThreshold: 45,
-    backgroundType: 'none', // none, white, black, luxury, gold, velvet, transparent
-    
+    // Background removal
+    removeBackground: false, bgThreshold: 45,
+    // Background template
+    backgroundType: 'none',
     // Frame
-    frameType: 'none', // none, gold, silver, luxury
-    frameSize: 20,
-    frameOpacity: 1,
-    
+    frameType: 'none', frameSize: 20, frameOpacity: 1,
     // Watermark
-    watermarkType: 'none', // none, text, sku, qr
-    watermarkText: 'KP Amulet Pakse',
-    watermarkSize: 20,
-    watermarkOpacity: 0.6,
-    watermarkPosition: 'bottom-right', // bottom-right, bottom-left, top-right, top-left, center
-    
+    watermarkType: 'none', watermarkText: 'KP Amulet Pakse',
+    watermarkSize: 20, watermarkOpacity: 0.6, watermarkPosition: 'bottom-right',
     // Guides
-    showBoundary: false,
-    showCenter: false,
-    showGrid: false,
-    showSafeArea: false,
-  });
+    showBoundary: false, showCenter: false, showGrid: false, showSafeArea: false,
+  };
+  const [settings, setSettings] = useState(defaultSettings);
 
-  // UI state
-  const [activeTab, setActiveTab] = useState('crop'); // crop, enhance, background, frame, watermark, export
-  const [sliderPosition, setSliderPosition] = useState(50); // percentage for before/after slider
+  // ─── UI State ────────────────────────────────────────────────────────────────
+  const [activeTab, setActiveTab] = useState('crop');
+  const [sliderPosition, setSliderPosition] = useState(50);
   const [isDraggingSlider, setIsDraggingSlider] = useState(false);
-  const [exportFormat, setExportFormat] = useState('webp'); // png, jpeg, webp
-  const [exportSize, setExportSize] = useState('product'); // product (800x800), thumbnail (150x150), zoom (1200x1200), social (1080x1080)
+  const [exportFormat, setExportFormat] = useState('webp');
+  const [exportSize, setExportSize] = useState('product');
 
-  // Canvas refs
+  // ─── Eraser States ────────────────────────────────────────────────────────────
+  const [brushSize, setBrushSize] = useState(35);
+  const [eraseMode, setEraseMode] = useState('erase');
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [brushPos, setBrushPos] = useState(null);
+  const lastDrawingPos = useRef(null);
+  const eraserContainerRef = useRef(null);
+
+  // ─── Canvas Refs ─────────────────────────────────────────────────────────────
   const originalCanvasRef = useRef(null);
   const processedCanvasRef = useRef(null);
   const sliderContainerRef = useRef(null);
-  
-  // Eraser states
-  const [brushSize, setBrushSize] = useState(35);
-  const [eraseMode, setEraseMode] = useState('erase'); // erase, restore
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [brushPos, setBrushPos] = useState(null); // { x, y } in view coordinates
-  const lastDrawingPos = useRef(null); // { x, y } in 800x800 coordinates
-  const eraserContainerRef = useRef(null);
-  const maskCanvasRef = useRef(null);
+  const maskCanvasRef = useRef(null);   // offscreen 800×800 alpha mask
 
-  // Load image
-  useEffect(() => {
-    if (!imageUrl) {
-      // Set default fallback if no image passed
-      return;
-    }
-    
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      setSourceImg(img);
-      runAnalysis(img);
-      
-      // Clear manual mask
-      if (maskCanvasRef.current) {
-        const mCtx = maskCanvasRef.current.getContext('2d');
-        mCtx.clearRect(0, 0, 800, 800);
-      }
-      // Initialize history stack with starting settings and blank mask
-      setHistory([{ settings: { ...settings }, maskDataUrl: '' }]);
-      setHistoryIndex(0);
-    };
-    img.onerror = () => {
-      setErrorMsg('ບໍ່ສາມາດໂຫຼດຮູບພາບນີ້ໄດ້ (Cannot load image)');
-    };
-    img.src = imageUrl;
-  }, [imageUrl]);
+  // ─── Current settings ref (for use inside callbacks without re-render) ───────
+  const settingsRef = useRef(settings);
+  useEffect(() => { settingsRef.current = settings; }, [settings]);
+  const eraseModeRef = useRef(eraseMode);
+  useEffect(() => { eraseModeRef.current = eraseMode; }, [eraseMode]);
+  const brushSizeRef = useRef(brushSize);
+  useEffect(() => { brushSizeRef.current = brushSize; }, [brushSize]);
+  const analysisRef = useRef(analysis);
+  useEffect(() => { analysisRef.current = analysis; }, [analysis]);
 
-  // Run image analysis (simulated computer vision with real canvas statistics)
-  const runAnalysis = (imgElement) => {
-    setIsAnalyzing(true);
-    setTimeout(() => {
-      try {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = 300;
-        canvas.height = 300;
-        ctx.drawImage(imgElement, 0, 0, 300, 300);
-        const imgData = ctx.getImageData(0, 0, 300, 300);
-        const data = imgData.data;
-
-        // Sample 4 corners for background detection
-        const corners = [[0, 0], [299, 0], [0, 299], [299, 299]];
-        let bgR = 0, bgG = 0, bgB = 0;
-        corners.forEach(([x, y]) => {
-          const idx = (y * 300 + x) * 4;
-          bgR += data[idx];
-          bgG += data[idx + 1];
-          bgB += data[idx + 2];
-        });
-        bgR = Math.round(bgR / 4);
-        bgG = Math.round(bgG / 4);
-        bgB = Math.round(bgB / 4);
-
-        // Find boundary
-        let minX = 300, maxX = 0, minY = 300, maxY = 0;
-        let totalX = 0, totalY = 0, count = 0;
-
-        for (let y = 0; y < 300; y += 4) {
-          for (let x = 0; x < 300; x += 4) {
-            const idx = (y * 300 + x) * 4;
-            const r = data[idx];
-            const g = data[idx + 1];
-            const b = data[idx + 2];
-            const a = data[idx + 3];
-
-            const dist = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
-            const isForeground = a > 50 && dist > 35;
-
-            if (isForeground) {
-              if (x < minX) minX = x;
-              if (x > maxX) maxX = x;
-              if (y < minY) minY = y;
-              if (y > maxY) maxY = y;
-              totalX += x;
-              totalY += y;
-              count++;
-            }
-          }
-        }
-
-        if (count === 0) {
-          minX = 60; maxX = 240; minY = 60; maxY = 240;
-          count = 1;
-          totalX = 150; totalY = 150;
-        }
-
-        const objW = maxX - minX;
-        const objH = maxY - minY;
-        const cX = totalX / count;
-        const cY = totalY / count;
-
-        // Calculate sharpness (variance of Laplacian estimation)
-        let sumGrad = 0;
-        let sumSqGrad = 0;
-        let gCount = 0;
-        for (let y = 20; y < 280; y += 15) {
-          for (let x = 20; x < 280; x += 15) {
-            const idx = (y * 300 + x) * 4;
-            const val = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
-            const right = (data[idx + 4] + data[idx + 5] + data[idx + 6]) / 3;
-            const diff = Math.abs(val - right);
-            sumGrad += diff;
-            sumSqGrad += diff * diff;
-            gCount++;
-          }
-        }
-        const meanGrad = sumGrad / gCount;
-        const varGrad = (sumSqGrad / gCount) - (meanGrad * meanGrad);
-        const sharpness = Math.min(100, Math.max(15, Math.round(varGrad * 1.2)));
-
-        setAnalysis({
-          minX: Math.round(minX * (imgElement.naturalWidth / 300)),
-          maxX: Math.round(maxX * (imgElement.naturalWidth / 300)),
-          minY: Math.round(minY * (imgElement.naturalHeight / 300)),
-          maxY: Math.round(maxY * (imgElement.naturalHeight / 300)),
-          width: Math.round(objW * (imgElement.naturalWidth / 300)),
-          height: Math.round(objH * (imgElement.naturalHeight / 300)),
-          centerX: Math.round(cX * (imgElement.naturalWidth / 300)),
-          centerY: Math.round(cY * (imgElement.naturalHeight / 300)),
-          sharpness,
-          skewAngle: parseFloat((Math.sin(cX) * 3).toFixed(1)),
-          noise: Math.max(5, 40 - Math.round(sharpness / 2.5)),
-          bgR, bgG, bgB
-        });
-      } catch (err) {
-        console.error('Analysis failed:', err);
-      } finally {
-        setIsAnalyzing(false);
-      }
-    }, 600);
-  };
-
-  // Re-draw canvases when settings, activeTab, or image changes
-  useEffect(() => {
-    if (!sourceImg) return;
-    
-    // Draw original canvas (Before)
-    const oCanvas = originalCanvasRef.current;
-    if (oCanvas) {
-      oCanvas.width = 800;
-      oCanvas.height = 800;
-      const oCtx = oCanvas.getContext('2d');
-      oCtx.clearRect(0, 0, 800, 800);
-      
-      // Draw centered
-      const aspect = sourceImg.naturalWidth / sourceImg.naturalHeight;
-      let drawW = 800;
-      let drawH = 800;
-      if (aspect > 1) {
-        drawH = 800 / aspect;
-      } else {
-        drawW = 800 * aspect;
-      }
-      const dx = (800 - drawW) / 2;
-      const dy = (800 - drawH) / 2;
-      oCtx.drawImage(sourceImg, dx, dy, drawW, drawH);
-      
-      // Draw crop overlay if in crop tab
-      if (activeTab === 'crop') {
-        const cx = dx + (settings.cropLeft / 100) * drawW;
-        const cy = dy + (settings.cropTop / 100) * drawH;
-        const cw = Math.max(10, (1 - (settings.cropLeft + settings.cropRight) / 100) * drawW);
-        const ch = Math.max(10, (1 - (settings.cropTop + settings.cropBottom) / 100) * drawH);
-        
-        // Darken cropped out region
-        oCtx.fillStyle = 'rgba(0, 0, 0, 0.55)';
-        oCtx.fillRect(0, 0, 800, cy); // Top
-        oCtx.fillRect(0, cy + ch, 800, 800 - (cy + ch)); // Bottom
-        oCtx.fillRect(0, cy, cx, ch); // Left
-        oCtx.fillRect(cx + cw, cy, 800 - (cx + cw), ch); // Right
-        
-        // Draw dotted yellow crop border
-        oCtx.strokeStyle = 'rgba(212, 175, 55, 0.9)';
-        oCtx.lineWidth = 3;
-        oCtx.setLineDash([8, 6]);
-        oCtx.strokeRect(cx, cy, cw, ch);
-        oCtx.setLineDash([]); // Reset
-      }
-    }
-
-    // Draw processed canvas (After)
-    renderProcessedImage();
-  }, [sourceImg, settings, activeTab]);
-
-  // Main rendering logic on the processed canvas
-  const renderProcessedImage = async () => {
-    const canvas = processedCanvasRef.current;
-    if (!canvas || !sourceImg) return;
-    
-    canvas.width = 800;
-    canvas.height = 800;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, 800, 800);
-
-    // 1. Draw Background template
-    drawBackgroundTemplate(ctx, 800, 800);
-
-    // 2. Draw Amulet Image with transforms
-    ctx.save();
-    
-    // Translation to center & rotation/scaling
-    ctx.translate(400, 400);
-    ctx.rotate((settings.rotate * Math.PI) / 180);
-    ctx.scale(settings.scale, settings.scale);
-    ctx.translate(settings.translateX - 400, settings.translateY - 400);
-
-    // Temp canvas for background removal / filters
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = 800;
-    tempCanvas.height = 800;
-    const tempCtx = tempCanvas.getContext('2d');
-    
-    // Draw cropped portion of image centered in temp canvas
-    const sx = (settings.cropLeft / 100) * sourceImg.naturalWidth;
-    const sy = (settings.cropTop / 100) * sourceImg.naturalHeight;
-    const sw = Math.max(10, (1 - (settings.cropLeft + settings.cropRight) / 100) * sourceImg.naturalWidth);
-    const sh = Math.max(10, (1 - (settings.cropTop + settings.cropBottom) / 100) * sourceImg.naturalHeight);
-    
-    const aspect = sw / sh;
-    let drawW = 800;
-    let drawH = 800;
-    if (aspect > 1) {
-      drawH = 800 / aspect;
-    } else {
-      drawW = 800 * aspect;
-    }
-    
-    // Apply filters before drawing to temp canvas
-    try {
-      tempCtx.filter = `brightness(${settings.brightness}) contrast(${settings.contrast}) saturate(${settings.saturation}) hue-rotate(${settings.hueRotate}deg) blur(${settings.blur}px)`;
-    } catch (err) {
-      console.warn("Filters not supported or error setting filters", err);
-    }
-    
-    tempCtx.drawImage(sourceImg, sx, sy, sw, sh, (800 - drawW) / 2, (800 - drawH) / 2, drawW, drawH);
-    
-    // Reset filters
-    try {
-      tempCtx.filter = 'none';
-    } catch (err) {}
-
-    // Apply background removal
-    if (settings.removeBackground && analysis) {
-      try {
-        const imgData = tempCtx.getImageData(0, 0, 800, 800);
-        const d = imgData.data;
-        const { bgR, bgG, bgB } = analysis;
-        const threshold = settings.bgThreshold;
-        for (let i = 0; i < d.length; i += 4) {
-          const r = d[i];
-          const g = d[i+1];
-          const b = d[i+2];
-          const a = d[i+3];
-          const dist = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
-          if (dist < threshold && a > 0) {
-            d[i+3] = 0; // make transparent
-          }
-        }
-        tempCtx.putImageData(imgData, 0, 0);
-      } catch (err) {
-        console.warn("CORS Security Error: Background removal is disabled for remote cross-origin images", err);
-      }
-    }
-
-    // Apply manual eraser mask
-    if (maskCanvasRef.current) {
-      tempCtx.save();
-      tempCtx.globalCompositeOperation = 'destination-out';
-      tempCtx.drawImage(maskCanvasRef.current, 0, 0);
-      tempCtx.restore();
-    }
-
-    // Draw temp canvas to main context
-    ctx.drawImage(tempCanvas, 0, 0);
-    ctx.restore();
-
-    // 3. Apply canvas filters (Brightness, Contrast, Sharpness simulation)
-    applyCanvasFilters(ctx, 800, 800);
-
-    // 4. Draw Frame overlay
-    if (settings.frameType !== 'none') {
-      drawFrameOverlay(ctx, 800, 800);
-    }
-
-    // 5. Draw Watermarks
-    if (settings.watermarkType !== 'none') {
-      await drawWatermarkOverlay(ctx, 800, 800);
-    }
-
-    // 6. Draw Guidelines (Interactive visual aids, not saved in export)
-    drawGuidesOverlay(ctx, 800, 800);
-  };
-
-  const drawBackgroundTemplate = (ctx, w, h) => {
-    ctx.save();
-    switch (settings.backgroundType) {
-      case 'white':
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, w, h);
-        break;
-      case 'black':
-        ctx.fillStyle = '#0f0f11';
-        ctx.fillRect(0, 0, w, h);
-        break;
-      case 'luxury':
-        const luxGrad = ctx.createRadialGradient(w/2, h/2, 50, w/2, h/2, w*0.7);
-        luxGrad.addColorStop(0, '#1e293b');
-        luxGrad.addColorStop(1, '#0b0f19');
-        ctx.fillStyle = luxGrad;
-        ctx.fillRect(0, 0, w, h);
-        break;
-      case 'gold':
-        const goldGrad = ctx.createRadialGradient(w/2, h/2, 30, w/2, h/2, w*0.8);
-        goldGrad.addColorStop(0, '#451a03');
-        goldGrad.addColorStop(0.5, '#1e1b4b');
-        goldGrad.addColorStop(1, '#090514');
-        ctx.fillStyle = goldGrad;
-        ctx.fillRect(0, 0, w, h);
-        break;
-      case 'velvet':
-        const velvetGrad = ctx.createRadialGradient(w/2, h/2, 50, w/2, h/2, w*0.7);
-        velvetGrad.addColorStop(0, '#7f1d1d');
-        velvetGrad.addColorStop(1, '#180003');
-        ctx.fillStyle = velvetGrad;
-        ctx.fillRect(0, 0, w, h);
-        break;
-      case 'transparent':
-        ctx.clearRect(0, 0, w, h);
-        // Draw checkerboard
-        ctx.fillStyle = '#181c26';
-        ctx.fillRect(0, 0, w, h);
-        ctx.fillStyle = '#232836';
-        const checkSize = 20;
-        for (let y = 0; y < h; y += checkSize * 2) {
-          for (let x = 0; x < w; x += checkSize * 2) {
-            ctx.fillRect(x, y, checkSize, checkSize);
-            ctx.fillRect(x + checkSize, y + checkSize, checkSize, checkSize);
-          }
-        }
-        break;
-      default:
-        ctx.fillStyle = '#0d0d0d';
-        ctx.fillRect(0, 0, w, h);
-        break;
-    }
-    ctx.restore();
-  };
-
-  const applyCanvasFilters = (ctx, w, h) => {
-    // Draw Vignette if selected
-    if (settings.vignette > 0) {
-      ctx.save();
-      const gradient = ctx.createRadialGradient(w/2, h/2, Math.min(w, h) * 0.4, w/2, h/2, Math.min(w, h) * 0.75);
-      gradient.addColorStop(0, 'rgba(0,0,0,0)');
-      gradient.addColorStop(1, `rgba(0,0,0,${settings.vignette / 100})`);
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, w, h);
-      ctx.restore();
-    }
-    
-    if (settings.selectiveClarity && analysis) {
-      ctx.save();
-      ctx.strokeStyle = 'rgba(212,175,55,0.15)';
-      ctx.lineWidth = 15;
-      ctx.strokeRect(analysis.minX, analysis.minY, analysis.width, analysis.height);
-      ctx.restore();
-    }
-  };
-
-  const drawFrameOverlay = (ctx, w, h) => {
-    ctx.save();
-    ctx.globalAlpha = settings.frameOpacity;
-    
-    const size = settings.frameSize;
-    const padding = 15;
-    
-    const fx = padding;
-    const fy = padding;
-    const fw = w - padding * 2;
-    const fh = h - padding * 2;
-
-    let grad;
-    if (settings.frameType === 'gold') {
-      grad = ctx.createLinearGradient(0, 0, w, h);
-      grad.addColorStop(0, '#ffd700');
-      grad.addColorStop(0.25, '#d4af37');
-      grad.addColorStop(0.5, '#aa771c');
-      grad.addColorStop(0.75, '#f5d76e');
-      grad.addColorStop(1, '#d4af37');
-    } else if (settings.frameType === 'silver') {
-      grad = ctx.createLinearGradient(0, 0, w, h);
-      grad.addColorStop(0, '#e2e8f0');
-      grad.addColorStop(0.5, '#94a3b8');
-      grad.addColorStop(1, '#cbd5e1');
-    } else {
-      grad = ctx.createLinearGradient(0, 0, w, h);
-      grad.addColorStop(0, '#1e293b');
-      grad.addColorStop(0.5, '#d4af37');
-      grad.addColorStop(1, '#1e293b');
-    }
-
-    ctx.strokeStyle = grad;
-    ctx.lineWidth = size;
-    ctx.strokeRect(fx + size/2, fy + size/2, fw - size, fh - size);
-
-    if (settings.frameType === 'gold' || settings.frameType === 'luxury') {
-      ctx.fillStyle = '#ffd700';
-      const cornerSize = size * 1.5;
-      ctx.fillRect(fx, fy, cornerSize, cornerSize);
-      ctx.fillRect(fx + fw - cornerSize, fy, cornerSize, cornerSize);
-      ctx.fillRect(fx, fy + fh - cornerSize, cornerSize, cornerSize);
-      ctx.fillRect(fx + fw - cornerSize, fy + fh - cornerSize, cornerSize, cornerSize);
-
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(fx + size, fy + size, fw - size * 2, fh - size * 2);
-    }
-    
-    ctx.restore();
-  };
-
-  const drawWatermarkOverlay = async (ctx, w, h) => {
-    ctx.save();
-    ctx.globalAlpha = settings.watermarkOpacity;
-    
-    const size = settings.watermarkSize;
-    ctx.font = `bold ${size}px Phetsarath OT, sans-serif`;
-    ctx.fillStyle = '#ffffff';
-    
-    const text = settings.watermarkText;
-    const textWidth = ctx.measureText(text).width;
-    
-    let x = w - textWidth - 40;
-    let y = h - 40;
-    
-    if (settings.watermarkPosition === 'top-left') {
-      x = 40; y = 40 + size;
-    } else if (settings.watermarkPosition === 'top-right') {
-      x = w - textWidth - 40; y = 40 + size;
-    } else if (settings.watermarkPosition === 'bottom-left') {
-      x = 40; y = h - 40;
-    } else if (settings.watermarkPosition === 'center') {
-      x = (w - textWidth) / 2; y = h / 2 + size / 2;
-    }
-
-    if (settings.watermarkType === 'text') {
-      ctx.fillStyle = 'rgba(0,0,0,0.5)';
-      ctx.fillText(text, x + 2, y + 2);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText(text, x, y);
-    } else if (settings.watermarkType === 'sku') {
-      const skuText = `SKU: ${text}`;
-      const skuW = ctx.measureText(skuText).width;
-      if (settings.watermarkPosition === 'bottom-right') x = w - skuW - 40;
-      ctx.fillStyle = 'rgba(0,0,0,0.5)';
-      ctx.fillText(skuText, x + 2, y + 2);
-      ctx.fillStyle = '#ffd700';
-      ctx.fillText(skuText, x, y);
-    } else if (settings.watermarkType === 'qr') {
-      try {
-        const qrSize = Math.max(80, size * 4);
-        let qrx = w - qrSize - 40;
-        let qry = h - qrSize - 40;
-        
-        if (settings.watermarkPosition === 'top-left') {
-          qrx = 40; qry = 40;
-        } else if (settings.watermarkPosition === 'top-right') {
-          qrx = w - qrSize - 40; qry = 40;
-        } else if (settings.watermarkPosition === 'bottom-left') {
-          qrx = 40; qry = h - qrSize - 40;
-        } else if (settings.watermarkPosition === 'center') {
-          qrx = (w - qrSize) / 2; qry = (h - qrSize) / 2;
-        }
-
-        const qrCanvas = document.createElement('canvas');
-        await QRCode.toCanvas(qrCanvas, "https://kp-pakse-suthatpospos.shop", { 
-          width: qrSize, 
-          margin: 1,
-          color: { dark: '#ffffff', light: '#00000000' }
-        });
-        
-        ctx.drawImage(qrCanvas, qrx, qry);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    ctx.restore();
-  };
-
-  const drawGuidesOverlay = (ctx, w, h) => {
-    ctx.save();
-    
-    if (settings.showBoundary && analysis) {
-      ctx.strokeStyle = 'rgba(212,175,55,0.75)';
-      ctx.lineWidth = 2;
-      ctx.setLineDash([6, 6]);
-      ctx.strokeRect(analysis.minX, analysis.minY, analysis.width, analysis.height);
-      ctx.fillStyle = 'var(--gold-primary)';
-      ctx.font = '10px Arial';
-      ctx.fillText(`Amulet Boundary (${analysis.width}px x ${analysis.height}px)`, analysis.minX, analysis.minY - 5);
-    }
-
-    if (settings.showCenter) {
-      ctx.strokeStyle = 'rgba(231,76,60,0.7)';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h);
-      ctx.moveTo(0, h/2); ctx.lineTo(w, h/2);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(w/2, h/2, 8, 0, 2*Math.PI);
-      ctx.stroke();
-    }
-
-    if (settings.showGrid) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.moveTo(w/3, 0); ctx.lineTo(w/3, h);
-      ctx.moveTo((w/3)*2, 0); ctx.lineTo((w/3)*2, h);
-      ctx.moveTo(0, h/3); ctx.lineTo(w, h/3);
-      ctx.moveTo(0, (h/3)*2); ctx.lineTo(w, (h/3)*2);
-      ctx.stroke();
-    }
-
-    if (settings.showSafeArea) {
-      ctx.strokeStyle = 'rgba(46,204,113,0.5)';
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash([10, 5]);
-      ctx.strokeRect(100, 100, w - 200, h - 200);
-      ctx.fillStyle = '#2ecc71';
-      ctx.font = '10px Arial';
-      ctx.fillText('SAFE AREA (80%)', 105, 120);
-    }
-    
-    ctx.restore();
-  };
-
-  const updateSettings = (newFields) => {
-    setSettings(prev => {
-      const next = { ...prev, ...newFields };
-      const maskCanvas = getMaskCanvas();
-      const newHistory = history.slice(0, historyIndex + 1);
-      newHistory.push({
-        settings: next,
-        maskDataUrl: maskCanvas.toDataURL()
-      });
-      
-      setHistory(newHistory);
-      setHistoryIndex(newHistory.length - 1);
-      
-      return next;
-    });
-  };
-
-  const pushHistoryState = () => {
-    const maskCanvas = getMaskCanvas();
-    const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push({
-      settings: { ...settings },
-      maskDataUrl: maskCanvas.toDataURL()
-    });
-    setHistory(newHistory);
-    setHistoryIndex(newHistory.length - 1);
-  };
-
-  const restoreMaskFromDataUrl = (dataUrl) => {
-    const maskCanvas = getMaskCanvas();
-    const mCtx = maskCanvas.getContext('2d');
-    mCtx.clearRect(0, 0, 800, 800);
-    if (dataUrl) {
-      const img = new Image();
-      img.onload = () => {
-        mCtx.drawImage(img, 0, 0);
-        renderProcessedImage();
-      };
-      img.src = dataUrl;
-    } else {
-      renderProcessedImage();
-    }
-  };
-
-  const handleUndo = () => {
-    if (historyIndex > 0) {
-      const nextIdx = historyIndex - 1;
-      setHistoryIndex(nextIdx);
-      const histItem = history[nextIdx];
-      setSettings(histItem.settings);
-      restoreMaskFromDataUrl(histItem.maskDataUrl);
-    }
-  };
-
-  const handleRedo = () => {
-    if (historyIndex < history.length - 1) {
-      const nextIdx = historyIndex + 1;
-      setHistoryIndex(nextIdx);
-      const histItem = history[nextIdx];
-      setSettings(histItem.settings);
-      restoreMaskFromDataUrl(histItem.maskDataUrl);
-    }
-  };
-
-  const handleReset = () => {
-    // Clear mask
-    if (maskCanvasRef.current) {
-      const mCtx = maskCanvasRef.current.getContext('2d');
-      mCtx.clearRect(0, 0, 800, 800);
-    }
-    const defaultSettings = {
-      rotate: 0,
-      scale: 1,
-      translateX: 0,
-      translateY: 0,
-      cropLeft: 0,
-      cropRight: 0,
-      cropTop: 0,
-      cropBottom: 0,
-      brightness: 1,
-      contrast: 1,
-      sharpness: 0,
-      noiseReduction: 0,
-      selectiveClarity: false,
-      saturation: 1.0,
-      hueRotate: 0,
-      blur: 0,
-      vignette: 0,
-      removeBackground: false,
-      bgThreshold: 45,
-      backgroundType: 'none',
-      frameType: 'none',
-      frameSize: 20,
-      frameOpacity: 1,
-      watermarkType: 'none',
-      watermarkText: 'KP Amulet Pakse',
-      watermarkSize: 20,
-      watermarkOpacity: 0.6,
-      watermarkPosition: 'bottom-right',
-      showBoundary: false,
-      showCenter: false,
-      showGrid: false,
-      showSafeArea: false,
-    };
-    updateSettings(defaultSettings);
-  };
-
-  const getCanvasCoords = (clientX, clientY) => {
-    if (!eraserContainerRef.current) return null;
-    const rect = eraserContainerRef.current.getBoundingClientRect();
-    const x = ((clientX - rect.left) / rect.width) * 800;
-    const y = ((clientY - rect.top) / rect.height) * 800;
-    return { x, y, viewX: clientX - rect.left, viewY: clientY - rect.top, rectWidth: rect.width };
-  };
-
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // MASK CANVAS HELPERS
+  // ═══════════════════════════════════════════════════════════════════════════════
   const getMaskCanvas = () => {
     if (!maskCanvasRef.current) {
       const c = document.createElement('canvas');
-      c.width = 800;
-      c.height = 800;
+      c.width = 800; c.height = 800;
       maskCanvasRef.current = c;
     }
     return maskCanvasRef.current;
   };
 
-  const drawMaskStroke = (x1, y1, x2, y2) => {
-    const maskCanvas = getMaskCanvas();
-    const mCtx = maskCanvas.getContext('2d');
-    
-    mCtx.lineJoin = 'round';
-    mCtx.lineCap = 'round';
-    mCtx.lineWidth = brushSize;
-    
-    if (eraseMode === 'erase') {
-      mCtx.globalCompositeOperation = 'source-over';
-      mCtx.strokeStyle = '#000000'; // Draw black to mask out
-    } else {
-      mCtx.globalCompositeOperation = 'destination-out';
-      mCtx.strokeStyle = 'rgba(0,0,0,1)'; // Erase mask to restore
+  const clearMask = () => {
+    const mc = getMaskCanvas();
+    mc.getContext('2d').clearRect(0, 0, 800, 800);
+  };
+
+  const getMaskDataUrl = () => {
+    try { return getMaskCanvas().toDataURL(); } catch (e) { return ''; }
+  };
+
+  const restoreMaskFromDataUrl = useCallback((dataUrl, cb) => {
+    const mc = getMaskCanvas();
+    const mCtx = mc.getContext('2d');
+    mCtx.clearRect(0, 0, 800, 800);
+    if (!dataUrl || dataUrl === 'data:,') { if (cb) cb(); return; }
+    const img = new Image();
+    img.onload = () => { mCtx.drawImage(img, 0, 0); if (cb) cb(); };
+    img.src = dataUrl;
+  }, []);
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // LOAD IMAGE
+  // ═══════════════════════════════════════════════════════════════════════════════
+  useEffect(() => {
+    if (!imageUrl) return;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      setSourceImg(img);
+      clearMask();
+      setSettings(defaultSettings);
+      setHistory([{ settings: defaultSettings, maskDataUrl: '' }]);
+      setHistoryIndex(0);
+      runAnalysis(img);
+    };
+    img.onerror = () => setErrorMsg('ບໍ່ສາມາດໂຫຼດຮູບພາບນີ້ໄດ້');
+    img.src = imageUrl;
+  }, [imageUrl]);
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // ANALYSIS
+  // ═══════════════════════════════════════════════════════════════════════════════
+  const runAnalysis = (imgEl) => {
+    setIsAnalyzing(true);
+    setTimeout(() => {
+      try {
+        const c = document.createElement('canvas');
+        c.width = 300; c.height = 300;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(imgEl, 0, 0, 300, 300);
+        const { data } = ctx.getImageData(0, 0, 300, 300);
+
+        // Sample corners for background colour
+        const corners = [[0,0],[299,0],[0,299],[299,299]];
+        let bgR=0, bgG=0, bgB=0;
+        corners.forEach(([x,y]) => {
+          const i = (y*300+x)*4;
+          bgR += data[i]; bgG += data[i+1]; bgB += data[i+2];
+        });
+        bgR = Math.round(bgR/4); bgG = Math.round(bgG/4); bgB = Math.round(bgB/4);
+
+        let minX=300,maxX=0,minY=300,maxY=0,totX=0,totY=0,cnt=0;
+        for (let y=0; y<300; y+=3) for (let x=0; x<300; x+=3) {
+          const i=(y*300+x)*4;
+          const dist=Math.sqrt((data[i]-bgR)**2+(data[i+1]-bgG)**2+(data[i+2]-bgB)**2);
+          if (data[i+3]>50 && dist>30) {
+            if(x<minX)minX=x; if(x>maxX)maxX=x;
+            if(y<minY)minY=y; if(y>maxY)maxY=y;
+            totX+=x; totY+=y; cnt++;
+          }
+        }
+        if(cnt===0){minX=60;maxX=240;minY=60;maxY=240;cnt=1;totX=150;totY=150;}
+
+        let sumG=0,sumSq=0,gc=0;
+        for(let y=20;y<280;y+=12) for(let x=20;x<280;x+=12){
+          const i=(y*300+x)*4;
+          const v=(data[i]+data[i+1]+data[i+2])/3;
+          const r=(data[i+4]+data[i+5]+data[i+6])/3;
+          const d=Math.abs(v-r);
+          sumG+=d; sumSq+=d*d; gc++;
+        }
+        const meanG=sumG/gc;
+        const varG=(sumSq/gc)-(meanG*meanG);
+        const sharpness=Math.min(100,Math.max(15,Math.round(varG*1.2)));
+
+        const scaleX = imgEl.naturalWidth/300;
+        const scaleY = imgEl.naturalHeight/300;
+        setAnalysis({
+          minX:Math.round(minX*scaleX), maxX:Math.round(maxX*scaleX),
+          minY:Math.round(minY*scaleY), maxY:Math.round(maxY*scaleY),
+          width:Math.round((maxX-minX)*scaleX), height:Math.round((maxY-minY)*scaleY),
+          centerX:Math.round((totX/cnt)*scaleX), centerY:Math.round((totY/cnt)*scaleY),
+          sharpness, skewAngle:parseFloat((Math.sin(totX/cnt)*3).toFixed(1)),
+          noise:Math.max(5,40-Math.round(sharpness/2.5)),
+          bgR,bgG,bgB
+        });
+      } catch(err){ console.error('Analysis failed:', err); }
+      finally { setIsAnalyzing(false); }
+    }, 600);
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // DRAW ORIGINAL CANVAS (Before)
+  // ═══════════════════════════════════════════════════════════════════════════════
+  const drawOriginalCanvas = useCallback((src, stg, tab) => {
+    const canvas = originalCanvasRef.current;
+    if (!canvas || !src) return;
+    canvas.width = 800; canvas.height = 800;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,800,800);
+
+    const aspect = src.naturalWidth / src.naturalHeight;
+    let dw = 800, dh = 800;
+    if (aspect > 1) dh = 800/aspect; else dw = 800*aspect;
+    const dx = (800-dw)/2, dy = (800-dh)/2;
+    ctx.drawImage(src, dx, dy, dw, dh);
+
+    if (tab === 'crop') {
+      const cx = dx + (stg.cropLeft/100)*dw;
+      const cy = dy + (stg.cropTop/100)*dh;
+      const cw = Math.max(10, (1-(stg.cropLeft+stg.cropRight)/100)*dw);
+      const ch = Math.max(10, (1-(stg.cropTop+stg.cropBottom)/100)*dh);
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      ctx.fillRect(0,0,800,cy);
+      ctx.fillRect(0,cy+ch,800,800-(cy+ch));
+      ctx.fillRect(0,cy,cx,ch);
+      ctx.fillRect(cx+cw,cy,800-(cx+cw),ch);
+      ctx.strokeStyle='rgba(212,175,55,0.9)';
+      ctx.lineWidth=3; ctx.setLineDash([8,6]);
+      ctx.strokeRect(cx,cy,cw,ch);
+      ctx.setLineDash([]);
     }
-    
+  }, []);
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // DRAW PROCESSED CANVAS (After) — main render pipeline
+  // ═══════════════════════════════════════════════════════════════════════════════
+  const renderProcessedImage = useCallback(async (overrideSettings, overrideAnalysis) => {
+    const stg = overrideSettings || settingsRef.current;
+    const anl = overrideAnalysis !== undefined ? overrideAnalysis : analysisRef.current;
+    const src = sourceImg;
+
+    const canvas = processedCanvasRef.current;
+    if (!canvas || !src) return;
+
+    canvas.width = 800; canvas.height = 800;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,800,800);
+
+    // 1. Background template
+    drawBgTemplate(ctx, 800, 800, stg);
+
+    // 2. Image with transforms
+    ctx.save();
+    ctx.translate(400, 400);
+    ctx.rotate((stg.rotate * Math.PI) / 180);
+    ctx.scale(stg.scale, stg.scale);
+    ctx.translate(stg.translateX - 400, stg.translateY - 400);
+
+    // Temp canvas for image + filters + BG removal + eraser mask
+    const tmp = document.createElement('canvas');
+    tmp.width = 800; tmp.height = 800;
+    const tCtx = tmp.getContext('2d');
+
+    // Crop source rect
+    const sx = (stg.cropLeft/100) * src.naturalWidth;
+    const sy = (stg.cropTop/100) * src.naturalHeight;
+    const sw = Math.max(10, (1-(stg.cropLeft+stg.cropRight)/100) * src.naturalWidth);
+    const sh = Math.max(10, (1-(stg.cropTop+stg.cropBottom)/100) * src.naturalHeight);
+    const asp = sw/sh;
+    let dw=800, dh=800;
+    if (asp>1) dh=800/asp; else dw=800*asp;
+    const ddx=(800-dw)/2, ddy=(800-dh)/2;
+
+    // Apply CSS filters on temp context
+    try {
+      tCtx.filter = [
+        `brightness(${stg.brightness})`,
+        `contrast(${stg.contrast})`,
+        `saturate(${stg.saturation})`,
+        `hue-rotate(${stg.hueRotate}deg)`,
+        stg.blur > 0 ? `blur(${stg.blur}px)` : ''
+      ].filter(Boolean).join(' ');
+    } catch(e) {}
+
+    tCtx.drawImage(src, sx, sy, sw, sh, ddx, ddy, dw, dh);
+    try { tCtx.filter = 'none'; } catch(e) {}
+
+    // AI Background removal
+    if (stg.removeBackground && anl) {
+      try {
+        const id = tCtx.getImageData(0,0,800,800);
+        const d = id.data;
+        const {bgR,bgG,bgB} = anl;
+        const thr = stg.bgThreshold;
+        for (let i=0; i<d.length; i+=4) {
+          const dist = Math.sqrt((d[i]-bgR)**2+(d[i+1]-bgG)**2+(d[i+2]-bgB)**2);
+          if (dist < thr && d[i+3] > 0) d[i+3] = 0;
+        }
+        tCtx.putImageData(id, 0, 0);
+      } catch(err) {
+        console.warn('BG removal failed (CORS?):', err);
+      }
+    }
+
+    // Apply manual eraser mask (black pixels → transparent)
+    const mc = getMaskCanvas();
+    const mData = mc.getContext('2d').getImageData(0,0,800,800).data;
+    // Only apply if mask has any black painted pixels
+    let hasMask = false;
+    for (let i=0; i<mData.length; i+=4) {
+      if (mData[i+3] > 0) { hasMask=true; break; }
+    }
+    if (hasMask) {
+      try {
+        const id2 = tCtx.getImageData(0,0,800,800);
+        const d2 = id2.data;
+        for (let i=0; i<d2.length; i+=4) {
+          // mask is black = erase → make source pixel transparent
+          if (mData[i+3] > 0) d2[i+3] = Math.max(0, d2[i+3] - mData[i+3]);
+        }
+        tCtx.putImageData(id2, 0, 0);
+      } catch(e) {}
+    }
+
+    ctx.drawImage(tmp, 0, 0);
+    ctx.restore();
+
+    // 3. Vignette overlay
+    if (stg.vignette > 0) {
+      const g = ctx.createRadialGradient(400,400,200,400,400,560);
+      g.addColorStop(0, 'rgba(0,0,0,0)');
+      g.addColorStop(1, `rgba(0,0,0,${stg.vignette/100})`);
+      ctx.fillStyle = g;
+      ctx.fillRect(0,0,800,800);
+    }
+
+    // 4. Selective clarity highlight
+    if (stg.selectiveClarity && anl) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(212,175,55,0.2)';
+      ctx.lineWidth = 18;
+      ctx.strokeRect(anl.minX, anl.minY, anl.width, anl.height);
+      ctx.restore();
+    }
+
+    // 5. Frame overlay
+    if (stg.frameType !== 'none') drawFrame(ctx, 800, 800, stg);
+
+    // 6. Watermark
+    if (stg.watermarkType !== 'none') await drawWatermark(ctx, 800, 800, stg);
+
+    // 7. Guides (not saved on export)
+    drawGuides(ctx, 800, 800, stg, anl);
+  }, [sourceImg]);
+
+  // ─── Re-render when anything changes ────────────────────────────────────────
+  useEffect(() => {
+    if (!sourceImg) return;
+    drawOriginalCanvas(sourceImg, settings, activeTab);
+    renderProcessedImage(settings, analysis);
+  }, [sourceImg, settings, activeTab, analysis]);
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // DRAW HELPERS
+  // ═══════════════════════════════════════════════════════════════════════════════
+  const drawBgTemplate = (ctx, w, h, stg) => {
+    ctx.save();
+    switch (stg.backgroundType) {
+      case 'white':
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,w,h); break;
+      case 'black':
+        ctx.fillStyle = '#0f0f11'; ctx.fillRect(0,0,w,h); break;
+      case 'luxury': {
+        const g = ctx.createRadialGradient(w/2,h/2,50,w/2,h/2,w*0.7);
+        g.addColorStop(0,'#1e293b'); g.addColorStop(1,'#0b0f19');
+        ctx.fillStyle=g; ctx.fillRect(0,0,w,h); break;
+      }
+      case 'gold': {
+        const g = ctx.createRadialGradient(w/2,h/2,30,w/2,h/2,w*0.8);
+        g.addColorStop(0,'#451a03'); g.addColorStop(0.5,'#1e1b4b'); g.addColorStop(1,'#090514');
+        ctx.fillStyle=g; ctx.fillRect(0,0,w,h); break;
+      }
+      case 'velvet': {
+        const g = ctx.createRadialGradient(w/2,h/2,50,w/2,h/2,w*0.7);
+        g.addColorStop(0,'#7f1d1d'); g.addColorStop(1,'#180003');
+        ctx.fillStyle=g; ctx.fillRect(0,0,w,h); break;
+      }
+      case 'obsidian': {
+        const g = ctx.createRadialGradient(w/2,h/2,30,w/2,h/2,w*0.8);
+        g.addColorStop(0,'#1f1f1f'); g.addColorStop(1,'#0a0a0a');
+        ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+        // shine lines
+        ctx.strokeStyle='rgba(255,255,255,0.03)';
+        ctx.lineWidth=40;
+        for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(-100+i*220,0);ctx.lineTo(100+i*220,h);ctx.stroke();}
+        break;
+      }
+      case 'golden_aura': {
+        const g = ctx.createRadialGradient(w/2,h/2,50,w/2,h/2,w*0.75);
+        g.addColorStop(0,'rgba(212,175,55,0.25)'); g.addColorStop(0.6,'rgba(139,108,27,0.15)'); g.addColorStop(1,'rgba(5,5,10,0.95)');
+        ctx.fillStyle='#050508'; ctx.fillRect(0,0,w,h);
+        ctx.fillStyle=g; ctx.fillRect(0,0,w,h); break;
+      }
+      case 'transparent': {
+        // checkerboard
+        ctx.fillStyle='#181c26'; ctx.fillRect(0,0,w,h);
+        ctx.fillStyle='#232836';
+        const cs=20;
+        for(let y=0;y<h;y+=cs*2) for(let x=0;x<w;x+=cs*2){
+          ctx.fillRect(x,y,cs,cs); ctx.fillRect(x+cs,y+cs,cs,cs);
+        }
+        break;
+      }
+      default:
+        ctx.fillStyle='#0d0d0d'; ctx.fillRect(0,0,w,h); break;
+    }
+    ctx.restore();
+  };
+
+  const drawFrame = (ctx, w, h, stg) => {
+    ctx.save();
+    ctx.globalAlpha = stg.frameOpacity;
+    const sz = stg.frameSize, pad = 12;
+    const fx=pad, fy=pad, fw=w-pad*2, fh=h-pad*2;
+    let grad;
+    if (stg.frameType==='gold') {
+      grad=ctx.createLinearGradient(0,0,w,h);
+      grad.addColorStop(0,'#ffd700'); grad.addColorStop(0.25,'#d4af37');
+      grad.addColorStop(0.5,'#aa771c'); grad.addColorStop(0.75,'#f5d76e'); grad.addColorStop(1,'#d4af37');
+    } else if (stg.frameType==='silver') {
+      grad=ctx.createLinearGradient(0,0,w,h);
+      grad.addColorStop(0,'#e2e8f0'); grad.addColorStop(0.5,'#94a3b8'); grad.addColorStop(1,'#cbd5e1');
+    } else {
+      grad=ctx.createLinearGradient(0,0,w,h);
+      grad.addColorStop(0,'#1e293b'); grad.addColorStop(0.5,'#d4af37'); grad.addColorStop(1,'#1e293b');
+    }
+    ctx.strokeStyle=grad; ctx.lineWidth=sz;
+    ctx.strokeRect(fx+sz/2, fy+sz/2, fw-sz, fh-sz);
+    if (stg.frameType==='gold'||stg.frameType==='luxury') {
+      const cs=sz*1.5;
+      ctx.fillStyle='#ffd700';
+      [[fx,fy],[fx+fw-cs,fy],[fx,fy+fh-cs],[fx+fw-cs,fy+fh-cs]].forEach(([x,y])=>ctx.fillRect(x,y,cs,cs));
+      ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=1.5;
+      ctx.strokeRect(fx+sz,fy+sz,fw-sz*2,fh-sz*2);
+    }
+    ctx.restore();
+  };
+
+  const drawWatermark = async (ctx, w, h, stg) => {
+    ctx.save();
+    ctx.globalAlpha = stg.watermarkOpacity;
+    const sz = stg.watermarkSize;
+    const text = stg.watermarkText;
+
+    const getPos = (textW, textH) => {
+      const p = stg.watermarkPosition;
+      if (p==='top-left')     return {x:40, y:40+textH};
+      if (p==='top-right')    return {x:w-textW-40, y:40+textH};
+      if (p==='bottom-left')  return {x:40, y:h-40};
+      if (p==='center')       return {x:(w-textW)/2, y:h/2+textH/2};
+      return {x:w-textW-40, y:h-40}; // bottom-right default
+    };
+
+    if (stg.watermarkType==='text') {
+      ctx.font=`bold ${sz}px Phetsarath OT, sans-serif`;
+      const tw = ctx.measureText(text).width;
+      const {x,y}=getPos(tw,sz);
+      ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillText(text,x+2,y+2);
+      ctx.fillStyle='#ffffff'; ctx.fillText(text,x,y);
+    } else if (stg.watermarkType==='sku') {
+      ctx.font=`bold ${sz}px Phetsarath OT, sans-serif`;
+      const t2=`SKU: ${text}`;
+      const tw=ctx.measureText(t2).width;
+      const {x,y}=getPos(tw,sz);
+      ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillText(t2,x+2,y+2);
+      ctx.fillStyle='#ffd700'; ctx.fillText(t2,x,y);
+    } else if (stg.watermarkType==='qr') {
+      try {
+        const qrSize=Math.max(80,sz*4);
+        const qrC=document.createElement('canvas');
+        await QRCode.toCanvas(qrC, 'https://kp-pakse-suthatpospos.shop', {
+          width:qrSize, margin:1, color:{dark:'#ffffff',light:'#00000000'}
+        });
+        const {x,y}=getPos(qrSize,qrSize);
+        const qry = stg.watermarkPosition.startsWith('top') ? 40 : h-qrSize-40;
+        ctx.drawImage(qrC, x, qry);
+      } catch(e){ console.error(e); }
+    }
+    ctx.restore();
+  };
+
+  const drawGuides = (ctx, w, h, stg, anl) => {
+    ctx.save();
+    if (stg.showBoundary && anl) {
+      ctx.strokeStyle='rgba(212,175,55,0.75)'; ctx.lineWidth=2; ctx.setLineDash([6,6]);
+      ctx.strokeRect(anl.minX,anl.minY,anl.width,anl.height);
+      ctx.fillStyle='#d4af37'; ctx.font='10px Arial';
+      ctx.fillText(`Amulet (${anl.width}×${anl.height}px)`,anl.minX,anl.minY-5);
+      ctx.setLineDash([]);
+    }
+    if (stg.showCenter) {
+      ctx.strokeStyle='rgba(231,76,60,0.7)'; ctx.lineWidth=1.5;
+      ctx.beginPath();
+      ctx.moveTo(w/2,0);ctx.lineTo(w/2,h);
+      ctx.moveTo(0,h/2);ctx.lineTo(w,h/2);
+      ctx.stroke();
+      ctx.beginPath(); ctx.arc(w/2,h/2,8,0,2*Math.PI); ctx.stroke();
+    }
+    if (stg.showGrid) {
+      ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=1;
+      ctx.beginPath();
+      [w/3,2*w/3].forEach(x=>{ctx.moveTo(x,0);ctx.lineTo(x,h);});
+      [h/3,2*h/3].forEach(y=>{ctx.moveTo(0,y);ctx.lineTo(w,y);});
+      ctx.stroke();
+    }
+    if (stg.showSafeArea) {
+      ctx.strokeStyle='rgba(46,204,113,0.5)'; ctx.lineWidth=1.5; ctx.setLineDash([10,5]);
+      ctx.strokeRect(100,100,w-200,h-200);
+      ctx.fillStyle='#2ecc71'; ctx.font='10px Arial';
+      ctx.fillText('SAFE AREA (80%)',105,120);
+      ctx.setLineDash([]);
+    }
+    ctx.restore();
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // HISTORY MANAGEMENT
+  // ═══════════════════════════════════════════════════════════════════════════════
+  const pushHistory = (newSettings, maskDataUrl) => {
+    setHistory(prev => {
+      const next = prev.slice(0, historyIndex + 1);
+      next.push({ settings: newSettings, maskDataUrl: maskDataUrl || getMaskDataUrl() });
+      return next;
+    });
+    setHistoryIndex(prev => prev + 1);
+  };
+
+  const updateSettings = useCallback((fields) => {
+    setSettings(prev => {
+      const next = { ...prev, ...fields };
+      // Push to history asynchronously after state update
+      setTimeout(() => {
+        setHistory(h => {
+          const slice = h.slice(0, historyIndex + 1);
+          slice.push({ settings: next, maskDataUrl: getMaskDataUrl() });
+          setHistoryIndex(slice.length - 1);
+          return slice;
+        });
+      }, 0);
+      return next;
+    });
+  }, [historyIndex]);
+
+  const handleUndo = () => {
+    if (historyIndex <= 0) return;
+    const nextIdx = historyIndex - 1;
+    const item = history[nextIdx];
+    setHistoryIndex(nextIdx);
+    setSettings(item.settings);
+    restoreMaskFromDataUrl(item.maskDataUrl, () => {
+      renderProcessedImage(item.settings, analysisRef.current);
+    });
+  };
+
+  const handleRedo = () => {
+    if (historyIndex >= history.length - 1) return;
+    const nextIdx = historyIndex + 1;
+    const item = history[nextIdx];
+    setHistoryIndex(nextIdx);
+    setSettings(item.settings);
+    restoreMaskFromDataUrl(item.maskDataUrl, () => {
+      renderProcessedImage(item.settings, analysisRef.current);
+    });
+  };
+
+  const handleReset = () => {
+    clearMask();
+    setSettings(defaultSettings);
+    setHistory([{ settings: defaultSettings, maskDataUrl: '' }]);
+    setHistoryIndex(0);
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // ERASER BRUSH
+  // ═══════════════════════════════════════════════════════════════════════════════
+  const getCanvasCoords = (clientX, clientY) => {
+    if (!eraserContainerRef.current) return null;
+    const rect = eraserContainerRef.current.getBoundingClientRect();
+    return {
+      x: ((clientX - rect.left) / rect.width) * 800,
+      y: ((clientY - rect.top) / rect.height) * 800,
+      viewX: clientX - rect.left,
+      viewY: clientY - rect.top
+    };
+  };
+
+  const drawMaskStroke = (x1, y1, x2, y2) => {
+    const mc = getMaskCanvas();
+    const mCtx = mc.getContext('2d');
+    mCtx.lineCap = 'round'; mCtx.lineJoin = 'round';
+    mCtx.lineWidth = brushSizeRef.current;
+
+    if (eraseModeRef.current === 'erase') {
+      // Paint black (opaque) pixels onto mask → these will subtract from image alpha
+      mCtx.globalCompositeOperation = 'source-over';
+      mCtx.strokeStyle = 'rgba(0,0,0,1)';
+    } else {
+      // Erase the mask (restore image)
+      mCtx.globalCompositeOperation = 'destination-out';
+      mCtx.strokeStyle = 'rgba(0,0,0,1)';
+    }
     mCtx.beginPath();
     mCtx.moveTo(x1, y1);
     mCtx.lineTo(x2, y2);
     mCtx.stroke();
-    
-    renderProcessedImage();
+    mCtx.globalCompositeOperation = 'source-over';
+
+    // Immediately re-render the processed canvas
+    renderProcessedImage(settingsRef.current, analysisRef.current);
   };
 
   const handleEraserMouseDown = (e) => {
-    const coords = getCanvasCoords(e.clientX, e.clientY);
-    if (!coords) return;
+    e.preventDefault();
+    const c = getCanvasCoords(e.clientX, e.clientY);
+    if (!c) return;
     setIsDrawing(true);
-    lastDrawingPos.current = { x: coords.x, y: coords.y };
-    drawMaskStroke(coords.x, coords.y, coords.x, coords.y);
+    lastDrawingPos.current = c;
+    drawMaskStroke(c.x, c.y, c.x, c.y);
   };
-
   const handleEraserMouseMove = (e) => {
-    const coords = getCanvasCoords(e.clientX, e.clientY);
-    if (!coords) {
-      setBrushPos(null);
-      return;
-    }
-    
-    setBrushPos({ x: coords.viewX, y: coords.viewY });
-    
+    e.preventDefault();
+    const c = getCanvasCoords(e.clientX, e.clientY);
+    if (!c) { setBrushPos(null); return; }
+    setBrushPos({x: c.viewX, y: c.viewY});
     if (isDrawing && lastDrawingPos.current) {
-      drawMaskStroke(lastDrawingPos.current.x, lastDrawingPos.current.y, coords.x, coords.y);
-      lastDrawingPos.current = { x: coords.x, y: coords.y };
+      drawMaskStroke(lastDrawingPos.current.x, lastDrawingPos.current.y, c.x, c.y);
+      lastDrawingPos.current = c;
     }
   };
-
   const handleEraserMouseUp = () => {
     if (isDrawing) {
       setIsDrawing(false);
       lastDrawingPos.current = null;
-      pushHistoryState();
+      // Save stroke to history
+      const s = settingsRef.current;
+      setHistory(prev => {
+        const slice = prev.slice(0, historyIndex + 1);
+        slice.push({ settings: s, maskDataUrl: getMaskDataUrl() });
+        setHistoryIndex(slice.length - 1);
+        return slice;
+      });
     }
   };
-
   const handleEraserTouchStart = (e) => {
-    if (e.touches.length === 0) return;
-    const touch = e.touches[0];
-    const coords = getCanvasCoords(touch.clientX, touch.clientY);
-    if (!coords) return;
-    setIsDrawing(true);
-    lastDrawingPos.current = { x: coords.x, y: coords.y };
-    drawMaskStroke(coords.x, coords.y, coords.x, coords.y);
+    e.preventDefault();
+    const t = e.touches[0];
+    const c = getCanvasCoords(t.clientX, t.clientY);
+    if (!c) return;
+    setIsDrawing(true); lastDrawingPos.current = c;
+    drawMaskStroke(c.x, c.y, c.x, c.y);
   };
-
   const handleEraserTouchMove = (e) => {
-    if (e.touches.length === 0) return;
-    const touch = e.touches[0];
-    const coords = getCanvasCoords(touch.clientX, touch.clientY);
-    if (!coords) return;
-    
-    setBrushPos({ x: coords.viewX, y: coords.viewY });
-    
+    e.preventDefault();
+    const t = e.touches[0];
+    const c = getCanvasCoords(t.clientX, t.clientY);
+    if (!c) return;
+    setBrushPos({x:c.viewX,y:c.viewY});
     if (isDrawing && lastDrawingPos.current) {
-      drawMaskStroke(lastDrawingPos.current.x, lastDrawingPos.current.y, coords.x, coords.y);
-      lastDrawingPos.current = { x: coords.x, y: coords.y };
+      drawMaskStroke(lastDrawingPos.current.x, lastDrawingPos.current.y, c.x, c.y);
+      lastDrawingPos.current = c;
     }
   };
-
   const handleEraserTouchEnd = () => {
     if (isDrawing) {
-      setIsDrawing(false);
-      lastDrawingPos.current = null;
-      setBrushPos(null);
-      pushHistoryState();
+      setIsDrawing(false); lastDrawingPos.current = null; setBrushPos(null);
+      const s = settingsRef.current;
+      setHistory(prev => {
+        const slice = prev.slice(0, historyIndex + 1);
+        slice.push({ settings: s, maskDataUrl: getMaskDataUrl() });
+        setHistoryIndex(slice.length - 1);
+        return slice;
+      });
     }
   };
 
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // AI AUTO ARRANGE
+  // ═══════════════════════════════════════════════════════════════════════════════
   const handleAiAutoArrange = () => {
     if (!analysis) return;
-    const maxBound = Math.max(analysis.width, analysis.height);
-    const targetScale = Math.min(2.5, 600 / maxBound);
-    const transX = 400 - analysis.centerX;
-    const transY = 400 - analysis.centerY;
-    
+    const maxB = Math.max(analysis.width, analysis.height);
+    const tScale = Math.min(2.5, 600 / maxB);
     updateSettings({
       rotate: -analysis.skewAngle,
-      scale: targetScale,
-      translateX: transX * targetScale,
-      translateY: transY * targetScale,
-      showCenter: true,
-      showSafeArea: true
+      scale: tScale,
+      translateX: (400 - analysis.centerX) * tScale,
+      translateY: (400 - analysis.centerY) * tScale,
+      showCenter: true, showSafeArea: true
     });
   };
 
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // LOCAL UPLOAD
+  // ═══════════════════════════════════════════════════════════════════════════════
   const handleLocalUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onloadend = () => {
-      const base64 = reader.result;
       const img = new Image();
       img.onload = () => {
+        clearMask();
+        setSettings(defaultSettings);
         setSourceImg(img);
-        runAnalysis(img);
-        
-        // Reset history
-        const initialSettingsStr = JSON.stringify(settings);
-        setHistory([initialSettingsStr]);
+        setHistory([{ settings: defaultSettings, maskDataUrl: '' }]);
         setHistoryIndex(0);
+        runAnalysis(img);
       };
-      img.src = base64;
+      img.src = reader.result;
     };
     reader.readAsDataURL(file);
   };
 
-  const handleSliderMouseDown = (e) => {
-    setIsDraggingSlider(true);
-  };
-
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // SLIDER (Before / After)
+  // ═══════════════════════════════════════════════════════════════════════════════
+  const handleSliderMouseDown = () => setIsDraggingSlider(true);
   const handleSliderMouseMove = (e) => {
     if (!isDraggingSlider || !sliderContainerRef.current) return;
     const rect = sliderContainerRef.current.getBoundingClientRect();
-    let pos = ((e.clientX - rect.left) / rect.width) * 100;
-    pos = Math.max(0, Math.min(100, pos));
-    setSliderPosition(pos);
+    setSliderPosition(Math.max(0, Math.min(100, ((e.clientX - rect.left)/rect.width)*100)));
   };
+  const handleSliderMouseUpOrLeave = () => setIsDraggingSlider(false);
 
-  const handleSliderMouseUpOrLeave = () => {
-    setIsDraggingSlider(false);
-  };
-
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // EXPORT / SAVE
+  // ═══════════════════════════════════════════════════════════════════════════════
   const generateExportDataUrl = () => {
-    const canvas = document.createElement('canvas');
     let size = 800;
-    if (exportSize === 'thumbnail') size = 150;
-    if (exportSize === 'zoom') size = 1200;
-    if (exportSize === 'social') size = 1080;
-    
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext('2d');
-    
-    // Hide guides
-    const originalSettings = { ...settings };
-    settings.showBoundary = false;
-    settings.showCenter = false;
-    settings.showGrid = false;
-    settings.showSafeArea = false;
-
-    const processedCanvas = processedCanvasRef.current;
-    if (processedCanvas) {
-      ctx.drawImage(processedCanvas, 0, 0, size, size);
-    }
-    
-    setSettings(prev => ({
-      ...prev,
-      showBoundary: originalSettings.showBoundary,
-      showCenter: originalSettings.showCenter,
-      showGrid: originalSettings.showGrid,
-      showSafeArea: originalSettings.showSafeArea
-    }));
-
+    if (exportSize==='thumbnail') size=150;
+    if (exportSize==='zoom') size=1200;
+    if (exportSize==='social') size=1080;
+    const c = document.createElement('canvas');
+    c.width=size; c.height=size;
+    const ctx = c.getContext('2d');
+    const pc = processedCanvasRef.current;
+    if (pc) ctx.drawImage(pc, 0, 0, size, size);
     let type = 'image/webp';
-    if (exportFormat === 'png') type = 'image/png';
-    if (exportFormat === 'jpeg') type = 'image/jpeg';
-    
-    return canvas.toDataURL(type, 0.9);
+    if (exportFormat==='png') type='image/png';
+    if (exportFormat==='jpeg') type='image/jpeg';
+    return c.toDataURL(type, 0.92);
   };
 
   const handleSaveAction = () => {
     try {
-      const dataUrl = generateExportDataUrl();
-      if (onSave) {
-        onSave(dataUrl);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("❌ ຂໍ້ຜິດພາດ: ບໍ່ສາມາດບັນທຶກຮູບພາບນີ້ໄດ້ ເນື່ອງຈາກຄວາມປອດໄພຂອງຮູບພາບຂ້າມໂດເມນ (CORS Security Error). ກະລຸນາອັບໂຫຼດຮູບພາບໂດຍກົງຈາກເຄື່ອງຂອງທ່ານເພື່ອແກ້ໄຂ.");
+      const url = generateExportDataUrl();
+      if (onSave) onSave(url);
+    } catch(err) {
+      alert('❌ ບໍ່ສາມາດບັນທຶກໄດ້: ' + err.message);
     }
   };
 
   const handleExportDownload = () => {
     try {
-      const dataUrl = generateExportDataUrl();
-      const link = document.createElement('a');
-      link.download = `amulet_edited_${exportSize}.${exportFormat}`;
-      link.href = dataUrl;
-      link.click();
-    } catch (err) {
-      console.error(err);
-      alert("❌ ຂໍ້ຜິດພາດ: ບໍ່ສາມາດດາວໂຫຼດຮູບພາບນີ້ໄດ້ ເນື່ອງຈາກຄວາມປອດໄພຂອງຮູບພາບຂ້າມໂດເມນ (CORS Security Error). ກະລຸນาອັບໂຫຼດຮູບພາບໂດຍກົງຈາກເຄື່ອງຂອງທ່ານເພື່ອແກ້ໄຂ.");
+      const url = generateExportDataUrl();
+      const a = document.createElement('a');
+      a.download = `amulet_${exportSize}.${exportFormat}`;
+      a.href = url; a.click();
+    } catch(err) {
+      alert('❌ ດາວໂຫຼດບໍ່ສຳເລັດ: ' + err.message);
     }
   };
 
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // SLIDER HELPERS
+  // ═══════════════════════════════════════════════════════════════════════════════
+  const SliderRow = ({ label, value, min, max, step=0.01, unit='', onChange, displayFn }) => (
+    <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
+      <label style={{ display:'flex', justifyContent:'space-between', fontSize:'0.8rem', color:'#ccc' }}>
+        <span>{label}</span>
+        <span style={{ color:'var(--gold-primary)', fontWeight:'bold' }}>
+          {displayFn ? displayFn(value) : `${value}${unit}`}
+        </span>
+      </label>
+      <input type="range" min={min} max={max} step={step} value={value}
+        onChange={e => onChange(parseFloat(e.target.value))}
+        style={{ width:'100%', accentColor:'var(--gold-primary)' }}
+      />
+    </div>
+  );
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // RENDER
+  // ═══════════════════════════════════════════════════════════════════════════════
+  const isMobile = window.innerWidth <= 768;
+  const canUndo = historyIndex > 0;
+  const canRedo = historyIndex < history.length - 1;
+
   return (
     <div className={inline ? 'ai-editor-inline' : 'ai-editor-modal-backdrop'} style={inline ? {} : {
-      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-      background: 'rgba(5, 5, 8, 0.95)', display: 'flex', alignItems: 'center',
-      justifyContent: 'center', zIndex: 1000, padding: '20px'
+      position:'fixed', top:0, left:0, right:0, bottom:0,
+      background:'rgba(5,5,8,0.95)', display:'flex', alignItems:'center',
+      justifyContent:'center', zIndex:1000, padding:'20px'
     }}>
       <div className="glass-card animate-fade-in" style={{
-        width: inline ? '100%' : '95%',
-        maxWidth: '1400px',
-        height: inline ? 'auto' : '90vh',
-        minHeight: '650px',
-        display: 'flex',
-        flexDirection: 'column',
-        border: '1px solid rgba(212,175,55,0.25)',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.8)',
-        overflow: 'hidden',
-        background: '#070a13'
+        width: inline ? '100%' : '95%', maxWidth:'1400px',
+        height: inline ? 'auto' : '90vh', minHeight:'650px',
+        display:'flex', flexDirection:'column',
+        border:'1px solid rgba(212,175,55,0.25)',
+        boxShadow:'0 10px 40px rgba(0,0,0,0.8)',
+        overflow:'hidden', background:'#070a13'
       }}>
-        {/* Header */}
+
+        {/* ── HEADER ── */}
         <div style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          padding: '16px 20px', borderBottom: '1px solid var(--border-color)',
-          background: 'rgba(11, 15, 25, 0.8)'
+          display:'flex', justifyContent:'space-between', alignItems:'center',
+          padding:'16px 20px', borderBottom:'1px solid var(--border-color)',
+          background:'rgba(11,15,25,0.8)', flexWrap:'wrap', gap:'10px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontSize: '1.4rem' }}>🎨</span>
+          <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
+            <span style={{ fontSize:'1.4rem' }}>🎨</span>
             <div>
-              <h2 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '1.2rem', fontWeight: 'bold' }}>
-                AI Amulet Image Editor (ລະບົບແຕ່ງຮູບພຣະເຄື່ອງອັດສະລິຍະ)
+              <h2 style={{ color:'var(--gold-primary)', margin:0, fontSize:'1.1rem', fontWeight:'bold' }}>
+                AI Amulet Image Editor (ລະບົບແຕ່ງຮູບພຣະເຄື່ອງ)
               </h2>
-              <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
-                ຈັດອົງປະກອບ, ລຶບພື້ນຫຼັງ, ໃສ່ກອບ, ແລະ ໃສ່ລາຍນ້ຳລະດັບມືອາຊີບ
+              <span style={{ fontSize:'0.7rem', color:'var(--text-secondary)' }}>
+                ຈັດອົງປະກອບ · ລຶບພື້ນຫຼັງ · ໃສ່ກອບ · ໃສ່ລາຍນ້ຳ · ຢາງລົບ · ສົ່ງອອກ
               </span>
             </div>
           </div>
-          {!inline && (
-            <button
-              onClick={onClose}
-              style={{
-                background: 'rgba(231,76,60,0.1)', color: 'var(--alert-red)',
-                border: '1px solid rgba(231,76,60,0.25)', padding: '6px 14px',
-                borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.8rem'
-              }}
-            >
-              ✕ ປິດໜ້າຈໍ (Close)
+          <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
+            <button onClick={handleUndo} disabled={!canUndo}
+              style={{ background:canUndo?'rgba(255,255,255,0.08)':'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.1)', color:canUndo?'white':'#555', padding:'6px 14px', borderRadius:'8px', cursor:canUndo?'pointer':'default', fontSize:'0.78rem' }}>
+              ↩ Undo (ຍ້ອນກັບ)
             </button>
-          )}
+            <button onClick={handleRedo} disabled={!canRedo}
+              style={{ background:canRedo?'rgba(255,255,255,0.08)':'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.1)', color:canRedo?'white':'#555', padding:'6px 14px', borderRadius:'8px', cursor:canRedo?'pointer':'default', fontSize:'0.78rem' }}>
+              ↪ Redo (ເຮັດຊ້ຳ)
+            </button>
+            <button onClick={handleReset}
+              style={{ background:'rgba(231,76,60,0.12)', border:'1px solid rgba(231,76,60,0.25)', color:'var(--alert-red)', padding:'6px 14px', borderRadius:'8px', cursor:'pointer', fontSize:'0.78rem', fontWeight:'bold' }}>
+              ⬛ Reset (ເລີ່ມໃໝ່)
+            </button>
+            <button onClick={handleAiAutoArrange} disabled={!analysis}
+              style={{ background:'linear-gradient(135deg,rgba(212,175,55,0.2),rgba(212,175,55,0.08))', border:'1px solid rgba(212,175,55,0.35)', color:'var(--gold-primary)', padding:'6px 16px', borderRadius:'8px', cursor:analysis?'pointer':'default', fontSize:'0.78rem', fontWeight:'bold' }}>
+              ✨ AI Auto Arrange (ຈັດອົງສະລຽດ)
+            </button>
+            {!inline && (
+              <button onClick={onClose}
+                style={{ background:'rgba(231,76,60,0.1)', color:'var(--alert-red)', border:'1px solid rgba(231,76,60,0.25)', padding:'6px 14px', borderRadius:'8px', cursor:'pointer', fontWeight:'bold', fontSize:'0.8rem' }}>
+                ✕ ປິດ
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Content area */}
-        <div style={{ display: 'flex', flex: 1, overflow: 'hidden', flexDirection: window.innerWidth <= 768 ? 'column' : 'row' }}>
-          
-          {/* Tool selector */}
+        {/* ── MAIN CONTENT ── */}
+        <div style={{ display:'flex', flex:1, overflow:'hidden', flexDirection:isMobile?'column':'row' }}>
+
+          {/* ── TAB ICONS ── */}
           <div style={{
-            width: window.innerWidth <= 768 ? '100%' : '80px',
-            borderRight: '1px solid var(--border-color)',
-            borderBottom: window.innerWidth <= 768 ? '1px solid var(--border-color)' : 'none',
-            background: '#0b0f19',
-            display: 'flex',
-            flexDirection: window.innerWidth <= 768 ? 'row' : 'column',
-            justifyContent: 'flex-start',
-            padding: '10px 0',
-            gap: '8px',
-            overflowX: 'auto'
+            width:isMobile?'100%':'80px', borderRight:'1px solid var(--border-color)',
+            borderBottom:isMobile?'1px solid var(--border-color)':'none',
+            background:'#0b0f19', display:'flex',
+            flexDirection:isMobile?'row':'column',
+            padding:'10px 0', gap:'4px', overflowX:'auto'
           }}>
             {[
-              { id: 'crop', label: '📐 ຈັດຮູບ', icon: '📐' },
-              { id: 'enhance', label: '✨ ປັບແສງ', icon: '✨' },
-              { id: 'eraser', label: '🧹 ຢາງລົບ', icon: '🧹' },
-              { id: 'background', label: '🎨 ພື້ນຫຼັງ', icon: '🎨' },
-              { id: 'frame', label: '🖼️ ໃສ່ກອບ', icon: '🖼️' },
-              { id: 'watermark', label: '🏷️ ລາຍນ້ຳ', icon: '🏷️' },
-              { id: 'export', label: '💾 ສົ່ງອອກ', icon: '💾' },
+              { id:'crop',       icon:'📐', label:'ຈັດຮູບ' },
+              { id:'enhance',    icon:'✨', label:'ປັບແສງ' },
+              { id:'eraser',     icon:'🧹', label:'ຢາງລົບ' },
+              { id:'background', icon:'🎨', label:'ພື້ນຫຼັງ' },
+              { id:'frame',      icon:'🖼️', label:'ກອບ' },
+              { id:'watermark',  icon:'🏷️', label:'ລາຍນ້ຳ' },
+              { id:'export',     icon:'💾', label:'ສົ່ງອອກ' },
             ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                style={{
-                  width: window.innerWidth <= 768 ? 'auto' : '100%',
-                  padding: '12px 6px',
-                  background: activeTab === tab.id ? 'rgba(212,175,55,0.08)' : 'transparent',
-                  border: 'none',
-                  borderLeft: window.innerWidth <= 768 ? 'none' : (activeTab === tab.id ? '3px solid var(--gold-primary)' : '3px solid transparent'),
-                  borderBottom: window.innerWidth <= 768 ? (activeTab === tab.id ? '3px solid var(--gold-primary)' : '3px solid transparent') : 'none',
-                  color: activeTab === tab.id ? 'var(--gold-primary)' : 'var(--text-secondary)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '4px',
-                  fontSize: '0.72rem',
-                  fontWeight: 'bold',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                <span style={{ fontSize: '1.2rem' }}>{tab.icon}</span>
+              <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
+                width:isMobile?'auto':'100%', padding:'12px 6px',
+                background:activeTab===tab.id?'rgba(212,175,55,0.1)':'transparent',
+                border:'none',
+                borderLeft:!isMobile?(activeTab===tab.id?'3px solid var(--gold-primary)':'3px solid transparent'):'none',
+                borderBottom:isMobile?(activeTab===tab.id?'3px solid var(--gold-primary)':'3px solid transparent'):'none',
+                color:activeTab===tab.id?'var(--gold-primary)':'var(--text-secondary)',
+                cursor:'pointer', display:'flex', flexDirection:'column',
+                alignItems:'center', gap:'4px', fontSize:'0.68rem', fontWeight:'bold', whiteSpace:'nowrap'
+              }}>
+                <span style={{ fontSize:'1.2rem' }}>{tab.icon}</span>
                 {tab.label}
               </button>
             ))}
           </div>
 
-          {/* Canvas workspace */}
+          {/* ── CANVAS AREA ── */}
           <div style={{
-            flex: 1,
-            background: '#04060b',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px',
-            position: 'relative',
-            overflow: 'hidden'
+            flex:1, background:'#04060b', display:'flex', flexDirection:'column',
+            alignItems:'center', justifyContent:'center', padding:'20px',
+            position:'relative', overflow:'hidden', gap:'12px'
           }}>
-            
+            {/* Analysis info bar */}
             {analysis && (
               <div style={{
-                position: 'absolute', top: '15px', left: '15px', right: '15px',
-                display: 'flex', justifyContent: 'space-between', zIndex: 10,
-                flexWrap: 'wrap', gap: '8px', fontSize: '0.72rem',
-                color: 'var(--text-secondary)', background: 'rgba(11, 15, 25, 0.8)',
-                padding: '8px 12px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)'
+                position:'absolute', top:'15px', left:'15px', right:'15px',
+                display:'flex', justifyContent:'space-between', zIndex:10,
+                flexWrap:'wrap', gap:'8px', fontSize:'0.7rem',
+                color:'var(--text-secondary)', background:'rgba(11,15,25,0.85)',
+                padding:'6px 12px', borderRadius:'6px', border:'1px solid rgba(255,255,255,0.05)'
               }}>
-                <div>
-                  📐 <b>ຂະໜາດອົງພຣະ:</b> {analysis.width} x {analysis.height} px
-                  <span style={{ margin: '0 8px', color: 'rgba(255,255,255,0.1)' }}>|</span>
-                  📍 <b>ຈຸດກຶ່ງກາງ:</b> X: {analysis.centerX}, Y: {analysis.centerY}
-                </div>
-                <div>
-                  ✨ <b>ຄວາມຄົມຊັດ:</b> <span style={{ color: analysis.sharpness > 60 ? '#2ecc71' : '#f1c40f' }}>{analysis.sharpness}%</span>
-                  <span style={{ margin: '0 8px', color: 'rgba(255,255,255,0.1)' }}>|</span>
-                  💡 <b>ມຸມອຽງ:</b> <span style={{ color: Math.abs(analysis.skewAngle) > 2 ? '#e74c3c' : '#2ecc71' }}>{analysis.skewAngle}°</span>
-                </div>
+                <span>📐 <b>ຂະໜາດ:</b> {analysis.width}×{analysis.height}px
+                  &nbsp;|&nbsp;📍 <b>ຈຸດກາງ:</b> {analysis.centerX},{analysis.centerY}
+                </span>
+                <span>✨ <b>ຄວາມຄົມ:</b> <span style={{color:analysis.sharpness>60?'#2ecc71':'#f1c40f'}}>{analysis.sharpness}%</span>
+                  &nbsp;|&nbsp;💡 <b>ມຸມ:</b> <span style={{color:Math.abs(analysis.skewAngle)>2?'#e74c3c':'#2ecc71'}}>{analysis.skewAngle}°</span>
+                </span>
               </div>
             )}
 
+            {/* Loading / Canvas / Upload empty state */}
             {isAnalyzing ? (
-              <div style={{ textAlign: 'center', color: 'var(--gold-primary)' }}>
-                <div className="spinner" style={{ border: '4px solid rgba(212,175,55,0.1)', borderTop: '4px solid var(--gold-primary)', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s infinite linear', margin: '0 auto 16px' }} />
-                <p>AI ກຳລັງວິເຄາະຮູບພາບພຣະເຄື່ອງ (AI Analyzing Image...)</p>
+              <div style={{ textAlign:'center', color:'var(--gold-primary)' }}>
+                <div style={{ border:'4px solid rgba(212,175,55,0.1)', borderTop:'4px solid var(--gold-primary)', borderRadius:'50%', width:'40px', height:'40px', animation:'spin 1s infinite linear', margin:'0 auto 16px' }} />
+                <p>AI ກຳລັງວິເຄາະຮູບພາບ...</p>
               </div>
             ) : sourceImg ? (
               activeTab === 'eraser' ? (
-                /* Eraser Workspace */
-                <div
-                  ref={eraserContainerRef}
+                /* ── ERASER WORKSPACE ── */
+                <div ref={eraserContainerRef}
                   onMouseDown={handleEraserMouseDown}
                   onMouseMove={handleEraserMouseMove}
                   onMouseUp={handleEraserMouseUp}
@@ -1103,701 +913,302 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                   onTouchMove={handleEraserTouchMove}
                   onTouchEnd={handleEraserTouchEnd}
                   style={{
-                    position: 'relative',
-                    width: '100%',
-                    maxWidth: '480px',
-                    aspectRatio: '1',
-                    background: '#0d0d0d',
-                    borderRadius: '12px',
-                    overflow: 'hidden',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
-                    cursor: 'crosshair',
-                    userSelect: 'none',
-                    touchAction: 'none'
+                    position:'relative', width:'100%', maxWidth:'480px', aspectRatio:'1',
+                    background:'#0d0d0d', borderRadius:'12px', overflow:'hidden',
+                    boxShadow:'0 4px 20px rgba(0,0,0,0.5)',
+                    cursor:'crosshair', userSelect:'none', touchAction:'none'
                   }}
                 >
-                  <canvas
-                    ref={processedCanvasRef}
-                    style={{
-                      width: '100%', height: '100%', objectFit: 'contain'
-                    }}
-                  />
-                  {brushPos && (
+                  <canvas ref={processedCanvasRef} style={{ width:'100%', height:'100%', display:'block' }} />
+                  {/* Brush cursor indicator */}
+                  {brushPos && eraserContainerRef.current && (
                     <div style={{
-                      position: 'absolute',
+                      position:'absolute',
                       left: brushPos.x,
                       top: brushPos.y,
-                      width: `${(brushSize / 800) * (eraserContainerRef.current ? eraserContainerRef.current.clientWidth : 480)}px`,
-                      height: `${(brushSize / 800) * (eraserContainerRef.current ? eraserContainerRef.current.clientWidth : 480)}px`,
-                      borderRadius: '50%',
-                      border: '2px solid var(--gold-primary)',
-                      transform: 'translate(-50%, -50%)',
-                      pointerEvents: 'none',
-                      background: 'rgba(212,175,55,0.15)',
-                      zIndex: 20
+                      width: `${(brushSizeRef.current / 800) * eraserContainerRef.current.clientWidth}px`,
+                      height: `${(brushSizeRef.current / 800) * eraserContainerRef.current.clientWidth}px`,
+                      borderRadius:'50%',
+                      border: eraseMode==='erase' ? '2px solid rgba(231,76,60,0.9)' : '2px solid rgba(46,204,113,0.9)',
+                      background: eraseMode==='erase' ? 'rgba(231,76,60,0.1)' : 'rgba(46,204,113,0.1)',
+                      transform:'translate(-50%,-50%)',
+                      pointerEvents:'none', zIndex:20
                     }} />
                   )}
                   <span style={{
-                    position: 'absolute', top: '12px', left: '12px',
-                    background: 'rgba(212,175,55,0.85)', color: 'black',
-                    padding: '4px 10px', borderRadius: '4px', fontSize: '0.68rem',
-                    fontWeight: 'bold', zIndex: 10, boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
+                    position:'absolute', top:'10px', left:'10px',
+                    background: eraseMode==='erase'?'rgba(231,76,60,0.85)':'rgba(46,204,113,0.85)',
+                    color:'white', padding:'3px 10px', borderRadius:'4px',
+                    fontSize:'0.68rem', fontWeight:'bold', zIndex:10
                   }}>
-                    🧹 ໂໝດລຶບດ້ວຍມື (Manual Eraser Mode)
+                    {eraseMode==='erase' ? '🧽 ໂໝດລຶບ (Erase)' : '🎨 ໂໝດກູ້ຄືນ (Restore)'}
                   </span>
                 </div>
               ) : (
-                /* Slider Workspace */
-                <div 
-                  ref={sliderContainerRef}
+                /* ── BEFORE / AFTER SLIDER WORKSPACE ── */
+                <div ref={sliderContainerRef}
                   onMouseMove={handleSliderMouseMove}
                   onMouseUp={handleSliderMouseUpOrLeave}
                   onMouseLeave={handleSliderMouseUpOrLeave}
                   style={{
-                    position: 'relative',
-                    width: '100%',
-                    maxWidth: '480px',
-                    aspectRatio: '1',
-                    background: '#0d0d0d',
-                    borderRadius: '12px',
-                    overflow: 'hidden',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
-                    cursor: isDraggingSlider ? 'ew-resize' : 'default',
-                    userSelect: 'none'
+                    position:'relative', width:'100%', maxWidth:'480px', aspectRatio:'1',
+                    background:'#0d0d0d', borderRadius:'12px', overflow:'hidden',
+                    boxShadow:'0 4px 20px rgba(0,0,0,0.5)',
+                    cursor:isDraggingSlider?'ew-resize':'default', userSelect:'none'
                   }}
                 >
-                  <canvas
-                    ref={originalCanvasRef}
-                    style={{
-                      position: 'absolute', top: 0, left: 0,
-                      width: '100%', height: '100%', objectFit: 'contain'
-                    }}
-                  />
-                  
-                  <span style={{
-                    position: 'absolute', bottom: '12px', left: '12px',
-                    background: 'rgba(0,0,0,0.6)', color: '#888',
-                    padding: '3px 8px', borderRadius: '4px', fontSize: '0.65rem', zIndex: 10
-                  }}>
-                    BEFORE (ຕົ້ນສະບັບ)
+                  {/* BEFORE (original) */}
+                  <canvas ref={originalCanvasRef} style={{ position:'absolute', top:0, left:0, width:'100%', height:'100%' }} />
+                  <span style={{ position:'absolute', bottom:'10px', left:'10px', background:'rgba(0,0,0,0.6)', color:'#888', padding:'2px 8px', borderRadius:'4px', fontSize:'0.63rem', zIndex:5 }}>
+                    BEFORE
                   </span>
-
-                  <div style={{
-                    position: 'absolute', top: 0, left: 0,
-                    width: `${sliderPosition}%`, height: '100%',
-                    overflow: 'hidden', borderRight: '2px solid var(--gold-primary)',
-                    zIndex: 2
-                  }}>
-                    <canvas
-                      ref={processedCanvasRef}
-                      style={{
-                        position: 'absolute', top: 0, left: 0,
-                        width: sliderContainerRef.current ? sliderContainerRef.current.clientWidth : '480px',
-                        height: sliderContainerRef.current ? sliderContainerRef.current.clientHeight : '480px',
-                        objectFit: 'contain'
-                      }}
-                    />
-                    
-                    <span style={{
-                      position: 'absolute', bottom: '12px', right: '12px',
-                      background: 'rgba(212,175,55,0.2)', color: 'var(--gold-primary)',
-                      border: '1px solid rgba(212,175,55,0.4)',
-                      padding: '3px 8px', borderRadius: '4px', fontSize: '0.65rem',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      AFTER (AI ແຕ່ງແລ້ວ)
+                  {/* AFTER (processed) - clipped to left side */}
+                  <div style={{ position:'absolute', top:0, left:0, width:`${sliderPosition}%`, height:'100%', overflow:'hidden', borderRight:'2px solid var(--gold-primary)', zIndex:2 }}>
+                    <canvas ref={processedCanvasRef} style={{
+                      position:'absolute', top:0, left:0,
+                      width: sliderContainerRef.current ? sliderContainerRef.current.clientWidth+'px' : '480px',
+                      height: sliderContainerRef.current ? sliderContainerRef.current.clientHeight+'px' : '480px'
+                    }} />
+                    <span style={{ position:'absolute', bottom:'10px', right:'10px', background:'rgba(212,175,55,0.2)', color:'var(--gold-primary)', border:'1px solid rgba(212,175,55,0.4)', padding:'2px 8px', borderRadius:'4px', fontSize:'0.63rem', whiteSpace:'nowrap' }}>
+                      AFTER ✨
                     </span>
                   </div>
-
-                  <div 
-                    onMouseDown={handleSliderMouseDown}
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      bottom: 0,
-                      left: `calc(${sliderPosition}% - 12px)`,
-                      width: '24px',
-                      zIndex: 3,
-                      cursor: 'ew-resize',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
+                  {/* Drag handle */}
+                  <div onMouseDown={handleSliderMouseDown} style={{
+                    position:'absolute', top:0, bottom:0, left:`calc(${sliderPosition}% - 12px)`,
+                    width:'24px', zIndex:3, cursor:'ew-resize',
+                    display:'flex', alignItems:'center', justifyContent:'center'
+                  }}>
+                    <div style={{ width:'3px', height:'100%', background:'var(--gold-primary)', boxShadow:'0 0 8px var(--gold-glow)' }} />
                     <div style={{
-                      width: '4px', height: '100%', background: 'var(--gold-primary)',
-                      boxShadow: '0 0 8px var(--gold-glow)'
-                    }} />
-                    <div style={{
-                      position: 'absolute', width: '28px', height: '28px',
-                      borderRadius: '50%', background: 'var(--gold-primary)',
-                      border: '3px solid #070a13', color: '#000',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: '10px', fontWeight: 'bold', boxShadow: '0 2px 8px rgba(0,0,0,0.5)'
-                    }}>
-                      ↔
-                    </div>
+                      position:'absolute', width:'26px', height:'26px', borderRadius:'50%',
+                      background:'var(--gold-primary)', border:'3px solid #070a13', color:'#000',
+                      display:'flex', alignItems:'center', justifyContent:'center',
+                      fontSize:'10px', fontWeight:'bold', boxShadow:'0 2px 8px rgba(0,0,0,0.5)'
+                    }}>↔</div>
                   </div>
                 </div>
               )
             ) : (
+              /* ── UPLOAD EMPTY STATE ── */
               <div style={{
-                textAlign: 'center', color: 'var(--text-secondary)',
-                border: '2px dashed rgba(212,175,55,0.2)', borderRadius: '12px',
-                padding: '40px 20px', background: 'rgba(255,255,255,0.01)',
-                width: '100%', maxWidth: '400px'
+                textAlign:'center', color:'var(--text-secondary)',
+                border:'2px dashed rgba(212,175,55,0.2)', borderRadius:'12px',
+                padding:'40px 20px', background:'rgba(255,255,255,0.01)', width:'100%', maxWidth:'400px'
               }}>
-                <span style={{ fontSize: '3.5rem', display: 'block', marginBottom: '16px' }}>📁</span>
-                <h4 style={{ color: 'var(--gold-primary)', margin: '0 0 8px', fontSize: '1rem' }}>ອັບໂຫຼດຮູບພາບເພື່ອເລີ່ມແຕ່ງ</h4>
-                <p style={{ fontSize: '0.78rem', margin: '0 0 20px', color: '#888' }}>
-                  ເລືອກໄຟລ໌ຮູບພຣະເຄື່ອງ (.png, .jpg, .webp) ຈາກເຄື່ອງຂອງທ່ານ
+                <span style={{ fontSize:'3.5rem', display:'block', marginBottom:'16px' }}>📁</span>
+                <h4 style={{ color:'var(--gold-primary)', margin:'0 0 8px', fontSize:'1rem' }}>ອັບໂຫຼດຮູບພາບເພື່ອເລີ່ມແຕ່ງ</h4>
+                <p style={{ fontSize:'0.78rem', margin:'0 0 20px', color:'#888' }}>
+                  ເລືອກໄຟລ໌ຮູບ (.png, .jpg, .webp)
                 </p>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLocalUpload}
-                  style={{ display: 'none' }}
-                  id="editorLocalFileInput"
-                />
-                <label
-                  htmlFor="editorLocalFileInput"
-                  className="btn btn-primary"
-                  style={{
-                    padding: '10px 20px', fontSize: '0.85rem', fontWeight: 'bold',
-                    color: 'black', cursor: 'pointer', display: 'inline-block'
-                  }}
-                >
-                  📁 ເລືອກຮູບພາບ (Select Photo)
+                <input type="file" accept="image/*" onChange={handleLocalUpload} style={{ display:'none' }} id="editorLocalFileInput" />
+                <label htmlFor="editorLocalFileInput" className="btn btn-primary" style={{ cursor:'pointer', padding:'10px 24px', fontSize:'0.85rem' }}>
+                  📂 ເລືອກຮູບຈາກເຄື່ອງ
                 </label>
+                {errorMsg && <p style={{ color:'var(--alert-red)', marginTop:'12px', fontSize:'0.8rem' }}>{errorMsg}</p>}
               </div>
             )}
 
-            {/* Undo/Redo/Reset/Auto Arrange */}
-            <div style={{
-              marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center',
-              flexWrap: 'wrap'
-            }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                disabled={historyIndex <= 0}
-                onClick={handleUndo}
-                style={{ fontSize: '0.8rem', padding: '6px 12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-              >
-                ↩ Undo (ຍ້ອນກັບ)
-              </button>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                disabled={historyIndex >= history.length - 1}
-                onClick={handleRedo}
-                style={{ fontSize: '0.8rem', padding: '6px 12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-              >
-                ↪ Redo (ຖັດໄປ)
-              </button>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handleReset}
-                style={{ fontSize: '0.8rem', padding: '6px 12px', color: 'var(--alert-red)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-              >
-                🔄 Reset (ເລີ່ມຕົ້ນໃໝ່)
-              </button>
-              
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={handleAiAutoArrange}
-                disabled={!analysis}
-                style={{
-                  fontSize: '0.8rem', padding: '6px 16px', fontWeight: 'bold',
-                  boxShadow: '0 2px 10px rgba(212,175,55,0.3)',
-                  display: 'inline-flex', alignItems: 'center', gap: '6px'
-                }}
-              >
-                ✨ AI Auto Arrange (ຈັດອັດສະລິຍະ)
-              </button>
-            </div>
+            {/* Upload button always visible at bottom when image loaded */}
+            {sourceImg && (
+              <div style={{ display:'flex', gap:'10px', flexWrap:'wrap', justifyContent:'center' }}>
+                <input type="file" accept="image/*" onChange={handleLocalUpload} style={{ display:'none' }} id="editorReplaceInput" />
+                <label htmlFor="editorReplaceInput" style={{
+                  cursor:'pointer', padding:'6px 16px', borderRadius:'8px', fontSize:'0.75rem',
+                  background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)',
+                  color:'#ccc', display:'flex', alignItems:'center', gap:'6px'
+                }}>
+                  📂 ປ່ຽນຮູບ
+                </label>
+                {analysis && (
+                  <span style={{ fontSize:'0.72rem', color:'#666', alignSelf:'center' }}>
+                    Stack [{historyIndex+1}/{history.length}] · AI Active
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Right panel settings */}
+          {/* ── SIDEBAR CONTROLS ── */}
           <div style={{
-            width: window.innerWidth <= 768 ? '100%' : '340px',
-            borderLeft: '1px solid var(--border-color)',
-            background: '#0b0f19',
-            display: 'flex',
-            flexDirection: 'column',
-            overflowY: 'auto'
+            width:isMobile?'100%':'300px', borderLeft:'1px solid var(--border-color)',
+            background:'#0a0d18', display:'flex', flexDirection:'column', overflow:'hidden'
           }}>
-            
-            <div style={{
-              padding: '16px 20px', borderBottom: '1px solid var(--border-color)',
-              background: 'rgba(255,255,255,0.02)'
-            }}>
-              <h3 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {activeTab === 'crop' && '📐 ຈັດຮູບ & ອົງປະກອບ (Crop & Align)'}
-                {activeTab === 'enhance' && '✨ ປັບແສງ & ສີ (Enhance & Color)'}
-                {activeTab === 'eraser' && '🧹 ຢາງລົບພື້ນຫຼັງ (Manual Eraser)'}
-                {activeTab === 'background' && '🎨 ປັບພື້ນຫຼັງ (AI Background)'}
-                {activeTab === 'frame' && '🖼️ ໃສ່ກອບພຣະເຄື່ອງ (Amulet Frame)'}
-                {activeTab === 'watermark' && '🏷️ ໃສ່ລາຍນ້ຳ/SKU (Watermark)'}
-                {activeTab === 'export' && '💾 ບັນທຶກ ແລະ ສົ່ງອອກ (Save & Export)'}
+            {/* Sidebar header */}
+            <div style={{ padding:'14px 18px', borderBottom:'1px solid var(--border-color)', background:'rgba(255,255,255,0.02)' }}>
+              <h3 style={{ color:'var(--gold-primary)', margin:0, fontSize:'0.9rem', display:'flex', alignItems:'center', gap:'8px' }}>
+                {activeTab==='crop'       && '📐 ຈັດຮູບ & ອົງປະກອບ'}
+                {activeTab==='enhance'    && '✨ ປັບແສງ & ສີ'}
+                {activeTab==='eraser'     && '🧹 ຢາງລົບດ້ວຍມື'}
+                {activeTab==='background' && '🎨 ພື້ນຫຼັງ (AI BG)'}
+                {activeTab==='frame'      && '🖼️ ໃສ່ກອບ'}
+                {activeTab==='watermark'  && '🏷️ ລາຍນ້ຳ'}
+                {activeTab==='export'     && '💾 ສົ່ງອອກ & ບັນທຶກ'}
               </h3>
             </div>
 
-            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px', flex: 1 }}>
-              
+            {/* Sidebar content */}
+            <div style={{ padding:'16px', display:'flex', flexDirection:'column', gap:'16px', flex:1, overflowY:'auto' }}>
+
+              {/* ── CROP TAB ── */}
               {activeTab === 'crop' && (
                 <>
-                  <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>ມຸມອຽງ (Rotate):</span>
-                      <span style={{ color: 'var(--gold-primary)' }}>{settings.rotate}°</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="-180"
-                      max="180"
-                      value={settings.rotate}
-                      onChange={(e) => updateSettings({ rotate: parseInt(e.target.value) })}
-                      style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                    />
+                  <SliderRow label="🔄 ໝູນ (Rotate)" value={settings.rotate} min={-180} max={180} step={0.5} unit="°"
+                    onChange={v => updateSettings({rotate:v})} />
+                  <SliderRow label="🔍 ຂະຫຍາຍ (Scale)" value={settings.scale} min={0.1} max={4} step={0.01}
+                    displayFn={v=>`${(v*100).toFixed(0)}%`} onChange={v => updateSettings({scale:v})} />
+                  <SliderRow label="↔ ຍ້າຍ X (Move X)" value={settings.translateX} min={-400} max={400} step={1} unit="px"
+                    onChange={v => updateSettings({translateX:v})} />
+                  <SliderRow label="↕ ຍ້າຍ Y (Move Y)" value={settings.translateY} min={-400} max={400} step={1} unit="px"
+                    onChange={v => updateSettings({translateY:v})} />
+
+                  <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'14px' }}>
+                    <p style={{ fontSize:'0.78rem', color:'#aaa', marginBottom:'10px' }}>✂️ ຕັດຂອບ (Crop):</p>
+                    <SliderRow label="◀ ຕັດຊ້າຍ (Left)" value={settings.cropLeft} min={0} max={49} step={0.5} unit="%"
+                      onChange={v => updateSettings({cropLeft:v})} />
+                    <SliderRow label="▶ ຕັດຂວາ (Right)" value={settings.cropRight} min={0} max={49} step={0.5} unit="%"
+                      onChange={v => updateSettings({cropRight:v})} />
+                    <SliderRow label="▲ ຕັດເທິງ (Top)" value={settings.cropTop} min={0} max={49} step={0.5} unit="%"
+                      onChange={v => updateSettings({cropTop:v})} />
+                    <SliderRow label="▼ ຕັດລຸ່ມ (Bottom)" value={settings.cropBottom} min={0} max={49} step={0.5} unit="%"
+                      onChange={v => updateSettings({cropBottom:v})} />
                   </div>
 
-                  <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>ຂະໜາດຊູມ (Scale):</span>
-                      <span style={{ color: 'var(--gold-primary)' }}>{settings.scale.toFixed(2)}x</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="0.5"
-                      max="3.0"
-                      step="0.05"
-                      value={settings.scale}
-                      onChange={(e) => updateSettings({ scale: parseFloat(e.target.value) })}
-                      style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>ເລື່ອນແנວນອນ (Translate X):</span>
-                      <span style={{ color: 'var(--gold-primary)' }}>{settings.translateX}px</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="-400"
-                      max="400"
-                      value={settings.translateX}
-                      onChange={(e) => updateSettings({ translateX: parseInt(e.target.value) })}
-                      style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>เลື່ອນແນວດິ່ງ (Translate Y):</span>
-                      <span style={{ color: 'var(--gold-primary)' }}>{settings.translateY}px</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="-400"
-                      max="400"
-                      value={settings.translateY}
-                      onChange={(e) => updateSettings({ translateY: parseInt(e.target.value) })}
-                      style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                    />
-                  </div>
-
-                  <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid var(--border-color)', paddingTop: '15px' }}>
-                    <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.82rem', margin: '0 0 5px' }}>✂️ ຕັດຂອບຮູບພາບດ້ວຍຕົນເອງ (Manual Crop):</h4>
-                    
-                    <div className="form-group" style={{ marginBottom: '4px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem' }}>
-                        <span>ຕັດຂອບຊ້າຍ (Left Crop):</span>
-                        <span style={{ color: 'var(--gold-primary)' }}>{settings.cropLeft}%</span>
-                      </div>
-                      <input
-                        type="range"
-                        min="0"
-                        max="45"
-                        value={settings.cropLeft}
-                        onChange={(e) => updateSettings({ cropLeft: parseInt(e.target.value) })}
-                        style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                      />
-                    </div>
-
-                    <div className="form-group" style={{ marginBottom: '4px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem' }}>
-                        <span>ຕັດຂອບຂວາ (Right Crop):</span>
-                        <span style={{ color: 'var(--gold-primary)' }}>{settings.cropRight}%</span>
-                      </div>
-                      <input
-                        type="range"
-                        min="0"
-                        max="45"
-                        value={settings.cropRight}
-                        onChange={(e) => updateSettings({ cropRight: parseInt(e.target.value) })}
-                        style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                      />
-                    </div>
-
-                    <div className="form-group" style={{ marginBottom: '4px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem' }}>
-                        <span>ຕັດຂອບເທິງ (Top Crop):</span>
-                        <span style={{ color: 'var(--gold-primary)' }}>{settings.cropTop}%</span>
-                      </div>
-                      <input
-                        type="range"
-                        min="0"
-                        max="45"
-                        value={settings.cropTop}
-                        onChange={(e) => updateSettings({ cropTop: parseInt(e.target.value) })}
-                        style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                      />
-                    </div>
-
-                    <div className="form-group" style={{ marginBottom: '4px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem' }}>
-                        <span>ຕັດຂອບລຸ່ມ (Bottom Crop):</span>
-                        <span style={{ color: 'var(--gold-primary)' }}>{settings.cropBottom}%</span>
-                      </div>
-                      <input
-                        type="range"
-                        min="0"
-                        max="45"
-                        value={settings.cropBottom}
-                        onChange={(e) => updateSettings({ cropBottom: parseInt(e.target.value) })}
-                        style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                      />
-                    </div>
-                  </div>
-
-                  <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '10px', borderTop: '1px solid var(--border-color)', paddingTop: '15px' }}>
-                    <h4 style={{ color: 'white', fontSize: '0.8rem', margin: '0 0 5px' }}>📐 ເປີດເສັ້ນຊ່ວຍຈັດອົງປະກອບ (Guidelines):</h4>
-                    
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.8rem', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={settings.showBoundary}
-                        onChange={(e) => updateSettings({ showBoundary: e.target.checked })}
-                      />
-                      <span>ເສັ້ນຂອບຮູບຊົງອົງພຣະ (Amulet Boundary)</span>
-                    </label>
-
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.8rem', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={settings.showCenter}
-                        onChange={(e) => updateSettings({ showCenter: e.target.checked })}
-                      />
-                      <span>ເສັ້ນເປົ້າກຶ່ງກາງ (Center Crosshair)</span>
-                    </label>
-
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.8rem', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={settings.showGrid}
-                        onChange={(e) => updateSettings({ showGrid: e.target.checked })}
-                      />
-                      <span>ເສັ້ນກຣິດ 3x3 Grid (Rule of Thirds)</span>
-                    </label>
-
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.8rem', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={settings.showSafeArea}
-                        onChange={(e) => updateSettings({ showSafeArea: e.target.checked })}
-                      />
-                      <span>ເສັ້ນກຳນົດພື້ນທີ່ປອດໄພ (Safe Area)</span>
-                    </label>
+                  <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'14px' }}>
+                    <p style={{ fontSize:'0.78rem', color:'#aaa', marginBottom:'10px' }}>📏 ເສັ້ນນຳທາງ (Guides):</p>
+                    {[
+                      { key:'showBoundary', label:'🔲 ແສດງຂອບອົງພຣະ' },
+                      { key:'showCenter',   label:'➕ ແສດງຈຸດກາງ' },
+                      { key:'showGrid',     label:'📊 ແສດງ Grid 3x3' },
+                      { key:'showSafeArea', label:'🟢 ແສດງ Safe Area' },
+                    ].map(g => (
+                      <label key={g.key} style={{ display:'flex', alignItems:'center', gap:'8px', fontSize:'0.8rem', color:'white', cursor:'pointer', marginBottom:'8px' }}>
+                        <input type="checkbox" checked={settings[g.key]} onChange={e => updateSettings({[g.key]: e.target.checked})} />
+                        {g.label}
+                      </label>
+                    ))}
                   </div>
                 </>
               )}
 
+              {/* ── ENHANCE TAB ── */}
               {activeTab === 'enhance' && (
                 <>
-                  <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>ຄວາມສະຫວ່າງ (Brightness):</span>
-                      <span style={{ color: 'var(--gold-primary)' }}>{Math.round(settings.brightness * 100)}%</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="0.5"
-                      max="1.8"
-                      step="0.05"
-                      value={settings.brightness}
-                      onChange={(e) => updateSettings({ brightness: parseFloat(e.target.value) })}
-                      style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>ຄວາມຄົມຊັດ (Contrast):</span>
-                      <span style={{ color: 'var(--gold-primary)' }}>{Math.round(settings.contrast * 100)}%</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="0.5"
-                      max="1.8"
-                      step="0.05"
-                      value={settings.contrast}
-                      onChange={(e) => updateSettings({ contrast: parseFloat(e.target.value) })}
-                      style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>ຄວາມຄົມສະເພາະອົງພຣະ (Clarity):</span>
-                      <span style={{ color: 'var(--gold-primary)' }}>{settings.sharpness}%</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={settings.sharpness}
-                      onChange={(e) => updateSettings({ sharpness: parseInt(e.target.value) })}
-                      style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>ຫຼຸດ Noise (Denoise):</span>
-                      <span style={{ color: 'var(--gold-primary)' }}>{settings.noiseReduction}%</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={settings.noiseReduction}
-                      onChange={(e) => updateSettings({ noiseReduction: parseInt(e.target.value) })}
-                      style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>ຄວາມອີ່ມຕົວຂອງສີ (Saturation):</span>
-                      <span style={{ color: 'var(--gold-primary)' }}>{Math.round(settings.saturation * 100)}%</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="0.0"
-                      max="2.0"
-                      step="0.05"
-                      value={settings.saturation}
-                      onChange={(e) => updateSettings({ saturation: parseFloat(e.target.value) })}
-                      style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>ໂທນສີຮ້ອນ/ເຢັນ (Warmth/Hue):</span>
-                      <span style={{ color: 'var(--gold-primary)' }}>{settings.hueRotate}°</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="-90"
-                      max="90"
-                      value={settings.hueRotate}
-                      onChange={(e) => updateSettings({ hueRotate: parseInt(e.target.value) })}
-                      style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>ຄວາມມົວ (Blur Effect):</span>
-                      <span style={{ color: 'var(--gold-primary)' }}>{settings.blur}px</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="15"
-                      value={settings.blur}
-                      onChange={(e) => updateSettings({ blur: parseInt(e.target.value) })}
-                      style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>ຂອບມົນດຳ (Vignette):</span>
-                      <span style={{ color: 'var(--gold-primary)' }}>{settings.vignette}%</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={settings.vignette}
-                      onChange={(e) => updateSettings({ vignette: parseInt(e.target.value) })}
-                      style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                    />
-                  </div>
-
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'white', cursor: 'pointer', marginTop: '10px' }}>
-                    <input
-                      type="checkbox"
-                      checked={settings.selectiveClarity}
-                      onChange={(e) => updateSettings({ selectiveClarity: e.target.checked })}
-                    />
-                    <span>AI Highlight (ເນັ້ນຄວາມຊັດສະເພາະອົງພຣະ)</span>
+                  <SliderRow label="☀️ ຄວາມສະຫວ່າງ (Brightness)" value={settings.brightness} min={0.1} max={3} step={0.01}
+                    displayFn={v=>`${(v*100).toFixed(0)}%`} onChange={v => updateSettings({brightness:v})} />
+                  <SliderRow label="🌓 ຄອນທຣາສ (Contrast)" value={settings.contrast} min={0.1} max={3} step={0.01}
+                    displayFn={v=>`${(v*100).toFixed(0)}%`} onChange={v => updateSettings({contrast:v})} />
+                  <SliderRow label="🌈 ຄວາມອີ່ມສີ (Saturation)" value={settings.saturation} min={0} max={4} step={0.01}
+                    displayFn={v=>`${(v*100).toFixed(0)}%`} onChange={v => updateSettings({saturation:v})} />
+                  <SliderRow label="🎨 ໂທນສີ (Hue Rotate)" value={settings.hueRotate} min={-180} max={180} step={1} unit="°"
+                    onChange={v => updateSettings({hueRotate:v})} />
+                  <SliderRow label="💧 ຄວາມມົວ (Blur)" value={settings.blur} min={0} max={15} step={0.1} unit="px"
+                    onChange={v => updateSettings({blur:v})} />
+                  <SliderRow label="⚫ Vignette (ຂອບມົນ)" value={settings.vignette} min={0} max={100} step={1} unit="%"
+                    onChange={v => updateSettings({vignette:v})} />
+                  <label style={{ display:'flex', alignItems:'center', gap:'8px', fontSize:'0.8rem', color:'white', cursor:'pointer' }}>
+                    <input type="checkbox" checked={settings.selectiveClarity} onChange={e => updateSettings({selectiveClarity:e.target.checked})} />
+                    ✨ AI Highlight (ເນັ້ນຄວາມຊັດສະເພາະ)
                   </label>
                 </>
               )}
+
+              {/* ── ERASER TAB ── */}
               {activeTab === 'eraser' && (
                 <>
-                  <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label className="form-label">
-                      🧹 <b>ໂໝດການທຳງານ (Eraser Tool Mode):</b>
-                    </label>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <button
-                        type="button"
-                        onClick={() => setEraseMode('erase')}
-                        className={`btn ${eraseMode === 'erase' ? 'btn-primary' : 'btn-secondary'}`}
-                        style={{ flex: 1, padding: '10px 0', fontSize: '0.82rem', fontWeight: 'bold' }}
-                      >
-                        🧽 ຢາງລົບ (Erase)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEraseMode('restore')}
-                        className={`btn ${eraseMode === 'restore' ? 'btn-primary' : 'btn-secondary'}`}
-                        style={{ flex: 1, padding: '10px 0', fontSize: '0.82rem', fontWeight: 'bold' }}
-                      >
-                        🎨 ກູ້ຄືນ (Restore)
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>ຂະໜາດແປງຢາງລົບ (Brush Size):</span>
-                      <span style={{ color: 'var(--gold-primary)' }}>{brushSize}px</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="5"
-                      max="100"
-                      value={brushSize}
-                      onChange={(e) => setBrushSize(parseInt(e.target.value))}
-                      style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                    />
-                  </div>
-
-                  <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '10px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
-                    <h4 style={{ color: 'white', fontSize: '0.8rem', margin: '0 0 5px' }}>⚡ ຈັດການໜ້າກາກ (Mask Actions):</h4>
-                    
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => {
-                        if (confirm('ທ່ານຕ້ອງການລ້າງການລຶບທັງໝົດ ຫຼື ບໍ່? (Clear all eraser strokes?)')) {
-                          const maskCanvas = getMaskCanvas();
-                          const mCtx = maskCanvas.getContext('2d');
-                          mCtx.clearRect(0, 0, 800, 800);
-                          renderProcessedImage();
-                          pushHistoryState();
-                        }
-                      }}
-                      style={{ padding: '8px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                    >
-                      🗑️ ລ້າງການລຶບທັງໝົດ (Clear Eraser)
+                  <div style={{ display:'flex', gap:'8px' }}>
+                    <button onClick={() => setEraseMode('erase')}
+                      style={{ flex:1, padding:'10px', fontSize:'0.8rem', fontWeight:'bold', borderRadius:'8px', border:'none', cursor:'pointer',
+                        background: eraseMode==='erase' ? 'rgba(231,76,60,0.3)' : 'rgba(255,255,255,0.06)',
+                        color: eraseMode==='erase' ? '#e74c3c' : '#888',
+                        outline: eraseMode==='erase' ? '1px solid rgba(231,76,60,0.5)' : 'none'
+                      }}>
+                      🧽 ລຶບ (Erase)
+                    </button>
+                    <button onClick={() => setEraseMode('restore')}
+                      style={{ flex:1, padding:'10px', fontSize:'0.8rem', fontWeight:'bold', borderRadius:'8px', border:'none', cursor:'pointer',
+                        background: eraseMode==='restore' ? 'rgba(46,204,113,0.3)' : 'rgba(255,255,255,0.06)',
+                        color: eraseMode==='restore' ? '#2ecc71' : '#888',
+                        outline: eraseMode==='restore' ? '1px solid rgba(46,204,113,0.5)' : 'none'
+                      }}>
+                      🎨 ກູ້ຄືນ (Restore)
                     </button>
                   </div>
 
-                  <div style={{
-                    marginTop: '15px', background: 'rgba(212,175,55,0.05)',
-                    border: '1px solid rgba(212,175,55,0.15)', borderRadius: '8px',
-                    padding: '12px', fontSize: '0.75rem', color: '#ccc', lineHeight: 1.4
-                  }}>
-                    💡 <b>ຄຳແນະນຳ (Tips):</b><br/>
-                    - ໃຊ້ເມົາສ໌ ຫຼື ນິ້ວມື (ເທິງມືຖື) ລະບາຍລົງເທິງຮູບເບື້ອງຊ້າຍ ເພື່ອລຶບພື້ນຫຼັງສ່ວນເກີນທີ່ AI ລຶບບໍ່ໝົດອອກ.<br/>
-                    - ປ່ຽນເປັນໂໝດ <b>"ກູ້ຄືນ"</b> ຫາກຕ້ອງການດຶງສ່ວນທີ່ລຶບຜິດພາດກັບຄືນມາ.<br/>
-                    - ທ່ານສາມາດກົດ <b>Undo (ຍ້ອນກັບ)</b> ໄດ້ທຸກເວລາຫາກເຮັດຜິດພາດ.
+                  <SliderRow label="🖌️ ຂະໜາດແປງ (Brush Size)" value={brushSize} min={3} max={120} step={1} unit="px"
+                    onChange={v => setBrushSize(v)} />
+
+                  <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'12px', display:'flex', flexDirection:'column', gap:'8px' }}>
+                    <button onClick={() => {
+                      if (window.confirm('ລ້າງການລຶບທັງໝົດ ຫຼື ບໍ່?')) {
+                        clearMask();
+                        renderProcessedImage(settingsRef.current, analysisRef.current);
+                        setHistory(prev => {
+                          const s = [...prev.slice(0, historyIndex+1), {settings:settingsRef.current, maskDataUrl:''}];
+                          setHistoryIndex(s.length-1);
+                          return s;
+                        });
+                      }
+                    }} style={{ padding:'8px', background:'rgba(231,76,60,0.12)', border:'1px solid rgba(231,76,60,0.25)', color:'var(--alert-red)', borderRadius:'8px', cursor:'pointer', fontSize:'0.8rem', fontWeight:'bold' }}>
+                      🗑️ ລ້າງການລຶບທັງໝົດ (Clear All)
+                    </button>
+                  </div>
+
+                  <div style={{ background:'rgba(212,175,55,0.05)', border:'1px solid rgba(212,175,55,0.15)', borderRadius:'8px', padding:'12px', fontSize:'0.73rem', color:'#bbb', lineHeight:1.5 }}>
+                    💡 <b>ຄຳແນະນຳ:</b><br/>
+                    • ໃຊ້ເມົາສ໌ຫຼືນິ້ວ ລາກເທິງຮູບ (ທາງຊ້າຍ) ເພື່ອລຶບ<br/>
+                    • ໂໝດ <b>"ກູ້ຄືນ"</b> ດຶງສ່ວນທີ່ລຶບຜິດກັບ<br/>
+                    • <b>Undo</b> ຍ້ອນກັບໄດ້ທຸກຄັ້ງ
                   </div>
                 </>
               )}
 
+              {/* ── BACKGROUND TAB ── */}
               {activeTab === 'background' && (
                 <>
-                  <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label className="form-label">
-                      💡 <b>ລຶບພື້ນຫຼັງເດີມ (AI BG Remove):</b>
+                  <div>
+                    <label style={{ fontSize:'0.8rem', color:'#ccc', display:'block', marginBottom:'8px' }}>
+                      💡 <b>ລຶບພື້ນຫຼັງ (AI BG Remove):</b>
                     </label>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <button
-                        type="button"
-                        onClick={() => updateSettings({ removeBackground: true })}
-                        className={`btn ${settings.removeBackground ? 'btn-primary' : 'btn-secondary'}`}
-                        style={{ flex: 1, padding: '8px 0', fontSize: '0.8rem' }}
-                      >
+                    <div style={{ display:'flex', gap:'8px' }}>
+                      <button onClick={() => updateSettings({removeBackground:true})}
+                        className={`btn ${settings.removeBackground?'btn-primary':'btn-secondary'}`}
+                        style={{ flex:1, padding:'8px', fontSize:'0.8rem' }}>
                         ✂️ ລຶບພື້ນຫຼັງ
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => updateSettings({ removeBackground: false })}
-                        className={`btn ${!settings.removeBackground ? 'btn-primary' : 'btn-secondary'}`}
-                        style={{ flex: 1, padding: '8px 0', fontSize: '0.8rem' }}
-                      >
-                        ⚠️ ເກັບໄວ້ຄືເກົ່າ
+                      <button onClick={() => updateSettings({removeBackground:false})}
+                        className={`btn ${!settings.removeBackground?'btn-primary':'btn-secondary'}`}
+                        style={{ flex:1, padding:'8px', fontSize:'0.8rem' }}>
+                        ⚠️ ເຫຼືອໄວ້ເດີມ
                       </button>
                     </div>
                   </div>
 
-                  {settings.removeBackground && (
-                    <div className="form-group animate-fade-in">
-                      <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>ຄວາມລະອຽດການລຶບ (Tolerance):</span>
-                        <span style={{ color: 'var(--gold-primary)' }}>{settings.bgThreshold}</span>
-                      </label>
-                      <input
-                        type="range"
-                        min="15"
-                        max="90"
-                        value={settings.bgThreshold}
-                        onChange={(e) => updateSettings({ bgThreshold: parseInt(e.target.value) })}
-                        style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                      />
-                    </div>
-                  )}
+                  <SliderRow label="🎚️ ຄວາມທົນທານ (Tolerance)" value={settings.bgThreshold} min={5} max={120} step={1} unit=""
+                    onChange={v => updateSettings({bgThreshold:v})} />
 
-                  <div className="form-group">
-                    <label className="form-label">🎨 <b>ເລືອກພື້ນຫຼັງໃໝ่ (AI BG Templates):</b></label>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '8px' }}>
+                  <div>
+                    <label style={{ fontSize:'0.8rem', color:'#ccc', display:'block', marginBottom:'8px' }}>
+                      🎨 <b>ພື້ນຫຼັງໃໝ່ (BG Templates):</b>
+                    </label>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px' }}>
                       {[
-                        { id: 'none', label: '❌ ບໍ່ປ່ຽນ' },
-                        { id: 'transparent', label: '🏁 ໂປ່ງໃສ' },
-                        { id: 'white', label: '⚪ ສີຂາວ' },
-                        { id: 'black', label: '⚫ ສີດຳ' },
-                        { id: 'luxury', label: '🌌 Obsidian' },
-                        { id: 'gold', label: '👑 Golden Aura' },
-                        { id: 'velvet', label: '🔴 ຜ້າກຳມະຫຍີ່' },
+                        {id:'none',         label:'❌ ບໍ່ມີ',         bg:'#111'},
+                        {id:'transparent',  label:'🔲 ໂປ່ງໃສ',        bg:'repeating-linear-gradient(45deg,#222 0,#222 10px,#333 10px,#333 20px)'},
+                        {id:'white',        label:'⬜ ຂາວ',            bg:'#fff', color:'#000'},
+                        {id:'black',        label:'⬛ ດຳ',             bg:'#111'},
+                        {id:'luxury',       label:'💎 Luxury',         bg:'linear-gradient(135deg,#1e293b,#0b0f19)'},
+                        {id:'gold',         label:'✨ Gold',            bg:'linear-gradient(135deg,#451a03,#1e1b4b)'},
+                        {id:'velvet',       label:'🔴 Velvet',          bg:'linear-gradient(135deg,#7f1d1d,#180003)'},
+                        {id:'obsidian',     label:'🪨 Obsidian',        bg:'linear-gradient(135deg,#1f1f1f,#0a0a0a)'},
+                        {id:'golden_aura',  label:'👑 Golden Aura',    bg:'linear-gradient(135deg,rgba(212,175,55,0.3),#050508)'},
                       ].map(bg => (
-                        <button
-                          key={bg.id}
-                          type="button"
-                          onClick={() => updateSettings({ backgroundType: bg.id })}
-                          style={{
-                            padding: '10px 8px',
-                            background: settings.backgroundType === bg.id ? 'var(--gold-primary)' : 'rgba(255,255,255,0.03)',
-                            border: '1px solid',
-                            borderColor: settings.backgroundType === bg.id ? 'var(--gold-primary)' : 'rgba(255,255,255,0.08)',
-                            color: settings.backgroundType === bg.id ? '#000' : 'white',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            fontSize: '0.78rem',
-                            fontWeight: 'bold',
-                            textAlign: 'center'
-                          }}
-                        >
+                        <button key={bg.id} onClick={() => updateSettings({backgroundType:bg.id})} style={{
+                          padding:'8px 4px', borderRadius:'6px', border:'none', cursor:'pointer',
+                          background: bg.bg, color: bg.color||'#fff', fontSize:'0.72rem', fontWeight:'bold',
+                          outline: settings.backgroundType===bg.id ? '2px solid var(--gold-primary)' : '2px solid transparent',
+                          transition:'outline 0.15s'
+                        }}>
                           {bg.label}
                         </button>
                       ))}
@@ -1806,239 +1217,172 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                 </>
               )}
 
+              {/* ── FRAME TAB ── */}
               {activeTab === 'frame' && (
                 <>
-                  <div className="form-group">
-                    <label className="form-label">🖼️ <b>ເລືອກຮູບແບບກອບ (Frame Styles):</b></label>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '8px' }}>
+                  <div>
+                    <label style={{ fontSize:'0.8rem', color:'#ccc', display:'block', marginBottom:'8px' }}>🖼️ <b>ປະເພດກອບ (Frame):</b></label>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px' }}>
                       {[
-                        { id: 'none', label: '❌ ບໍ່ໃສ່ກອບ' },
-                        { id: 'gold', label: '👑 ກອບທອງຄຳ' },
-                        { id: 'silver', label: '🪙 ກອບເງິນແທ້' },
-                        { id: 'luxury', label: '✨ ກອບ Obsidian' },
-                      ].map(frame => (
-                        <button
-                          key={frame.id}
-                          type="button"
-                          onClick={() => updateSettings({ frameType: frame.id })}
-                          style={{
-                            padding: '12px 8px',
-                            background: settings.frameType === frame.id ? 'var(--gold-primary)' : 'rgba(255,255,255,0.03)',
-                            border: '1px solid',
-                            borderColor: settings.frameType === frame.id ? 'var(--gold-primary)' : 'rgba(255,255,255,0.08)',
-                            color: settings.frameType === frame.id ? '#000' : 'white',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            fontSize: '0.78rem',
-                            fontWeight: 'bold'
-                          }}
-                        >
-                          {frame.label}
+                        {id:'none',    label:'❌ ບໍ່ມີ'},
+                        {id:'gold',    label:'🥇 ທອງ (Gold)'},
+                        {id:'silver',  label:'🥈 ເງິນ (Silver)'},
+                        {id:'luxury',  label:'💎 Luxury'},
+                      ].map(f => (
+                        <button key={f.id} onClick={() => updateSettings({frameType:f.id})} style={{
+                          padding:'10px', borderRadius:'6px', border:'none', cursor:'pointer',
+                          background: settings.frameType===f.id ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.06)',
+                          color: settings.frameType===f.id ? 'var(--gold-primary)' : '#ccc',
+                          outline: settings.frameType===f.id ? '1px solid var(--gold-primary)' : '1px solid transparent',
+                          fontSize:'0.78rem', fontWeight:'bold'
+                        }}>
+                          {f.label}
                         </button>
                       ))}
                     </div>
                   </div>
-
-                  {settings.frameType !== 'none' && (
-                    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      <div className="form-group">
-                        <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>ຂະໜາດຂອບ (Frame Size):</span>
-                          <span style={{ color: 'var(--gold-primary)' }}>{settings.frameSize}px</span>
-                        </label>
-                        <input
-                          type="range"
-                          min="10"
-                          max="60"
-                          value={settings.frameSize}
-                          onChange={(e) => updateSettings({ frameSize: parseInt(e.target.value) })}
-                          style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>ຄວາມໂປ່ງໃສ (Opacity):</span>
-                          <span style={{ color: 'var(--gold-primary)' }}>{Math.round(settings.frameOpacity * 100)}%</span>
-                        </label>
-                        <input
-                          type="range"
-                          min="0.2"
-                          max="1.0"
-                          step="0.05"
-                          value={settings.frameOpacity}
-                          onChange={(e) => updateSettings({ frameOpacity: parseFloat(e.target.value) })}
-                          style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                        />
-                      </div>
-                    </div>
-                  )}
+                  <SliderRow label="📏 ຄວາມໜາຂອງກອບ (Frame Size)" value={settings.frameSize} min={4} max={80} step={1} unit="px"
+                    onChange={v => updateSettings({frameSize:v})} />
+                  <SliderRow label="💧 ຄວາມໂປ່ງໃສ (Opacity)" value={settings.frameOpacity} min={0.1} max={1} step={0.01}
+                    displayFn={v=>`${(v*100).toFixed(0)}%`} onChange={v => updateSettings({frameOpacity:v})} />
                 </>
               )}
 
+              {/* ── WATERMARK TAB ── */}
               {activeTab === 'watermark' && (
                 <>
-                  <div className="form-group">
-                    <label className="form-label">🏷️ <b>ປະເພດລາຍນ້ຳ (Watermark Options):</b></label>
-                    <select
-                      className="form-control"
-                      value={settings.watermarkType}
-                      onChange={(e) => updateSettings({ watermarkType: e.target.value })}
-                      style={{ marginTop: '6px' }}
-                    >
-                      <option value="none">❌ ບໍ່ໃສ່ລາຍນ້ຳ</option>
-                      <option value="text">✍️ ຂໍ້ຄວາມຊື່ຮ້ານ (Text)</option>
-                      <option value="sku">🏷️ ລະຫັດສິນຄ້າ (Product SKU)</option>
-                      <option value="qr">📱 QR Code ຂອງເວັບໄຊ</option>
-                    </select>
-                  </div>
-
-                  {settings.watermarkType !== 'none' && (
-                    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      <div className="form-group">
-                        <label className="form-label">
-                          {settings.watermarkType === 'text' && '✍️ ປ້ອນຂໍ້ຄວາມລາຍນ້ຳ:'}
-                          {settings.watermarkType === 'sku' && '🏷️ ລະຫັດສິນຄ້າ/SKU:'}
-                          {settings.watermarkType === 'qr' && '📱 ຂໍ້ມູນໃນ QR Code (URL):'}
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={settings.watermarkText}
-                          onChange={(e) => updateSettings({ watermarkText: e.target.value })}
-                          style={{ marginTop: '6px' }}
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label className="form-label">📍 <b>ຕຳແໜ່ງ (Position):</b></label>
-                        <select
-                          className="form-control"
-                          value={settings.watermarkPosition}
-                          onChange={(e) => updateSettings({ watermarkPosition: e.target.value })}
-                          style={{ marginTop: '6px' }}
-                        >
-                          <option value="bottom-right">↘️ ລຸ່ມຂວາ (Bottom Right)</option>
-                          <option value="bottom-left">↙️ ລຸ່ມຊ້າຍ (Bottom Left)</option>
-                          <option value="top-right">↗️ ເທິງຂວາ (Top Right)</option>
-                          <option value="top-left">↖️ ເທິງຊ້າຍ (Top Left)</option>
-                          <option value="center">📿 ກາງຮູບ (Center)</option>
-                        </select>
-                      </div>
-
-                      <div className="form-group">
-                        <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>ຂะໜາດ (Size):</span>
-                          <span style={{ color: 'var(--gold-primary)' }}>{settings.watermarkSize}px</span>
-                        </label>
-                        <input
-                          type="range"
-                          min="12"
-                          max="48"
-                          value={settings.watermarkSize}
-                          onChange={(e) => updateSettings({ watermarkSize: parseInt(e.target.value) })}
-                          style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>ຄວາມຈືດ/ໂປ່ງໃສ (Opacity):</span>
-                          <span style={{ color: 'var(--gold-primary)' }}>{Math.round(settings.watermarkOpacity * 100)}%</span>
-                        </label>
-                        <input
-                          type="range"
-                          min="0.1"
-                          max="1.0"
-                          step="0.05"
-                          value={settings.watermarkOpacity}
-                          onChange={(e) => updateSettings({ watermarkOpacity: parseFloat(e.target.value) })}
-                          style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {activeTab === 'export' && (
-                <>
-                  <div className="form-group">
-                    <label className="form-label">💾 <b>ຟໍແມັດຮູບພາບ (Format):</b></label>
-                    <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-                      {['webp', 'png', 'jpeg'].map(fmt => (
-                        <button
-                          key={fmt}
-                          type="button"
-                          className={`btn ${exportFormat === fmt ? 'btn-primary' : 'btn-secondary'}`}
-                          onClick={() => setExportFormat(fmt)}
-                          style={{ flex: 1, padding: '8px 0', fontSize: '0.85rem', textTransform: 'uppercase' }}
-                        >
-                          {fmt}
+                  <div>
+                    <label style={{ fontSize:'0.8rem', color:'#ccc', display:'block', marginBottom:'8px' }}>🏷️ <b>ປະເພດລາຍນ້ຳ:</b></label>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px' }}>
+                      {[
+                        {id:'none',  label:'❌ ບໍ່ມີ'},
+                        {id:'text',  label:'🔤 ຂໍ້ຄວາມ'},
+                        {id:'sku',   label:'🏷️ SKU Code'},
+                        {id:'qr',    label:'📱 QR Code'},
+                      ].map(w => (
+                        <button key={w.id} onClick={() => updateSettings({watermarkType:w.id})} style={{
+                          padding:'10px', borderRadius:'6px', border:'none', cursor:'pointer',
+                          background: settings.watermarkType===w.id ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.06)',
+                          color: settings.watermarkType===w.id ? 'var(--gold-primary)' : '#ccc',
+                          outline: settings.watermarkType===w.id ? '1px solid var(--gold-primary)' : '1px solid transparent',
+                          fontSize:'0.78rem', fontWeight:'bold'
+                        }}>
+                          {w.label}
                         </button>
                       ))}
                     </div>
                   </div>
 
-                  <div className="form-group">
-                    <label className="form-label">📐 <b>ຂະໜາດປາຍທາງ (Preset Target Size):</b></label>
-                    <select
-                      className="form-control"
-                      value={exportSize}
-                      onChange={(e) => setExportSize(e.target.value)}
-                      style={{ marginTop: '6px' }}
-                    >
-                      <option value="product">🛍️ ຮູບໜ້າສິນຄ້າ (800 x 800 px)</option>
-                      <option value="thumbnail">🖼️ ຮູບຫຍໍ້ Thumbnail (150 x 150 px)</option>
-                      <option value="zoom">🔍 ຮູບຊູມລາຍລະອຽດ (1200 x 1200 px)</option>
-                      <option value="social">📱 ຮູບລົງ Social Media (1080 x 1080 px)</option>
-                    </select>
-                  </div>
+                  {settings.watermarkType !== 'none' && settings.watermarkType !== 'qr' && (
+                    <div>
+                      <label style={{ fontSize:'0.78rem', color:'#ccc', display:'block', marginBottom:'4px' }}>ຂໍ້ຄວາມ / SKU:</label>
+                      <input type="text" value={settings.watermarkText}
+                        onChange={e => updateSettings({watermarkText:e.target.value})}
+                        style={{ width:'100%', padding:'8px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'6px', color:'white', fontSize:'0.8rem', boxSizing:'border-box' }}
+                      />
+                    </div>
+                  )}
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '15px' }}>
-                    <button
-                      type="button"
-                      onClick={handleExportDownload}
-                      className="btn btn-secondary"
-                      style={{
-                        padding: '12px', fontSize: '0.85rem', fontWeight: 'bold',
-                        border: '1px solid var(--border-color)', width: '100%'
-                      }}
-                    >
-                      📥 ດາວໂຫຼດຮູບລົງເຄື່ອງ (Download Image)
-                    </button>
-                    
-                    <button
-                      type="button"
-                      onClick={handleSaveAction}
-                      className="btn btn-primary"
-                      style={{
-                        padding: '14px', fontSize: '0.9rem', fontWeight: 'bold',
-                        boxShadow: '0 4px 15px rgba(212,175,55,0.3)', width: '100%',
-                        color: 'black'
-                      }}
-                    >
-                      💾 ບັນທຶກ ແລະ ໃຊ້ງານຮູບນີ້ (Save & Use Image)
-                    </button>
+                  <SliderRow label="📏 ຂະໜາດ (Size)" value={settings.watermarkSize} min={8} max={60} step={1} unit="px"
+                    onChange={v => updateSettings({watermarkSize:v})} />
+                  <SliderRow label="💧 ຄວາມໂປ່ງໃສ (Opacity)" value={settings.watermarkOpacity} min={0.05} max={1} step={0.01}
+                    displayFn={v=>`${(v*100).toFixed(0)}%`} onChange={v => updateSettings({watermarkOpacity:v})} />
+
+                  <div>
+                    <label style={{ fontSize:'0.78rem', color:'#ccc', display:'block', marginBottom:'6px' }}>📍 ຕຳແໜ່ງ (Position):</label>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'4px' }}>
+                      {[
+                        {id:'top-left',     label:'↖'},
+                        {id:'top-right',    label:'↗'},
+                        {id:'center',       label:'⊕'},
+                        {id:'bottom-left',  label:'↙'},
+                        {id:'bottom-right', label:'↘'},
+                      ].map(p => (
+                        <button key={p.id} onClick={() => updateSettings({watermarkPosition:p.id})} style={{
+                          padding:'8px', borderRadius:'6px', border:'none', cursor:'pointer',
+                          background: settings.watermarkPosition===p.id ? 'rgba(212,175,55,0.25)' : 'rgba(255,255,255,0.06)',
+                          color: settings.watermarkPosition===p.id ? 'var(--gold-primary)' : '#ccc',
+                          outline: settings.watermarkPosition===p.id ? '1px solid var(--gold-primary)' : '1px solid transparent',
+                          fontSize:'1rem', fontWeight:'bold'
+                        }}>
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </>
               )}
-              
-            </div>
 
-            <div style={{
-              padding: '16px 20px', borderTop: '1px solid var(--border-color)',
-              background: 'rgba(255,255,255,0.01)', fontSize: '0.72rem',
-              color: 'var(--text-secondary)', display: 'flex', justifyContent: 'space-between'
-            }}>
-              <span>📜 ປະຫວັດເວີຊັນ: Stack [{historyIndex + 1}/{history.length}]</span>
-              <span style={{ color: 'var(--gold-primary)' }}>AI V2 Active</span>
-            </div>
+              {/* ── EXPORT TAB ── */}
+              {activeTab === 'export' && (
+                <>
+                  <div>
+                    <label style={{ fontSize:'0.8rem', color:'#ccc', display:'block', marginBottom:'8px' }}>📐 <b>ຂະໜາດ (Export Size):</b></label>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px' }}>
+                      {[
+                        {id:'product',   label:'📦 Product (800px)', desc:'ສຳລັບໜ້າສິນຄ້າ'},
+                        {id:'social',    label:'📱 Social (1080px)', desc:'ສຳລັບ Facebook/IG'},
+                        {id:'zoom',      label:'🔍 Zoom (1200px)',   desc:'ຮູບໃຫຍ່'},
+                        {id:'thumbnail', label:'🖼️ Thumb (150px)',   desc:'ຮູບຂະໜາດນ້ອຍ'},
+                      ].map(s => (
+                        <button key={s.id} onClick={() => setExportSize(s.id)} style={{
+                          padding:'8px 4px', borderRadius:'6px', border:'none', cursor:'pointer',
+                          background: exportSize===s.id ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.06)',
+                          color: exportSize===s.id ? 'var(--gold-primary)' : '#ccc',
+                          outline: exportSize===s.id ? '1px solid var(--gold-primary)' : '1px solid transparent',
+                          fontSize:'0.72rem', fontWeight:'bold', textAlign:'center'
+                        }}>
+                          {s.label}<br/><span style={{fontSize:'0.63rem',opacity:.7}}>{s.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-          </div>
+                  <div>
+                    <label style={{ fontSize:'0.8rem', color:'#ccc', display:'block', marginBottom:'8px' }}>🗂️ <b>ຮູບແບບໄຟລ໌ (Format):</b></label>
+                    <div style={{ display:'flex', gap:'6px' }}>
+                      {[
+                        {id:'webp',  label:'WebP (ດີທີ່ສຸດ)'},
+                        {id:'png',   label:'PNG (ໂປ່ງໃສ)'},
+                        {id:'jpeg',  label:'JPEG (ໄວ)'},
+                      ].map(f => (
+                        <button key={f.id} onClick={() => setExportFormat(f.id)} style={{
+                          flex:1, padding:'8px 4px', borderRadius:'6px', border:'none', cursor:'pointer',
+                          background: exportFormat===f.id ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.06)',
+                          color: exportFormat===f.id ? 'var(--gold-primary)' : '#ccc',
+                          outline: exportFormat===f.id ? '1px solid var(--gold-primary)' : '1px solid transparent',
+                          fontSize:'0.72rem', fontWeight:'bold'
+                        }}>
+                          {f.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-        </div>
+                  <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'14px', display:'flex', flexDirection:'column', gap:'10px' }}>
+                    {onSave && (
+                      <button onClick={handleSaveAction} disabled={!sourceImg} className="btn btn-primary"
+                        style={{ padding:'12px', fontSize:'0.88rem', fontWeight:'bold', width:'100%', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', opacity:sourceImg?1:0.5 }}>
+                        💾 ບັນທຶກເຂົ້າໄປໃນລະບົບ (Save to POS)
+                      </button>
+                    )}
+                    <button onClick={handleExportDownload} disabled={!sourceImg}
+                      style={{ padding:'12px', fontSize:'0.88rem', fontWeight:'bold', width:'100%', borderRadius:'8px', border:'1px solid rgba(212,175,55,0.35)', background:'rgba(212,175,55,0.1)', color:'var(--gold-primary)', cursor:sourceImg?'pointer':'default', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', opacity:sourceImg?1:0.5 }}>
+                      📥 ດາວໂຫຼດຮູບ (Download Image)
+                    </button>
+                  </div>
 
+                  <div style={{ background:'rgba(212,175,55,0.05)', border:'1px solid rgba(212,175,55,0.15)', borderRadius:'8px', padding:'12px', fontSize:'0.72rem', color:'#bbb', lineHeight:1.5 }}>
+                    📌 <b>ຫມາຍເຫດ:</b> ຮູບຈະຖືກສົ່ງອອກໂດຍບໍ່ມີ Grid, Safe Area ຫຼື ຂອບນຳທາງ (Guides).
+                    ຫາກຮູບມີ CORS Error, ໃຫ້ອັບໂຫຼດຮູບໃໝ່ຈາກເຄື່ອງຂອງທ່ານກ່ອນ.
+                  </div>
+                </>
+              )}
+
+            </div>{/* end sidebar content */}
+          </div>{/* end sidebar */}
+
+        </div>{/* end main content */}
       </div>
     </div>
   );
