@@ -3119,35 +3119,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       {formData.images.map((img, idx) => (
                         <div key={idx} style={{ position: 'relative', width: '60px', height: '60px', borderRadius: '6px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
                           <img src={img} alt={`Preview ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedEditImageIdx(idx);
-                              setEditorImageToEdit(img);
-                              setShowImageEditorModal(true);
-                            }}
-                            style={{
-                              position: 'absolute',
-                              bottom: '2px',
-                              left: '2px',
-                              background: 'rgba(212,175,55,0.95)',
-                              color: 'black',
-                              border: 'none',
-                              borderRadius: '50%',
-                              width: '18px',
-                              height: '18px',
-                              fontSize: '10px',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              zIndex: 5,
-                              boxShadow: '0 1px 4px rgba(0,0,0,0.5)'
-                            }}
-                            title="ແຕ່ງຮູບດ້ວຍ AI"
-                          >
-                            🎨
-                          </button>
+                          {/* AI Image editor button removed */}
                           <button
                             type="button"
                             onClick={() => {
