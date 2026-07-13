@@ -31,6 +31,10 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     sharpness: 0,
     noiseReduction: 0,
     selectiveClarity: false,
+    saturation: 1.0,
+    hueRotate: 0,
+    blur: 0,
+    vignette: 0,
     
     // Background
     removeBackground: false,
@@ -291,7 +295,20 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     } else {
       drawW = 800 * aspect;
     }
+    
+    // Apply filters before drawing to temp canvas
+    try {
+      tempCtx.filter = `brightness(${settings.brightness}) contrast(${settings.contrast}) saturate(${settings.saturation}) hue-rotate(${settings.hueRotate}deg) blur(${settings.blur}px)`;
+    } catch (err) {
+      console.warn("Filters not supported or error setting filters", err);
+    }
+    
     tempCtx.drawImage(sourceImg, sx, sy, sw, sh, (800 - drawW) / 2, (800 - drawH) / 2, drawW, drawH);
+    
+    // Reset filters
+    try {
+      tempCtx.filter = 'none';
+    } catch (err) {}
 
     // Apply background removal
     if (settings.removeBackground && analysis) {
@@ -393,20 +410,24 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   };
 
   const applyCanvasFilters = (ctx, w, h) => {
-    ctx.save();
-    // In-browser CSS filter settings mapping
-    const b = settings.brightness;
-    const c = settings.contrast;
-    
-    // Applying CSS Canvas Filters
-    ctx.filter = `brightness(${b}) contrast(${c})`;
+    // Draw Vignette if selected
+    if (settings.vignette > 0) {
+      ctx.save();
+      const gradient = ctx.createRadialGradient(w/2, h/2, Math.min(w, h) * 0.4, w/2, h/2, Math.min(w, h) * 0.75);
+      gradient.addColorStop(0, 'rgba(0,0,0,0)');
+      gradient.addColorStop(1, `rgba(0,0,0,${settings.vignette / 100})`);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, w, h);
+      ctx.restore();
+    }
     
     if (settings.selectiveClarity && analysis) {
+      ctx.save();
       ctx.strokeStyle = 'rgba(212,175,55,0.15)';
       ctx.lineWidth = 15;
       ctx.strokeRect(analysis.minX, analysis.minY, analysis.width, analysis.height);
+      ctx.restore();
     }
-    ctx.restore();
   };
 
   const drawFrameOverlay = (ctx, w, h) => {
@@ -1321,6 +1342,67 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                       max="100"
                       value={settings.noiseReduction}
                       onChange={(e) => updateSettings({ noiseReduction: parseInt(e.target.value) })}
+                      style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span>ຄວາມອີ່ມຕົວຂອງສີ (Saturation):</span>
+                      <span style={{ color: 'var(--gold-primary)' }}>{Math.round(settings.saturation * 100)}%</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="0.0"
+                      max="2.0"
+                      step="0.05"
+                      value={settings.saturation}
+                      onChange={(e) => updateSettings({ saturation: parseFloat(e.target.value) })}
+                      style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span>ໂທນສີຮ້ອນ/ເຢັນ (Warmth/Hue):</span>
+                      <span style={{ color: 'var(--gold-primary)' }}>{settings.hueRotate}°</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="-90"
+                      max="90"
+                      value={settings.hueRotate}
+                      onChange={(e) => updateSettings({ hueRotate: parseInt(e.target.value) })}
+                      style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span>ຄວາມມົວ (Blur Effect):</span>
+                      <span style={{ color: 'var(--gold-primary)' }}>{settings.blur}px</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="15"
+                      value={settings.blur}
+                      onChange={(e) => updateSettings({ blur: parseInt(e.target.value) })}
+                      style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span>ຂອບມົນດຳ (Vignette):</span>
+                      <span style={{ color: 'var(--gold-primary)' }}>{settings.vignette}%</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={settings.vignette}
+                      onChange={(e) => updateSettings({ vignette: parseInt(e.target.value) })}
                       style={{ width: '100%', accentColor: 'var(--gold-primary)' }}
                     />
                   </div>
