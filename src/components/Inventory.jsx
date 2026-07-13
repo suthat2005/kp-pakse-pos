@@ -142,9 +142,6 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
   });
   const [csvText, setCsvText] = useState('');
   const [showCsvModal, setShowCsvModal] = useState(false);
-  const [showImageEditorModal, setShowImageEditorModal] = useState(false);
-  const [editorImageToEdit, setEditorImageToEdit] = useState('');
-  const [selectedEditImageIdx, setSelectedEditImageIdx] = useState(-1);
 
   useEffect(() => {
     loadMaterials();
@@ -1368,6 +1365,9 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
   const [products, setProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
+  const [showImageEditorModal, setShowImageEditorModal] = useState(false);
+  const [editorImageToEdit, setEditorImageToEdit] = useState('');
+  const [selectedEditImageIdx, setSelectedEditImageIdx] = useState(-1);
   
   // Search & Sorting states
   const [prodSearchQuery, setProdSearchQuery] = useState('');
