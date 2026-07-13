@@ -125,6 +125,28 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     img.src = dataUrl;
   }, []);
 
+  const autoDrawKeepMask = (anl) => {
+    try {
+      const km = getKeepMaskCanvas();
+      const ctx = km.getContext('2d');
+      ctx.clearRect(0, 0, 800, 800);
+
+      // Map 300x300 analysis coordinates to 800x800 mask space
+      const rx = (anl.minX / 300) * 800;
+      const ry = (anl.minY / 300) * 800;
+      const rw = (anl.width / 300) * 800;
+      const rh = (anl.height / 300) * 800;
+
+      ctx.fillStyle = 'rgba(0, 255, 0, 1)';
+      ctx.beginPath();
+      // Draw ellipse wrapping the detected amulet bounds slightly scaled up (105%) for safe margin
+      ctx.ellipse(rx + rw/2, ry + rh/2, rw/2 * 1.05, rh/2 * 1.05, 0, 0, 2 * Math.PI);
+      ctx.fill();
+    } catch (e) {
+      console.warn('Auto keep mask generation failed:', e);
+    }
+  };
+
   // ═══════════════════════════════════════════════════════════════════════════════
   // LOAD IMAGE  — uses fetch→blob to bypass CORS canvas taint
   // ═══════════════════════════════════════════════════════════════════════════════
@@ -224,7 +246,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
 
         const scaleX = imgEl.naturalWidth/300;
         const scaleY = imgEl.naturalHeight/300;
-        setAnalysis({
+        const anlData = {
           minX:Math.round(minX*scaleX), maxX:Math.round(maxX*scaleX),
           minY:Math.round(minY*scaleY), maxY:Math.round(maxY*scaleY),
           width:Math.round((maxX-minX)*scaleX), height:Math.round((maxY-minY)*scaleY),
@@ -232,7 +254,11 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
           sharpness, skewAngle:parseFloat((Math.sin(totX/cnt)*3).toFixed(1)),
           noise:Math.max(5,40-Math.round(sharpness/2.5)),
           bgR,bgG,bgB
-        });
+        };
+        setAnalysis(anlData);
+        autoDrawKeepMask(anlData);
+        // Immediately render
+        renderProcessedImage(settingsRef.current, anlData);
       } catch(err){ console.error('Analysis failed:', err); }
       finally { setIsAnalyzing(false); }
     }, 600);
@@ -529,6 +555,13 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     drawOriginalCanvas(sourceImg, settings, activeTab);
     renderProcessedImage(settings, analysis);
   }, [sourceImg, settings, activeTab, analysis]);
+
+  // Set default eraseMode to 'keep' when entering background tab
+  useEffect(() => {
+    if (activeTab === 'background') {
+      setEraseMode('keep');
+    }
+  }, [activeTab]);
 
   // ═══════════════════════════════════════════════════════════════════════════════
   // DRAW HELPERS
@@ -1158,8 +1191,8 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                 <p>AI ກຳລັງວິເຄາະຮູບພາບ...</p>
               </div>
             ) : sourceImg ? (
-              activeTab === 'eraser' ? (
-                /* ── ERASER WORKSPACE ── */
+              (activeTab === 'eraser' || activeTab === 'background') ? (
+                /* ── ERASER / BACKGROUND WORKSPACE ── */
                 <div ref={eraserContainerRef}
                   onMouseDown={handleEraserMouseDown}
                   onMouseMove={handleEraserMouseMove}
@@ -1506,12 +1539,41 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                         </div>
                       ) : (
                         <div style={{ background:'rgba(46,204,113,0.05)', border:'1px solid rgba(46,204,113,0.2)', borderRadius:'6px', padding:'8px', fontSize:'0.7rem', color:'#aaa' }}>
-                          ✅ ລະບົບໃຊ້ <b>Flood-Fill BFS</b> ຈາກຂອບຮູບ — ລຶບໄດ້ຊັດເຈນ.<br/>
-                          ປັບ <b>Tolerance</b> ຫາກລຶບຫຼາຍ/ໜ້ອຍເກີນ.<br/>
-                          ໃຊ້ <b>🟢 ຮັກສາ</b> / <b>🔴 ລຶບ AI</b> ໃນ Tab ຢາງລົບ ເພື່ອຄວບຄຸມ.
+                          ✨ <b>AI Auto Wrap:</b> ລະບົບຄຸມຂອບອົງພຣະ (ສີຂຽວ) ໃຫ້ອັດຕະໂນມັດແລ້ວ.<br/>
+                          ທາສີ <b>🟢 ຮັກສາ</b> ຫຼື <b>🔴 ລຶບ AI</b> ເທິງຮູບເພື່ອປັບແຕ່ງ.
                         </div>
                       )
                     )}
+                  </div>
+
+                  {/* Integrated Brush Selector on Background Tab */}
+                  <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'12px' }}>
+                    <p style={{ fontSize:'0.75rem', color:'#aaa', marginBottom:'6px' }}>🎯 <b>ແປງຊ່ວຍເລືອກ (Smart Brush):</b></p>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'5px', marginBottom:'6px' }}>
+                      {[
+                        { id:'keep',   label:'🟢 ຮັກສາ (Keep)',    color:'#27ae60', bg:'rgba(39,174,96,0.25)' },
+                        { id:'remove', label:'🔴 ລຶບ AI (Remove)',  color:'#c0392b', bg:'rgba(192,57,43,0.25)' },
+                        { id:'erase',   label:'🧽 ລຶບມື (Erase)',   color:'#e74c3c', bg:'rgba(231,76,60,0.25)' },
+                        { id:'restore', label:'🎨 ກູ້ຄືນ (Restore)', color:'#2ecc71', bg:'rgba(46,204,113,0.25)' },
+                      ].map(m => (
+                        <button key={m.id} onClick={() => setEraseMode(m.id)}
+                          style={{ padding:'8px 4px', fontSize:'0.72rem', fontWeight:'bold', borderRadius:'6px', border:'none', cursor:'pointer',
+                            background: eraseMode===m.id ? m.bg : 'rgba(255,255,255,0.06)',
+                            color: eraseMode===m.id ? m.color : '#888',
+                            outline: eraseMode===m.id ? `1.5px solid ${m.color}` : 'none'
+                          }}>{m.label}</button>
+                      ))}
+                    </div>
+                    <SliderRow label="🖌️ ຂະໜາດແປງ (Brush Size)" value={brushSize} min={3} max={100} step={1} unit="px"
+                      onChange={v => setBrushSize(v)} />
+                    <button onClick={() => {
+                      if (window.confirm('ລ້າງແປງທັງໝົດ ຫຼື ບໍ່?')) {
+                        clearMask();
+                        renderProcessedImage(settingsRef.current, analysisRef.current);
+                      }
+                    }} style={{ marginTop:'6px', width:'100%', padding:'6px', background:'rgba(231,76,60,0.1)', border:'1px solid rgba(231,76,60,0.2)', color:'#e74c3c', borderRadius:'6px', cursor:'pointer', fontSize:'0.75rem', fontWeight:'bold' }}>
+                      🗑️ ລ້າງການລະບາຍທັງໝົດ (Clear Mask)
+                    </button>
                   </div>
 
                   <SliderRow label="🎚️ ຄວາມທົນທານ (Tolerance)" value={settings.bgThreshold} min={5} max={150} step={1} unit=""
