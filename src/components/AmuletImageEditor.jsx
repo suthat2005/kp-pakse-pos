@@ -26,6 +26,13 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     // Background Removal
     removeBackground: false, bgThreshold: 45,
     backgroundType: 'none', // 'none' | 'transparent' | 'white' | 'black' | 'luxury' | etc.
+    edgeFeather: 0,
+    edgeChoke: 0,
+    shadowType: 'none',
+    shadowColor: 'rgba(0,0,0,0.5)',
+    shadowBlur: 15,
+    shadowOffsetX: 5,
+    shadowOffsetY: 5,
     // Frame
     frameType: 'none', frameSize: 20, frameOpacity: 1,
     // Watermark
@@ -42,6 +49,11 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   const [isDraggingSlider, setIsDraggingSlider] = useState(false);
   const [exportFormat, setExportFormat] = useState('webp');
   const [exportSize, setExportSize] = useState('product');
+
+  // ─── Zoom & Pan Viewport States ───────────────────────────────────────────────
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [panX, setPanX] = useState(0);
+  const [panY, setPanY] = useState(0);
 
   // ─── Eraser / Brush States ────────────────────────────────────────────────────
   const [brushSize, setBrushSize] = useState(30);
@@ -81,6 +93,24 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   useEffect(() => { analysisRef.current = analysis; }, [analysis]);
   const dimensionsRef = useRef(dimensions);
   useEffect(() => { dimensionsRef.current = dimensions; }, [dimensions]);
+
+  // Dynamic CSS Zoom & Pan Viewport Refiner Hook
+  useEffect(() => {
+    const pc = processedCanvasRef.current;
+    const oc = originalCanvasRef.current;
+    const transformStyle = `scale(${zoomLevel}) translate(${panX}px, ${panY}px)`;
+    
+    if (pc) {
+      pc.style.transform = transformStyle;
+      pc.style.transformOrigin = 'center';
+      pc.style.transition = 'transform 0.15s ease-out';
+    }
+    if (oc) {
+      oc.style.transform = transformStyle;
+      oc.style.transformOrigin = 'center';
+      oc.style.transition = 'transform 0.15s ease-out';
+    }
+  }, [zoomLevel, panX, panY]);
 
   // ═══════════════════════════════════════════════════════════════════════════════
   // OFF-SCREEN MASK CANVAS ACCESSORS
@@ -167,7 +197,23 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
         bgR = data[0]; bgG = data[1]; bgB = data[2];
       }
 
-      // 2. Flood-fill BFS to flag background pixels
+      // 2. Downsample current manual keep, remove, and erase masks to 300x300
+      const tempK = document.createElement('canvas');
+      tempK.width = 300; tempK.height = 300;
+      tempK.getContext('2d').drawImage(getKeepMaskCanvas(), 0, 0, 300, 300);
+      const kData = tempK.getContext('2d').getImageData(0, 0, 300, 300).data;
+
+      const tempR = document.createElement('canvas');
+      tempR.width = 300; tempR.height = 300;
+      tempR.getContext('2d').drawImage(getRemoveMaskCanvas(), 0, 0, 300, 300);
+      const rData = tempR.getContext('2d').getImageData(0, 0, 300, 300).data;
+
+      const tempE = document.createElement('canvas');
+      tempE.width = 300; tempE.height = 300;
+      tempE.getContext('2d').drawImage(getMaskCanvas(), 0, 0, 300, 300);
+      const eData = tempE.getContext('2d').getImageData(0, 0, 300, 300).data;
+
+      // 3. Flood-fill BFS to flag background pixels
       const visited = new Uint8Array(W * H);
       const queue = new Int32Array(W * H * 2);
       let qHead = 0, qTail = 0;
@@ -180,14 +226,33 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
         queue[qTail++] = y;
       };
 
+      // Seed background from borders
       for (let x = 0; x < W; x++) { enqueue(x, 0); enqueue(x, H - 1); }
       for (let y = 1; y < H - 1; y++) { enqueue(0, y); enqueue(W - 1, y); }
 
+      // Seed background from user's manual remove markings (red brush) or eraser marks
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          const pi = y * W + x;
+          const di = pi * 4;
+          if ((rData[di] > 128 && rData[di+3] > 0) || (eData[di+3] > 64)) {
+            enqueue(x, y);
+          }
+        }
+      }
+
+      // BFS queue loop
       while (qHead < qTail) {
         const cx = queue[qHead++];
         const cy = queue[qHead++];
         const pi = cy * W + cx;
         const di = pi * 4;
+
+        // Never fill background into user's manual keep markings (green brush)
+        if (kData[pi*4+1] > 128 && kData[pi*4+3] > 0) {
+          visited[pi] = 0; // force keep
+          continue;
+        }
 
         const dr = data[di] - bgR;
         const dg = data[di+1] - bgG;
@@ -202,7 +267,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
         }
       }
 
-      // 3. Draw unvisited pixels (amulet) onto 300x300 mask canvas in solid green
+      // 4. Generate the merged mask (foreground)
       const maskCanvas = document.createElement('canvas');
       maskCanvas.width = W; maskCanvas.height = H;
       const mCtx = maskCanvas.getContext('2d');
@@ -211,7 +276,11 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
 
       for (let i = 0; i < W * H; i++) {
         const di4 = i * 4;
-        if (!visited[i]) {
+        const isFg = !visited[i];
+        const manuallyKept = (kData[di4+1] > 128 && kData[di4+3] > 0);
+        const manuallyRemoved = (rData[di4] > 128 && rData[di4+3] > 0) || (eData[di4+3] > 64);
+
+        if ((isFg || manuallyKept) && !manuallyRemoved) {
           md[di4] = 0;
           md[di4+1] = 255;
           md[di4+2] = 0;
@@ -222,7 +291,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
       }
       mCtx.putImageData(mId, 0, 0);
 
-      // 4. Scale up the mask onto the 800x800 Keep Mask canvas with anti-aliasing
+      // 5. Scale up the mask onto the 800x800 Keep Mask canvas with anti-aliasing
       const km = getKeepMaskCanvas();
       const kCtx = km.getContext('2d');
       kCtx.clearRect(0, 0, 800, 800);
@@ -230,11 +299,9 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
       kCtx.imageSmoothingQuality = 'high';
       kCtx.drawImage(maskCanvas, 0, 0, 800, 800);
 
-      // Reset manual erase and remove masks to prevent overlap artifacts
-      getRemoveMaskCanvas().getContext('2d').clearRect(0,0,800,800);
-      getMaskCanvas().getContext('2d').clearRect(0,0,800,800);
+      // Note: We do NOT clear manual remove/erase masks so they remain visible and functional for subsequent recalculations!
     } catch (e) {
-      console.warn('Silhoutte edge extraction failed:', e);
+      console.warn('Interactive outline extraction failed:', e);
     }
   };
 
@@ -607,6 +674,86 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
         tCtx.putImageData(id2, 0, 0);
       }
 
+      // ─── Apply Edge Refinement (Feather & Choke) ───
+      if (stg.removeBackground || hasManualMask) {
+        try {
+          // 1. Create a solid white shape mask of the cutout
+          const mCanvas = document.createElement('canvas');
+          mCanvas.width = 800; mCanvas.height = 800;
+          const mCtx = mCanvas.getContext('2d');
+          mCtx.drawImage(tmp, 0, 0);
+          mCtx.globalCompositeOperation = 'source-in';
+          mCtx.fillStyle = '#ffffff';
+          mCtx.fillRect(0,0,800,800);
+
+          // 2. Apply Edge Choke (Erosion / Dilation)
+          if (stg.edgeChoke !== 0) {
+            const chokeCanvas = document.createElement('canvas');
+            chokeCanvas.width = 800; chokeCanvas.height = 800;
+            const cCtx = chokeCanvas.getContext('2d');
+            cCtx.drawImage(mCanvas, 0, 0);
+
+            mCtx.clearRect(0,0,800,800);
+            mCtx.globalCompositeOperation = 'source-over';
+
+            const amt = Math.abs(stg.edgeChoke);
+            if (stg.edgeChoke < 0) {
+              // Contract (Choke)
+              mCtx.drawImage(chokeCanvas, 0, 0);
+              mCtx.globalCompositeOperation = 'destination-out';
+              for (let dx = -amt; dx <= amt; dx += 2) {
+                for (let dy = -amt; dy <= amt; dy += 2) {
+                  if (dx*dx + dy*dy > 0) {
+                    mCtx.drawImage(chokeCanvas, dx, dy);
+                  }
+                }
+              }
+              mCtx.globalCompositeOperation = 'source-over';
+            } else {
+              // Expand (Dilate)
+              for (let dx = -amt; dx <= amt; dx += 2) {
+                for (let dy = -amt; dy <= amt; dy += 2) {
+                  mCtx.drawImage(chokeCanvas, dx, dy);
+                }
+              }
+            }
+          }
+
+          // 3. Apply Edge Feathering (Blur)
+          const fCanvas = document.createElement('canvas');
+          fCanvas.width = 800; fCanvas.height = 800;
+          const fCtx = fCanvas.getContext('2d');
+          if (stg.edgeFeather > 0) {
+            fCtx.filter = `blur(${stg.edgeFeather}px)`;
+          }
+          fCtx.drawImage(mCanvas, 0, 0);
+          fCtx.filter = 'none';
+
+          // 4. Re-apply refined mask to original filtered image
+          const imgCanvas = document.createElement('canvas');
+          imgCanvas.width = 800; imgCanvas.height = 800;
+          const iCtx = imgCanvas.getContext('2d');
+          iCtx.filter = `
+            brightness(${stg.brightness})
+            contrast(${stg.contrast})
+            saturate(${stg.saturation})
+            hue-rotate(${stg.hueRotate}deg)
+            blur(${stg.blur}px)
+          `;
+          iCtx.drawImage(src, sx, sy, sw, sh, ddx, ddy, dw, dh);
+          iCtx.filter = 'none';
+
+          iCtx.globalCompositeOperation = 'destination-in';
+          iCtx.drawImage(fCanvas, 0, 0);
+
+          // Update tmp context with the refined matting output
+          tCtx.clearRect(0,0,800,800);
+          tCtx.drawImage(imgCanvas, 0, 0);
+        } catch (mattingErr) {
+          console.warn('Edge matting refinement failed:', mattingErr);
+        }
+      }
+
       // Draw keep/remove masks overlay on canvas during editing preview
       if (!isExport) {
         tCtx.save();
@@ -620,7 +767,18 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
         tCtx.restore();
       }
 
+      // Draw processed cutout onto main context with optional soft drop shadow
+      if (stg.shadowType === 'drop') {
+        ctx.shadowColor = stg.shadowColor || 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = stg.shadowBlur;
+        ctx.shadowOffsetX = stg.shadowOffsetX;
+        ctx.shadowOffsetY = stg.shadowOffsetY;
+      }
       ctx.drawImage(tmp, 0, 0);
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
       ctx.restore();
 
       // 3. Vignette Overlay
@@ -1727,11 +1885,29 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                   <SliderRow label="↕ ຍ້າຍ Y (Move Y)" value={settings.translateY} min={-400} max={400} step={1} unit="px"
                     onChange={v => updateSettings({translateY:v})} />
 
+                  {/* 🔎 VIEWPORT ZOOM & PAN CONTROLS */}
+                  <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'14px', marginTop: '10px' }}>
+                    <p style={{ fontSize:'0.78rem', color:'#aaa', marginBottom:'10px' }}>🔍 ມຸມມອງ (Viewport Zoom & Pan):</p>
+                    <SliderRow label="🔎 ຊູມ (Zoom View)" value={zoomLevel} min={1} max={3.5} step={0.05}
+                      displayFn={v => `${(v*100).toFixed(0)}%`} onChange={v => setZoomLevel(v)} />
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', maxWidth: '150px', margin: '10px auto' }}>
+                      <div></div>
+                      <button type="button" onClick={() => setPanY(p => p - 15)} style={{ background: '#222', border: '1px solid #444', borderRadius: '4px', color: 'white', padding: '4px', cursor: 'pointer' }}>▲</button>
+                      <div></div>
+                      <button type="button" onClick={() => setPanX(p => p - 15)} style={{ background: '#222', border: '1px solid #444', borderRadius: '4px', color: 'white', padding: '4px', cursor: 'pointer' }}>◀</button>
+                      <button type="button" onClick={() => { setZoomLevel(1); setPanX(0); setPanY(0); }} style={{ background: '#333', border: '1px solid #555', borderRadius: '4px', color: 'var(--gold-primary)', padding: '4px', fontSize: '0.65rem', cursor: 'pointer' }}>Reset</button>
+                      <button type="button" onClick={() => setPanX(p => p + 15)} style={{ background: '#222', border: '1px solid #444', borderRadius: '4px', color: 'white', padding: '4px', cursor: 'pointer' }}>▶</button>
+                      <div></div>
+                      <button type="button" onClick={() => setPanY(p => p + 15)} style={{ background: '#222', border: '1px solid #444', borderRadius: '4px', color: 'white', padding: '4px', cursor: 'pointer' }}>▼</button>
+                    </div>
+                  </div>
+
                   <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'14px' }}>
                     <p style={{ fontSize:'0.78rem', color:'#aaa', marginBottom:'10px' }}>✂️ ຕັດຂອບ (Crop):</p>
                     <SliderRow label="◀ ຕັດຊ້າຍ (Left)" value={settings.cropLeft} min={0} max={49} step={0.5} unit="%"
                       onChange={v => updateSettings({cropLeft:v})} />
-                    <SliderRow label="▶ ຕັດຂວາ (Right)" value={settings.cropRight} min={0} max={49} step={0.5} unit="%"
+                    <SliderRow label="▶ ຕັດຂວา (Right)" value={settings.cropRight} min={0} max={49} step={0.5} unit="%"
                       onChange={v => updateSettings({cropRight:v})} />
                     <SliderRow label="▲ ຕັດເທິງ (Top)" value={settings.cropTop} min={0} max={49} step={0.5} unit="%"
                       onChange={v => updateSettings({cropTop:v})} />
@@ -2003,6 +2179,52 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                           style={{ marginTop:'6px', width:'100%', padding:'6px', background:'rgba(231,76,60,0.15)', border:'1px solid rgba(231,76,60,0.3)', color:'#e74c3c', borderRadius:'6px', cursor:'pointer', fontSize:'0.75rem' }}>
                           🗑️ ລຶບຮູບພື້ນຫຼັງທີ່ອັບໂຫຼດ
                         </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* ✂️ EDGE REFINE & SHADOW PIPELINE CONTROLS */}
+                  <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:'12px', marginTop: '12px' }}>
+                    <label style={{ fontSize:'0.8rem', color:'#ccc', display:'block', marginBottom:'8px' }}>
+                      📐 <b>ປັບແຕ່ງຂອບພຣະ (Edge & Shadows):</b>
+                    </label>
+                    <SliderRow label="🌫️ ຂອບຟຸ້ງ (Feather)" value={settings.edgeFeather} min={0} max={15} step={0.5} unit="px"
+                      onChange={v => updateSettings({edgeFeather:v})} />
+                    <SliderRow label="🤏 ກິນຂອບ (Choke)" value={settings.edgeChoke} min={-10} max={10} step={1} unit="px"
+                      onChange={v => updateSettings({edgeChoke:v})}
+                      displayFn={v => v < 0 ? `Choke ${Math.abs(v)}px` : v > 0 ? `Expand ${v}px` : '0px'} />
+                    
+                    <div style={{ marginTop: '12px', borderTop: '1px dashed rgba(255,255,255,0.05)', paddingTop: '10px' }}>
+                      <label style={{ fontSize:'0.75rem', color:'#aaa', display:'block', marginBottom:'6px' }}>👤 ເງົາພື້ນຫຼັງ (Drop Shadow):</label>
+                      <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                        <button onClick={() => updateSettings({shadowType: 'none'})}
+                          style={{ flex: 1, padding: '6px', fontSize: '0.72rem', borderRadius: '4px', border: 'none', cursor: 'pointer',
+                            background: settings.shadowType === 'none' ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)',
+                            color: settings.shadowType === 'none' ? 'white' : '#888'
+                          }}>❌ ບໍ່ມີເງົາ</button>
+                        <button onClick={() => updateSettings({shadowType: 'drop'})}
+                          style={{ flex: 1, padding: '6px', fontSize: '0.72rem', borderRadius: '4px', border: 'none', cursor: 'pointer',
+                            background: settings.shadowType === 'drop' ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.05)',
+                            color: settings.shadowType === 'drop' ? 'var(--gold-primary)' : '#888',
+                            outline: settings.shadowType === 'drop' ? '1px solid var(--gold-primary)' : 'none'
+                          }}>👤 ເງົາຕົກກະທົບ</button>
+                      </div>
+
+                      {settings.shadowType === 'drop' && (
+                        <>
+                          <SliderRow label="🌫️ ເງົາເບຼີ (Shadow Blur)" value={settings.shadowBlur} min={0} max={50} step={1} unit="px"
+                            onChange={v => updateSettings({shadowBlur: v})} />
+                          <SliderRow label="↔ ໄລຍະ X (Offset X)" value={settings.shadowOffsetX} min={-50} max={50} step={1} unit="px"
+                            onChange={v => updateSettings({shadowOffsetX: v})} />
+                          <SliderRow label="↕ ໄລຍະ Y (Offset Y)" value={settings.shadowOffsetY} min={-50} max={50} step={1} unit="px"
+                            onChange={v => updateSettings({shadowOffsetY: v})} />
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px' }}>
+                            <span style={{ fontSize: '0.75rem', color: '#aaa' }}>🎨 ສີເງົາ (Shadow Color):</span>
+                            <input type="color" value={settings.shadowColor === 'rgba(0,0,0,0.5)' ? '#000000' : settings.shadowColor} 
+                              onChange={e => updateSettings({shadowColor: e.target.value})}
+                              style={{ width: '40px', height: '20px', border: 'none', borderRadius: '3px', cursor: 'pointer', background: 'transparent' }} />
+                          </div>
+                        </>
                       )}
                     </div>
                   </div>

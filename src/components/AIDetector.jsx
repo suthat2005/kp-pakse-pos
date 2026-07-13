@@ -855,7 +855,13 @@ export default function AIDetector({ activeUser }) {
           📹 ກ້ອງວົງຈອນປິດ & ເຕືອນໄພ (CCTV)
         </button>
         )}
-        {/* AI Editor tab removed */}
+        <button
+          className={`nav-tab ${activeTab === 'image_editor' ? 'active' : ''}`}
+          style={{ fontSize: '0.85rem', padding: '6px 16px', borderRadius: '20px' }}
+          onClick={() => setActiveTab('image_editor')}
+        >
+          🎨 ແຕ່ງຮູບພຣະເຄື່ອງ (AI Editor)
+        </button>
       </div>
 
       {/* TAB 1: AMULET CAMERA SCANNER */}
