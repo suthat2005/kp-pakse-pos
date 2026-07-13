@@ -3,6 +3,7 @@ import { db } from '../utils/db';
 import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
 import Portal from './Portal';
+import AmuletImageEditor from './AmuletImageEditor';
 
 const ALL_BARCODE_FORMATS = [
   { value: 'QRCODE', label: 'QR Code (ສຳລັບບາໂຄ້ດສັ້ນ/2D)' },
@@ -141,6 +142,9 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
   });
   const [csvText, setCsvText] = useState('');
   const [showCsvModal, setShowCsvModal] = useState(false);
+  const [showImageEditorModal, setShowImageEditorModal] = useState(false);
+  const [editorImageToEdit, setEditorImageToEdit] = useState('');
+  const [selectedEditImageIdx, setSelectedEditImageIdx] = useState(-1);
 
   useEffect(() => {
     loadMaterials();
@@ -3118,6 +3122,35 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                           <button
                             type="button"
                             onClick={() => {
+                              setSelectedEditImageIdx(idx);
+                              setEditorImageToEdit(img);
+                              setShowImageEditorModal(true);
+                            }}
+                            style={{
+                              position: 'absolute',
+                              bottom: '2px',
+                              left: '2px',
+                              background: 'rgba(212,175,55,0.95)',
+                              color: 'black',
+                              border: 'none',
+                              borderRadius: '50%',
+                              width: '18px',
+                              height: '18px',
+                              fontSize: '10px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              zIndex: 5,
+                              boxShadow: '0 1px 4px rgba(0,0,0,0.5)'
+                            }}
+                            title="ແຕ່ງຮູບດ້ວຍ AI"
+                          >
+                            🎨
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
                               const updatedImages = formData.images.filter((_, i) => i !== idx);
                               setFormData(prev => ({
                                 ...prev,
@@ -3945,6 +3978,26 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
           </div>
         </div>
         </Portal>
+      )}
+
+      {showImageEditorModal && (
+        <AmuletImageEditor
+          imageUrl={editorImageToEdit}
+          onClose={() => setShowImageEditorModal(false)}
+          onSave={(newImg) => {
+            setFormData(prev => {
+              const updatedImages = [...prev.images];
+              updatedImages[selectedEditImageIdx] = newImg;
+              return {
+                ...prev,
+                images: updatedImages,
+                image: prev.image === editorImageToEdit ? newImg : prev.image
+              };
+            });
+            setShowImageEditorModal(false);
+            alert('✓ ບັນທຶກຮູບພາບແຕ່ງແລ້ວຮຽບຮ້ອຍ! (Edited image saved successfully!)');
+          }}
+        />
       )}
 
     </div>

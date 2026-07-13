@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../utils/db';
+import AmuletImageEditor from './AmuletImageEditor';
 
 function CameraFeed({ cam, idx, currentTime }) {
   const videoRef = useRef(null);
@@ -854,6 +855,13 @@ export default function AIDetector({ activeUser }) {
           📹 ກ້ອງວົງຈອນປິດ & ເຕືອນໄພ (CCTV)
         </button>
         )}
+        <button
+          className={`nav-tab ${activeTab === 'image_editor' ? 'active' : ''}`}
+          style={{ fontSize: '0.85rem', padding: '6px 16px', borderRadius: '20px' }}
+          onClick={() => setActiveTab('image_editor')}
+        >
+          🎨 ແຕ່ງຮູບພຣະເຄື່ອງ (AI Editor)
+        </button>
       </div>
 
       {/* TAB 1: AMULET CAMERA SCANNER */}
@@ -1869,6 +1877,18 @@ export default function AIDetector({ activeUser }) {
           </div>
 
         </div>
+      )}
+
+      {/* TAB 5: AI IMAGE EDITOR FOR AMULETS */}
+      {activeTab === 'image_editor' && (
+        <AmuletImageEditor
+          inline={true}
+          imageUrl={scannedAmuletImage || 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=600'}
+          onSave={(newImg) => {
+            setScannedAmuletImage(newImg);
+            alert('✓ ບັນທຶກຮູບພາບແຕ່ງແລ້ວຮຽບຮ້ອຍ! (Edited image saved successfully!)');
+          }}
+        />
       )}
 
     </div>

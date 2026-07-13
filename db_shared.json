@@ -2227,7 +2227,7 @@
       "lowStockThreshold": 5,
       "taxRate": 0,
       "logoSvg": "",
-      "receiptLogoUrl": "",
+      "receiptLogoUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=60",
       "receiptHeaderNote": "ຂອບພຣະຣັທເກຊ - ປາກເຊ",
       "receiptFooterNote": "ພຣະເຄື່ອງຄຸ້ມຄອງ, ໂກດີ ມີໄຊ!",
       "appTheme": "blue",
@@ -2282,7 +2282,7 @@
       "receiptShowFooter": true,
       "notifyProvider": "none",
       "telegramBotToken": "",
-      "telegramChatId": "8579870017",
+      "telegramChatId": "",
       "discordWebhookUrl": "",
       "lineNotifyToken": "",
       "barcodeBeep": true,
@@ -2384,9 +2384,17 @@
       },
       "notifyOnlineOrder": true,
       "notifyOnlineOrderUpdate": true,
-      "notifyBalancePayment": true
+      "notifyBalancePayment": true,
+      "receiptPadding": "3mm",
+      "receiptQtyColWidth": "35px",
+      "receiptPriceColWidth": "95px",
+      "receiptMarginLeft": "0mm",
+      "receiptMarginRight": "0mm",
+      "receiptMarginTop": "0mm",
+      "receiptMarginBottom": "0mm",
+      "receiptFeedPadding": "8mm"
     },
-    "updatedAt": 1783552139073
+    "updatedAt": 1783904940017
   },
   "expenses": {
     "data": [],
