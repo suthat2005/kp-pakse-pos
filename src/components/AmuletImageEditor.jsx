@@ -262,21 +262,25 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
 
     // Apply background removal
     if (settings.removeBackground && analysis) {
-      const imgData = tempCtx.getImageData(0, 0, 800, 800);
-      const d = imgData.data;
-      const { bgR, bgG, bgB } = analysis;
-      const threshold = settings.bgThreshold;
-      for (let i = 0; i < d.length; i += 4) {
-        const r = d[i];
-        const g = d[i+1];
-        const b = d[i+2];
-        const a = d[i+3];
-        const dist = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
-        if (dist < threshold && a > 0) {
-          d[i+3] = 0; // make transparent
+      try {
+        const imgData = tempCtx.getImageData(0, 0, 800, 800);
+        const d = imgData.data;
+        const { bgR, bgG, bgB } = analysis;
+        const threshold = settings.bgThreshold;
+        for (let i = 0; i < d.length; i += 4) {
+          const r = d[i];
+          const g = d[i+1];
+          const b = d[i+2];
+          const a = d[i+3];
+          const dist = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
+          if (dist < threshold && a > 0) {
+            d[i+3] = 0; // make transparent
+          }
         }
+        tempCtx.putImageData(imgData, 0, 0);
+      } catch (err) {
+        console.warn("CORS Security Error: Background removal is disabled for remote cross-origin images", err);
       }
-      tempCtx.putImageData(imgData, 0, 0);
     }
 
     // Draw temp canvas to main context
@@ -618,6 +622,27 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     });
   };
 
+  const handleLocalUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result;
+      const img = new Image();
+      img.onload = () => {
+        setSourceImg(img);
+        runAnalysis(img);
+        
+        // Reset history
+        const initialSettingsStr = JSON.stringify(settings);
+        setHistory([initialSettingsStr]);
+        setHistoryIndex(0);
+      };
+      img.src = base64;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSliderMouseDown = (e) => {
     setIsDraggingSlider(true);
   };
@@ -673,18 +698,28 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   };
 
   const handleSaveAction = () => {
-    const dataUrl = generateExportDataUrl();
-    if (onSave) {
-      onSave(dataUrl);
+    try {
+      const dataUrl = generateExportDataUrl();
+      if (onSave) {
+        onSave(dataUrl);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("❌ ຂໍ້ຜິດພາດ: ບໍ່ສາມາດບັນທຶກຮູບພາບນີ້ໄດ້ ເນື່ອງຈາກຄວາມປອດໄພຂອງຮູບພາບຂ້າມໂດເມນ (CORS Security Error). ກະລຸນາອັບໂຫຼດຮູບພາບໂດຍກົງຈາກເຄື່ອງຂອງທ່ານເພື່ອແກ້ໄຂ.");
     }
   };
 
   const handleExportDownload = () => {
-    const dataUrl = generateExportDataUrl();
-    const link = document.createElement('a');
-    link.download = `amulet_edited_${exportSize}.${exportFormat}`;
-    link.href = dataUrl;
-    link.click();
+    try {
+      const dataUrl = generateExportDataUrl();
+      const link = document.createElement('a');
+      link.download = `amulet_edited_${exportSize}.${exportFormat}`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error(err);
+      alert("❌ ຂໍ້ຜິດພາດ: ບໍ່ສາມາດດາວໂຫຼດຮູບພາບນີ້ໄດ້ ເນື່ອງຈາກຄວາມປອດໄພຂອງຮູບພາບຂ້າມໂດເມນ (CORS Security Error). ກະລຸນาອັບໂຫຼດຮູບພາບໂດຍກົງຈາກເຄື່ອງຂອງທ່ານເພື່ອແກ້ໄຂ.");
+    }
   };
 
   return (
@@ -919,9 +954,34 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                 </div>
               </div>
             ) : (
-              <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
-                <span style={{ fontSize: '3rem' }}>🖼️</span>
-                <p style={{ marginTop: '12px' }}>ບໍ່ພົບຮູບພາບທີ່ຕ້ອງການແຕ່ງ (No image selected)</p>
+              <div style={{
+                textAlign: 'center', color: 'var(--text-secondary)',
+                border: '2px dashed rgba(212,175,55,0.2)', borderRadius: '12px',
+                padding: '40px 20px', background: 'rgba(255,255,255,0.01)',
+                width: '100%', maxWidth: '400px'
+              }}>
+                <span style={{ fontSize: '3.5rem', display: 'block', marginBottom: '16px' }}>📁</span>
+                <h4 style={{ color: 'var(--gold-primary)', margin: '0 0 8px', fontSize: '1rem' }}>ອັບໂຫຼດຮູບພາບເພື່ອເລີ່ມແຕ່ງ</h4>
+                <p style={{ fontSize: '0.78rem', margin: '0 0 20px', color: '#888' }}>
+                  ເລືອກໄຟລ໌ຮູບພຣະເຄື່ອງ (.png, .jpg, .webp) ຈາກເຄື່ອງຂອງທ່ານ
+                </p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLocalUpload}
+                  style={{ display: 'none' }}
+                  id="editorLocalFileInput"
+                />
+                <label
+                  htmlFor="editorLocalFileInput"
+                  className="btn btn-primary"
+                  style={{
+                    padding: '10px 20px', fontSize: '0.85rem', fontWeight: 'bold',
+                    color: 'black', cursor: 'pointer', display: 'inline-block'
+                  }}
+                >
+                  📁 ເລືອກຮູບພາບ (Select Photo)
+                </label>
               </div>
             )}
 

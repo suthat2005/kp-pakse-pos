@@ -1883,7 +1883,7 @@ export default function AIDetector({ activeUser }) {
       {activeTab === 'image_editor' && (
         <AmuletImageEditor
           inline={true}
-          imageUrl={scannedAmuletImage || 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=600'}
+          imageUrl={scannedAmuletImage || ''}
           onSave={(newImg) => {
             setScannedAmuletImage(newImg);
             alert('✓ ບັນທຶກຮູບພາບແຕ່ງແລ້ວຮຽບຮ້ອຍ! (Edited image saved successfully!)');
