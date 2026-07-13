@@ -8,6 +8,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   const [analysis, setAnalysis] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [bgRemoveCorsError, setBgRemoveCorsError] = useState(false);
 
   // ─── History (undo/redo) ─────────────────────────────────────────────────────
   const [history, setHistory] = useState([]);
@@ -125,22 +126,54 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   }, []);
 
   // ═══════════════════════════════════════════════════════════════════════════════
-  // LOAD IMAGE
+  // LOAD IMAGE  — uses fetch→blob to bypass CORS canvas taint
   // ═══════════════════════════════════════════════════════════════════════════════
+  const initImage = (img) => {
+    setSourceImg(img);
+    clearMask();
+    setBgRemoveCorsError(false);
+    setSettings(defaultSettings);
+    setHistory([{ settings: defaultSettings, maskDataUrl: '' }]);
+    setHistoryIndex(0);
+    runAnalysis(img);
+  };
+
   useEffect(() => {
     if (!imageUrl) return;
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      setSourceImg(img);
-      clearMask();
-      setSettings(defaultSettings);
-      setHistory([{ settings: defaultSettings, maskDataUrl: '' }]);
-      setHistoryIndex(0);
-      runAnalysis(img);
+    setBgRemoveCorsError(false);
+
+    const load = async () => {
+      // If already a data URL / blob URL — load directly (no CORS issue)
+      if (imageUrl.startsWith('data:') || imageUrl.startsWith('blob:')) {
+        const img = new Image();
+        img.onload = () => initImage(img);
+        img.onerror = () => setErrorMsg('ໂຫຼດຮູບຜິດພາດ');
+        img.src = imageUrl;
+        return;
+      }
+
+      // Try fetch → blob URL (avoids canvas CORS taint for pixel ops)
+      try {
+        const resp = await fetch(imageUrl, { mode: 'cors', cache: 'no-cache' });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const blob = await resp.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const img = new Image();
+        img.onload = () => { URL.revokeObjectURL(blobUrl); initImage(img); };
+        img.onerror = () => { URL.revokeObjectURL(blobUrl); setErrorMsg('ໂຫຼດຮູບຜິດພາດ'); };
+        img.src = blobUrl;
+      } catch (fetchErr) {
+        // Fallback: load directly (works for display but getImageData will be CORS-blocked)
+        console.warn('fetch failed, loading directly (CORS may block pixel ops):', fetchErr);
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => initImage(img);
+        img.onerror = () => setErrorMsg('ບໍ່ສາມາດໂຫຼດຮູບພາບນີ້ໄດ້');
+        img.src = imageUrl;
+      }
     };
-    img.onerror = () => setErrorMsg('ບໍ່ສາມາດໂຫຼດຮູບພາບນີ້ໄດ້');
-    img.src = imageUrl;
+
+    load();
   }, [imageUrl]);
 
   // ═══════════════════════════════════════════════════════════════════════════════
@@ -292,96 +325,96 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     tCtx.drawImage(src, sx, sy, sw, sh, ddx, ddy, dw, dh);
     try { tCtx.filter = 'none'; } catch(e) {}
 
-    // AI Background removal — Flood-Fill from corners + edges
+    // ════════════════════════════════════════════════════════════════════════
+    // AI BG REMOVAL — Flood-Fill BFS from all border edges
+    // ════════════════════════════════════════════════════════════════════════
     if (stg.removeBackground) {
+      let corsBlocked = false;
       try {
-        const id = tCtx.getImageData(0,0,800,800);
+        const id = tCtx.getImageData(0, 0, 800, 800);
         const d = id.data;
         const W = 800, H = 800;
         const thr = stg.bgThreshold;
 
-        // Get keep/remove mask data
-        const kData = getKeepMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
-        const rData = getRemoveMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
-
-        // Sample background color from multiple border points
-        const borderSamples = [];
-        const step = 20;
-        for (let x=0; x<W; x+=step) { borderSamples.push([x,0]); borderSamples.push([x,H-1]); }
-        for (let y=0; y<H; y+=step) { borderSamples.push([0,y]); borderSamples.push([W-1,y]); }
-
-        // BFS Flood-fill from border: mark background pixels
-        const visited = new Uint8Array(W * H);
-        const toRemove = new Uint8Array(W * H);
-        const queue = [];
-
-        for (const [sx, sy] of borderSamples) {
-          const pi = sy * W + sx;
-          if (!visited[pi] && d[pi*4+3] > 0) {
-            queue.push(sx | (sy << 16));
-            visited[pi] = 1;
-          }
+        // ─── Sample BG colour from corners (fixed — never mutated during BFS) ───
+        let bgR = 0, bgG = 0, bgB = 0, sc = 0;
+        // Use analysis result if available (most accurate)
+        if (anl && anl.bgR !== undefined) {
+          bgR = anl.bgR; bgG = anl.bgG; bgB = anl.bgB; sc = 1;
+        } else {
+          // Average of 4 corners
+          [[0,0],[W-1,0],[0,H-1],[W-1,H-1]].forEach(([x,y]) => {
+            const i = (y * W + x) * 4;
+            if (d[i+3] > 0) { bgR += d[i]; bgG += d[i+1]; bgB += d[i+2]; sc++; }
+          });
+          if (sc > 0) { bgR = Math.round(bgR/sc); bgG = Math.round(bgG/sc); bgB = Math.round(bgB/sc); }
         }
+        // FIXED reference — do NOT mutate during BFS
+        const fixedBgR = bgR, fixedBgG = bgG, fixedBgB = bgB;
 
-        // Sample background color from corner average
-        let bgR=0,bgG=0,bgB=0,sc=0;
-        [[0,0],[W-1,0],[0,H-1],[W-1,H-1]].forEach(([x,y])=>{
-          const i=(y*W+x)*4;
-          if(d[i+3]>0){bgR+=d[i];bgG+=d[i+1];bgB+=d[i+2];sc++;}
-        });
-        if(sc>0){bgR=Math.round(bgR/sc);bgG=Math.round(bgG/sc);bgB=Math.round(bgB/sc);}
-        // If analysis gives us a better sample, use it
-        if(anl){bgR=anl.bgR;bgG=anl.bgG;bgB=anl.bgB;}
+        // ─── Collect all border seed pixels ───
+        const visited  = new Uint8Array(W * H);
+        const toRemove = new Uint8Array(W * H);
+        // Use typed array as BFS queue for speed
+        const queue = new Int32Array(W * H * 2);
+        let qHead = 0, qTail = 0;
 
-        let head = 0;
-        while (head < queue.length) {
-          const packed = queue[head++];
-          const cx = packed & 0xFFFF;
-          const cy = (packed >> 16) & 0xFFFF;
+        const enqueue = (x, y) => {
+          const pi = y * W + x;
+          if (visited[pi]) return;
+          visited[pi] = 1;
+          queue[qTail++] = x;
+          queue[qTail++] = y;
+        };
+
+        // Seed all 4 edges
+        for (let x = 0; x < W; x++) { enqueue(x, 0); enqueue(x, H-1); }
+        for (let y = 1; y < H-1; y++) { enqueue(0, y); enqueue(W-1, y); }
+
+        // ─── BFS with FIXED colour comparison ───
+        while (qHead < qTail) {
+          const cx = queue[qHead++];
+          const cy = queue[qHead++];
           const pi = cy * W + cx;
           const di = pi * 4;
 
-          const dr = d[di]-bgR, dg = d[di+1]-bgG, db = d[di+2]-bgB;
+          if (d[di+3] === 0) continue; // already transparent
+
+          const dr = d[di]   - fixedBgR;
+          const dg = d[di+1] - fixedBgG;
+          const db = d[di+2] - fixedBgB;
           const dist = Math.sqrt(dr*dr + dg*dg + db*db);
 
-          if (dist <= thr && d[di+3] > 0) {
+          if (dist <= thr) {
             toRemove[pi] = 1;
-            // Update local bg color for better propagation
-            bgR = Math.round((bgR*3 + d[di]) / 4);
-            bgG = Math.round((bgG*3 + d[di+1]) / 4);
-            bgB = Math.round((bgB*3 + d[di+2]) / 4);
-            // Spread to 4 neighbors
-            const neighbors = [
-              cx+1 < W ? ((cx+1) | (cy << 16)) : -1,
-              cx-1 >= 0 ? ((cx-1) | (cy << 16)) : -1,
-              cy+1 < H ? (cx | ((cy+1) << 16)) : -1,
-              cy-1 >= 0 ? (cx | ((cy-1) << 16)) : -1,
-            ];
-            for (const np of neighbors) {
-              if (np >= 0) {
-                const nx = np & 0xFFFF, ny = (np >> 16) & 0xFFFF;
-                const npi = ny * W + nx;
-                if (!visited[npi]) { visited[npi] = 1; queue.push(np); }
-              }
-            }
+            // Spread to 4 neighbours
+            if (cx+1 < W) enqueue(cx+1, cy);
+            if (cx-1 >= 0) enqueue(cx-1, cy);
+            if (cy+1 < H)  enqueue(cx, cy+1);
+            if (cy-1 >= 0) enqueue(cx, cy-1);
           }
         }
 
-        // Apply removal + keep/remove override brushes
-        for (let i=0; i < W*H; i++) {
-          const di = i * 4;
-          if (rData[i*4] > 128 && rData[i*4+3] > 0) {
-            // Force remove (red brush)
-            d[di+3] = 0;
-          } else if (kData[i*4+1] > 128 && kData[i*4+3] > 0) {
-            // Force keep (green brush) — do nothing
+        // ─── Apply: respect keep/remove brushes ───
+        const kData = getKeepMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
+        const rData = getRemoveMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
+
+        for (let i = 0; i < W * H; i++) {
+          const di4 = i * 4;
+          if (rData[di4] > 128 && rData[di4+3] > 0) {
+            d[di4+3] = 0;            // force remove (red brush)
+          } else if (kData[di4+1] > 128 && kData[di4+3] > 0) {
+            // force keep (green brush) — do nothing
           } else if (toRemove[i]) {
-            d[di+3] = 0;
+            d[di4+3] = 0;            // auto flood-fill removal
           }
         }
         tCtx.putImageData(id, 0, 0);
-      } catch(err) {
-        console.warn('BG removal failed (CORS?):', err);
+        setBgRemoveCorsError(false);
+      } catch (err) {
+        corsBlocked = true;
+        console.warn('BG removal blocked (CORS):', err.message);
+        setBgRemoveCorsError(true);
       }
     }
 
@@ -1343,10 +1376,49 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                       </button>
                     </div>
                     {settings.removeBackground && (
-                      <div style={{ background:'rgba(46,204,113,0.05)', border:'1px solid rgba(46,204,113,0.2)', borderRadius:'6px', padding:'8px', fontSize:'0.7rem', color:'#aaa' }}>
-                        ✅ ລະບົບໃຊ້ <b>Flood-Fill</b> ຈາກຂອບຮູບ — ລຶບໄດ້ຊັດເຈນກວ່າເກົ່າ.<br/>
-                        ຫາກຍັງມີສ່ວນທີ່ເຫຼືອ ໃຫ້ໃຊ້ <b>🧹 ຢາງລົບ</b> ຫຼື <b>🔴 ລຶບ AI</b> ຊ່ວຍ.
-                      </div>
+                      bgRemoveCorsError ? (
+                        <div style={{ background:'rgba(231,76,60,0.08)', border:'1px solid rgba(231,76,60,0.4)', borderRadius:'8px', padding:'10px', fontSize:'0.73rem' }}>
+                          <div style={{ color:'#e74c3c', fontWeight:'bold', marginBottom:'6px' }}>
+                            ⚠️ CORS Error — ລຶບພື້ນຫຼັງໃຊ້ງານບໍ່ໄດ້!
+                          </div>
+                          <div style={{ color:'#ccc', marginBottom:'8px', lineHeight:1.5 }}>
+                            ຮູບສິນຄ້ານີ້ <b>ບໍ່ອະນຸຍາດ</b> ໃຫ້ edit pixel ຈາກ URL.<br/>
+                            ກະລຸນາ <b>ອັບໂຫຼດຮູບໂດຍກົງ</b> ຈາກເຄື່ອງ ▼
+                          </div>
+                          <input type="file" accept="image/*" id="bgCorsFixUpload" style={{ display:'none' }}
+                            onChange={(e) => {
+                              const file = e.target.files[0];
+                              if (!file) return;
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                const img = new Image();
+                                img.onload = () => {
+                                  setSourceImg(img);
+                                  clearMask();
+                                  setBgRemoveCorsError(false);
+                                  setSettings(prev => ({ ...prev, removeBackground: true }));
+                                  runAnalysis(img);
+                                };
+                                img.src = reader.result;
+                              };
+                              reader.readAsDataURL(file);
+                            }}
+                          />
+                          <label htmlFor="bgCorsFixUpload" style={{
+                            display:'block', textAlign:'center', padding:'8px', borderRadius:'6px',
+                            background:'rgba(212,175,55,0.2)', border:'1px solid var(--gold-primary)',
+                            color:'var(--gold-primary)', cursor:'pointer', fontWeight:'bold', fontSize:'0.78rem'
+                          }}>
+                            📂 ອັບໂຫຼດຮູບໃໝ່ເພື່ອລຶບພື້ນຫຼັງ
+                          </label>
+                        </div>
+                      ) : (
+                        <div style={{ background:'rgba(46,204,113,0.05)', border:'1px solid rgba(46,204,113,0.2)', borderRadius:'6px', padding:'8px', fontSize:'0.7rem', color:'#aaa' }}>
+                          ✅ ລະບົບໃຊ້ <b>Flood-Fill BFS</b> ຈາກຂອບຮູບ — ລຶບໄດ້ຊັດເຈນ.<br/>
+                          ປັບ <b>Tolerance</b> ຫາກລຶບຫຼາຍ/ໜ້ອຍເກີນ.<br/>
+                          ໃຊ້ <b>🟢 ຮັກສາ</b> / <b>🔴 ລຶບ AI</b> ໃນ Tab ຢາງລົບ ເພື່ອຄວບຄຸມ.
+                        </div>
+                      )
                     )}
                   </div>
 
