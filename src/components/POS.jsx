@@ -4113,7 +4113,7 @@ export default function POS({
                       marginTop: '4px'
                     }}
                   >
-                    ✓ {db.getLabel('slot_entry_confirm', 'ບັນທຶກ ແລະ ເຂົ້າໜ້າຂาย')}
+                    ✓ {db.getLabel('slot_entry_confirm', 'ບັນທຶກ ແລະ ເຂົ້າໜ້າຂາຍ')}
                   </button>
                 </form>
               </div>
