@@ -55,6 +55,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   const [dimensions, setDimensions] = useState([]); // Array of { id, x1, y1, x2, y2, label, color, thickness, arrowStyle }
   const [selectedDimId, setSelectedDimId] = useState(null);
   const [draggedDimPoint, setDraggedDimPoint] = useState(null); // { id, point: 'start' | 'end' }
+  const [isExtractingBg, setIsExtractingBg] = useState(false);
 
   // ─── Custom Background Image ─────────────────────────────────────────────────
   const [customBgImage, setCustomBgImage] = useState(null); // HTMLImageElement
@@ -132,27 +133,108 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
   }, []);
 
   // ═══════════════════════════════════════════════════════════════════════════════
-  // AUTO KEEP-MASK GENERATOR
+  // PIXEL-PERFECT AMULET SILHOUETTE SEGMENTATION (AUTO KEEP-MASK OUTLINE)
   // ═══════════════════════════════════════════════════════════════════════════════
-  const autoDrawKeepMask = (anl) => {
+  const extractAmuletOutline = (imgEl, threshold = 45) => {
     try {
+      const c = document.createElement('canvas');
+      c.width = 300; c.height = 300;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(imgEl, 0, 0, 300, 300);
+      const id = ctx.getImageData(0, 0, 300, 300);
+      const data = id.data;
+      const W = 300, H = 300;
+
+      // 1. Sample background color from borders
+      let bgR = 0, bgG = 0, bgB = 0, sc = 0;
+      for (let x = 0; x < 300; x += 10) {
+        let i = x * 4;
+        bgR += data[i]; bgG += data[i+1]; bgB += data[i+2]; sc++;
+        i = (299 * 300 + x) * 4;
+        bgR += data[i]; bgG += data[i+1]; bgB += data[i+2]; sc++;
+      }
+      for (let y = 10; y < 290; y += 10) {
+        let i = (y * 300) * 4;
+        bgR += data[i]; bgG += data[i+1]; bgB += data[i+2]; sc++;
+        i = (y * 300 + 299) * 4;
+        bgR += data[i]; bgG += data[i+1]; bgB += data[i+2]; sc++;
+      }
+      if (sc > 0) {
+        bgR = Math.round(bgR / sc);
+        bgG = Math.round(bgG / sc);
+        bgB = Math.round(bgB / sc);
+      } else {
+        bgR = data[0]; bgG = data[1]; bgB = data[2];
+      }
+
+      // 2. Flood-fill BFS to flag background pixels
+      const visited = new Uint8Array(W * H);
+      const queue = new Int32Array(W * H * 2);
+      let qHead = 0, qTail = 0;
+
+      const enqueue = (x, y) => {
+        const pi = y * W + x;
+        if (visited[pi]) return;
+        visited[pi] = 1;
+        queue[qTail++] = x;
+        queue[qTail++] = y;
+      };
+
+      for (let x = 0; x < W; x++) { enqueue(x, 0); enqueue(x, H - 1); }
+      for (let y = 1; y < H - 1; y++) { enqueue(0, y); enqueue(W - 1, y); }
+
+      while (qHead < qTail) {
+        const cx = queue[qHead++];
+        const cy = queue[qHead++];
+        const pi = cy * W + cx;
+        const di = pi * 4;
+
+        const dr = data[di] - bgR;
+        const dg = data[di+1] - bgG;
+        const db = data[di+2] - bgB;
+        const dist = Math.sqrt(dr*dr + dg*dg + db*db);
+
+        if (dist <= threshold) {
+          if (cx + 1 < W) enqueue(cx + 1, cy);
+          if (cx - 1 >= 0) enqueue(cx - 1, cy);
+          if (cy + 1 < H) enqueue(cx, cy + 1);
+          if (cy - 1 >= 0) enqueue(cx, cy - 1);
+        }
+      }
+
+      // 3. Draw unvisited pixels (amulet) onto 300x300 mask canvas in solid green
+      const maskCanvas = document.createElement('canvas');
+      maskCanvas.width = W; maskCanvas.height = H;
+      const mCtx = maskCanvas.getContext('2d');
+      const mId = mCtx.createImageData(W, H);
+      const md = mId.data;
+
+      for (let i = 0; i < W * H; i++) {
+        const di4 = i * 4;
+        if (!visited[i]) {
+          md[di4] = 0;
+          md[di4+1] = 255;
+          md[di4+2] = 0;
+          md[di4+3] = 255;
+        } else {
+          md[di4+3] = 0;
+        }
+      }
+      mCtx.putImageData(mId, 0, 0);
+
+      // 4. Scale up the mask onto the 800x800 Keep Mask canvas with anti-aliasing
       const km = getKeepMaskCanvas();
-      const ctx = km.getContext('2d');
-      ctx.clearRect(0, 0, 800, 800);
+      const kCtx = km.getContext('2d');
+      kCtx.clearRect(0, 0, 800, 800);
+      kCtx.imageSmoothingEnabled = true;
+      kCtx.imageSmoothingQuality = 'high';
+      kCtx.drawImage(maskCanvas, 0, 0, 800, 800);
 
-      // Map 300x300 analysis coordinates to 800x800 mask space
-      const rx = (anl.minX / 300) * 800;
-      const ry = (anl.minY / 300) * 800;
-      const rw = (anl.width / 300) * 800;
-      const rh = (anl.height / 300) * 800;
-
-      ctx.fillStyle = 'rgba(0, 255, 0, 1)';
-      ctx.beginPath();
-      // Draw ellipse wrapping the detected amulet bounds slightly scaled up (105%) for safe margin
-      ctx.ellipse(rx + rw/2, ry + rh/2, rw/2 * 1.05, rh/2 * 1.05, 0, 0, 2 * Math.PI);
-      ctx.fill();
+      // Reset manual erase and remove masks to prevent overlap artifacts
+      getRemoveMaskCanvas().getContext('2d').clearRect(0,0,800,800);
+      getMaskCanvas().getContext('2d').clearRect(0,0,800,800);
     } catch (e) {
-      console.warn('Auto keep mask generation failed:', e);
+      console.warn('Silhoutte edge extraction failed:', e);
     }
   };
 
@@ -286,7 +368,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
         };
 
         setAnalysis(anlData);
-        autoDrawKeepMask(anlData);
+        extractAmuletOutline(imgEl, 45);
         renderProcessedImage(settingsRef.current, anlData);
       } catch (err) {
         console.error('Image analysis failed:', err);
@@ -1241,6 +1323,16 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     });
   };
 
+  const handleTriggerAiExtract = () => {
+    if (!sourceImg) return;
+    setIsExtractingBg(true);
+    setTimeout(() => {
+      extractAmuletOutline(sourceImg, settings.bgThreshold);
+      renderProcessedImage(settings, analysis);
+      setIsExtractingBg(false);
+    }, 1200);
+  };
+
   const handleLocalUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -1742,6 +1834,25 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                         ⊘ OFF
                       </button>
                     </div>
+
+                    {settings.removeBackground && !bgRemoveCorsError && (
+                      <button onClick={handleTriggerAiExtract} disabled={isExtractingBg} style={{
+                        width:'100%', padding:'11px', marginTop:'2px', marginBottom:'10px',
+                        background:'linear-gradient(135deg, #2ecc71, #27ae60)', color:'white',
+                        border:'none', borderRadius:'8px', cursor:isExtractingBg?'default':'pointer', fontSize:'0.78rem', fontWeight:'bold',
+                        display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
+                        boxShadow:'0 2px 8px rgba(46,204,113,0.3)', transition:'all 0.2s'
+                      }}>
+                        {isExtractingBg ? (
+                          <>
+                            <div style={{ border:'2px solid rgba(255,255,255,0.15)', borderTop:'2px solid white', borderRadius:'50%', width:'13px', height:'13px', animation:'spin 1s infinite linear' }} />
+                            ກຳລັງປະມວນຜົນຂອບລະອຽດ...
+                          </>
+                        ) : (
+                          '⚡ ປະມວນຜົນຂອບຄົມຊັດ (Auto AI Extract)'
+                        )}
+                      </button>
+                    )}
 
                     {settings.removeBackground && (
                       bgRemoveCorsError ? (
