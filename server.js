@@ -93,7 +93,7 @@ function mergeArrays(arrA, arrB, keyField = 'id') {
   return Array.from(map.values());
 }
 
-function mergeObjects(objA, objB) {
+function mergeObjects(objA, objB, clientUpdatedAt = 0) {
   if (!objA || typeof objA !== 'object') return objB || {};
   if (!objB || typeof objB !== 'object') return objA;
 
@@ -107,6 +107,18 @@ function mergeObjects(objA, objB) {
       const tsB = Number(valB.updatedAt || 0);
       if (tsB >= tsA) {
         merged[key] = valB;
+      }
+    }
+  }
+
+  // Handle deletions: if a key is in objA but not in objB
+  // and the source's overall updatedAt is greater than or equal to the slot's updatedAt
+  for (const key of Object.keys(objA)) {
+    if (!(key in objB)) {
+      const valA = objA[key];
+      const tsA = Number(valA?.updatedAt || 0);
+      if (clientUpdatedAt >= tsA) {
+        delete merged[key];
       }
     }
   }
@@ -139,7 +151,7 @@ async function syncFromCloudOnStartup() {
         if (Array.isArray(cloudVal.data) && Array.isArray(localVal?.data)) {
           mergedData = mergeArrays(localVal.data, cloudVal.data);
         } else if (key === 'slots') {
-          mergedData = mergeObjects(localVal?.data, cloudVal.data);
+          mergedData = mergeObjects(localVal?.data, cloudVal.data, cloudTs);
         } else if (key === 'settings') {
           mergedData = { ...localVal?.data, ...cloudVal.data };
         } else {
@@ -512,7 +524,7 @@ const server = http.createServer(async (req, res) => {
               if (Array.isArray(cloudVal.data) && Array.isArray(localVal?.data)) {
                 mergedData = mergeArrays(localVal.data, cloudVal.data);
               } else if (key === 'slots') {
-                mergedData = mergeObjects(localVal?.data, cloudVal.data);
+                mergedData = mergeObjects(localVal?.data, cloudVal.data, cloudTs);
               } else if (key === 'settings') {
                 mergedData = { ...localVal?.data, ...cloudVal.data };
               } else {
@@ -608,7 +620,7 @@ const server = http.createServer(async (req, res) => {
 
             mergedData = merged;
           } else if (key === 'slots') {
-            mergedData = mergeObjects(currentServerTable.data, data);
+            mergedData = mergeObjects(currentServerTable.data, data, timeNow);
           } else if (key === 'settings') {
             mergedData = { ...currentServerTable.data, ...data };
           }
