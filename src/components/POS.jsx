@@ -3102,27 +3102,29 @@ export default function POS({
 
                       {/* Right: Actions */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                        {/* Edit Button */}
-                        <button
-                          type="button"
-                          className="btn btn-secondary"
-                          style={{
-                            width: '38px',
-                            height: '38px',
-                            borderRadius: '8px',
-                            padding: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '1rem',
-                            border: '1px solid rgba(212,175,55,0.3)',
-                            background: 'rgba(212,175,55,0.05)',
-                            color: 'var(--gold-primary)'
-                          }}
-                          onClick={(e) => { e.stopPropagation(); handleRenameClick(e, slot); }}
-                        >
-                          ✏️
-                        </button>
+                        {/* Edit Button (except Walk-In) */}
+                        {slot.id !== 'Walk-In' && (
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            style={{
+                              width: '38px',
+                              height: '38px',
+                              borderRadius: '8px',
+                              padding: 0,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '1rem',
+                              border: '1px solid rgba(212,175,55,0.3)',
+                              background: 'rgba(212,175,55,0.05)',
+                              color: 'var(--gold-primary)'
+                            }}
+                            onClick={(e) => { e.stopPropagation(); handleRenameClick(e, slot); }}
+                          >
+                            ✏️
+                          </button>
+                        )}
 
                         {/* Delete button (except Walk-In) */}
                         {(slot.id !== 'Walk-In' || slot.label !== 'Walk-In') && (
@@ -3253,33 +3255,35 @@ export default function POS({
                         );
                       })()}
 
-                      {/* Edit button */}
-                      <button
-                        className="no-print"
-                        style={{
-                          position: 'absolute',
-                          top: '8px',
-                          left: '8px',
-                          width: '24px',
-                          height: '24px',
-                          borderRadius: '50%',
-                          background: 'rgba(0,0,0,0.7)',
-                          border: '1.5px solid rgba(212,175,55,0.5)',
-                          color: 'rgba(212,175,55,0.8)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          fontSize: '0.7rem',
-                          zIndex: 10,
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
-                          transition: 'all 0.2s'
-                        }}
-                        onClick={(e) => handleRenameClick(e, slot)}
-                        title="ແກ້ໄຂຊື່ຄິວ"
-                      >
-                        ✏️
-                      </button>
+                      {/* Edit button (except Walk-In) */}
+                      {slot.id !== 'Walk-In' && (
+                        <button
+                          className="no-print"
+                          style={{
+                            position: 'absolute',
+                            top: '8px',
+                            left: '8px',
+                            width: '24px',
+                            height: '24px',
+                            borderRadius: '50%',
+                            background: 'rgba(0,0,0,0.7)',
+                            border: '1.5px solid rgba(212,175,55,0.5)',
+                            color: 'rgba(212,175,55,0.8)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            fontSize: '0.7rem',
+                            zIndex: 10,
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                            transition: 'all 0.2s'
+                          }}
+                          onClick={(e) => { e.stopPropagation(); handleRenameClick(e, slot); }}
+                          title="ແກ້ໄຂຊື່ຄິວ"
+                        >
+                          ✏️
+                        </button>
+                      )}
 
                       {/* 1. TOP SECTION: Icon / Image */}
                       <div style={{ height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '4px', marginTop: '6px' }}>
@@ -3573,26 +3577,29 @@ export default function POS({
                   {db.getLabel('pos_queue', 'ຄິວ')}: {activeSlot.label === 'Walk-In' ? db.getLabel('pos_walk_in', 'Walk-In') : activeSlot.label}
                 </span>
                 <div style={{ display: 'flex', gap: '6px' }}>
-                  <button
-                    type="button"
-                    className="btn btn-secondary no-print"
-                    style={{
-                      padding: '4px 8px',
-                      fontSize: '0.75rem',
-                      borderColor: 'var(--gold-primary)',
-                      color: 'var(--gold-primary)',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      height: '26px',
-                      background: 'transparent',
-                      whiteSpace: 'nowrap'
-                    }}
-                    onClick={(e) => handleRenameClick(e, activeSlot)}
-                    title="ແກ້ໄຂຊື່ຄິວ"
-                  >
-                    ✏️ ແກ້ໄຂຊື່
-                  </button>
+                  {/* Edit button (except Walk-In) */}
+                  {activeSlot.id !== 'Walk-In' && (
+                    <button
+                      type="button"
+                      className="btn btn-secondary no-print"
+                      style={{
+                        padding: '4px 8px',
+                        fontSize: '0.75rem',
+                        borderColor: 'var(--gold-primary)',
+                        color: 'var(--gold-primary)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        height: '26px',
+                        background: 'transparent',
+                        whiteSpace: 'nowrap'
+                      }}
+                      onClick={(e) => handleRenameClick(e, activeSlot)}
+                      title="ແກ້ໄຂຊື່ຄິວ"
+                    >
+                      ✏️ ແກ້ໄຂຊື່
+                    </button>
+                  )}
 
                 </div>
               </div>
