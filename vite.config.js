@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { exec } from 'child_process'
+import { execFile } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 import os from 'os'
@@ -32,8 +32,11 @@ export default defineConfig({
             const url = new URL(req.url, 'http://localhost');
             const printerName = url.searchParams.get('printer') || 'GP-L80250 Series';
             
-            const escapedPrinterName = printerName.replace(/"/g, '\\"');
-            exec(`powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File kick-drawer.ps1 -PrinterName "${escapedPrinterName}"`, (err, stdout, stderr) => {
+            execFile('powershell', [
+              '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
+              '-File', 'kick-drawer.ps1',
+              '-PrinterName', printerName
+            ], (err, stdout, stderr) => {
               res.setHeader('Content-Type', 'application/json');
               if (err) {
                 console.error('Local printer kick error:', err, stderr);
@@ -54,7 +57,7 @@ export default defineConfig({
                 const data = JSON.parse(body);
                 const printerName = data.printer || 'Barcode Printer';
                 const base64Image = data.image;
-                const qty = data.qty || 1;
+                const qty = Math.min(999, Math.max(1, parseInt(data.qty, 10) || 1));
 
                 if (!base64Image) {
                   res.statusCode = 400;
@@ -67,10 +70,13 @@ export default defineConfig({
                 const tempFilePath = path.join(os.tmpdir(), `barcode-${Date.now()}.png`);
                 fs.writeFileSync(tempFilePath, base64Data, 'base64');
 
-                const escapedPrinterName = printerName.replace(/"/g, '\\"');
-                const escapedFilePath = tempFilePath.replace(/"/g, '\\"');
-
-                exec(`powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File print-barcode.ps1 -PrinterName "${escapedPrinterName}" -ImagePath "${escapedFilePath}" -Copies ${qty}`, (err, stdout, stderr) => {
+                execFile('powershell', [
+                  '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
+                  '-File', 'print-barcode.ps1',
+                  '-PrinterName', printerName,
+                  '-ImagePath', tempFilePath,
+                  '-Copies', String(qty)
+                ], (err, stdout, stderr) => {
                   try {
                     fs.unlinkSync(tempFilePath);
                   } catch (e) {}
