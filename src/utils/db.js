@@ -2443,9 +2443,38 @@ this.saveSettings(settings);
     }
     return slots;
   },
-saveSlots(slots) {
-setStorage('slots', slots);
-},
+  saveSlots(slots) {
+    const oldSlots = this.getSlots();
+    const now = Date.now();
+    const updatedSlots = {};
+
+    const isSlotDifferent = (slotA, slotB) => {
+      if (!slotA || !slotB) return true;
+      const cleanA = { ...slotA };
+      const cleanB = { ...slotB };
+      delete cleanA.updatedAt;
+      delete cleanB.updatedAt;
+      return JSON.stringify(cleanA) !== JSON.stringify(cleanB);
+    };
+
+    for (const [id, slot] of Object.entries(slots)) {
+      if (slot) {
+        const oldSlot = oldSlots[id];
+        if (isSlotDifferent(oldSlot, slot)) {
+          updatedSlots[id] = {
+            ...slot,
+            updatedAt: now
+          };
+        } else {
+          updatedSlots[id] = {
+            ...slot,
+            updatedAt: slot.updatedAt || (oldSlot ? oldSlot.updatedAt : now)
+          };
+        }
+      }
+    }
+    setStorage('slots', updatedSlots);
+  },
   renameSlot(slotId, newLabel, customerName = '', customerPhone = '', customerId = '', discountType = 'percent', discountPercent = 0, discountAmount = 0) {
     const slots = this.getSlots();
     if (slots[slotId]) {
