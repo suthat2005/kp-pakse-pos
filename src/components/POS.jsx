@@ -2147,7 +2147,7 @@ export default function POS({
 
   // BCEL One QR Simulation Handlers
   const handleCheckoutPaymentSuccess = () => {
-    playAudioFeedback('cash');
+    playSound('cash');
     setBcelPaymentStatus('success');
     
     // Auto-generate Tx Ref
@@ -2170,7 +2170,7 @@ export default function POS({
   };
 
   const handleDepositPaymentSuccess = (val) => {
-    playAudioFeedback('cash');
+    playSound('cash');
     
     // Save to database deposits
     const targetSlotId = selectedSlotId || 'Walk-In';

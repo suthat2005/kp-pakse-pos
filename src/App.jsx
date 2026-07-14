@@ -1433,7 +1433,7 @@ export default function App() {
               )}
               
               {activeTab === 'reports' && hasPermission(activeUser, 'reports') && (
-                <Reports activeUser={activeUser} isMobile={isMobile} />
+                <Reports activeUser={activeUser} isMobile={isMobile} onTabChange={setActiveTab} />
               )}
               
               {activeTab === 'ai' && hasPermission(activeUser, 'ai') && (

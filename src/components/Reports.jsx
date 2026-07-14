@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { db } from '../utils/db';
 import Portal from './Portal';
 
-export default function Reports({ activeUser, isMobile }) {
+export default function Reports({ activeUser, isMobile, onTabChange }) {
   const hasReportsPermission = (subKey) => {
     if (!activeUser) return false;
     if (activeUser.role === 'owner') return true;
@@ -905,6 +905,15 @@ export default function Reports({ activeUser, isMobile }) {
     .filter(d => d.status === 'unpaid')
     .reduce((sum, d) => sum + d.total, 0);
   const totalDebtors = allDebts.filter(d => d.status === 'unpaid').length;
+
+  const sortedExpenses = [...rangeExpenses]
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .filter(ex => !expenseSearch ||
+      (ex.categoryName || ex.category || '').toLowerCase().includes(expenseSearch.toLowerCase()) ||
+      (ex.notes || '').toLowerCase().includes(expenseSearch.toLowerCase()) ||
+      (ex.supplier || '').toLowerCase().includes(expenseSearch.toLowerCase()) ||
+      (ex.id || '').toLowerCase().includes(expenseSearch.toLowerCase())
+    );
 
   const filteredOrders = rangeOrders.filter(o => 
     (o.id || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1847,6 +1856,13 @@ export default function Reports({ activeUser, isMobile }) {
   const onlineRejected     = rangeOnlineOrders.filter(o => o.paymentStatus === 'rejected').length;
   const onlineShipped      = rangeOnlineOrders.filter(o => o.shippingStatus === 'shipped' || o.shippingStatus === 'delivered').length;
 
+  const filteredOnlineOrders = (() => {
+    const sq = searchOnline.toLowerCase();
+    return [...rangeOnlineOrders]
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .filter(o => !sq || o.id?.toLowerCase().includes(sq) || o.customerName?.toLowerCase().includes(sq) || (o.customerPhone || '').includes(sq));
+  })();
+
   // ─── Online tab: per-product sales ────────────────────────────────────────
   const onlineProductMap = {};
   onlinePaidOrders.forEach(o => {
@@ -2721,7 +2737,7 @@ export default function Reports({ activeUser, isMobile }) {
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
-                  onClick={() => exportToCsv(filtered, 'Online_Orders_Report')}
+                  onClick={() => exportToCsv(filteredOnlineOrders, 'Online_Orders_Report')}
                   style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', fontSize: '0.78rem', cursor: 'pointer' }}
                 >
                   📥 Excel
@@ -2729,7 +2745,7 @@ export default function Reports({ activeUser, isMobile }) {
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
-                  onClick={() => printReportWindow('Online Orders Report', filtered, ['id', 'date', 'customerName', 'total', 'paymentStatus', 'shippingStatus'], ['ເລກທີອໍເດີ້', 'ວັນທີ', 'ລູກຄ້າ', 'ຍອດລວມ', 'ຊຳລະ', 'ຂົນສົ່ງ'])}
+                  onClick={() => printReportWindow('Online Orders Report', filteredOnlineOrders, ['id', 'date', 'customerName', 'total', 'paymentStatus', 'shippingStatus'], ['ເລກທີອໍເດີ້', 'ວັນທີ', 'ລູກຄ້າ', 'ຍອດລວມ', 'ຊຳລະ', 'ຂົນສົ່ງ'])}
                   style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', fontSize: '0.78rem', cursor: 'pointer' }}
                 >
                   🖨️ Print PDF
@@ -3304,7 +3320,7 @@ export default function Reports({ activeUser, isMobile }) {
 
                 {selectedReceipt.paymentMethod === 'cash' ? (
                   <div style={{ fontSize: '8pt', marginTop: '6px' }}>
-                    <div style={{ display: 'flex', justify_content: 'space-between', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <span>ຮັບເງິນ ({selectedReceipt.payCurrency || 'LAK'}):</span>
                       <span>
                         {selectedReceipt.payCurrency === 'USD'
@@ -3312,7 +3328,7 @@ export default function Reports({ activeUser, isMobile }) {
                           : (selectedReceipt.currencyCashReceived || selectedReceipt.cashReceived).toLocaleString() + ' ' + (selectedReceipt.payCurrency === 'THB' ? 'ບາດ' : selectedReceipt.payCurrency === 'USD' ? 'USD' : 'ກີບ')}
                       </span>
                     </div>
-                    <div style={{ display: 'flex', justify_content: 'space-between', justifyContent: 'space-between', fontWeight: 'bold' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
                       <span>ເງິນທອນ ({selectedReceipt.payCurrency || 'LAK'}):</span>
                       <span>
                         {selectedReceipt.payCurrency === 'USD'
@@ -3323,7 +3339,7 @@ export default function Reports({ activeUser, isMobile }) {
                   </div>
                 ) : selectedReceipt.paymentMethod === 'split' ? (
                   <div style={{ fontSize: '8pt', marginTop: '6px' }}>
-                    <div style={{ display: 'flex', justify_content: 'space-between', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <span>💵 ຮັບເງິນສົດ ({selectedReceipt.payCurrency || 'LAK'}):</span>
                       <span>
                         {selectedReceipt.payCurrency === 'USD'
@@ -3331,17 +3347,17 @@ export default function Reports({ activeUser, isMobile }) {
                           : (selectedReceipt.currencyCashReceived || selectedReceipt.cashReceived).toLocaleString() + ' ' + (selectedReceipt.payCurrency === 'THB' ? 'ບາດ' : selectedReceipt.payCurrency === 'USD' ? 'USD' : 'ກີບ')}
                       </span>
                     </div>
-                    <div style={{ display: 'flex', justify_content: 'space-between', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <span>📱 ຍອດໂອນ (LAK):</span>
                       <span>{(selectedReceipt.transferAmount || 0).toLocaleString()} ₭</span>
                     </div>
                     {selectedReceipt.bankTxRef && (
-                      <div style={{ display: 'flex', justify_content: 'space-between', justifyContent: 'space-between', fontSize: '7.5pt', color: '#555' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '7.5pt', color: '#555' }}>
                         <span>ເລກອ້າງອີງ:</span>
                         <span>{selectedReceipt.bankTxRef}</span>
                       </div>
                     )}
-                    <div style={{ display: 'flex', justify_content: 'space-between', justify_content: 'space-between', fontWeight: 'bold', borderTop: '0.5px dotted #ccc', paddingTop: '4px', marginTop: '4px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', borderTop: '0.5px dotted #ccc', paddingTop: '4px', marginTop: '4px' }}>
                       <span>ເງິນທອນ ({selectedReceipt.payCurrency || 'LAK'}):</span>
                       <span>
                         {selectedReceipt.payCurrency === 'USD'
