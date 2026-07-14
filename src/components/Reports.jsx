@@ -3,7 +3,7 @@ import { db } from '../utils/db';
 import { createPermissionChecker } from '../utils/permissions';
 import Portal from './Portal';
 
-export default function Reports({ activeUser, isMobile }) {
+export default function Reports({ activeUser, isMobile, onTabChange }) {
   const hasReportsPermission = createPermissionChecker(activeUser);
   const todayStr = new Date().toLocaleDateString('en-CA');
   
@@ -24,6 +24,7 @@ export default function Reports({ activeUser, isMobile }) {
   const [allDebts, setAllDebts] = useState([]);
   const [allJobs, setAllJobs] = useState([]);
   const [allExpenses, setAllExpenses] = useState([]);
+  const [allReturns, setAllReturns] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [allOnlineOrders, setAllOnlineOrders] = useState([]);
@@ -333,6 +334,7 @@ export default function Reports({ activeUser, isMobile }) {
     setAllDebts(debts);
     setAllJobs(activeJobs);
     setAllExpenses(db.getExpenses());
+    setAllReturns(typeof db.getReturns === 'function' ? db.getReturns() : []);
     setAllProducts(db.getProducts());
     setCategories(db.getCategories());
     setSettings(db.getSettings());
@@ -785,6 +787,14 @@ export default function Reports({ activeUser, isMobile }) {
     return d >= start && d <= end;
   });
 
+  const rangeReturns = allReturns.filter(r => {
+    if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) return true;
+    const d = new Date(r.date);
+    return d >= start && d <= end;
+  }).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const totalRefunds = rangeReturns.reduce((sum, r) => sum + (r.refundAmount || 0), 0);
+
   const handleClearFilters = () => {
     setStartDate('');
     setEndDate('');
@@ -901,6 +911,15 @@ export default function Reports({ activeUser, isMobile }) {
     .filter(d => d.status === 'unpaid')
     .reduce((sum, d) => sum + d.total, 0);
   const totalDebtors = allDebts.filter(d => d.status === 'unpaid').length;
+
+  const sortedExpenses = [...rangeExpenses]
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .filter(ex => !expenseSearch ||
+      (ex.categoryName || ex.category || '').toLowerCase().includes(expenseSearch.toLowerCase()) ||
+      (ex.notes || '').toLowerCase().includes(expenseSearch.toLowerCase()) ||
+      (ex.supplier || '').toLowerCase().includes(expenseSearch.toLowerCase()) ||
+      (ex.id || '').toLowerCase().includes(expenseSearch.toLowerCase())
+    );
 
   const filteredOrders = rangeOrders.filter(o => 
     (o.id || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1843,6 +1862,13 @@ export default function Reports({ activeUser, isMobile }) {
   const onlineRejected     = rangeOnlineOrders.filter(o => o.paymentStatus === 'rejected').length;
   const onlineShipped      = rangeOnlineOrders.filter(o => o.shippingStatus === 'shipped' || o.shippingStatus === 'delivered').length;
 
+  const filteredOnlineOrders = (() => {
+    const sq = searchOnline.toLowerCase();
+    return [...rangeOnlineOrders]
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .filter(o => !sq || o.id?.toLowerCase().includes(sq) || o.customerName?.toLowerCase().includes(sq) || (o.customerPhone || '').includes(sq));
+  })();
+
   // ─── Online tab: per-product sales ────────────────────────────────────────
   const onlineProductMap = {};
   onlinePaidOrders.forEach(o => {
@@ -2604,6 +2630,46 @@ export default function Reports({ activeUser, isMobile }) {
           })()}
         </div>
 
+        {/* Returns / Refunds summary list for POS tab */}
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+            <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.05rem', margin: 0 }}>↩️ ການຄືນສິນຄ້າ / ຄືນເງິນ (Returns &amp; Refunds)</h3>
+            <span style={{ fontSize: '0.9rem', color: '#e74c3c', fontWeight: 'bold' }}>ຄືນເງິນລວມ: {totalRefunds.toLocaleString()} ₭ • {rangeReturns.length} ລາຍການ</span>
+          </div>
+          {rangeReturns.length === 0 ? (
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: 0 }}>ບໍ່ມີການຄືນສິນຄ້າໃນຊ່ວງນີ້</p>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                <thead>
+                  <tr style={{ color: 'var(--text-secondary)', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
+                    <th style={{ padding: '8px 6px' }}>ເລກທີ</th>
+                    <th style={{ padding: '8px 6px' }}>ວັນທີ</th>
+                    <th style={{ padding: '8px 6px' }}>ບິນຕົ້ນທາງ</th>
+                    <th style={{ padding: '8px 6px' }}>ລາຍການ</th>
+                    <th style={{ padding: '8px 6px' }}>ວິທີ</th>
+                    <th style={{ padding: '8px 6px' }}>ເຫດຜົນ</th>
+                    <th style={{ padding: '8px 6px', textAlign: 'right' }}>ຄືນເງິນ (₭)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rangeReturns.map((r) => (
+                    <tr key={r.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <td style={{ padding: '8px 6px', color: 'var(--gold-primary)' }}>{r.id}</td>
+                      <td style={{ padding: '8px 6px' }}>{new Date(r.date).toLocaleString('lo-LA')}</td>
+                      <td style={{ padding: '8px 6px' }}>{r.orderId || '-'}</td>
+                      <td style={{ padding: '8px 6px' }}>{(r.items || []).map(it => `${it.name} ×${it.qty}`).join(', ')}</td>
+                      <td style={{ padding: '8px 6px' }}>{r.method === 'cash' ? 'ເງິນສົດ' : r.method === 'transfer' ? 'ໂອນ' : r.method === 'store_credit' ? 'ເຄຣດິດຮ້ານ' : (r.method || '-')}</td>
+                      <td style={{ padding: '8px 6px', color: 'var(--text-secondary)' }}>{r.reason || '-'}</td>
+                      <td style={{ padding: '8px 6px', textAlign: 'right', color: '#e74c3c', fontWeight: 'bold' }}>{(r.refundAmount || 0).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
       </div>
 
       </> /* end POS tab */}
@@ -2717,7 +2783,7 @@ export default function Reports({ activeUser, isMobile }) {
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
-                  onClick={() => exportToCsv(filtered, 'Online_Orders_Report')}
+                  onClick={() => exportToCsv(filteredOnlineOrders, 'Online_Orders_Report')}
                   style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', fontSize: '0.78rem', cursor: 'pointer' }}
                 >
                   📥 Excel
@@ -2725,7 +2791,7 @@ export default function Reports({ activeUser, isMobile }) {
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
-                  onClick={() => printReportWindow('Online Orders Report', filtered, ['id', 'date', 'customerName', 'total', 'paymentStatus', 'shippingStatus'], ['ເລກທີອໍເດີ້', 'ວັນທີ', 'ລູກຄ້າ', 'ຍອດລວມ', 'ຊຳລະ', 'ຂົນສົ່ງ'])}
+                  onClick={() => printReportWindow('Online Orders Report', filteredOnlineOrders, ['id', 'date', 'customerName', 'total', 'paymentStatus', 'shippingStatus'], ['ເລກທີອໍເດີ້', 'ວັນທີ', 'ລູກຄ້າ', 'ຍອດລວມ', 'ຊຳລະ', 'ຂົນສົ່ງ'])}
                   style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', fontSize: '0.78rem', cursor: 'pointer' }}
                 >
                   🖨️ Print PDF
@@ -3300,7 +3366,7 @@ export default function Reports({ activeUser, isMobile }) {
 
                 {selectedReceipt.paymentMethod === 'cash' ? (
                   <div style={{ fontSize: '8pt', marginTop: '6px' }}>
-                    <div style={{ display: 'flex', justify_content: 'space-between', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <span>ຮັບເງິນ ({selectedReceipt.payCurrency || 'LAK'}):</span>
                       <span>
                         {selectedReceipt.payCurrency === 'USD'
@@ -3308,7 +3374,7 @@ export default function Reports({ activeUser, isMobile }) {
                           : (selectedReceipt.currencyCashReceived || selectedReceipt.cashReceived).toLocaleString() + ' ' + (selectedReceipt.payCurrency === 'THB' ? 'ບາດ' : selectedReceipt.payCurrency === 'USD' ? 'USD' : 'ກີບ')}
                       </span>
                     </div>
-                    <div style={{ display: 'flex', justify_content: 'space-between', justifyContent: 'space-between', fontWeight: 'bold' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
                       <span>ເງິນທອນ ({selectedReceipt.payCurrency || 'LAK'}):</span>
                       <span>
                         {selectedReceipt.payCurrency === 'USD'
@@ -3319,7 +3385,7 @@ export default function Reports({ activeUser, isMobile }) {
                   </div>
                 ) : selectedReceipt.paymentMethod === 'split' ? (
                   <div style={{ fontSize: '8pt', marginTop: '6px' }}>
-                    <div style={{ display: 'flex', justify_content: 'space-between', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <span>💵 ຮັບເງິນສົດ ({selectedReceipt.payCurrency || 'LAK'}):</span>
                       <span>
                         {selectedReceipt.payCurrency === 'USD'
@@ -3327,17 +3393,17 @@ export default function Reports({ activeUser, isMobile }) {
                           : (selectedReceipt.currencyCashReceived || selectedReceipt.cashReceived).toLocaleString() + ' ' + (selectedReceipt.payCurrency === 'THB' ? 'ບາດ' : selectedReceipt.payCurrency === 'USD' ? 'USD' : 'ກີບ')}
                       </span>
                     </div>
-                    <div style={{ display: 'flex', justify_content: 'space-between', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <span>📱 ຍອດໂອນ (LAK):</span>
                       <span>{(selectedReceipt.transferAmount || 0).toLocaleString()} ₭</span>
                     </div>
                     {selectedReceipt.bankTxRef && (
-                      <div style={{ display: 'flex', justify_content: 'space-between', justifyContent: 'space-between', fontSize: '7.5pt', color: '#555' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '7.5pt', color: '#555' }}>
                         <span>ເລກອ້າງອີງ:</span>
                         <span>{selectedReceipt.bankTxRef}</span>
                       </div>
                     )}
-                    <div style={{ display: 'flex', justify_content: 'space-between', justify_content: 'space-between', fontWeight: 'bold', borderTop: '0.5px dotted #ccc', paddingTop: '4px', marginTop: '4px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', borderTop: '0.5px dotted #ccc', paddingTop: '4px', marginTop: '4px' }}>
                       <span>ເງິນທອນ ({selectedReceipt.payCurrency || 'LAK'}):</span>
                       <span>
                         {selectedReceipt.payCurrency === 'USD'

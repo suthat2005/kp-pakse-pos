@@ -12,6 +12,7 @@ function CustomerModal({ show, editingCust, onClose, onSave }) {
   const [discountType, setDiscountType] = useState('percent');
   const [discountValue, setDiscountValue] = useState('');
   const [tier, setTier] = useState('Regular');
+  const [points, setPoints] = useState(0);
   // Address fields
   const [province, setProvince] = useState('');
   const [city, setCity] = useState('');
@@ -28,6 +29,7 @@ function CustomerModal({ show, editingCust, onClose, onSave }) {
       setDiscountType(editingCust.discountType || 'percent');
       setDiscountValue(editingCust.discountValue || '');
       setTier(editingCust.tier || 'Regular');
+      setPoints(editingCust.points ?? 0);
       // Load first address
       const addr = editingCust.addresses?.[0] || {};
       setProvince(addr.province || '');
@@ -38,7 +40,7 @@ function CustomerModal({ show, editingCust, onClose, onSave }) {
     } else {
       setName(''); setPhone(''); setEmail('');
       setPassword('123456'); // Default password for new members
-      setDiscountType('percent'); setDiscountValue(''); setTier('Regular');
+      setDiscountType('percent'); setDiscountValue(''); setTier('Regular'); setPoints(0);
       setProvince(''); setCity(''); setVillage(''); setAddressLine(''); setAddrNotes('');
     }
   }, [editingCust, show]);
@@ -63,6 +65,7 @@ function CustomerModal({ show, editingCust, onClose, onSave }) {
       discountType,
       discountValue: Number(discountValue || 0),
       tier,
+      points: Number(points || 0),
       addressData
     });
   };
@@ -132,6 +135,12 @@ function CustomerModal({ show, editingCust, onClose, onSave }) {
                 <label className="form-label">ມູນຄ່າ</label>
                 <input type="number" className="form-control" value={discountValue} onChange={(e) => setDiscountValue(e.target.value)} placeholder="0" style={inputStyle} />
               </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">💎 ຄະແນນສະສົມ (Loyalty Points)</label>
+              <input type="number" className="form-control" value={points} onChange={(e) => setPoints(e.target.value)} placeholder="0" style={inputStyle} />
+              <div style={{ fontSize: '0.68rem', color: '#888', marginTop: '4px' }}>ໄດ້ຮັບ 1 ຄະແນນ ຕໍ່ການຊື້ 10,000 ₭ • ແລກ 1 ຄະແນນ = 100 ₭ (ແກ້ໄຂດ້ວຍມືເພື່ອປັບປ່ຽນ)</div>
             </div>
 
             {sectionLabel('📍 ທີ່ຢູ່ຈັດສົ່ງ (Delivery Address)')}
@@ -269,6 +278,8 @@ function CustomerDetailModal({ show, customer, onClose }) {
                 { label: '📞 ເບີໂທ', value: customer.phone },
                 { label: '📧 Email', value: customer.email || '— ບໍ່ໄດ້ລົງທະບຽນ' },
                 { label: '🏷️ ລະດັບ (Tier)', value: customer.tier || 'Regular' },
+                { label: '💎 ຄະແນນສະສົມ (Points)', value: `${(customer.points || 0).toLocaleString()} ຄະແນນ (≈ ${((customer.points || 0) * 100).toLocaleString()} ₭)` },
+                { label: '💰 ຍອດຊື້ສະສົມ', value: `${(customer.totalSpend || 0).toLocaleString()} ₭` },
                 { label: '🎁 ສ່ວນຫຼຸດ', value: customer.discountType === 'percent' ? `${customer.discountValue}%` : `-${(customer.discountValue || 0).toLocaleString()} ₭` },
                 { label: '🌐 ບັນຊີ Online', value: customer.hasOnlineAccount ? '✅ ມີບັນຊີ Online' : '❌ ຍັງບໍ່ທັນສ້າງ' },
                 { label: '🔑 ລະຫັດຜ່ານ', value: customer.password ? '🔒 ຕັ້ງໄວ້ແລ້ວ' : '— ຍັງບໍ່ທັນຕັ້ງ' },
@@ -443,6 +454,7 @@ export default function Customers({ activeUser, onUpdate }) {
         discountType: formData.discountType,
         discountValue: formData.discountValue,
         tier: formData.tier,
+        points: Number(formData.points || 0),
         ...(addresses ? { addresses } : {})
       });
       setSuccessMsg('✓ ແກ້ໄຂຂໍ້ມູນສະມາຊິກສຳເລັດ!');
@@ -455,6 +467,7 @@ export default function Customers({ activeUser, onUpdate }) {
         discountType: formData.discountType,
         discountValue: formData.discountValue,
         tier: formData.tier,
+        points: Number(formData.points || 0),
         ...(addresses ? { addresses } : {})
       });
       setSuccessMsg('✓ ເພີ່ມສະມາຊິກໃໝ່ສຳເລັດ!');
@@ -568,6 +581,7 @@ export default function Customers({ activeUser, onUpdate }) {
                 <th style={{ padding: '14px 20px' }}>{db.getLabel('cust_phone_col', 'ເບີໂທ / Email')}</th>
                 <th style={{ padding: '14px 20px' }}>{db.getLabel('cust_tier_col', 'ລະດັບສະມາຊິກ')}</th>
                 <th style={{ padding: '14px 20px' }}>{db.getLabel('cust_discount_col', 'ສ່ວນຫຼຸດ')}</th>
+                <th style={{ padding: '14px 20px', textAlign: 'right' }}>{db.getLabel('cust_points_col', '💎 ຄະແນນ')}</th>
                 <th style={{ padding: '14px 20px', textAlign: 'center' }}>{db.getLabel('cust_actions_col', 'ຈັດການ')}</th>
               </tr>
             </thead>
@@ -621,6 +635,9 @@ export default function Customers({ activeUser, onUpdate }) {
                     }}>
                       {c.discountType === 'percent' ? `${c.discountValue}%` : `-${c.discountValue.toLocaleString()} ₭`}
                     </span>
+                  </td>
+                  <td style={{ padding: '14px 20px', textAlign: 'right', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
+                    💎 {(c.points || 0).toLocaleString()}
                   </td>
                     <td style={{ padding: '14px 20px', textAlign: 'center' }}>
                     <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>

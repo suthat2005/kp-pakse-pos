@@ -199,14 +199,6 @@ const DEFAULT_SETTINGS = {
   notifyOnlineOrder: true,
   notifyOnlineOrderUpdate: true,
   notifyBalancePayment: true,
-  notifyNewSale: true,
-  notifyDeposit: true,
-  notifyNewJob: true,
-  notifyJobStatus: true,
-  notifyDebt: true,
-  notifyExpense: true,
-  notifyClockInOut: true,
-  notifyLowStock: true,
   // Barcode / Scanner settings
   onlineShopUrl: '',
   onlineShopTitle: 'ຂອບພຣະຣັທເກຊ Online',
@@ -2094,6 +2086,7 @@ const syncKeys = [
   'attendance', 'expenses', 'audit_logs', 'raw_materials', 'production_history',
   'shifts', 'leaves', 'payrolls', 'users', 'promotions', 'cameras', 'cctv_alerts',
   'online_orders', 'customers',
+  'returns', 'suppliers', 'purchase_orders',
   'deposits', 'deposit_transactions', 'payment_logs', 'payment_qr', 'payment_history', 'payment_audit', 'payment_events'
 ];
 if (!skipSync && syncKeys.includes(key)) {
@@ -2915,6 +2908,202 @@ saveOrders(orders) {
     this.saveOrders(orders);
     this.dispatchEvent('db_updated');
     return orders[idx];
+  },
+
+  getReturns() {
+    this.init();
+    const list = getStorage('returns', []);
+    return Array.isArray(list) ? list.filter(Boolean) : [];
+  },
+  saveReturns(list) {
+    setStorage('returns', list);
+  },
+  addReturn(returnData) {
+    const returns = this.getReturns();
+    let nextNum = 1;
+    if (returns.length > 0) {
+      const nums = returns.map(r => {
+        const m = (r.id || '').match(/\d+/);
+        return m ? parseInt(m[0], 10) : 0;
+      });
+      nextNum = Math.max(...nums) + 1;
+    }
+    const newReturn = {
+      restock: true,
+      items: [],
+      refundAmount: 0,
+      ...returnData,
+      id: 'RET' + String(nextNum).padStart(5, '0'),
+      date: new Date().toISOString()
+    };
+    returns.push(newReturn);
+    this.saveReturns(returns);
+
+    // Restock returned items back into inventory (skip service categories)
+    if (newReturn.restock) {
+      const products = this.getProducts();
+      let changed = false;
+      newReturn.items.forEach(item => {
+        const prod = products.find(p => p.id === item.productId);
+        if (prod && !this.isServiceCategory(prod.category)) {
+          prod.stock = (prod.stock || 0) + (item.qty || 0);
+          changed = true;
+        }
+      });
+      if (changed) this.saveProducts(products);
+    }
+
+    // Annotate the original order with the accumulated refund
+    if (newReturn.orderId) {
+      const orders = this.getOrders();
+      const idx = orders.findIndex(o => o.id === newReturn.orderId);
+      if (idx !== -1) {
+        orders[idx].refundedAmount = (orders[idx].refundedAmount || 0) + (newReturn.refundAmount || 0);
+        orders[idx].hasReturn = true;
+        this.saveOrders(orders);
+      }
+    }
+
+    this.addPaymentLog('refund', `ຄືນສິນຄ້າ/ຄືນເງິນ ${(newReturn.refundAmount || 0).toLocaleString()} ₭ (ບິນ ${newReturn.orderId || '-'})`, newReturn.cashierId || '');
+    this.dispatchEvent('db_updated');
+    return newReturn;
+  },
+
+  // ─── Suppliers ────────────────────────────────────────────────────────────
+  getSuppliers() {
+    this.init();
+    const list = getStorage('suppliers', []);
+    return Array.isArray(list) ? list.filter(Boolean) : [];
+  },
+  saveSuppliers(list) {
+    setStorage('suppliers', list);
+  },
+  addSupplier(data) {
+    const suppliers = this.getSuppliers();
+    let nextNum = 1;
+    if (suppliers.length > 0) {
+      const nums = suppliers.map(s => {
+        const m = (s.id || '').match(/\d+/);
+        return m ? parseInt(m[0], 10) : 0;
+      });
+      nextNum = Math.max(...nums) + 1;
+    }
+    const supplier = {
+      name: '', phone: '', contact: '', address: '', note: '',
+      ...data,
+      id: 'SUP' + String(nextNum).padStart(4, '0'),
+      createdAt: new Date().toISOString()
+    };
+    suppliers.push(supplier);
+    this.saveSuppliers(suppliers);
+    this.dispatchEvent('db_updated');
+    return supplier;
+  },
+  updateSupplier(id, changes) {
+    const suppliers = this.getSuppliers();
+    const idx = suppliers.findIndex(s => s.id === id);
+    if (idx === -1) return null;
+    suppliers[idx] = { ...suppliers[idx], ...changes };
+    this.saveSuppliers(suppliers);
+    this.dispatchEvent('db_updated');
+    return suppliers[idx];
+  },
+  deleteSupplier(id) {
+    const suppliers = this.getSuppliers().filter(s => s.id !== id);
+    this.saveSuppliers(suppliers);
+    this.dispatchEvent('db_updated');
+  },
+
+  // ─── Purchase Orders ──────────────────────────────────────────────────────
+  getPurchaseOrders() {
+    this.init();
+    const list = getStorage('purchase_orders', []);
+    return Array.isArray(list) ? list.filter(Boolean) : [];
+  },
+  savePurchaseOrders(list) {
+    setStorage('purchase_orders', list);
+  },
+  addPurchaseOrder(data) {
+    const pos = this.getPurchaseOrders();
+    let nextNum = 1;
+    if (pos.length > 0) {
+      const nums = pos.map(p => {
+        const m = (p.id || '').match(/\d+/);
+        return m ? parseInt(m[0], 10) : 0;
+      });
+      nextNum = Math.max(...nums) + 1;
+    }
+    const items = (data.items || []).map(it => ({
+      productId: it.productId,
+      name: it.name,
+      qty: Number(it.qty) || 0,
+      cost: Number(it.cost) || 0
+    }));
+    const total = items.reduce((s, it) => s + it.qty * it.cost, 0);
+    const po = {
+      supplierId: '', supplierName: '', note: '',
+      ...data,
+      items,
+      total,
+      status: 'pending',
+      id: 'PO' + String(nextNum).padStart(5, '0'),
+      date: new Date().toISOString(),
+      receivedDate: null,
+      createdBy: data.createdBy || ''
+    };
+    pos.push(po);
+    this.savePurchaseOrders(pos);
+    this.dispatchEvent('db_updated');
+    return po;
+  },
+  updatePurchaseOrder(id, changes) {
+    const pos = this.getPurchaseOrders();
+    const idx = pos.findIndex(p => p.id === id);
+    if (idx === -1) return null;
+    const next = { ...pos[idx], ...changes };
+    if (changes.items) {
+      next.items = changes.items.map(it => ({
+        productId: it.productId,
+        name: it.name,
+        qty: Number(it.qty) || 0,
+        cost: Number(it.cost) || 0
+      }));
+      next.total = next.items.reduce((s, it) => s + it.qty * it.cost, 0);
+    }
+    pos[idx] = next;
+    this.savePurchaseOrders(pos);
+    this.dispatchEvent('db_updated');
+    return next;
+  },
+  // Receive a purchase order into inventory: increases product stock and (optionally) updates cost
+  receivePurchaseOrder(id, { updateCost = true } = {}) {
+    const pos = this.getPurchaseOrders();
+    const idx = pos.findIndex(p => p.id === id);
+    if (idx === -1) return null;
+    const po = pos[idx];
+    if (po.status === 'received') return po;
+
+    const products = this.getProducts();
+    let changed = false;
+    (po.items || []).forEach(item => {
+      const prod = products.find(p => p.id === item.productId);
+      if (prod) {
+        prod.stock = (prod.stock || 0) + (item.qty || 0);
+        if (updateCost && item.cost > 0) prod.cost = item.cost;
+        changed = true;
+      }
+    });
+    if (changed) this.saveProducts(products);
+
+    pos[idx] = { ...po, status: 'received', receivedDate: new Date().toISOString() };
+    this.savePurchaseOrders(pos);
+    this.dispatchEvent('db_updated');
+    return pos[idx];
+  },
+  deletePurchaseOrder(id) {
+    const pos = this.getPurchaseOrders().filter(p => p.id !== id);
+    this.savePurchaseOrders(pos);
+    this.dispatchEvent('db_updated');
   },
 
   getFramingJobs() {
@@ -3793,7 +3982,10 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
 
       const baseUrl = window.location.protocol + '//' + window.location.host;
       fetch(`${baseUrl}/api/db/sync?` + params.toString())
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error(`Sync request failed with status ${res.status}`);
+          return res.json();
+        })
         .then(updatedTables => {
           let hasChanges = false;
           Object.keys(updatedTables).forEach(k => {
@@ -3813,7 +4005,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
             }
           }
         })
-        .catch(err => {});
+        .catch(err => console.warn('Periodic sync failed (offline):', err.message));
     };
 
     const baseUrl = window.location.protocol + '//' + window.location.host;
@@ -3825,7 +4017,10 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     
     // Bidirectional startup sync
     fetch(`${baseUrl}/api/db/sync?` + checkParams.toString())
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(`Startup sync request failed with status ${res.status}`);
+        return res.json();
+      })
       .then(serverAll => {
         keys.forEach(k => {
           const serverTable = serverAll[k];
@@ -3841,8 +4036,10 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ key: k, data, updatedAt: localTs })
-                }).catch(e => {});
-              } catch (e) {}
+                }).catch(err => console.warn(`Startup sync push failed for [${k}] (offline):`, err.message));
+              } catch (e) {
+                console.error(`Failed to parse local data for [${k}] during startup sync:`, e);
+              }
             }
           } else {
             const serverTs = Number(serverTable.updatedAt || '0');
@@ -3855,8 +4052,10 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ key: k, data, updatedAt: localTs })
-                  }).catch(e => {});
-                } catch (e) {}
+                  }).catch(err => console.warn(`Startup sync push failed for [${k}] (offline):`, err.message));
+                } catch (e) {
+                  console.error(`Failed to parse local data for [${k}] during startup sync:`, e);
+                }
               }
             } else if (serverTs > localTs) {
               // Server is newer. Pull to client.
@@ -3870,7 +4069,8 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
         syncIntervalId = setInterval(doSync, 2000);
       })
       .catch(err => {
-        // Fallback to regular sync on error
+        // Startup sync failed (likely offline); fall back to recurring sync anyway
+        console.warn('Bidirectional startup sync failed, falling back to periodic sync:', err.message);
         syncIntervalId = setInterval(doSync, 2000);
       });
   },
@@ -3896,6 +4096,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     
     try {
       const res = await fetch(`${baseUrl}/api/db/sync?` + checkParams.toString());
+      if (!res.ok) throw new Error(`Sync request failed with status ${res.status}`);
       const serverAll = await res.json();
       
       const promises = keys.map(async (k) => {
@@ -3912,7 +4113,9 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ key: k, data, updatedAt: localTs })
               });
-            } catch (e) {}
+            } catch (e) {
+              console.warn(`Startup sync push failed for [${k}] (offline):`, e.message);
+            }
           }
         } else {
           const serverTs = Number(serverTable.updatedAt || '0');
@@ -3925,7 +4128,9 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ key: k, data, updatedAt: localTs })
                 });
-              } catch (e) {}
+              } catch (e) {
+                console.warn(`Startup sync push failed for [${k}] (offline):`, e.message);
+              }
             }
           } else if (serverTs > localTs) {
             localStorage.setItem('amulet_pos_' + k, JSON.stringify(serverTable.data));
@@ -4515,7 +4720,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       tier: c.tier || 'Regular',
       password: c.password || '',
       addresses: c.addresses || [],
-      points: 0,
+      points: Number(c.points) || 0,
       totalSpend: 0,
       createdDate: new Date().toISOString()
     };

@@ -749,6 +749,17 @@ export default function AIDetector({ activeUser }) {
     setCameras(db.getCameras());
   };
 
+  const handleToggleCamera = (cam) => {
+    const updated = { ...cam, active: !cam.active };
+    db.updateCamera(updated);
+    setCameras(db.getCameras());
+  };
+
+  const handleResolveAlert = (id) => {
+    db.resolveCctvAlert(id);
+    setCctvAlerts(db.getCctvAlerts());
+  };
+
   // Calculate stats
   const getAuditStats = () => {
     let score = 8; // base risk
