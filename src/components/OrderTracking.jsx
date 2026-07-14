@@ -5,6 +5,32 @@ export default function OrderTracking({ jobId, onClose, isInline = false, mockJo
   const job = mockJobData || db.getFramingJobs().find(j => j.id === jobId);
   const settings = db.getSettings();
 
+  const formatJobDate = (dateStr) => {
+    try {
+      if (!dateStr) return new Date().toLocaleString('lo-LA', { dateStyle: 'medium', timeStyle: 'short' });
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) {
+        return new Date().toLocaleString('lo-LA', { dateStyle: 'medium', timeStyle: 'short' });
+      }
+      return d.toLocaleString('lo-LA', { dateStyle: 'medium', timeStyle: 'short' });
+    } catch (e) {
+      return new Date().toLocaleString('lo-LA', { dateStyle: 'medium', timeStyle: 'short' });
+    }
+  };
+
+  const formatJobDateShort = (dateStr) => {
+    try {
+      if (!dateStr) return new Date().toLocaleDateString('lo-LA');
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) {
+        return new Date().toLocaleDateString('lo-LA');
+      }
+      return d.toLocaleDateString('lo-LA');
+    } catch (e) {
+      return new Date().toLocaleDateString('lo-LA');
+    }
+  };
+
   // Responsive UI state
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
@@ -71,7 +97,7 @@ export default function OrderTracking({ jobId, onClose, isInline = false, mockJo
         label: db.getLabel('track_step_received', 'ຮັບຝາກພຣະ (Order Received)'), 
         active: true, 
         done: true, 
-        time: new Date(job.createdDate || Date.now()).toLocaleString('lo-LA', { dateStyle: 'medium', timeStyle: 'short' }) 
+        time: formatJobDate(job.createdDate)
       },
       { 
         step: 2, 
@@ -151,7 +177,7 @@ export default function OrderTracking({ jobId, onClose, isInline = false, mockJo
             </div>
             <div>
               <span className="m-label-dim">{db.getLabel('track_date', 'ວັນທີຝາກພຣະ:')}</span>
-              <span className="m-val">{new Date(job.createdDate || Date.now()).toLocaleDateString('lo-LA')}</span>
+              <span className="m-val">{formatJobDateShort(job.createdDate)}</span>
             </div>
             <div style={{ gridColumn: 'span 2' }}>
               <span className="m-label-dim">{db.getLabel('track_customer', 'ຊື່ລູກຄ້າ:')}</span>
@@ -227,15 +253,15 @@ export default function OrderTracking({ jobId, onClose, isInline = false, mockJo
             <div className="m-pricing">
               <div className="m-price-row">
                 <span className="m-price-label">{db.getLabel('track_total_fee', 'ຄ່າບໍລິການທັງໝົດ:')}</span>
-                <span className="m-price-val">{job.totalPrice.toLocaleString()} ₭</span>
+                <span className="m-price-val">{(job.totalPrice || 0).toLocaleString()} ₭</span>
               </div>
               <div className="m-price-row" style={{ color: '#2ecc71' }}>
                 <span className="m-price-label" style={{ color: '#2ecc71' }}>{db.getLabel('track_deposit', 'ມັດຈຳແລ້ວ:')}</span>
-                <span className="m-price-val">-{job.deposit.toLocaleString()} ₭</span>
+                <span className="m-price-val">-{(job.deposit || 0).toLocaleString()} ₭</span>
               </div>
               <div className="m-price-row m-price-total">
                 <span>{db.getLabel('track_balance', 'ຍອດຄົງເຫຼືອທີ່ຕ້ອງຊຳລະຕອນຮັບພຣະ:')}</span>
-                <span style={{ fontSize: '0.92rem' }}>{job.balance.toLocaleString()} ₭</span>
+                <span style={{ fontSize: '0.92rem' }}>{(job.balance || 0).toLocaleString()} ₭</span>
               </div>
             </div>
           </div>
@@ -343,7 +369,7 @@ export default function OrderTracking({ jobId, onClose, isInline = false, mockJo
             </div>
             <div>
               <span className="info-label">{db.getLabel('track_date', 'ວັນທີຝາກພຣະ:')}</span>
-              <span className="info-value">{new Date(job.createdDate || Date.now()).toLocaleDateString('lo-LA')}</span>
+              <span className="info-value">{formatJobDateShort(job.createdDate)}</span>
             </div>
             <div style={{ gridColumn: 'span 2' }}>
               <span className="info-label">{db.getLabel('track_customer', 'ຊື່ລູກຄ້າ:')}</span>
@@ -379,15 +405,15 @@ export default function OrderTracking({ jobId, onClose, isInline = false, mockJo
             <div className="pricing-summary">
               <div className="price-row">
                 <span className="price-label">{db.getLabel('track_total_fee', 'ຄ່າບໍລິການທັງໝົດ:')}</span>
-                <span className="price-value">{job.totalPrice.toLocaleString()} ₭</span>
+                <span className="price-value">{(job.totalPrice || 0).toLocaleString()} ₭</span>
               </div>
               <div className="price-row" style={{ color: '#2ecc71' }}>
                 <span className="price-label" style={{ color: '#2ecc71' }}>{db.getLabel('track_deposit', 'มັດຈຳແລ້ວ:')}</span>
-                <span className="price-value">-{job.deposit.toLocaleString()} ₭</span>
+                <span className="price-value">-{(job.deposit || 0).toLocaleString()} ₭</span>
               </div>
               <div className="price-row price-total">
                 <span>{db.getLabel('track_balance', 'ຍອດຄົງເຫຼືອທີ່ຕ້ອງຊຳລະຕອນຮັບພຣະ:')}</span>
-                <span>{job.balance.toLocaleString()} ₭</span>
+                <span>{(job.balance || 0).toLocaleString()} ₭</span>
               </div>
             </div>
           )}

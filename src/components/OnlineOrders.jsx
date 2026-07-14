@@ -136,9 +136,9 @@ export default function OnlineOrders({ activeUser, isMobile }) {
   // Filtering logic — INQ records only appear in Chat tab, not Orders/Archive
   const filteredOrders = orders.filter(o => {
     if (o.type === 'inquiry') return false;
-    const matchesSearch = o.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          o.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          o.customerPhone.includes(searchQuery);
+    const matchesSearch = (o.id || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (o.customerName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (o.customerPhone || '').includes(searchQuery);
     const matchesPayment = filterPayment === 'all' || o.paymentStatus === filterPayment;
     const matchesShipping = filterShipping === 'all' || o.shippingStatus === filterShipping;
     const matchesTab = activeTab === 'active'
@@ -156,9 +156,9 @@ export default function OnlineOrders({ activeUser, isMobile }) {
   });
   const filteredChatSessions = sortedChatSessions.filter(o => {
     const q = searchQuery.toLowerCase();
-    return o.id.toLowerCase().includes(q) ||
-           o.customerName.toLowerCase().includes(q) ||
-           o.customerPhone.includes(q);
+    return (o.id || '').toLowerCase().includes(q) ||
+           (o.customerName || '').toLowerCase().includes(q) ||
+           (o.customerPhone || '').includes(q);
   });
   const totalUnreadChats = orders.filter(o => o.messages && o.messages.some(m => m.sender === 'customer' && !m.read)).length;
 
@@ -416,7 +416,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2px' }}>
                       <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                        💵 ລວມ: <span style={{ color: 'white', fontWeight: 'bold' }}>{o.totalAmount?.toLocaleString()} LAK</span>
+                        💵 ລວມ: <span style={{ color: 'white', fontWeight: 'bold' }}>{(o.total || o.totalAmount || 0).toLocaleString()} LAK</span>
                       </span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         {unreadCount > 0 && (

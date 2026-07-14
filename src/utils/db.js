@@ -4912,6 +4912,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       if (shippingInfo.notes) order.notes = shippingInfo.notes;
 
       const note = shippingInfo.statusNote || 'ອັບເດດສະຖານະໂດຍລະບົບ';
+      if (!order.timeline) order.timeline = [];
       order.timeline.push({
         status: `ຊຳລະ: ${order.paymentStatus} / ສົ່ງ: ${order.shippingStatus}`,
         date: new Date().toISOString(),
