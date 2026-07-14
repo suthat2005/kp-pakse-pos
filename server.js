@@ -17,6 +17,23 @@ const DIST_DIR = path.resolve(__dirname, './dist');
 const DB_FILE = path.resolve(__dirname, './db_shared.json');
 const KEY_FILE = path.resolve(__dirname, './firebase-key.json');
 
+// Simple async mutex lock to prevent concurrent file write race conditions on db_shared.json
+class Lock {
+  constructor() {
+    this.promise = Promise.resolve();
+  }
+  acquire() {
+    let release;
+    const next = new Promise(resolve => {
+      release = resolve;
+    });
+    const current = this.promise;
+    this.promise = current.then(() => next);
+    return current.then(() => release);
+  }
+}
+const dbLock = new Lock();
+
 // Initialize Firebase Admin
 let firestoreDb = null;
 try {
@@ -535,8 +552,9 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/api/db/save' && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => { body += chunk; });
-    req.on('end', () => {
+    req.on('end', async () => {
       res.setHeader('Content-Type', 'application/json');
+      const release = await dbLock.acquire();
       try {
         const { key, data, updatedAt } = JSON.parse(body);
         if (!key) {
@@ -616,6 +634,8 @@ const server = http.createServer(async (req, res) => {
       } catch (err) {
         res.statusCode = 500;
         res.end(JSON.stringify({ success: false, error: err.message }));
+      } finally {
+        release();
       }
     });
     return;
@@ -659,6 +679,7 @@ const server = http.createServer(async (req, res) => {
     req.on('data', chunk => { chunks.push(chunk); });
     req.on('end', async () => {
       res.setHeader('Content-Type', 'application/json');
+      const release = await dbLock.acquire();
       try {
         const buffer = Buffer.concat(chunks);
         const decompressed = zlib.gunzipSync(buffer);
@@ -693,6 +714,8 @@ const server = http.createServer(async (req, res) => {
         console.error("❌ Database restore failed:", err);
         res.statusCode = 500;
         res.end(JSON.stringify({ success: false, error: err.message }));
+      } finally {
+        release();
       }
     });
     return;
@@ -701,6 +724,7 @@ const server = http.createServer(async (req, res) => {
   // API: Production - Reset Demo Data (Wipes transactional data atomically)
   if (pathname === '/api/production/reset-demo' && req.method === 'POST') {
     res.setHeader('Content-Type', 'application/json');
+    const release = await dbLock.acquire();
     try {
       let sharedDb = {};
       if (fs.existsSync(DB_FILE)) {
@@ -741,6 +765,8 @@ const server = http.createServer(async (req, res) => {
       console.error("❌ Reset Demo Data failed:", err);
       res.statusCode = 500;
       res.end(JSON.stringify({ success: false, error: err.message }));
+    } finally {
+      release();
     }
     return;
   }
@@ -748,6 +774,7 @@ const server = http.createServer(async (req, res) => {
   // API: Production - Initialize System Admin Account (Seed default admin/admin123 with force password change)
   if (pathname === '/api/production/initialize' && req.method === 'POST') {
     res.setHeader('Content-Type', 'application/json');
+    const release = await dbLock.acquire();
     try {
       let sharedDb = {};
       if (fs.existsSync(DB_FILE)) {
@@ -808,6 +835,8 @@ const server = http.createServer(async (req, res) => {
       console.error("❌ Production Initialize failed:", err);
       res.statusCode = 500;
       res.end(JSON.stringify({ success: false, error: err.message }));
+    } finally {
+      release();
     }
     return;
   }

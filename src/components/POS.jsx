@@ -2434,7 +2434,8 @@ export default function POS({
         price: totalPrice / newJob.amulets.length,
         qty: newJob.amulets.length,
         total: totalPrice,
-        category: serviceCat.id
+        category: serviceCat.id,
+        amulets: newJob.amulets
       });
       if (isDeposit) {
         updatedSlots[targetSlotId].depositAmount = depositAmount;
@@ -2538,7 +2539,8 @@ export default function POS({
         price: totalPrice / newJob.amulets.length,
         qty: newJob.amulets.length,
         total: totalPrice,
-        category: serviceCat.id
+        category: serviceCat.id,
+        amulets: newJob.amulets
       });
 
       if (primaryImage) {
@@ -2669,6 +2671,7 @@ export default function POS({
           updatedSlots[targetSlotId].items[itemIdx].price = totalPrice / updatedJob.amulets.length;
           updatedSlots[targetSlotId].items[itemIdx].qty = updatedJob.amulets.length;
           updatedSlots[targetSlotId].items[itemIdx].total = totalPrice;
+          updatedSlots[targetSlotId].items[itemIdx].amulets = updatedJob.amulets;
           if (primaryImage) {
             updatedSlots[targetSlotId].amuletImage = primaryImage;
           }
@@ -5905,11 +5908,23 @@ export default function POS({
                       const linkedJob = item.productId && item.productId.startsWith('JOB') 
                         ? db.getFramingJobs().find(j => j.id === item.productId) 
                         : null;
+                      const amuletsList = (linkedJob && linkedJob.amulets) || item.amulets || [];
                       return (
                         <tr key={idx} style={{ borderBottom: '1px dotted rgba(0,0,0,0.05)' }}>
                           <td style={{ paddingTop: '4px', paddingBottom: '6px', lineHeight: '1.2' }}>
                             <div style={{ fontWeight: 'bold' }}>{item.name}</div>
-
+                            {amuletsList.length > 0 && (
+                              <div style={{ fontSize: '7.5pt', color: '#555', paddingLeft: '6px', marginTop: '2px', lineHeight: '1.2' }}>
+                                {amuletsList.map((a, i) => (
+                                  <div key={i} style={{ marginBottom: '1px' }}>
+                                    {i + 1}. {a.description || 'ພຣະເຄື່ອງ'} 
+                                    {a.frameStyle && ` (${a.frameStyle})`}
+                                    {a.acrylicThickness && ` (${a.acrylicThickness})`}
+                                    {a.specialNotes && ` - ${a.specialNotes}`}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </td>
                           <td style={{ width: settings.receiptQtyColWidth || '35px', textAlign: 'center', paddingTop: '4px', verticalAlign: 'top' }}>{item.qty}</td>
                           <td style={{ width: settings.receiptPriceColWidth || '95px', textAlign: 'right', paddingTop: '4px', verticalAlign: 'top' }}>{item.total.toLocaleString()} ກີບ</td>

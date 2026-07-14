@@ -375,7 +375,23 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
 
     let itemsHtml = '';
     (debt.items || []).forEach(item => {
-      itemsHtml += '<tr><td style="padding:4px 0;line-height:1.2;">' + item.name + '</td><td style="width:' + (s.receiptQtyColWidth || '35px') + ';text-align:center;padding:4px 0;">' + item.qty + '</td><td style="width:' + (s.receiptPriceColWidth || '95px') + ';text-align:right;padding:4px 0;">' + (item.total || (item.price * item.qty)).toLocaleString() + ' ກີບ</td></tr>';
+      const linkedJob = item.productId && item.productId.startsWith('JOB') 
+        ? db.getFramingJobs().find(j => j.id === item.productId) 
+        : null;
+      const amuletsList = (linkedJob && linkedJob.amulets) || item.amulets || [];
+      let amuletsHtml = '';
+      if (amuletsList.length > 0) {
+        amuletsHtml = '<div style="font-size:calc(' + fontSize + ' - 2.5pt);color:#555;padding-left:6px;margin-top:2px;line-height:1.2;">';
+        amuletsList.forEach((a, i) => {
+          let extra = '';
+          if (a.frameStyle) extra += ' (' + a.frameStyle + ')';
+          if (a.acrylicThickness) extra += ' (' + a.acrylicThickness + ')';
+          if (a.specialNotes) extra += ' - ' + a.specialNotes;
+          amuletsHtml += '<div style="margin-bottom:1px;">' + (i + 1) + '. ' + (a.description || 'ພຣະເຄື່ອງ') + extra + '</div>';
+        });
+        amuletsHtml += '</div>';
+      }
+      itemsHtml += '<tr><td style="padding:4px 0;line-height:1.2;"><div style="font-weight:bold;">' + item.name + '</div>' + amuletsHtml + '</td><td style="width:' + (s.receiptQtyColWidth || '35px') + ';text-align:center;padding:4px 0;vertical-align:top;">' + item.qty + '</td><td style="width:' + (s.receiptPriceColWidth || '95px') + ';text-align:right;padding:4px 0;vertical-align:top;">' + (item.total || (item.price * item.qty)).toLocaleString() + ' ກີບ</td></tr>';
     });
 
     const statusText = debt.status === 'unpaid' ? '🔴 ຍັງບໍ່ທັນຊຳລະ' : '🟢 ຊຳລະແລ້ວ';
@@ -3330,13 +3346,33 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {selectedReceipt.items.map((item, idx) => (
-                      <tr key={idx}>
-                        <td style={{ paddingTop: '4px', paddingBottom: '4px', lineHeight: '1.2' }}>{item.name}</td>
-                        <td style={{ textAlign: 'center', paddingTop: '4px' }}>{item.qty}</td>
-                        <td style={{ textAlign: 'right', paddingTop: '4px' }}>{item.total.toLocaleString()}</td>
-                      </tr>
-                    ))}
+                    {selectedReceipt.items.map((item, idx) => {
+                      const linkedJob = item.productId && item.productId.startsWith('JOB') 
+                        ? db.getFramingJobs().find(j => j.id === item.productId) 
+                        : null;
+                      const amuletsList = (linkedJob && linkedJob.amulets) || item.amulets || [];
+                      return (
+                        <tr key={idx}>
+                          <td style={{ paddingTop: '4px', paddingBottom: '4px', lineHeight: '1.2' }}>
+                            <div style={{ fontWeight: 'bold' }}>{item.name}</div>
+                            {amuletsList.length > 0 && (
+                              <div style={{ fontSize: '7.5pt', color: '#555', paddingLeft: '6px', marginTop: '2px', lineHeight: '1.2' }}>
+                                {amuletsList.map((a, i) => (
+                                  <div key={i} style={{ marginBottom: '1px' }}>
+                                    {i + 1}. {a.description || 'ພຣະເຄື່ອງ'} 
+                                    {a.frameStyle && ` (${a.frameStyle})`}
+                                    {a.acrylicThickness && ` (${a.acrylicThickness})`}
+                                    {a.specialNotes && ` - ${a.specialNotes}`}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </td>
+                          <td style={{ textAlign: 'center', paddingTop: '4px' }}>{item.qty}</td>
+                          <td style={{ textAlign: 'right', paddingTop: '4px' }}>{item.total.toLocaleString()}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
 
@@ -3497,13 +3533,33 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {(selectedDebtReceipt.items || []).map((item, idx) => (
-                        <tr key={idx}>
-                          <td style={{ paddingTop: '4px', paddingBottom: '4px', lineHeight: '1.2' }}>{item.name}</td>
-                          <td style={{ textAlign: 'center', paddingTop: '4px' }}>{item.qty}</td>
-                          <td style={{ textAlign: 'right', paddingTop: '4px' }}>{(item.total || (item.price * item.qty)).toLocaleString()}</td>
-                        </tr>
-                      ))}
+                      {(selectedDebtReceipt.items || []).map((item, idx) => {
+                        const linkedJob = item.productId && item.productId.startsWith('JOB') 
+                          ? db.getFramingJobs().find(j => j.id === item.productId) 
+                          : null;
+                        const amuletsList = (linkedJob && linkedJob.amulets) || item.amulets || [];
+                        return (
+                          <tr key={idx}>
+                            <td style={{ paddingTop: '4px', paddingBottom: '4px', lineHeight: '1.2' }}>
+                              <div style={{ fontWeight: 'bold' }}>{item.name}</div>
+                              {amuletsList.length > 0 && (
+                                <div style={{ fontSize: '7.5pt', color: '#555', paddingLeft: '6px', marginTop: '2px', lineHeight: '1.2' }}>
+                                  {amuletsList.map((a, i) => (
+                                    <div key={i} style={{ marginBottom: '1px' }}>
+                                      {i + 1}. {a.description || 'ພຣະເຄື່ອງ'} 
+                                      {a.frameStyle && ` (${a.frameStyle})`}
+                                      {a.acrylicThickness && ` (${a.acrylicThickness})`}
+                                      {a.specialNotes && ` - ${a.specialNotes}`}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </td>
+                            <td style={{ textAlign: 'center', paddingTop: '4px' }}>{item.qty}</td>
+                            <td style={{ textAlign: 'right', paddingTop: '4px' }}>{(item.total || (item.price * item.qty)).toLocaleString()}</td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                   <div className="print-receipt-divider"></div>
