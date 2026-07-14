@@ -272,7 +272,7 @@ export default function AIDetector({ activeUser }) {
   const [scannerMode, setScannerMode] = useState('upload'); // 'upload', 'webcam'
   const [webcamStream, setWebcamStream] = useState(null);
   const [scannedAmuletImage, setScannedAmuletImage] = useState('');
-  const [selectedTargetSlotId, setSelectedTargetSlotId] = useState('Walk-In');
+  const [selectedTargetSlotId, setSelectedTargetSlotId] = useState('01');
   const [slotsList, setSlotsList] = useState({});
 
   useEffect(() => {

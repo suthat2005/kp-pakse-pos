@@ -1949,7 +1949,6 @@ severity: 'info'
 
 const getInitialSlots = () => {
 const ids = [
-'Walk-In',
 '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16',
 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9', 'P10', 'P11', 'P12', 'P13', 'P14', 'P15', 'P16',
 'OUT-1', 'OUT-2'
@@ -2440,6 +2439,10 @@ this.saveSettings(settings);
     const slots = getStorage('slots', null);
     if (!slots || typeof slots !== 'object') {
       return getInitialSlots();
+    }
+    if (slots['Walk-In']) {
+      delete slots['Walk-In'];
+      setStorage('slots', slots);
     }
     return slots;
   },

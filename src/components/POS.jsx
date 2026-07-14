@@ -147,7 +147,7 @@ export default function POS({
   const [mobileTab, setMobileTab] = useState('products'); // 'products' or 'cart' for mobile responsive view toggling
   
   const [slots, setSlots] = useState({});
-  const [localSelectedSlotId, setLocalSelectedSlotId] = useState('Walk-In');
+  const [localSelectedSlotId, setLocalSelectedSlotId] = useState('01');
   const selectedSlotId = propSelectedSlotId !== undefined ? propSelectedSlotId : localSelectedSlotId;
   const setSelectedSlotId = propSetSelectedSlotId !== undefined ? propSetSelectedSlotId : setLocalSelectedSlotId;
   
@@ -237,7 +237,7 @@ export default function POS({
     pickupDate: '',
     status: 'pending',
     amuletImage: '',
-    slotId: 'Walk-In'
+    slotId: '01'
   });
 
   // Quantity Dialog Modal (Image 3)
@@ -562,7 +562,7 @@ export default function POS({
   };
 
   const handleOpenServiceConfig = useCallback((product) => {
-    const targetSlotId = selectedSlotId || 'Walk-In';
+    const targetSlotId = selectedSlotId || '01';
     const targetSlot = slots[targetSlotId];
     setServiceConfigProduct(product);
     setServiceConfigQty(1);
@@ -2264,7 +2264,7 @@ export default function POS({
     playSound('cash');
     
     // Save to database deposits
-    const targetSlotId = selectedSlotId || 'Walk-In';
+    const targetSlotId = selectedSlotId || '01';
     const depData = {
       billId: activeSlot.billId || '',
       queueId: targetSlotId,
@@ -2378,7 +2378,7 @@ export default function POS({
     if (e) e.preventDefault();
     if (!serviceConfigProduct) return;
 
-    const targetSlotId = selectedSlotId || 'Walk-In';
+    const targetSlotId = selectedSlotId || '01';
     const targetSlot = slots[targetSlotId];
     if (!targetSlot) return;
 
@@ -2459,7 +2459,7 @@ export default function POS({
   };
 
   const handleAddFramingClick = (slotId, presetProdId) => {
-    const targetSlotId = slotId || selectedSlotId || 'Walk-In';
+    const targetSlotId = slotId || selectedSlotId || '01';
     const targetSlot = slots[targetSlotId];
     
     let defaultFrame = products.find(p => p.category === 'frames') || products.find(p => !db.isServiceCategory(p.category)) || products.find(p => db.isServiceCategory(p.category));
@@ -2532,7 +2532,7 @@ export default function POS({
 
     // Link job balance to the slot items
     const updatedSlots = { ...slots };
-    const targetSlotId = framingFormData.slotId || 'Walk-In';
+    const targetSlotId = framingFormData.slotId || '01';
     if (updatedSlots[targetSlotId]) {
       const depositAmount = Number(framingFormData.deposit || 0);
       const isDeposit = depositAmount > 0;
@@ -2598,7 +2598,7 @@ export default function POS({
       notes: job.notes || '',
       pickupDate: getLocalDatetimeString(new Date(job.pickupDate)),
       status: job.status,
-      slotId: job.slotId || 'Walk-In',
+      slotId: job.slotId || '01',
       amulets: amuletsList,
       totalPrice: job.totalPrice
     });
@@ -2680,7 +2680,7 @@ export default function POS({
     // Sync edited price/deposit to the linked slot cart item if the job is not picked up
     if (framingFormData.status !== 'picked_up') {
       const updatedSlots = { ...slots };
-      const targetSlotId = currentFramingJob.slotId || 'Walk-In';
+      const targetSlotId = currentFramingJob.slotId || '01';
       if (updatedSlots[targetSlotId]) {
         const balanceToPay = Number(totalPrice) - Number(framingFormData.deposit || 0);
         const itemIdx = updatedSlots[targetSlotId].items.findIndex(item => item.productId === currentFramingJob.id);
@@ -2720,10 +2720,10 @@ export default function POS({
   };
 
   const handleCollectPayment = (job) => {
-    setSelectedSlotId(job.slotId || 'Walk-In');
+    setSelectedSlotId(job.slotId || '01');
     
     const updatedSlots = { ...slots };
-    const targetSlot = updatedSlots[job.slotId || 'Walk-In'];
+    const targetSlot = updatedSlots[job.slotId || '01'];
     if (targetSlot) {
       const amuletCount = (job.amulets && job.amulets.length) || 1;
       const unitPrice = job.balance / amuletCount;
@@ -6631,7 +6631,7 @@ export default function POS({
                     pickupDate: '',
                     status: 'pending',
                     amuletImage: '',
-                    slotId: 'Walk-In',
+                    slotId: '01',
                     amulets: []
                   });
                 }}>ຍົກເລີກ</button>
@@ -6930,7 +6930,7 @@ export default function POS({
                       pickupDate: '',
                       status: 'pending',
                       amuletImage: '',
-                      slotId: 'Walk-In',
+                      slotId: '01',
                       amulets: []
                     });
                   }}>ຍົກເລີກ</button>
@@ -7275,7 +7275,7 @@ export default function POS({
                   }
 
                   const updatedSlots = { ...slots };
-                  const targetSlotId = selectedSlotId || 'Walk-In';
+                  const targetSlotId = selectedSlotId || '01';
                   if (updatedSlots[targetSlotId]) {
                     updatedSlots[targetSlotId].depositAmount = val;
                     // Reset deposit payment options (they will select it in checkout modal)
