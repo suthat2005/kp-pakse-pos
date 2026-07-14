@@ -3294,7 +3294,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
                   <div><b>ເລກບິນ:</b> {selectedReceipt.id}</div>
                   <div><b>ວັນທີ:</b> {new Date(selectedReceipt.date).toLocaleString('lo-LA')}</div>
                   <div><b>ພະນັກງານຂາຍ:</b> {selectedReceipt.cashierName || 'Online Shop'}</div>
-                  <div><b>ການຊຳລະ:</b> {selectedReceipt.id.startsWith('ONL-') ? 'ໂອນທະນາຄານ (Online)' : (selectedReceipt.paymentMethod === 'treat' ? '🎁 ລ້ຽງແຂກ' : (selectedReceipt.paymentMethod === 'cash' ? 'ເງິນສົດ' : selectedReceipt.paymentMethod === 'split' ? 'ເງິນສົດ + ໂອນ' : 'ໂອນທະນາຄານ'))}</div>
+                  <div><b>ການຊຳລະ:</b> {selectedReceipt.id.startsWith('ONL-') ? 'ໂອນທະນາຄານ (Online)' : (selectedReceipt.paymentMethod === 'treat' ? '🎁 ລ້ຽງແຂກ' : (selectedReceipt.paymentMethod === 'cash' ? 'ເງິນສົດ' : selectedReceipt.paymentMethod === 'split' ? 'ເງິນສົດ + ໂອນ' : selectedReceipt.paymentMethod === 'debt' ? '📒 ຕິດໜີ້ (Credit/Debt)' : 'ໂອນທະນາຄານ'))}</div>
                   {selectedReceipt.bankTxRef && <div><b>ເລກອ້າງອີງ:</b> {selectedReceipt.bankTxRef}</div>}
                   {selectedReceipt.id.startsWith('ONL-') && selectedReceipt.shippingAddress && (
                     <div style={{ marginTop: '4px', borderTop: '0.5px solid #ccc', paddingTop: '4px', fontSize: '7.5pt' }}>
@@ -3421,6 +3421,23 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
                           : (selectedReceipt.currencyChange !== undefined ? selectedReceipt.currencyChange : selectedReceipt.change).toLocaleString() + ' ' + (selectedReceipt.payCurrency === 'THB' ? 'ບາດ' : selectedReceipt.payCurrency === 'USD' ? 'USD' : 'ກີບ')}
                       </span>
                     </div>
+                  </div>
+                ) : selectedReceipt.paymentMethod === 'debt' ? (
+                  <div style={{ fontSize: '8pt', marginTop: '6px', border: '0.5px solid #e74c3c', padding: '6px', borderRadius: '4px', background: 'rgba(231,76,60,0.05)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#e74c3c', fontWeight: 'bold' }}>
+                      <span>📒 ຍອດຕິດໜີ້ (Debt):</span>
+                      <span>{(selectedReceipt.remainingAmount || 0).toLocaleString()} ₭</span>
+                    </div>
+                    {selectedReceipt.depositAmount > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '7.5pt', color: '#666', marginTop: '2px' }}>
+                        <span>💰 ມັດຈຳທີ່ຊຳລະແລ້ວ:</span>
+                        <span>{selectedReceipt.depositAmount.toLocaleString()} ₭</span>
+                      </div>
+                    )}
+                  </div>
+                ) : selectedReceipt.paymentMethod === 'treat' ? (
+                  <div style={{ fontSize: '8pt', marginTop: '6px', border: '0.5px solid #e67e22', padding: '4px', textAlign: 'center', color: '#e67e22', borderRadius: '4px', background: 'rgba(230,126,34,0.05)' }}>
+                    <span>🎁 ລາຍການລ້ຽງແຂກ (Treat) - ບໍ່ມີຄ່າໃຊ້ຈ່າຍ</span>
                   </div>
                 ) : (
                   <div style={{ fontSize: '8pt', marginTop: '6px', border: '0.5px solid black', padding: '4px', textAlign: 'center' }}>
