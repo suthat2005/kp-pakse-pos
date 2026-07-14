@@ -573,7 +573,7 @@ export default function POS({
         id: Date.now() + Math.random(),
         description: '',
         image: targetSlot ? targetSlot.amuletImage : '',
-        frameStyle: 'ກອບໃສ',
+        frameStyle: settings.frameStyles?.[0] || 'ກອບໃສ',
         acrylicThickness: '2.0 mm',
         specialNotes: ''
       }
@@ -1210,7 +1210,8 @@ export default function POS({
           name: isDepositPayment ? `ມັດຈຳ: ${serviceName}` : serviceName,
           price: (linkedJob.totalPrice || 0) / amuletCount,
           qty: amuletCount,
-          total: linkedJob.totalPrice || 0
+          total: linkedJob.totalPrice || 0,
+          amulets: linkedJob.amulets || item.amulets || []
         };
       } else {
         return {
@@ -2361,7 +2362,7 @@ export default function POS({
             id: Date.now() + Math.random() + copy.length,
             description: '',
             image: '',
-            frameStyle: 'ກອບໃສ',
+            frameStyle: settings.frameStyles?.[0] || 'ກອບໃສ',
             acrylicThickness: '2.0 mm',
             specialNotes: ''
           });
@@ -2484,7 +2485,10 @@ export default function POS({
           frameTypeId: defaultFrame ? defaultFrame.id : 'S001',
           frameTypeName: defaultFrame ? defaultFrame.name : 'ອັດກັນນ້ຳພິເສດ',
           price: defaultFrame ? Number(defaultFrame.price) : 60000,
-          image: targetSlot ? targetSlot.amuletImage : ''
+          image: targetSlot ? targetSlot.amuletImage : '',
+          frameStyle: settings.frameStyles?.[0] || 'ກອບໃສ',
+          acrylicThickness: '2.0 mm',
+          specialNotes: ''
         }
       ],
       totalPrice: defaultFrame ? Number(defaultFrame.price) : 60000
@@ -2495,12 +2499,21 @@ export default function POS({
 
   const handleAddFramingSubmit = (e) => {
     e.preventDefault();
-    const amulets = framingFormData.amulets || [];
-    if (amulets.length === 0) {
+    const rawAmulets = framingFormData.amulets || [];
+    if (rawAmulets.length === 0) {
       setFramingError('ກະລຸນາເພີ່ມພຣະເຄື່ອງຢ່າງໜ້ອຍ 1 ອົງ');
       return;
     }
     
+    const amulets = rawAmulets.map(a => ({
+      ...a,
+      description: a.description || '',
+      image: a.image || '',
+      frameStyle: a.frameStyle || (settings.frameStyles?.[0] || 'ກອບໃສ'),
+      acrylicThickness: a.acrylicThickness || '2.0 mm',
+      specialNotes: a.specialNotes || ''
+    }));
+
     const totalPrice = amulets.reduce((sum, a) => sum + Number(a.price || 0), 0);
     const amuletDescription = amulets.map((a, idx) => `ອົງທີ ${idx+1}: ${a.description || 'ບໍ່ມີລາຍລະອຽດ'}`).join(', ');
     const primaryAmulet = amulets[0];
@@ -2631,12 +2644,21 @@ export default function POS({
 
   const handleEditFramingSubmit = (e) => {
     e.preventDefault();
-    const amulets = framingFormData.amulets || [];
-    if (amulets.length === 0) {
+    const rawAmulets = framingFormData.amulets || [];
+    if (rawAmulets.length === 0) {
       setFramingError('ກະລຸນາເພີ່ມພຣະເຄື່ອງຢ່າງໜ້ອຍ 1 ອົງ');
       return;
     }
     
+    const amulets = rawAmulets.map(a => ({
+      ...a,
+      description: a.description || '',
+      image: a.image || '',
+      frameStyle: a.frameStyle || (settings.frameStyles?.[0] || 'ກອບໃສ'),
+      acrylicThickness: a.acrylicThickness || '2.0 mm',
+      specialNotes: a.specialNotes || ''
+    }));
+
     const totalPrice = amulets.reduce((sum, a) => sum + Number(a.price || 0), 0);
     const amuletDescription = amulets.map((a, idx) => `ອົງທີ ${idx+1}: ${a.description || 'ບໍ່ມີລາຍລະອຽດ'}`).join(', ');
     const primaryAmulet = amulets[0];
@@ -6335,7 +6357,10 @@ export default function POS({
                           frameTypeId: defaultFrame ? defaultFrame.id : 'S001',
                           frameTypeName: defaultFrame ? defaultFrame.name : 'ອັດກັນນ້ຳພິເສດ',
                           price: defaultFrame ? Number(defaultFrame.price) : 60000,
-                          image: ''
+                          image: '',
+                          frameStyle: settings.frameStyles?.[0] || 'ກອບໃສ',
+                          acrylicThickness: '2.0 mm',
+                          specialNotes: ''
                         });
                         const totalPrice = newAmulets.reduce((sum, a) => sum + Number(a.price || 0), 0);
                         setFramingFormData({
@@ -6650,7 +6675,10 @@ export default function POS({
                           frameTypeId: defaultFrame ? defaultFrame.id : 'S001',
                           frameTypeName: defaultFrame ? defaultFrame.name : 'ອັດກັນນ້ຳພິເສດ',
                           price: defaultFrame ? Number(defaultFrame.price) : 60000,
-                          image: ''
+                          image: '',
+                          frameStyle: settings.frameStyles?.[0] || 'ກອບໃສ',
+                          acrylicThickness: '2.0 mm',
+                          specialNotes: ''
                         });
                         const totalPrice = newAmulets.reduce((sum, a) => sum + Number(a.price || 0), 0);
                         setFramingFormData({

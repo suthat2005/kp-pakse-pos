@@ -3193,10 +3193,13 @@ this.saveFramingJobs(jobs);
 
 const settings = this.getSettings();
 if (settings.notifyNewJob !== false) {
+  const primaryAmulet = (newJob.amulets && newJob.amulets[0]) || {};
+  const fStyle = newJob.frameStyle || primaryAmulet.frameStyle || 'ກອບໃສ';
+  const aThickness = newJob.acrylicThickness || primaryAmulet.acrylicThickness || '2.0 mm';
   const msg = `🛠️ *ແຈ້ງເຕືອນງານອັດກອບໃໝ่!*\n` +
               `🧾 *ລະຫັດງານ:* ${newJob.id}\n` +
               `👤 *ລູກຄ້າ:* ${newJob.customerName || 'ທົ່ວໄປ'}\n` +
-              `🖼️ *ປະເພດກອບ:* ${newJob.frameStyle} (ໜາ: ${newJob.acrylicThickness})\n` +
+              `🖼️ *ປະເພດກອບ:* ${fStyle} (ໜາ: ${aThickness})\n` +
               `💰 *ລາຄາລວມ:* ${newJob.totalPrice.toLocaleString()} LAK\n` +
               `📥 *ມັດຈຳ:* ${newJob.deposit.toLocaleString()} LAK\n` +
               `⏳ *ຄ້າງຊຳລະ:* ${newJob.balance.toLocaleString()} LAK`;
