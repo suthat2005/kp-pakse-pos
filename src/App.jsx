@@ -3,6 +3,7 @@ import { db, DEFAULT_LABEL_KEYS } from './utils/db';
 import Portal from './components/Portal';
 
 const Login = lazy(() => import('./components/Login'));
+const Dashboard = lazy(() => import('./components/Dashboard'));
 const POS = lazy(() => import('./components/POS'));
 const Inventory = lazy(() => import('./components/Inventory'));
 const FramingBoard = lazy(() => import('./components/FramingBoard'));
@@ -23,6 +24,17 @@ const hasPermission = (user, tabKey) => {
   // Protect Settings: ONLY allow owners/admins to manage hardware configurations
   if (tabKey === 'settings') {
     return user.role === 'owner' || (user.permissions && user.permissions.settings);
+  }
+
+  // Dashboard: visible to owners/admins or anyone allowed to see reports
+  if (tabKey === 'dashboard') {
+    return (
+      user.role === 'owner' ||
+      (user.permissions &&
+        (user.permissions.admin ||
+          user.permissions.dashboard ||
+          user.permissions.reports))
+    );
   }
 
   if (user.role === 'owner') return true;
@@ -922,6 +934,18 @@ export default function App() {
               )}
             </div>
           )}
+                    {/* 0. Dashboard */}
+          {hasPermission(activeUser, 'dashboard') && !isMobile && (
+            <button
+              type="button"
+              className={`sidebar-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('dashboard'); setMobileSidebarOpen(false); }}
+            >
+              <span className="sidebar-icon">🏠</span>
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_dashboard', '🏠 ພາບລວມ (Dashboard)'))}</span>}
+            </button>
+          )}
+
                     {/* 1. Reports */}
           {hasPermission(activeUser, 'reports') && !isMobile && (
             <button
@@ -1075,6 +1099,7 @@ export default function App() {
               ☰
             </button>
             <span className="active-route-name" style={isMobile ? { fontSize: '0.85rem', whiteSpace: 'nowrap', maxWidth: '85px', overflow: 'hidden', textOverflow: 'ellipsis' } : {}}>
+              {activeTab === 'dashboard' && (isMobile ? 'ພາບລວມ' : '🏠 ພາບລວມທຸລະກິດ (Dashboard)')}
               {activeTab === 'pos' && (isMobile ? 'POS' : '💵 ຂາຍໜ້າຮ້ານ (POS)')}
               {activeTab === 'framing_board' && (isMobile ? 'ງານອັດກອບ' : '🛠️ ບອດງານອັດກອບ (Framing Board)')}
               {activeTab === 'inventory' && (isMobile ? 'ສະຕັອກ' : '📦 ຈັດການສະຕັອກ & ວັດຖຸດິບ (Inventory)')}
@@ -1391,6 +1416,10 @@ export default function App() {
               </div>
             }>
               <>
+              {activeTab === 'dashboard' && hasPermission(activeUser, 'dashboard') && (
+                <Dashboard activeUser={activeUser} onTabChange={setActiveTab} isMobile={isMobile} />
+              )}
+
               {activeTab === 'pos' && hasPermission(activeUser, 'pos') && (
                 <POS
                   key={activeUser.id}
