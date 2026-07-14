@@ -4704,7 +4704,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       tier: c.tier || 'Regular',
       password: c.password || '',
       addresses: c.addresses || [],
-      points: 0,
+      points: Number(c.points) || 0,
       totalSpend: 0,
       createdDate: new Date().toISOString()
     };
