@@ -2901,7 +2901,7 @@ saveOrders(orders) {
       order_id: targetOrderId,
       amount_paid: newOrder.paidAmount !== undefined ? newOrder.paidAmount : newOrder.total,
       payment_stage: paymentStage,
-      payment_method: newOrder.paymentMethod === 'cash' ? 'Cash' : (newOrder.paymentMethod === 'transfer' ? 'BCEL One' : (newOrder.paymentMethod === 'treat' ? 'Treat' : 'Split')),
+      payment_method: newOrder.paymentMethod === 'cash' ? 'Cash' : (newOrder.paymentMethod === 'transfer' ? 'BCEL One' : (newOrder.paymentMethod === 'treat' ? 'Treat' : (newOrder.paymentMethod === 'debt' ? 'Debt' : 'Split'))),
       payCurrency: newOrder.payCurrency,
       cashReceived: newOrder.cashReceived,
       transferAmount: newOrder.transferAmount,

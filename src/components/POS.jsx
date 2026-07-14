@@ -2069,6 +2069,7 @@ export default function POS({
       total: grandTotal,
       depositAmount: activeSlot.depositAmount || 0,
       remainingAmount: remainingDebt,
+      paidAmount: activeSlot.depositAmount || 0,
       paymentMethod: 'debt',
       payCurrency: 'LAK',
       cashierName: activeUser ? activeUser.name : 'ພະນັກງານ',
