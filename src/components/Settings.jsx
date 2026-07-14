@@ -636,26 +636,14 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
     }
   };
 
-  const handleSaveWages = (e) => {
-    e.preventDefault();
-    const updated = {
-      ...settings,
-      dailyWages: {
-        owner: Number(dailyWages.owner),
-        cashier: Number(dailyWages.cashier),
-        technician: Number(dailyWages.technician)
-      },
-      otHourlyRates: {
-        owner: Number(otRates.owner),
-        cashier: Number(otRates.cashier),
-        technician: Number(otRates.technician)
+  const updateWageRate = (group, role, value) => {
+    setSettings(prev => ({
+      ...prev,
+      [group]: {
+        ...(prev[group] || {}),
+        [role]: value === '' ? '' : Number(value)
       }
-    };
-    db.saveSettings(updated);
-    setSettings(updated);
-    setSuccessMsg('✓ ອັບເດດອັດຕາຄ່າຈ້າງ ແລະ OT ຂອງພະນັກງານສຳເລັດ!');
-    if (onUpdate) onUpdate();
-    setTimeout(() => setSuccessMsg(''), 3000);
+    }));
   };
 
   return (
@@ -3648,6 +3636,45 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   />
                 </div>
               </div>
+
+              <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', margin: '12px 0 8px' }}>
+                💰 ອັດຕາຄ່າຈ້າງ & OT (Wages & Overtime)
+              </h3>
+              <small style={{ color: 'var(--text-secondary)', marginTop: '-4px' }}>
+                ຄ່າຈ້າງລາຍວັນ (ກີບ/ວັນ) ແລະ ຄ່າ OT (ກີບ/ຊົ່ວໂມງ) ຕາມຕຳແໜ່ງ — ໃຊ້ຄິດໄລ່ເງິນເດືອນໃນໂມດູນ HRM
+              </small>
+              {[
+                { role: 'owner', label: 'ເຈົ້າຂອງ (Owner)' },
+                { role: 'cashier', label: 'ພະນັກງານຂາຍ (Cashier)' },
+                { role: 'technician', label: 'ຊ່າງ (Technician)' }
+              ].map(({ role, label }) => (
+                <div key={role} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', alignItems: 'end' }}>
+                  <div className="form-group">
+                    <label className="form-label">{label}</label>
+                    <input type="text" className="form-control" disabled value={label} readOnly />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">ຄ່າຈ້າງ/ວັນ (Daily Wage)</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      min="0"
+                      value={settings.dailyWages?.[role] ?? ''}
+                      onChange={(e) => updateWageRate('dailyWages', role, e.target.value)}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">ຄ່າ OT/ຊົ່ວໂມງ (OT Rate)</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      min="0"
+                      value={settings.otHourlyRates?.[role] ?? ''}
+                      onChange={(e) => updateWageRate('otHourlyRates', role, e.target.value)}
+                    />
+                  </div>
+                </div>
+              ))}
 
               <button type="submit" className="btn btn-primary" style={{ width: 'fit-content', alignSelf: 'flex-end', marginTop: '10px' }}>
                 💾 ບັນທຶກການຕັ້ງຄ່າທົ່ວໄປ

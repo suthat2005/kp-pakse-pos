@@ -265,6 +265,17 @@ export default function POS({
   const [newSlotLabel, setNewSlotLabel] = useState('');
   const [addSlotError, setAddSlotError] = useState('');
 
+  // Return / Refund Modal (ຄືນສິນຄ້າ / ຄືນເງິນ)
+  const [showReturnModal, setShowReturnModal] = useState(false);
+  const [returnLookupId, setReturnLookupId] = useState('');
+  const [returnOrder, setReturnOrder] = useState(null);
+  const [returnQtys, setReturnQtys] = useState({});
+  const [returnMethod, setReturnMethod] = useState('cash');
+  const [returnReason, setReturnReason] = useState('');
+  const [returnRestock, setReturnRestock] = useState(true);
+  const [returnError, setReturnError] = useState('');
+  const [returnSuccess, setReturnSuccess] = useState('');
+
   // Service configuration modal states
   const [showServiceConfigModal, setShowServiceConfigModal] = useState(false);
   const [serviceConfigProduct, setServiceConfigProduct] = useState(null);
@@ -961,6 +972,85 @@ export default function POS({
     } catch (err) {
       setAddSlotError(err.message || 'ເກີດຂໍ້ຜິດພາດ');
     }
+  };
+
+  const openReturnModal = () => {
+    setReturnLookupId('');
+    setReturnOrder(null);
+    setReturnQtys({});
+    setReturnMethod('cash');
+    setReturnReason('');
+    setReturnRestock(true);
+    setReturnError('');
+    setReturnSuccess('');
+    setShowReturnModal(true);
+  };
+
+  const handleLookupReturn = () => {
+    setReturnError('');
+    setReturnSuccess('');
+    const query = returnLookupId.trim().toUpperCase();
+    if (!query) {
+      setReturnError('ກະລຸນາໃສ່ເລກທີ່ບິນ (ຕົວຢ່າງ: TX10001)');
+      return;
+    }
+    const order = db.getOrders().find(o => (o.id || '').toUpperCase() === query);
+    if (!order) {
+      setReturnOrder(null);
+      setReturnError('ບໍ່ພົບບິນຂາຍນີ້ໃນລະບົບ');
+      return;
+    }
+    setReturnOrder(order);
+    setReturnQtys({});
+  };
+
+  const getReturnableQty = (item, index) => {
+    const returnedForOrder = db.getReturns()
+      .filter(r => r.orderId === returnOrder?.id)
+      .flatMap(r => r.items || [])
+      .filter(ri => ri.productId === item.productId && (ri.lineIndex === undefined || ri.lineIndex === index));
+    const alreadyReturned = returnedForOrder.reduce((s, ri) => s + (ri.qty || 0), 0);
+    return Math.max(0, (item.qty || 0) - alreadyReturned);
+  };
+
+  const returnRefundTotal = returnOrder
+    ? (returnOrder.items || []).reduce((sum, item, i) => sum + (Number(returnQtys[i] || 0) * (item.price || 0)), 0)
+    : 0;
+
+  const handleProcessReturn = () => {
+    setReturnError('');
+    if (!returnOrder) return;
+    const items = (returnOrder.items || [])
+      .map((item, i) => ({
+        productId: item.productId,
+        name: item.name,
+        price: item.price || 0,
+        qty: Number(returnQtys[i] || 0),
+        lineIndex: i
+      }))
+      .filter(it => it.qty > 0);
+    if (items.length === 0) {
+      setReturnError('ກະລຸນາເລືອກຈຳນວນສິນຄ້າທີ່ຕ້ອງການຄືນ');
+      return;
+    }
+    const refundAmount = items.reduce((s, it) => s + it.qty * it.price, 0);
+    db.addReturn({
+      orderId: returnOrder.id,
+      items,
+      refundAmount,
+      method: returnMethod,
+      reason: returnReason.trim(),
+      restock: returnRestock,
+      cashierId: activeUser?.id || '',
+      cashierName: activeUser?.name || settings.cashierName || 'system'
+    });
+    playSound('cash');
+    setProducts(db.getProducts());
+    if (onUpdate) onUpdate();
+    setReturnSuccess(`✓ ຄືນເງິນ ${refundAmount.toLocaleString()} ₭ ສຳເລັດ! ${returnRestock ? '(ຄືນສິນຄ້າເຂົ້າສະຕັອກແລ້ວ)' : ''}`);
+    setReturnOrder(null);
+    setReturnQtys({});
+    setReturnLookupId('');
   };
 
   const handleDeleteSlotClick = (e, slot) => {
@@ -2147,7 +2237,7 @@ export default function POS({
 
   // BCEL One QR Simulation Handlers
   const handleCheckoutPaymentSuccess = () => {
-    playAudioFeedback('cash');
+    playSound('cash');
     setBcelPaymentStatus('success');
     
     // Auto-generate Tx Ref
@@ -2170,7 +2260,7 @@ export default function POS({
   };
 
   const handleDepositPaymentSuccess = (val) => {
-    playAudioFeedback('cash');
+    playSound('cash');
     
     // Save to database deposits
     const targetSlotId = selectedSlotId || 'Walk-In';
@@ -2832,14 +2922,25 @@ export default function POS({
                 }}>{db.getLabel('pos_board_title', '📿 ບັດຄິວອັດກອບພຣະເຄື່ອງ')}</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', margin: '4px 0 0' }}>{db.getLabel('pos_board_subtitle', 'ແຕະບັດຄິວເພື່ອເລີ່ມລາຍການ • ຄລິກ ✏️ ເພື່ອແກ້ໄຂລູກຄ້າ')}</p>
               </div>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => setShowAddSlotModal(true)}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', padding: '9px 18px', borderRadius: '10px', fontWeight: 'bold', boxShadow: '0 4px 15px rgba(212,175,55,0.3)', margin: 0 }}
-              >
-                ➕ {db.getLabel('pos_add_queue', 'ເພີ່ມບັດຄິວ')}
-              </button>
+              <div style={{ display: 'inline-flex', gap: '8px', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={openReturnModal}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', padding: '9px 16px', borderRadius: '10px', fontWeight: 'bold', margin: 0 }}
+                  title="ຄືນສິນຄ້າ / ຄືນເງິນ"
+                >
+                  ↩️ {db.getLabel('pos_return_refund', 'ຄືນສິນຄ້າ')}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => setShowAddSlotModal(true)}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', padding: '9px 18px', borderRadius: '10px', fontWeight: 'bold', boxShadow: '0 4px 15px rgba(212,175,55,0.3)', margin: 0 }}
+                >
+                  ➕ {db.getLabel('pos_add_queue', 'ເພີ່ມບັດຄິວ')}
+                </button>
+              </div>
             </div>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', width: '100%' }}>
@@ -4206,6 +4307,117 @@ export default function POS({
                 <button type="submit" className="btn btn-primary">ຢືນຢັນ ✓</button>
               </div>
             </form>
+          </div>
+        </div>
+        </Portal>
+      )}
+
+      {/* Return / Refund Modal (ຄືນສິນຄ້າ / ຄືນເງິນ) */}
+      {showReturnModal && (
+        <Portal>
+        <div className="modal-overlay" style={{ zIndex: 1250 }}>
+          <div className="modal-content glass-card" style={{ padding: '24px', maxWidth: '560px', width: '100%', maxHeight: '92dvh', display: 'flex', flexDirection: 'column' }}>
+            <div className="modal-header">
+              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>↩️ ຄືນສິນຄ້າ / ຄືນເງິນ (Return &amp; Refund)</h3>
+              <button className="close-btn" onClick={() => setShowReturnModal(false)}>✕</button>
+            </div>
+
+            <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '10px 0', overflowY: 'auto' }}>
+              <div className="form-group" style={{ margin: 0 }}>
+                <label className="form-label">ເລກທີ່ບິນຂາຍ (Bill / TX ID) *</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="ຕົວຢ່າງ: TX10001"
+                    value={returnLookupId}
+                    onChange={(e) => setReturnLookupId(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleLookupReturn(); } }}
+                  />
+                  <button type="button" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }} onClick={handleLookupReturn}>🔍 ຄົ້ນຫາ</button>
+                </div>
+              </div>
+
+              {returnError && (
+                <p style={{ color: 'var(--alert-red)', fontSize: '0.85rem', margin: 0 }}>⚠️ {returnError}</p>
+              )}
+              {returnSuccess && (
+                <p style={{ color: 'var(--success-green)', fontSize: '0.9rem', margin: 0, fontWeight: 'bold' }}>{returnSuccess}</p>
+              )}
+
+              {returnOrder && (
+                <>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                    ບິນ <strong style={{ color: 'var(--gold-primary)' }}>{returnOrder.id}</strong> • {new Date(returnOrder.date).toLocaleString('lo-LA')} • ຍອດລວມ {(returnOrder.total || 0).toLocaleString()} ₭
+                    {returnOrder.refundedAmount > 0 && <span style={{ color: 'var(--alert-red)' }}> • ຄືນແລ້ວ {returnOrder.refundedAmount.toLocaleString()} ₭</span>}
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {(returnOrder.items || []).map((item, i) => {
+                      const maxQty = getReturnableQty(item, i);
+                      return (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px', borderRadius: '8px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', opacity: maxQty === 0 ? 0.5 : 1 }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: '0.85rem', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
+                            <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{(item.price || 0).toLocaleString()} ₭ × {item.qty} • ຄືນໄດ້ {maxQty}</div>
+                          </div>
+                          <input
+                            type="number"
+                            className="form-control"
+                            min="0"
+                            max={maxQty}
+                            disabled={maxQty === 0}
+                            value={returnQtys[i] ?? ''}
+                            placeholder="0"
+                            onChange={(e) => {
+                              const v = Math.max(0, Math.min(maxQty, Number(e.target.value) || 0));
+                              setReturnQtys(prev => ({ ...prev, [i]: v }));
+                            }}
+                            style={{ width: '72px', textAlign: 'center' }}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <div className="form-group" style={{ margin: 0 }}>
+                      <label className="form-label">ວິທີຄືນເງິນ (Refund Method)</label>
+                      <select className="form-control" value={returnMethod} onChange={(e) => setReturnMethod(e.target.value)}>
+                        <option value="cash">ເງິນສົດ (Cash)</option>
+                        <option value="transfer">ໂອນ (Transfer)</option>
+                        <option value="store_credit">ເຄຣດິດຮ້ານ (Store Credit)</option>
+                      </select>
+                    </div>
+                    <div className="form-group" style={{ margin: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', cursor: 'pointer' }}>
+                        <input type="checkbox" checked={returnRestock} onChange={(e) => setReturnRestock(e.target.checked)} />
+                        ຄືນສິນຄ້າເຂົ້າສະຕັອກ (Restock)
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label className="form-label">ເຫດຜົນ (Reason)</label>
+                    <input type="text" className="form-control" placeholder="ເຊັ່ນ: ສິນຄ້າຊຳລຸດ, ລູກຄ້າປ່ຽນໃຈ..." value={returnReason} onChange={(e) => setReturnReason(e.target.value)} />
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', borderRadius: '8px', background: 'rgba(231,76,60,0.08)', border: '1px solid rgba(231,76,60,0.2)' }}>
+                    <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>ຍອດຄືນເງິນລວມ</span>
+                    <span style={{ fontSize: '1.15rem', fontWeight: 'bold', color: '#e74c3c' }}>{returnRefundTotal.toLocaleString()} ₭</span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={() => setShowReturnModal(false)}>ປິດ</button>
+              {returnOrder && (
+                <button type="button" className="btn btn-primary" disabled={returnRefundTotal <= 0} onClick={handleProcessReturn}>
+                  ↩️ ຢືນຢັນຄືນເງິນ
+                </button>
+              )}
+            </div>
           </div>
         </div>
         </Portal>
