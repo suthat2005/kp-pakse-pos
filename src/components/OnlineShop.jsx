@@ -189,17 +189,22 @@ export default function OnlineShop() {
 
   // Points discount
   const maxRedeemablePoints = Math.floor(Math.max(0, cartSubtotal - discountAmount - couponDiscount) / 100);
-  const actualRedeemPoints = Math.min(redeemPoints, customer ? customer.points : 0, maxRedeemablePoints);
-  const pointsDiscount = actualRedeemPoints * 100;
+  const actualRedeemPoints = Math.min(redeemPoints || 0, customer ? (customer.points || 0) : 0, maxRedeemablePoints || 0);
+  const pointsDiscount = (actualRedeemPoints || 0) * 100;
 
   // Shipping Fee calculation
   const customShippingMethods = settings.onlineShopShippingMethods || [];
   const selectedMethod = customShippingMethods.find(m => m.id === selectedShippingMethodId);
-  const baseShippingFee = selectedMethod ? selectedMethod.baseRate : (settings.onlineShopShippingFee !== undefined ? Number(settings.onlineShopShippingFee) : 15000);
+  const baseShippingFee = selectedMethod ? (Number(selectedMethod.baseRate) || 0) : (settings.onlineShopShippingFee !== undefined ? (Number(settings.onlineShopShippingFee) || 0) : 15000);
   const isFreeShipping = settings.onlineShopFreeShippingThreshold > 0 && cartSubtotal >= settings.onlineShopFreeShippingThreshold;
   const shippingFee = (shippingMethod === 'pickup' || isFreeShipping) ? 0 : baseShippingFee;
 
-  const cartTotal = Math.max(0, cartSubtotal - discountAmount - couponDiscount - pointsDiscount + shippingFee);
+  const cleanSubtotal = Number(cartSubtotal) || 0;
+  const cleanDiscount = Number(discountAmount) || 0;
+  const cleanCoupon = Number(couponDiscount) || 0;
+  const cleanPoints = Number(pointsDiscount) || 0;
+  const cleanShipping = Number(shippingFee) || 0;
+  const cartTotal = Math.max(0, cleanSubtotal - cleanDiscount - cleanCoupon - cleanPoints + cleanShipping);
 
   useEffect(() => {
     // Restore customer session from localStorage if it exists
@@ -1149,7 +1154,7 @@ export default function OnlineShop() {
                     <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
                         <span style={{ color: '#888' }}>ຄະແນນສະສົມຂອງທ່ານ:</span>
-                        <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{customer.points} Points</span>
+                        <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{(customer.points || 0)} Points</span>
                       </div>
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                         <input
@@ -1160,7 +1165,7 @@ export default function OnlineShop() {
                           onChange={(e) => {
                             const val = Math.max(0, Number(e.target.value));
                             const maxRedeem = Math.floor(Math.max(0, cartSubtotal - discountAmount - couponDiscount) / 100);
-                            const allowed = Math.min(val, customer.points, maxRedeem);
+                            const allowed = Math.min(val, (customer.points || 0), maxRedeem);
                             setRedeemPoints(allowed);
                           }}
                           style={{ background: '#1c1916', flex: 1, padding: '8px', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}
@@ -1170,7 +1175,7 @@ export default function OnlineShop() {
                           className="btn btn-secondary"
                           onClick={() => {
                             const maxRedeem = Math.floor(Math.max(0, cartSubtotal - discountAmount - couponDiscount) / 100);
-                            setRedeemPoints(Math.min(customer.points, maxRedeem));
+                            setRedeemPoints(Math.min((customer.points || 0), maxRedeem));
                           }}
                           style={{ whiteSpace: 'nowrap', fontSize: '0.72rem', padding: '8px 12px', cursor: 'pointer' }}
                         >ໃຊ້ທັງໝົດ</button>

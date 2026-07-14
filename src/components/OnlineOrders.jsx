@@ -141,9 +141,8 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                           (o.customerPhone || '').includes(searchQuery);
     const matchesPayment = filterPayment === 'all' || o.paymentStatus === filterPayment;
     const matchesShipping = filterShipping === 'all' || o.shippingStatus === filterShipping;
-    const matchesTab = activeTab === 'active'
-      ? o.shippingStatus !== 'delivered'
-      : o.shippingStatus === 'delivered';
+    const isArchived = o.shippingStatus === 'delivered' || o.shippingStatus === 'cancelled' || o.paymentStatus === 'rejected';
+    const matchesTab = activeTab === 'active' ? !isArchived : isArchived;
     return matchesSearch && matchesPayment && matchesShipping && matchesTab;
   });
 
@@ -214,7 +213,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
               transition: 'all 0.2s'
             }}
           >
-            📥 ອໍເດີ້ ({orders.filter(o => o.type !== 'inquiry' && o.shippingStatus !== 'delivered').length})
+            📥 ອໍເດີ້ ({orders.filter(o => o.type !== 'inquiry' && !(o.shippingStatus === 'delivered' || o.shippingStatus === 'cancelled' || o.paymentStatus === 'rejected')).length})
           </button>
           <button
             type="button"
@@ -232,7 +231,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
               transition: 'all 0.2s'
             }}
           >
-            🗄️ Archive ({orders.filter(o => o.type !== 'inquiry' && o.shippingStatus === 'delivered').length})
+            🗄️ Archive ({orders.filter(o => o.type !== 'inquiry' && (o.shippingStatus === 'delivered' || o.shippingStatus === 'cancelled' || o.paymentStatus === 'rejected')).length})
           </button>
           <button
             type="button"
