@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../utils/db';
+import { createPermissionChecker } from '../utils/permissions';
 import Portal from './Portal';
 
 export default function Debts({ activeUser, onUpdate, isMobile }) {
-  const hasDebtsPermission = (subKey) => {
-    if (!activeUser) return false;
-    if (activeUser.role === 'owner') return true;
-    if (activeUser.permissions?.admin) return true;
-    return !!activeUser.permissions?.[subKey];
-  };
+  const hasDebtsPermission = createPermissionChecker(activeUser);
   const [debts, setDebts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDebt, setSelectedDebt] = useState(null);

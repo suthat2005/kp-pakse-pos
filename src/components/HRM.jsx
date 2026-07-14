@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../utils/db';
+import { createPermissionChecker } from '../utils/permissions';
 import Portal from './Portal';
 
 const SUB_PERMS = {
@@ -75,12 +76,7 @@ const SUB_PERMS = {
 
 
 export default function HRM({ activeUser, onUpdate }) {
-  const hasHrmPermission = (subKey) => {
-    if (!activeUser) return false;
-    if (activeUser.role === 'owner') return true;
-    if (activeUser.permissions?.admin) return true;
-    return !!activeUser.permissions?.[subKey];
-  };
+  const hasHrmPermission = createPermissionChecker(activeUser);
   const [activeSubTab, setActiveSubTab] = useState('employees'); // employees | shifts | attendance | leaves | payroll
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');

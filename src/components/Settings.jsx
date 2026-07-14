@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { db, DEFAULT_LABEL_KEYS } from '../utils/db';
+import { createPermissionChecker } from '../utils/permissions';
 import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
 import jsQR from 'jsqr';
@@ -52,12 +53,7 @@ const LotusIcon = ({ color = '#d4af37' }) => (
 );
 
 export default function Settings({ activeUser, onUpdate, isMobile }) {
-  const hasSettingsPermission = (subKey) => {
-    if (!activeUser) return false;
-    if (activeUser.role === 'owner') return true;
-    if (activeUser.permissions?.admin) return true;
-    return !!activeUser.permissions?.[subKey];
-  };
+  const hasSettingsPermission = createPermissionChecker(activeUser);
   const [scanTestResult, setScanTestResult] = useState('');
   const parseNum = (str, defaultVal) => {
     if (!str) return defaultVal;

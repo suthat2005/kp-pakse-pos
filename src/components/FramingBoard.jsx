@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../utils/db';
+import { createPermissionChecker } from '../utils/permissions';
+import { useServerIp } from '../utils/useServerIp';
 import Portal from './Portal';
 
 export default function FramingBoard({ 
@@ -16,28 +18,12 @@ export default function FramingBoard({
   // Notification Modal States
   const [showNotifyModal, setShowNotifyModal] = useState(false);
 
-  const hasFramingPermission = (subKey) => {
-    if (!activeUser) return false;
-    if (activeUser.role === 'owner') return true;
-    if (activeUser.permissions?.admin) return true;
-    return !!activeUser.permissions?.[subKey];
-  };
+  const hasFramingPermission = createPermissionChecker(activeUser);
 
   const [notifyJob, setNotifyJob] = useState(null);
   const [notifyLang, setNotifyLang] = useState('lao');
-  const [serverIp, setServerIp] = useState('127.0.0.1');
+  const serverIp = useServerIp();
   const [dragOverCol, setDragOverCol] = useState(null);
-
-  useEffect(() => {
-    fetch('/api/server-ip')
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.ip) {
-          setServerIp(data.ip);
-        }
-      })
-      .catch(err => console.error('Error fetching server IP:', err));
-  }, []);
 
   // 🗓️ Auto-clear delivered jobs once per day on mount
   useEffect(() => {

@@ -1,14 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { db } from '../utils/db';
+import { createPermissionChecker } from '../utils/permissions';
 import Portal from './Portal';
 
 export default function Reports({ activeUser, isMobile }) {
-  const hasReportsPermission = (subKey) => {
-    if (!activeUser) return false;
-    if (activeUser.role === 'owner') return true;
-    if (activeUser.permissions?.admin) return true;
-    return !!activeUser.permissions?.[subKey];
-  };
+  const hasReportsPermission = createPermissionChecker(activeUser);
   const todayStr = new Date().toLocaleDateString('en-CA');
   
   // Interactive Chart Style States

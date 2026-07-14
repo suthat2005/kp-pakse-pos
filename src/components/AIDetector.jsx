@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../utils/db';
+import { createPermissionChecker } from '../utils/permissions';
 import AmuletImageEditor from './AmuletImageEditor';
 
 function CameraFeed({ cam, idx, currentTime }) {
@@ -207,12 +208,7 @@ function CameraFeed({ cam, idx, currentTime }) {
 }
 
 export default function AIDetector({ activeUser }) {
-  const hasAiPermission = (subKey) => {
-    if (!activeUser) return false;
-    if (activeUser.role === 'owner') return true;
-    if (activeUser.permissions?.admin) return true;
-    return !!activeUser.permissions?.[subKey];
-  };
+  const hasAiPermission = createPermissionChecker(activeUser);
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState(null);
   const [selectedMockImg, setSelectedMockImg] = useState('');
