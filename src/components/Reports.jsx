@@ -2062,120 +2062,93 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
       {/* ─── TAB: POS STORE ──────────────────────────────────────────────────── */}
       {reportTab === 'pos' && <>
 
-      {/* Analytics Summary Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
-        
+      {/* Analytics Summary Row – Premium KPI Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(195px, 1fr))', gap: '14px' }}>
+
         {/* 1. Product Sales */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🛍️ ມູນຄ່າຂາຍສິນຄ້າ (Product Sales)</span>
-          <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#3498db' }}>
-            {hasReportsPermission('reportsRevenue') ? Math.round(posProductsValue).toLocaleString() + " ກີບ" : "*** ກີບ"}
+        <div style={{ position:'relative', overflow:'hidden', background:'rgba(52,152,219,0.07)', border:'1px solid rgba(52,152,219,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(52,152,219,0.12)' }}>
+          <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#3498db', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
+          <span style={{ fontSize:'0.68rem', color:'rgba(52,152,219,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>🛍️ Product Sales</span>
+          <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#74B9FF', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+            {hasReportsPermission('reportsRevenue') ? Math.round(posProductsValue).toLocaleString() + " ₭" : "*** ₭"}
           </span>
-          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ຍອດຂາຍສິນຄ້າທົ່ວໄປ</span>
+          <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>ຍອດຂາຍສິນຄ້າທົ່ວໄປ</span>
         </div>
 
         {/* 2. Framing Sales */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🛠️ ມູນຄ່າງານອັດກອບ (Framing Sales)</span>
-          <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--accent-amber)' }}>
-            {hasReportsPermission('reportsRevenue') ? Math.round(posJobsValue).toLocaleString() + " ກີບ" : "*** ກີບ"}
+        <div style={{ position:'relative', overflow:'hidden', background:'rgba(243,156,18,0.07)', border:'1px solid rgba(243,156,18,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(243,156,18,0.12)' }}>
+          <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#f39c12', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
+          <span style={{ fontSize:'0.68rem', color:'rgba(243,156,18,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>🛠️ Framing Sales</span>
+          <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#ffd740', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+            {hasReportsPermission('reportsRevenue') ? Math.round(posJobsValue).toLocaleString() + " ₭" : "*** ₭"}
           </span>
-          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ຍອດຂາຍສະເພາะງານອັດກອບ</span>
+          <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>ຍອດຂາຍສະເພາະງານอັດກອບ</span>
         </div>
 
         {/* 3. Total Bills */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🛒 ຈຳນວນໃບບິນຂາຍ (Total Bills)</span>
-          <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'white' }}>
-            {rangeOrders.length} ບິນ
+        <div style={{ position:'relative', overflow:'hidden', background:'rgba(108,92,231,0.07)', border:'1px solid rgba(108,92,231,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(108,92,231,0.12)' }}>
+          <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#6C5CE7', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
+          <span style={{ fontSize:'0.68rem', color:'rgba(162,155,254,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>🛒 Total Bills</span>
+          <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#A29BFE', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+            {rangeOrders.length} <span style={{ fontSize:'1rem' }}>ບິນ</span>
           </span>
-          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>
-            ສະເລ່ຍ: {rangeOrders.length > 0 ? Math.round(totalSales / rangeOrders.length).toLocaleString() : 0} ₭/ບິນ
-          </span>
+          <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>ສະເລ່ຍ: {rangeOrders.length > 0 ? Math.round(totalSales / rangeOrders.length).toLocaleString() : 0} ₭/ບິນ</span>
         </div>
 
         {/* 4. Outstanding Debt */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📒 ມູນຄ່າໜີ້ຄ້າງຊຳລະທັງໝົດ (Outstanding Debt)</span>
-          <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--alert-red)' }}>
-            {totalOutstandingDebt.toLocaleString()} ກີບ
+        <div style={{ position:'relative', overflow:'hidden', background:'rgba(231,76,60,0.07)', border:'1px solid rgba(231,76,60,0.25)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(231,76,60,0.15)' }}>
+          <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#e74c3c', opacity:0.09, filter:'blur(18px)', pointerEvents:'none' }} />
+          <span style={{ fontSize:'0.68rem', color:'rgba(231,76,60,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>📒 Outstanding Debt</span>
+          <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#FAB1A0', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+            {totalOutstandingDebt.toLocaleString()} ₭
           </span>
-          <span style={{ fontSize: '0.65rem', color: 'var(--alert-red)', fontWeight: '500' }}>
-            ມີລູກຄ້າຄ້າງຊຳລະ: {totalDebtors} ລາຍ
-          </span>
+          <span style={{ fontSize:'0.67rem', color:'#FAB1A0', fontWeight:600 }}>ຄ້າງຊຳລະ: {totalDebtors} ລາຍ</span>
         </div>
 
-        {/* 5. Revenue (Combined POS Sales / Total Revenue) */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💵 ຍອດຂາຍທັງໝົດ (Revenue)</span>
-          <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
-            {hasReportsPermission('reportsRevenue') ? totalSales.toLocaleString() + " ກີບ" : "*** ກີບ"}
+        {/* 5. Total Revenue with payment breakdown */}
+        <div style={{ position:'relative', overflow:'hidden', background:'rgba(212,175,55,0.07)', border:'1px solid rgba(212,175,55,0.25)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 24px rgba(212,175,55,0.15)' }}>
+          <div style={{ position:'absolute', top:-14, right:-14, width:80, height:80, borderRadius:'50%', background:'#D4AF37', opacity:0.09, filter:'blur(22px)', pointerEvents:'none' }} />
+          <span style={{ fontSize:'0.68rem', color:'rgba(212,175,55,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>💵 Total Revenue</span>
+          <span style={{ fontSize:'1.5rem', fontWeight:800, color:'var(--gold-primary)', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+            {hasReportsPermission('reportsRevenue') ? totalSales.toLocaleString() + " ₭" : "*** ₭"}
           </span>
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '4px', marginTop: '2px', display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
-            
-            {/* Cash portion */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingBottom: '2px', borderBottom: '1px dashed rgba(255,255,255,0.05)' }}>
-              <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>💵 ລວມຮັບເງິນສົດ:</span>
-              <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
-                <span>• ເງິນສົດ LAK:</span>
-                <span style={{ color: 'white' }}>{rangeCashLAK.toLocaleString()} ₭</span>
-              </div>
-              {(rangeCashTHB > 0 || settings.exchangeRateThb) && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
-                  <span>• ເງິນສົດ THB:</span>
-                  <span style={{ color: 'white' }}>{rangeCashTHB.toLocaleString()} ฿</span>
-                </div>
-              )}
-              {(rangeCashUSD > 0 || settings.exchangeRateUsd) && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
-                  <span>• ເງິນສົດ USD:</span>
-                  <span style={{ color: 'white' }}>${rangeCashUSD.toFixed(2)}</span>
-                </div>
-              )}
+          <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:5, marginTop:2, display:'flex', flexDirection:'column', gap:3, fontSize:'0.68rem', color:'rgba(255,255,255,0.42)' }}>
+            <div style={{ display:'flex', flexDirection:'column', gap:2, paddingBottom:4, borderBottom:'1px dashed rgba(255,255,255,0.05)' }}>
+              <span style={{ fontWeight:700, color:'var(--gold-primary)' }}>💵 ລວມຮັບເງິນສົດ:</span>
+              <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນສົດ LAK:</span><span style={{ color:'white' }}>{rangeCashLAK.toLocaleString()} ₭</span></div>
+              {(rangeCashTHB > 0 || settings.exchangeRateThb) && <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນສົດ THB:</span><span style={{ color:'white' }}>{rangeCashTHB.toLocaleString()} ฿</span></div>}
+              {(rangeCashUSD > 0 || settings.exchangeRateUsd) && <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນສົດ USD:</span><span style={{ color:'white' }}>${rangeCashUSD.toFixed(2)}</span></div>}
             </div>
-
-            {/* Transfer portion */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-              <span style={{ fontWeight: 'bold', color: '#3498db' }}>📱 ລວມຮັບເງິນໂອນ (Transfer):</span>
-              <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
-                <span>• ເງິນໂອນ LAK:</span>
-                <span style={{ color: 'white' }}>{rangeTransferLAK.toLocaleString()} ₭</span>
-              </div>
-              {(rangeTransferTHB > 0 || settings.exchangeRateThb) && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
-                  <span>• ເງິນໂອນ THB:</span>
-                  <span style={{ color: 'white' }}>{rangeTransferTHB.toLocaleString()} ฿</span>
-                </div>
-              )}
-              {(rangeTransferUSD > 0 || settings.exchangeRateUsd) && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
-                  <span>• ເງິນໂອນ USD:</span>
-                  <span style={{ color: 'white' }}>${rangeTransferUSD.toFixed(2)}</span>
-                </div>
-              )}
+            <div style={{ display:'flex', flexDirection:'column', gap:2 }}>
+              <span style={{ fontWeight:700, color:'#74B9FF' }}>📱 ລວມຮັບເງິນໂอน (Transfer):</span>
+              <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນໂອນ LAK:</span><span style={{ color:'white' }}>{rangeTransferLAK.toLocaleString()} ₭</span></div>
+              {(rangeTransferTHB > 0 || settings.exchangeRateThb) && <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນໂອນ THB:</span><span style={{ color:'white' }}>{rangeTransferTHB.toLocaleString()} ฿</span></div>}
+              {(rangeTransferUSD > 0 || settings.exchangeRateUsd) && <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນໂອນ USD:</span><span style={{ color:'white' }}>${rangeTransferUSD.toFixed(2)}</span></div>}
             </div>
-
           </div>
         </div>
 
         {/* 6. Total Expenses */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💸 ລາຍຈ່າຍທັງໝົດ (Total Expenses)</span>
-          <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#e74c3c' }}>
-            {totalExpenses.toLocaleString()} ກີບ
+        <div style={{ position:'relative', overflow:'hidden', background:'rgba(225,112,85,0.07)', border:'1px solid rgba(225,112,85,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(225,112,85,0.12)' }}>
+          <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#E17055', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
+          <span style={{ fontSize:'0.68rem', color:'rgba(225,112,85,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>💸 Total Expenses</span>
+          <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#FAB1A0', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+            {totalExpenses.toLocaleString()} ₭
           </span>
-          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ລາຍຈ່າຍໃນໄລຍະເວລາທີ່ເລືອກ</span>
+          <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>ລາຍຈ່າຍໃນໄລຍะເວລາທີ່ເລືອກ</span>
         </div>
 
-        {/* 7. Estimated Profit (Absolute Last) */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📈 ກຳໄລສຸດທິ (Est. Profit)</span>
-          <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--success-green)' }}>
-            {hasReportsPermission('reportsProfit') ? Math.round(netProfit).toLocaleString() + " ກີບ" : "*** ກີບ"}
+        {/* 7. Est. Net Profit */}
+        <div style={{ position:'relative', overflow:'hidden', background:'rgba(0,184,148,0.07)', border:'1px solid rgba(0,184,148,0.25)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 24px rgba(0,184,148,0.15)' }}>
+          <div style={{ position:'absolute', top:-14, right:-14, width:80, height:80, borderRadius:'50%', background:'#00B894', opacity:0.09, filter:'blur(22px)', pointerEvents:'none' }} />
+          <span style={{ fontSize:'0.68rem', color:'rgba(0,184,148,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>📈 Est. Net Profit</span>
+          <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#55EFC4', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+            {hasReportsPermission('reportsProfit') ? Math.round(netProfit).toLocaleString() + " ₭" : "*** ₭"}
           </span>
-          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>*ຫັກຕົ້ນທຶນ ແລະ ຄ່າໃຊ້ຈ່າຍແລ້ວ</span>
+          <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>*ຫັກຕົ້ນທຶນ ແລະ ຄ່າໃຊ້ຈ່າຍແລ້ວ</span>
         </div>
       </div>
+
 
       {/* Tables block: Sales Table & Debts Table */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}>
