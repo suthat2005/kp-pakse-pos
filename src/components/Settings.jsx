@@ -11,28 +11,92 @@ import OnlineShopSettings from './OnlineShopSettings';
 const decodeQrFromImage = (file) => new Promise((resolve) => {
   const reader = new FileReader();
   reader.onloadend = () => {
-    const dataUrl = reader.result;
     const img = new Image();
     img.onload = () => {
       try {
         const canvas = document.createElement('canvas');
-        canvas.width = img.width; canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const decoded = jsQR(imageData.data, imageData.width, imageData.height);
-        if (decoded && decoded.data) {
-          resolve({ payload: decoded.data, dataUrl }); // EMVCo text
+        const maxDim = 400;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxDim) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          }
         } else {
-          resolve({ payload: dataUrl, dataUrl }); // fallback: raw image
+          if (height > maxDim) {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
         }
-      } catch (e) { resolve({ payload: dataUrl, dataUrl }); }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const imageData = ctx.getImageData(0, 0, width, height);
+        const decoded = jsQR(imageData.data, imageData.width, imageData.height);
+        
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+        if (decoded && decoded.data) {
+          resolve({ payload: decoded.data, dataUrl: compressedDataUrl });
+        } else {
+          resolve({ payload: compressedDataUrl, dataUrl: compressedDataUrl });
+        }
+      } catch (e) {
+        resolve({ payload: reader.result, dataUrl: reader.result });
+      }
     };
-    img.onerror = () => resolve({ payload: dataUrl, dataUrl });
-    img.src = dataUrl;
+    img.onerror = () => resolve({ payload: reader.result, dataUrl: reader.result });
+    img.src = reader.result;
   };
   reader.readAsDataURL(file);
 });
+
+const resizeImage = (file, maxDim = 300, quality = 0.7) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxDim) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          }
+        } else {
+          if (height > maxDim) {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(dataUrl);
+      };
+      img.onerror = () => {
+        resolve(event.target.result);
+      };
+      img.src = event.target.result;
+    };
+    reader.onerror = () => {
+      resolve(null);
+    };
+    reader.readAsDataURL(file);
+  });
+};
 
 const getQrSizePx = (size) => {
   if (size === 'small') return '70px';
@@ -902,14 +966,13 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     <input 
                       type="file" 
                       accept="image/*" 
-                      onChange={(e) => {
+                      onChange={async (e) => {
                         const file = e.target.files[0];
                         if (file) {
-                          const reader = new FileReader();
-                          reader.onloadend = () => {
-                            setSettings(prev => ({ ...prev, shopLogo: reader.result }));
-                          };
-                          reader.readAsDataURL(file);
+                          const compressed = await resizeImage(file, 300, 0.7);
+                          if (compressed) {
+                            setSettings(prev => ({ ...prev, shopLogo: compressed }));
+                          }
                         }
                       }}
                       style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}
@@ -1546,14 +1609,13 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                             type="file"
                             accept="image/*"
                             className="form-control"
-                            onChange={(e) => {
+                            onChange={async (e) => {
                               const file = e.target.files[0];
                               if (file) {
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                  setSettings(prev => ({ ...prev, receiptLogoUrl: reader.result }));
-                                };
-                                reader.readAsDataURL(file);
+                                const compressed = await resizeImage(file, 300, 0.7);
+                                if (compressed) {
+                                  setSettings(prev => ({ ...prev, receiptLogoUrl: compressed }));
+                                }
                               }
                             }}
                           />
@@ -4722,14 +4784,13 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => {
+                        onChange={async (e) => {
                           const file = e.target.files[0];
                           if (file) {
-                            const reader = new FileReader();
-                            reader.onload = (event) => {
-                              setDesignBgImage(event.target.result);
-                            };
-                            reader.readAsDataURL(file);
+                            const compressed = await resizeImage(file, 600, 0.7);
+                            if (compressed) {
+                              setDesignBgImage(compressed);
+                            }
                           }
                         }}
                         style={{ fontSize: '0.75rem', marginTop: '4px', width: '100%' }}
@@ -4791,14 +4852,13 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                         <input
                           type="file"
                           accept="image/*"
-                          onChange={(e) => {
+                          onChange={async (e) => {
                             const file = e.target.files[0];
                             if (file) {
-                              const reader = new FileReader();
-                              reader.onload = (event) => {
-                                setDesignLogoImage(event.target.result);
-                              };
-                              reader.readAsDataURL(file);
+                              const compressed = await resizeImage(file, 300, 0.7);
+                              if (compressed) {
+                                setDesignLogoImage(compressed);
+                              }
                             }
                           }}
                           style={{ fontSize: '0.7rem', width: '100%' }}

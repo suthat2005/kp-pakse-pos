@@ -1,5 +1,47 @@
 import React, { useState } from 'react';
 
+const resizeImage = (file, maxDim = 300, quality = 0.7) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxDim) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          }
+        } else {
+          if (height > maxDim) {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(dataUrl);
+      };
+      img.onerror = () => {
+        resolve(event.target.result);
+      };
+      img.src = event.target.result;
+    };
+    reader.onerror = () => {
+      resolve(null);
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
 export default function OnlineShopSettings({ settings, setSettings, categories, handleSave }) {
   const [onlineSubTab, setOnlineSubTab] = useState('info');
 
@@ -219,14 +261,13 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                 type="file"
                 accept="image/*"
                 className="form-control"
-                onChange={(e) => {
+                onChange={async (e) => {
                   const file = e.target.files[0];
                   if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      setSettings(prev => ({ ...prev, onlineShopLogo: reader.result }));
-                    };
-                    reader.readAsDataURL(file);
+                    const compressed = await resizeImage(file, 300, 0.7);
+                    if (compressed) {
+                      setSettings(prev => ({ ...prev, onlineShopLogo: compressed }));
+                    }
                   }
                 }}
               />
@@ -243,14 +284,13 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                 type="file"
                 accept="image/*"
                 className="form-control"
-                onChange={(e) => {
+                onChange={async (e) => {
                   const file = e.target.files[0];
                   if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      setSettings(prev => ({ ...prev, onlineShopBannerImg: reader.result }));
-                    };
-                    reader.readAsDataURL(file);
+                    const compressed = await resizeImage(file, 800, 0.7);
+                    if (compressed) {
+                      setSettings(prev => ({ ...prev, onlineShopBannerImg: compressed }));
+                    }
                   }
                 }}
               />
