@@ -3611,19 +3611,22 @@ export default function POS({
                     <div className="cart-item-details">
                       <div className="cart-item-name" style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{item.name}</div>
                       {(() => {
-                        if (item.productId && item.productId.startsWith('JOB')) {
-                          const job = db.getFramingJobs().find(j => j.id === item.productId);
-                          if (job && job.amulets) {
-                            return (
-                              <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', paddingLeft: '8px', marginTop: '2px', lineHeight: '1.3' }}>
-                                {job.amulets.map((a, i) => (
-                                  <div key={i} style={{ marginBottom: '1px' }}>
-                                    {i + 1}. {a.description || 'ພຣະເຄື່ອງ'} ({a.frameStyle || 'ກອບໃສ'})
-                                  </div>
-                                ))}
-                              </div>
-                            );
-                          }
+                        const amuletsList = (item.productId && item.productId.startsWith('JOB')
+                          ? db.getFramingJobs().find(j => j.id === item.productId)?.amulets
+                          : null) || item.amulets || [];
+                        if (amuletsList && amuletsList.length > 0) {
+                          return (
+                            <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', paddingLeft: '8px', marginTop: '2px', lineHeight: '1.3' }}>
+                              {amuletsList.map((a, i) => (
+                                <div key={i} style={{ marginBottom: '1px' }}>
+                                  {i + 1}. {a.description || 'ພຣະເຄື່ອງ'}
+                                  {a.frameStyle && ` (${a.frameStyle})`}
+                                  {a.acrylicThickness && ` (${a.acrylicThickness})`}
+                                  {a.specialNotes && ` - ${a.specialNotes}`}
+                                </div>
+                              ))}
+                            </div>
+                          );
                         }
                         return null;
                       })()}
@@ -5816,12 +5819,32 @@ export default function POS({
                     </tr>
                   </thead>
                   <tbody>
-                    {currentWorkOrder.items.map((item, idx) => (
-                      <tr key={idx} style={{ borderBottom: '0.5px dotted #ccc' }}>
-                        <td style={{ padding: '6px 0', fontWeight: 'bold' }}>{item.name}</td>
-                        <td style={{ textAlign: 'center', padding: '6px 0' }}>{item.qty}</td>
-                      </tr>
-                    ))}
+                    {currentWorkOrder.items.map((item, idx) => {
+                      const linkedJob = item.productId && item.productId.startsWith('JOB')
+                        ? db.getFramingJobs().find(j => j.id === item.productId)
+                        : null;
+                      const amuletsList = (linkedJob && linkedJob.amulets) || item.amulets || [];
+                      return (
+                        <tr key={idx} style={{ borderBottom: '0.5px dotted #ccc' }}>
+                          <td style={{ padding: '6px 0', lineHeight: '1.3' }}>
+                            <div style={{ fontWeight: 'bold' }}>{item.name}</div>
+                            {amuletsList.length > 0 && (
+                              <div style={{ fontSize: '7.5pt', color: '#555', paddingLeft: '8px', marginTop: '2px', lineHeight: '1.2' }}>
+                                {amuletsList.map((a, i) => (
+                                  <div key={i} style={{ marginBottom: '1px' }}>
+                                    {i + 1}. {a.description || 'ພຣະເຄື່ອງ'}
+                                    {a.frameStyle && ` (${a.frameStyle})`}
+                                    {a.acrylicThickness && ` (${a.acrylicThickness})`}
+                                    {a.specialNotes && ` - ${a.specialNotes}`}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </td>
+                          <td style={{ textAlign: 'center', padding: '6px 0', verticalAlign: 'top' }}>{item.qty}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
 
@@ -6993,6 +7016,11 @@ export default function POS({
                           <div style={{ flex: 1, fontSize: '0.85rem' }}>
                             <div><b>{idx + 1}. {a.description || 'ພຣະເຄື່ອງ'}</b></div>
                             <div style={{ color: '#555', fontSize: '0.8rem' }}>ກອບ: {a.frameTypeName || 'ອັດກອບ'}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '2px', lineHeight: '1.2' }}>
+                              {a.frameStyle && <div>• ຂອບ: {a.frameStyle}</div>}
+                              {a.acrylicThickness && <div>• ອັດກັນນ້ຳ: {a.acrylicThickness}</div>}
+                              {a.specialNotes && <div>• ໝາຍເຫດ: {a.specialNotes}</div>}
+                            </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginTop: '2px' }}>
                               <span>ລາຄา:</span>
                               <span style={{ fontWeight: 'bold' }}>{Number(a.price || 0).toLocaleString()} ກີບ</span>
