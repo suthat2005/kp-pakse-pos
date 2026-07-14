@@ -716,17 +716,17 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {selectedOrder.items.map((item, idx) => (
+                      {(selectedOrder.items || []).map((item, idx) => (
                         <tr key={idx} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                          <td style={{ padding: '8px 4px', fontWeight: 'bold' }}>{item.name}</td>
-                          <td style={{ padding: '8px 4px', textAlign: 'right' }}>{item.price.toLocaleString()} LAK</td>
-                          <td style={{ padding: '8px 4px', textAlign: 'center' }}>{item.qty}</td>
-                          <td style={{ padding: '8px 4px', textAlign: 'right', fontWeight: 'bold' }}>{item.total.toLocaleString()} LAK</td>
+                          <td style={{ padding: '8px 4px', fontWeight: 'bold' }}>{item.name || 'N/A'}</td>
+                          <td style={{ padding: '8px 4px', textAlign: 'right' }}>{(item.price || 0).toLocaleString()} LAK</td>
+                          <td style={{ padding: '8px 4px', textAlign: 'center' }}>{item.qty || 0}</td>
+                          <td style={{ padding: '8px 4px', textAlign: 'right', fontWeight: 'bold' }}>{(item.total || 0).toLocaleString()} LAK</td>
                         </tr>
                       ))}
                       <tr style={{ fontSize: '1rem', fontWeight: 'bold' }}>
                         <td colSpan="3" style={{ padding: '12px 4px', textAlign: 'right', color: 'var(--text-secondary)' }}>ຍອດລວມທັງໝົດ:</td>
-                        <td style={{ padding: '12px 4px', textAlign: 'right', color: 'var(--gold-primary)' }}>{selectedOrder.total.toLocaleString()} LAK</td>
+                        <td style={{ padding: '12px 4px', textAlign: 'right', color: 'var(--gold-primary)' }}>{(selectedOrder.total || 0).toLocaleString()} LAK</td>
                       </tr>
                     </tbody>
                   </table>

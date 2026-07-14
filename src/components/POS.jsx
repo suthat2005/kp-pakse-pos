@@ -1198,7 +1198,7 @@ export default function POS({
   };
 
   // Adjusted Cart Items for framing jobs deposits and balances: show full price and amulets count
-  const adjustedCartItems = activeSlot.items.map(item => {
+  const adjustedCartItems = (activeSlot.items || []).map(item => {
     if (item.productId && item.productId.startsWith('JOB')) {
       const linkedJob = db.getFramingJobs().find(j => j.id === item.productId);
       if (linkedJob) {
