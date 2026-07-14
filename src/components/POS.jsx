@@ -3127,7 +3127,7 @@ export default function POS({
                         )}
 
                         {/* Delete button (except Walk-In) */}
-                        {(slot.id !== 'Walk-In' || slot.label !== 'Walk-In') && (
+                        {slot.id !== 'Walk-In' && (
                           <button
                             type="button"
                             className="btn btn-secondary"
@@ -3220,8 +3220,8 @@ export default function POS({
                       {/* Decorative top accent line */}
                       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: `linear-gradient(90deg, transparent, ${cardBorder}, transparent)` }} />
 
-                      {/* Delete slot button — locked if slot has items or active framing job */}
-                      {(slot.id !== 'Walk-In' || slot.label !== 'Walk-In') && (() => {
+                      {/* Delete slot button (except Walk-In) */}
+                      {slot.id !== 'Walk-In' && (() => {
                         const slotHasItems = slot.items && slot.items.length > 0;
                         const slotHasJob = framingJobs.some(j => j.slotId === slot.id && j.status !== 'picked_up');
                         const isLocked = slotHasItems || slotHasJob;
