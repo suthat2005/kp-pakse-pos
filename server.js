@@ -518,7 +518,7 @@ const server = http.createServer(async (req, res) => {
                 firestoreDb.collection('pos_db').doc(key).set({
                   data: val.data,
                   updatedAt: val.updatedAt
-                }).catch(() => {});
+                }).catch(err => console.warn(`⚠️ Cloud realign write failed for [${key}]:`, err.message));
               }
             });
           }

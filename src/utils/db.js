@@ -3793,7 +3793,10 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
 
       const baseUrl = window.location.protocol + '//' + window.location.host;
       fetch(`${baseUrl}/api/db/sync?` + params.toString())
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error(`Sync request failed with status ${res.status}`);
+          return res.json();
+        })
         .then(updatedTables => {
           let hasChanges = false;
           Object.keys(updatedTables).forEach(k => {
@@ -3813,7 +3816,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
             }
           }
         })
-        .catch(err => {});
+        .catch(err => console.warn('Periodic sync failed (offline):', err.message));
     };
 
     const baseUrl = window.location.protocol + '//' + window.location.host;
@@ -3825,7 +3828,10 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     
     // Bidirectional startup sync
     fetch(`${baseUrl}/api/db/sync?` + checkParams.toString())
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(`Startup sync request failed with status ${res.status}`);
+        return res.json();
+      })
       .then(serverAll => {
         keys.forEach(k => {
           const serverTable = serverAll[k];
@@ -3841,8 +3847,10 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ key: k, data, updatedAt: localTs })
-                }).catch(e => {});
-              } catch (e) {}
+                }).catch(err => console.warn(`Startup sync push failed for [${k}] (offline):`, err.message));
+              } catch (e) {
+                console.error(`Failed to parse local data for [${k}] during startup sync:`, e);
+              }
             }
           } else {
             const serverTs = Number(serverTable.updatedAt || '0');
@@ -3855,8 +3863,10 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ key: k, data, updatedAt: localTs })
-                  }).catch(e => {});
-                } catch (e) {}
+                  }).catch(err => console.warn(`Startup sync push failed for [${k}] (offline):`, err.message));
+                } catch (e) {
+                  console.error(`Failed to parse local data for [${k}] during startup sync:`, e);
+                }
               }
             } else if (serverTs > localTs) {
               // Server is newer. Pull to client.
@@ -3870,7 +3880,8 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
         syncIntervalId = setInterval(doSync, 2000);
       })
       .catch(err => {
-        // Fallback to regular sync on error
+        // Startup sync failed (likely offline); fall back to recurring sync anyway
+        console.warn('Bidirectional startup sync failed, falling back to periodic sync:', err.message);
         syncIntervalId = setInterval(doSync, 2000);
       });
   },
@@ -3896,6 +3907,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     
     try {
       const res = await fetch(`${baseUrl}/api/db/sync?` + checkParams.toString());
+      if (!res.ok) throw new Error(`Sync request failed with status ${res.status}`);
       const serverAll = await res.json();
       
       const promises = keys.map(async (k) => {
@@ -3912,7 +3924,9 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ key: k, data, updatedAt: localTs })
               });
-            } catch (e) {}
+            } catch (e) {
+              console.warn(`Startup sync push failed for [${k}] (offline):`, e.message);
+            }
           }
         } else {
           const serverTs = Number(serverTable.updatedAt || '0');
@@ -3925,7 +3939,9 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ key: k, data, updatedAt: localTs })
                 });
-              } catch (e) {}
+              } catch (e) {
+                console.warn(`Startup sync push failed for [${k}] (offline):`, e.message);
+              }
             }
           } else if (serverTs > localTs) {
             localStorage.setItem('amulet_pos_' + k, JSON.stringify(serverTable.data));
