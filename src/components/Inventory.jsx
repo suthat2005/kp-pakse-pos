@@ -1354,6 +1354,356 @@ const compressImage = (file, maxWidth = 800, maxHeight = 800, quality = 0.7) => 
   });
 };
 
+function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
+  const hasInventoryPermission = (subKey) => {
+    if (!activeUser) return false;
+    if (activeUser.role === 'owner') return true;
+    if (activeUser.permissions?.admin) return true;
+    return !!activeUser.permissions?.[subKey];
+  };
+
+  const [section, setSection] = useState('orders'); // 'orders' | 'suppliers'
+  const [suppliers, setSuppliers] = useState([]);
+  const [purchaseOrders, setPurchaseOrders] = useState([]);
+  const [products, setProducts] = useState([]);
+
+  // Supplier modal
+  const [showSupplierModal, setShowSupplierModal] = useState(false);
+  const [editSupplier, setEditSupplier] = useState(null);
+  const [supplierForm, setSupplierForm] = useState({ name: '', phone: '', contact: '', address: '', note: '' });
+
+  // PO modal
+  const [showPoModal, setShowPoModal] = useState(false);
+  const [poSupplierId, setPoSupplierId] = useState('');
+  const [poNote, setPoNote] = useState('');
+  const [poLines, setPoLines] = useState([]);
+  const [poProductId, setPoProductId] = useState('');
+  const [poError, setPoError] = useState('');
+
+  useEffect(() => {
+    loadAll();
+    const handler = () => loadAll();
+    window.addEventListener('db-updated', handler);
+    return () => window.removeEventListener('db-updated', handler);
+  }, []);
+
+  function loadAll() {
+    setSuppliers(db.getSuppliers());
+    setPurchaseOrders(db.getPurchaseOrders());
+    setProducts(db.getProducts());
+  }
+
+  const refresh = () => {
+    loadAll();
+    if (onUpdate) onUpdate();
+  };
+
+  // ── Suppliers ──
+  const openAddSupplier = () => {
+    setEditSupplier(null);
+    setSupplierForm({ name: '', phone: '', contact: '', address: '', note: '' });
+    setShowSupplierModal(true);
+  };
+  const openEditSupplier = (s) => {
+    setEditSupplier(s);
+    setSupplierForm({ name: s.name || '', phone: s.phone || '', contact: s.contact || '', address: s.address || '', note: s.note || '' });
+    setShowSupplierModal(true);
+  };
+  const handleSaveSupplier = (e) => {
+    e.preventDefault();
+    if (!supplierForm.name.trim()) return;
+    if (editSupplier) {
+      db.updateSupplier(editSupplier.id, supplierForm);
+    } else {
+      db.addSupplier(supplierForm);
+    }
+    setShowSupplierModal(false);
+    refresh();
+  };
+  const handleDeleteSupplier = (s) => {
+    if (window.confirm(`ລຶບຜູ້ສະໜອງ "${s.name}"?`)) {
+      db.deleteSupplier(s.id);
+      refresh();
+    }
+  };
+
+  // ── Purchase Orders ──
+  const openCreatePo = () => {
+    setPoSupplierId('');
+    setPoNote('');
+    setPoLines([]);
+    setPoProductId('');
+    setPoError('');
+    setShowPoModal(true);
+  };
+  const addPoLine = () => {
+    if (!poProductId) return;
+    if (poLines.some(l => l.productId === poProductId)) return;
+    const prod = products.find(p => p.id === poProductId);
+    if (!prod) return;
+    setPoLines(prev => [...prev, { productId: prod.id, name: prod.name, qty: 1, cost: Number(prod.cost) || 0 }]);
+    setPoProductId('');
+  };
+  const updatePoLine = (productId, field, value) => {
+    setPoLines(prev => prev.map(l => l.productId === productId ? { ...l, [field]: value === '' ? '' : Number(value) } : l));
+  };
+  const removePoLine = (productId) => {
+    setPoLines(prev => prev.filter(l => l.productId !== productId));
+  };
+  const poTotal = poLines.reduce((s, l) => s + (Number(l.qty) || 0) * (Number(l.cost) || 0), 0);
+  const handleCreatePo = () => {
+    setPoError('');
+    const items = poLines
+      .map(l => ({ productId: l.productId, name: l.name, qty: Number(l.qty) || 0, cost: Number(l.cost) || 0 }))
+      .filter(l => l.qty > 0);
+    if (items.length === 0) {
+      setPoError('ກະລຸນາເພີ່ມສິນຄ້າ ແລະ ໃສ່ຈຳນວນ');
+      return;
+    }
+    const supplier = suppliers.find(s => s.id === poSupplierId);
+    db.addPurchaseOrder({
+      supplierId: poSupplierId,
+      supplierName: supplier ? supplier.name : '',
+      note: poNote.trim(),
+      items,
+      createdBy: activeUser?.name || ''
+    });
+    setShowPoModal(false);
+    refresh();
+  };
+  const handleReceivePo = (po) => {
+    if (window.confirm(`ຮັບສິນຄ້າຂອງໃບສັ່ງຊື້ ${po.id} ເຂົ້າສະຕັອກ? ຈຳນວນສະຕັອກຈະຖືກເພີ່ມອັດຕະໂນມັດ.`)) {
+      db.receivePurchaseOrder(po.id);
+      refresh();
+    }
+  };
+  const handleDeletePo = (po) => {
+    if (window.confirm(`ລຶບໃບສັ່ງຊື້ ${po.id}?`)) {
+      db.deletePurchaseOrder(po.id);
+      refresh();
+    }
+  };
+
+  const statusBadge = (status) => {
+    const map = {
+      pending: { label: '⏳ ລໍຖ້າຮັບ', color: '#f39c12', bg: 'rgba(243,156,18,0.12)' },
+      received: { label: '✅ ຮັບແລ້ວ', color: '#2ecc71', bg: 'rgba(46,204,113,0.12)' },
+      cancelled: { label: '❌ ຍົກເລີກ', color: '#e74c3c', bg: 'rgba(231,76,60,0.12)' }
+    };
+    const s = map[status] || map.pending;
+    return <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 'bold', color: s.color, background: s.bg, whiteSpace: 'nowrap' }}>{s.label}</span>;
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <button type="button" className={`nav-tab ${section === 'orders' ? 'active' : ''}`} onClick={() => setSection('orders')}>🧾 ໃບສັ່ງຊື້ (Purchase Orders)</button>
+        <button type="button" className={`nav-tab ${section === 'suppliers' ? 'active' : ''}`} onClick={() => setSection('suppliers')}>🏢 ຜູ້ສະໜອງ (Suppliers)</button>
+      </div>
+
+      {section === 'suppliers' && (
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+            <h2 style={{ color: 'var(--gold-primary)', fontSize: isMobile ? '1.2rem' : '1.4rem', margin: 0 }}>🏢 ຜູ້ສະໜອງ (Suppliers)</h2>
+            <button type="button" className="btn btn-primary" onClick={openAddSupplier}>➕ ເພີ່ມຜູ້ສະໜອງ</button>
+          </div>
+          {suppliers.length === 0 ? (
+            <p style={{ color: 'var(--text-secondary)', margin: 0 }}>ຍັງບໍ່ມີຜູ້ສະໜອງ — ກົດ "ເພີ່ມຜູ້ສະໜອງ" ເພື່ອເລີ່ມ</p>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                <thead>
+                  <tr style={{ color: 'var(--text-secondary)', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
+                    <th style={{ padding: '10px 8px' }}>ລະຫັດ</th>
+                    <th style={{ padding: '10px 8px' }}>ຊື່</th>
+                    <th style={{ padding: '10px 8px' }}>ເບີໂທ</th>
+                    <th style={{ padding: '10px 8px' }}>ຜູ້ຕິດຕໍ່</th>
+                    <th style={{ padding: '10px 8px' }}>ທີ່ຢູ່</th>
+                    <th style={{ padding: '10px 8px', textAlign: 'center' }}>ຈັດການ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {suppliers.map(s => (
+                    <tr key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <td style={{ padding: '10px 8px', color: 'var(--gold-primary)' }}>{s.id}</td>
+                      <td style={{ padding: '10px 8px', color: 'white' }}>{s.name}</td>
+                      <td style={{ padding: '10px 8px' }}>{s.phone || '-'}</td>
+                      <td style={{ padding: '10px 8px' }}>{s.contact || '-'}</td>
+                      <td style={{ padding: '10px 8px', color: 'var(--text-secondary)' }}>{s.address || '-'}</td>
+                      <td style={{ padding: '10px 8px', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                        <button type="button" className="btn btn-sm btn-secondary" style={{ marginRight: '6px' }} onClick={() => openEditSupplier(s)}>✏️</button>
+                        <button type="button" className="btn btn-sm btn-danger" onClick={() => handleDeleteSupplier(s)}>🗑️</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {section === 'orders' && (
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+            <h2 style={{ color: 'var(--gold-primary)', fontSize: isMobile ? '1.2rem' : '1.4rem', margin: 0 }}>🧾 ໃບສັ່ງຊື້ (Purchase Orders)</h2>
+            <button type="button" className="btn btn-primary" onClick={openCreatePo}>➕ ສ້າງໃບສັ່ງຊື້</button>
+          </div>
+          {purchaseOrders.length === 0 ? (
+            <p style={{ color: 'var(--text-secondary)', margin: 0 }}>ຍັງບໍ່ມີໃບສັ່ງຊື້ — ສ້າງໃບສັ່ງຊື້ເພື່ອສັ່ງເຕີມສະຕັອກ, ເມື່ອຮັບຂອງແລ້ວກົດ "ຮັບເຂົ້າສະຕັອກ"</p>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.83rem' }}>
+                <thead>
+                  <tr style={{ color: 'var(--text-secondary)', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
+                    <th style={{ padding: '10px 8px' }}>ລະຫັດ</th>
+                    <th style={{ padding: '10px 8px' }}>ວັນທີ</th>
+                    <th style={{ padding: '10px 8px' }}>ຜູ້ສະໜອງ</th>
+                    <th style={{ padding: '10px 8px' }}>ລາຍການ</th>
+                    <th style={{ padding: '10px 8px', textAlign: 'right' }}>ມູນຄ່າ (₭)</th>
+                    <th style={{ padding: '10px 8px', textAlign: 'center' }}>ສະຖານະ</th>
+                    <th style={{ padding: '10px 8px', textAlign: 'center' }}>ຈັດການ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...purchaseOrders].sort((a, b) => new Date(b.date) - new Date(a.date)).map(po => (
+                    <tr key={po.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <td style={{ padding: '10px 8px', color: 'var(--gold-primary)' }}>{po.id}</td>
+                      <td style={{ padding: '10px 8px' }}>{new Date(po.date).toLocaleDateString('lo-LA')}</td>
+                      <td style={{ padding: '10px 8px' }}>{po.supplierName || '-'}</td>
+                      <td style={{ padding: '10px 8px' }}>{(po.items || []).map(it => `${it.name} ×${it.qty}`).join(', ')}</td>
+                      <td style={{ padding: '10px 8px', textAlign: 'right', color: hasInventoryPermission('inventoryViewCost') ? 'white' : 'var(--text-secondary)' }}>{hasInventoryPermission('inventoryViewCost') ? (po.total || 0).toLocaleString() : '***'}</td>
+                      <td style={{ padding: '10px 8px', textAlign: 'center' }}>{statusBadge(po.status)}</td>
+                      <td style={{ padding: '10px 8px', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                        {po.status === 'pending' && (
+                          <button type="button" className="btn btn-sm btn-primary" style={{ marginRight: '6px' }} onClick={() => handleReceivePo(po)}>📥 ຮັບເຂົ້າສະຕັອກ</button>
+                        )}
+                        <button type="button" className="btn btn-sm btn-danger" onClick={() => handleDeletePo(po)}>🗑️</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Supplier Modal */}
+      {showSupplierModal && (
+        <Portal>
+          <div className="modal-overlay" style={{ zIndex: 1200 }}>
+            <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
+              <div className="modal-header">
+                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>{editSupplier ? '✏️ ແກ້ໄຂຜູ້ສະໜອງ' : '➕ ເພີ່ມຜູ້ສະໜອງ'}</h3>
+                <button className="close-btn" onClick={() => setShowSupplierModal(false)}>✕</button>
+              </div>
+              <form onSubmit={handleSaveSupplier}>
+                <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '10px 0' }}>
+                  <div className="form-group">
+                    <label className="form-label">ຊື່ຜູ້ສະໜອງ *</label>
+                    <input type="text" className="form-control" required value={supplierForm.name} onChange={(e) => setSupplierForm({ ...supplierForm, name: e.target.value })} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">ເບີໂທ</label>
+                    <input type="text" className="form-control" value={supplierForm.phone} onChange={(e) => setSupplierForm({ ...supplierForm, phone: e.target.value })} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">ຜູ້ຕິດຕໍ່</label>
+                    <input type="text" className="form-control" value={supplierForm.contact} onChange={(e) => setSupplierForm({ ...supplierForm, contact: e.target.value })} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">ທີ່ຢູ່</label>
+                    <input type="text" className="form-control" value={supplierForm.address} onChange={(e) => setSupplierForm({ ...supplierForm, address: e.target.value })} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">ໝາຍເຫດ</label>
+                    <input type="text" className="form-control" value={supplierForm.note} onChange={(e) => setSupplierForm({ ...supplierForm, note: e.target.value })} />
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowSupplierModal(false)}>ຍົກເລີກ</button>
+                  <button type="submit" className="btn btn-primary">ບັນທຶກ ✓</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* Purchase Order Modal */}
+      {showPoModal && (
+        <Portal>
+          <div className="modal-overlay" style={{ zIndex: 1200 }}>
+            <div className="modal-content glass-card" style={{ padding: '24px', maxWidth: '620px', width: '100%', maxHeight: '92dvh', display: 'flex', flexDirection: 'column' }}>
+              <div className="modal-header">
+                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>➕ ສ້າງໃບສັ່ງຊື້ (Purchase Order)</h3>
+                <button className="close-btn" onClick={() => setShowPoModal(false)}>✕</button>
+              </div>
+              <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '10px 0', overflowY: 'auto' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px' }}>
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label className="form-label">ຜູ້ສະໜອງ (Supplier)</label>
+                    <select className="form-control" value={poSupplierId} onChange={(e) => setPoSupplierId(e.target.value)}>
+                      <option value="">— ບໍ່ລະບຸ —</option>
+                      {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    </select>
+                  </div>
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label className="form-label">ໝາຍເຫດ</label>
+                    <input type="text" className="form-control" value={poNote} onChange={(e) => setPoNote(e.target.value)} />
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label className="form-label">ເພີ່ມສິນຄ້າ</label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <select className="form-control" value={poProductId} onChange={(e) => setPoProductId(e.target.value)}>
+                      <option value="">— ເລືອກສິນຄ້າ —</option>
+                      {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    </select>
+                    <button type="button" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }} onClick={addPoLine}>➕ ເພີ່ມ</button>
+                  </div>
+                </div>
+
+                {poLines.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {poLines.map(l => (
+                      <div key={l.productId} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', borderRadius: '8px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div style={{ flex: 1, minWidth: 0, fontSize: '0.85rem', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l.name}</div>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ຈຳນວນ</span>
+                          <input type="number" min="1" className="form-control" value={l.qty} onChange={(e) => updatePoLine(l.productId, 'qty', e.target.value)} style={{ width: '72px', textAlign: 'center' }} />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ຕົ້ນທຶນ/ໜ່ວຍ</span>
+                          <input type="number" min="0" className="form-control" value={l.cost} onChange={(e) => updatePoLine(l.productId, 'cost', e.target.value)} style={{ width: '100px', textAlign: 'right' }} />
+                        </div>
+                        <button type="button" className="btn btn-sm btn-danger" onClick={() => removePoLine(l.productId)}>✕</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {poError && <p style={{ color: 'var(--alert-red)', fontSize: '0.85rem', margin: 0 }}>⚠️ {poError}</p>}
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', borderRadius: '8px', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>ມູນຄ່າລວມ</span>
+                  <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>{poTotal.toLocaleString()} ₭</span>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowPoModal(false)}>ຍົກເລີກ</button>
+                <button type="button" className="btn btn-primary" disabled={poLines.length === 0} onClick={handleCreatePo}>ບັນທຶກໃບສັ່ງຊື້ ✓</button>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+    </div>
+  );
+}
+
 export default function Inventory({ activeUser, onUpdate, initialFilter, onFilterChange, isMobile }) {
   const hasInventoryPermission = (subKey) => {
     if (!activeUser) return false;
@@ -2326,6 +2676,13 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         >
           {db.getLabel('inv_tab_manufacturing', '🏭 ສູດການຜະລິດ & BOM')}
         </button>
+        <button
+          type="button"
+          className={`nav-tab ${activeSubTab === 'purchasing' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('purchasing')}
+        >
+          {db.getLabel('inv_tab_purchasing', '🧾 ສັ່ງຊື້ & ຜູ້ສະໜອງ')}
+        </button>
       </div>
 
       {activeSubTab === 'raw_materials' && (
@@ -2334,6 +2691,10 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
       {activeSubTab === 'manufacturing' && (
         <ManufacturingSubView isMobile={isMobile} activeUser={activeUser} />
+      )}
+
+      {activeSubTab === 'purchasing' && (
+        <PurchaseOrdersSubView isMobile={isMobile} activeUser={activeUser} onUpdate={onUpdate} />
       )}
 
       {activeSubTab === 'products' && (
