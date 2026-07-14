@@ -28,6 +28,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
   const [allDebts, setAllDebts] = useState([]);
   const [allJobs, setAllJobs] = useState([]);
   const [allExpenses, setAllExpenses] = useState([]);
+  const [allReturns, setAllReturns] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [allOnlineOrders, setAllOnlineOrders] = useState([]);
@@ -337,6 +338,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
     setAllDebts(debts);
     setAllJobs(activeJobs);
     setAllExpenses(db.getExpenses());
+    setAllReturns(typeof db.getReturns === 'function' ? db.getReturns() : []);
     setAllProducts(db.getProducts());
     setCategories(db.getCategories());
     setSettings(db.getSettings());
@@ -788,6 +790,14 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
     const d = new Date(j.createdDate);
     return d >= start && d <= end;
   });
+
+  const rangeReturns = allReturns.filter(r => {
+    if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) return true;
+    const d = new Date(r.date);
+    return d >= start && d <= end;
+  }).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const totalRefunds = rangeReturns.reduce((sum, r) => sum + (r.refundAmount || 0), 0);
 
   const handleClearFilters = () => {
     setStartDate('');
@@ -2622,6 +2632,46 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
               </div>
             );
           })()}
+        </div>
+
+        {/* Returns / Refunds summary list for POS tab */}
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+            <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.05rem', margin: 0 }}>↩️ ການຄືນສິນຄ້າ / ຄືນເງິນ (Returns &amp; Refunds)</h3>
+            <span style={{ fontSize: '0.9rem', color: '#e74c3c', fontWeight: 'bold' }}>ຄືນເງິນລວມ: {totalRefunds.toLocaleString()} ₭ • {rangeReturns.length} ລາຍການ</span>
+          </div>
+          {rangeReturns.length === 0 ? (
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: 0 }}>ບໍ່ມີການຄືນສິນຄ້າໃນຊ່ວງນີ້</p>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                <thead>
+                  <tr style={{ color: 'var(--text-secondary)', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
+                    <th style={{ padding: '8px 6px' }}>ເລກທີ</th>
+                    <th style={{ padding: '8px 6px' }}>ວັນທີ</th>
+                    <th style={{ padding: '8px 6px' }}>ບິນຕົ້ນທາງ</th>
+                    <th style={{ padding: '8px 6px' }}>ລາຍການ</th>
+                    <th style={{ padding: '8px 6px' }}>ວິທີ</th>
+                    <th style={{ padding: '8px 6px' }}>ເຫດຜົນ</th>
+                    <th style={{ padding: '8px 6px', textAlign: 'right' }}>ຄືນເງິນ (₭)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rangeReturns.map((r) => (
+                    <tr key={r.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <td style={{ padding: '8px 6px', color: 'var(--gold-primary)' }}>{r.id}</td>
+                      <td style={{ padding: '8px 6px' }}>{new Date(r.date).toLocaleString('lo-LA')}</td>
+                      <td style={{ padding: '8px 6px' }}>{r.orderId || '-'}</td>
+                      <td style={{ padding: '8px 6px' }}>{(r.items || []).map(it => `${it.name} ×${it.qty}`).join(', ')}</td>
+                      <td style={{ padding: '8px 6px' }}>{r.method === 'cash' ? 'ເງິນສົດ' : r.method === 'transfer' ? 'ໂອນ' : r.method === 'store_credit' ? 'ເຄຣດິດຮ້ານ' : (r.method || '-')}</td>
+                      <td style={{ padding: '8px 6px', color: 'var(--text-secondary)' }}>{r.reason || '-'}</td>
+                      <td style={{ padding: '8px 6px', textAlign: 'right', color: '#e74c3c', fontWeight: 'bold' }}>{(r.refundAmount || 0).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
       </div>

@@ -2909,6 +2909,65 @@ saveOrders(orders) {
     return orders[idx];
   },
 
+  getReturns() {
+    this.init();
+    const list = getStorage('returns', []);
+    return Array.isArray(list) ? list.filter(Boolean) : [];
+  },
+  saveReturns(list) {
+    setStorage('returns', list);
+  },
+  addReturn(returnData) {
+    const returns = this.getReturns();
+    let nextNum = 1;
+    if (returns.length > 0) {
+      const nums = returns.map(r => {
+        const m = (r.id || '').match(/\d+/);
+        return m ? parseInt(m[0], 10) : 0;
+      });
+      nextNum = Math.max(...nums) + 1;
+    }
+    const newReturn = {
+      restock: true,
+      items: [],
+      refundAmount: 0,
+      ...returnData,
+      id: 'RET' + String(nextNum).padStart(5, '0'),
+      date: new Date().toISOString()
+    };
+    returns.push(newReturn);
+    this.saveReturns(returns);
+
+    // Restock returned items back into inventory (skip service categories)
+    if (newReturn.restock) {
+      const products = this.getProducts();
+      let changed = false;
+      newReturn.items.forEach(item => {
+        const prod = products.find(p => p.id === item.productId);
+        if (prod && !this.isServiceCategory(prod.category)) {
+          prod.stock = (prod.stock || 0) + (item.qty || 0);
+          changed = true;
+        }
+      });
+      if (changed) this.saveProducts(products);
+    }
+
+    // Annotate the original order with the accumulated refund
+    if (newReturn.orderId) {
+      const orders = this.getOrders();
+      const idx = orders.findIndex(o => o.id === newReturn.orderId);
+      if (idx !== -1) {
+        orders[idx].refundedAmount = (orders[idx].refundedAmount || 0) + (newReturn.refundAmount || 0);
+        orders[idx].hasReturn = true;
+        this.saveOrders(orders);
+      }
+    }
+
+    this.addPaymentLog('refund', `ຄືນສິນຄ້າ/ຄືນເງິນ ${(newReturn.refundAmount || 0).toLocaleString()} ₭ (ບິນ ${newReturn.orderId || '-'})`, newReturn.cashierId || '');
+    this.dispatchEvent('db_updated');
+    return newReturn;
+  },
+
   getFramingJobs() {
     this.init();
     const rawJobs = getStorage('framing_jobs', DEFAULT_FRAMING_JOBS);
