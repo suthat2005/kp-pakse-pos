@@ -2,7 +2,7 @@ import net from 'net';
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import os from 'os';
 import { fileURLToPath } from 'url';
 import { initializeApp, cert } from 'firebase-admin/app';
@@ -13,6 +13,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 5173;
+// API access token (shared secret). Override in production via the API_TOKEN env var.
+const API_TOKEN = process.env.API_TOKEN || 'KP-Pakse-Secret-Token-2026';
+// Comma-separated list of allowed CORS origins, or '*' to allow any origin.
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '*')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
 const DIST_DIR = path.resolve(__dirname, './dist');
 const DB_FILE = path.resolve(__dirname, './db_shared.json');
 const KEY_FILE = path.resolve(__dirname, './firebase-key.json');
@@ -279,7 +286,13 @@ const MIME_TYPES = {
 };
 
 const server = http.createServer(async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const requestOrigin = req.headers.origin;
+  if (ALLOWED_ORIGINS.includes('*')) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  } else if (requestOrigin && ALLOWED_ORIGINS.includes(requestOrigin)) {
+    res.setHeader('Access-Control-Allow-Origin', requestOrigin);
+    res.setHeader('Vary', 'Origin');
+  }
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
@@ -302,7 +315,7 @@ const server = http.createServer(async (req, res) => {
   // API Authorization Guard
   if (pathname.startsWith('/api/') && pathname !== '/api/server-ip') {
     const authHeader = req.headers['authorization'];
-    const expectedToken = 'Bearer KP-Pakse-Secret-Token-2026';
+    const expectedToken = `Bearer ${API_TOKEN}`;
     if (!authHeader || authHeader !== expectedToken) {
       res.statusCode = 401;
       res.setHeader('Content-Type', 'application/json');
@@ -400,8 +413,11 @@ const server = http.createServer(async (req, res) => {
     }
 
     // Otherwise fall back to local Windows driver spooler via Powershell
-    const escapedPrinterName = printerName.replace(/"/g, '\\"');
-    exec(`powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File kick-drawer.ps1 -PrinterName "${escapedPrinterName}"`, (err, stdout, stderr) => {
+    execFile('powershell', [
+      '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
+      '-File', 'kick-drawer.ps1',
+      '-PrinterName', printerName
+    ], (err, stdout, stderr) => {
       if (err) {
         console.error('Local printer kick error:', err, stderr);
         res.statusCode = 500;
@@ -425,7 +441,7 @@ const server = http.createServer(async (req, res) => {
         const data = JSON.parse(body);
         const printerName = data.printer || 'Barcode Printer';
         const base64Image = data.image;
-        const qty = data.qty || 1;
+        const qty = Math.min(999, Math.max(1, parseInt(data.qty, 10) || 1));
 
         if (!base64Image) {
           res.statusCode = 400;
@@ -437,10 +453,13 @@ const server = http.createServer(async (req, res) => {
         const tempFilePath = path.join(os.tmpdir(), `barcode-${Date.now()}.png`);
         fs.writeFileSync(tempFilePath, base64Data, 'base64');
 
-        const escapedPrinterName = printerName.replace(/"/g, '\\"');
-        const escapedFilePath = tempFilePath.replace(/"/g, '\\"');
-
-        exec(`powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File print-barcode.ps1 -PrinterName "${escapedPrinterName}" -ImagePath "${escapedFilePath}" -Copies ${qty}`, (err, stdout, stderr) => {
+        execFile('powershell', [
+          '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
+          '-File', 'print-barcode.ps1',
+          '-PrinterName', printerName,
+          '-ImagePath', tempFilePath,
+          '-Copies', String(qty)
+        ], (err, stdout, stderr) => {
           try { fs.unlinkSync(tempFilePath); } catch (e) {}
 
           if (err) {
@@ -814,7 +833,13 @@ const server = http.createServer(async (req, res) => {
 
   // Serve static files from /dist
   let filePath = path.join(DIST_DIR, pathname);
-  
+
+  // Prevent path traversal: never serve files outside DIST_DIR
+  const resolvedPath = path.resolve(filePath);
+  if (resolvedPath !== DIST_DIR && !resolvedPath.startsWith(DIST_DIR + path.sep)) {
+    filePath = path.join(DIST_DIR, 'index.html');
+  }
+
   if (filePath === DIST_DIR || (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory())) {
     filePath = path.join(DIST_DIR, 'index.html');
   }
