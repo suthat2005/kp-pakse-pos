@@ -1172,7 +1172,7 @@ export default function POS({
     if (slot.isDebt) {
       setDebtActionTargetSlot(slot);
       setShowDebtActionModal(true);
-    } else if (activeJob) {
+    } else if (activeJob && (!slot.items || slot.items.length === 0)) {
       // Automatically load the balance payment for the active framing job into the cart!
       handleCollectPayment(activeJob);
     } else if ((slot.customerName && slot.customerName.trim()) || (slot.items && slot.items.length > 0)) {
