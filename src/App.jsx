@@ -103,7 +103,15 @@ export default function App() {
   const [unreadChatCount, setUnreadChatCount] = useState(0);
   const [toasts, setToasts] = useState([]); // Array of { id, title, body, orderId }
   const appLoadTimeRef = useRef(new Date().toISOString());
-  const lastNotifiedMsgTimeRef = useRef(localStorage.getItem('last_notified_msg_time') || '');
+  
+  const getSafeLocalStorageItem = (key, def = '') => {
+    try {
+      return localStorage.getItem(key) || def;
+    } catch (e) {
+      return def;
+    }
+  };
+  const lastNotifiedMsgTimeRef = useRef(getSafeLocalStorageItem('last_notified_msg_time', ''));
 
   const playPremiumNotificationChime = () => {
     try {
@@ -135,63 +143,71 @@ export default function App() {
   };
 
   const checkNewChatMessages = () => {
-    const orders = db.getOnlineOrders() || [];
-    const totalUnread = orders.reduce((sum, o) => {
-      if (o.messages) {
-        return sum + o.messages.filter(m => m.sender === 'customer' && !m.read).length;
-      }
-      return sum;
-    }, 0);
-    setUnreadChatCount(totalUnread);
+    try {
+      const rawOrders = db.getOnlineOrders();
+      const orders = (Array.isArray(rawOrders) ? rawOrders : []).filter(Boolean);
+      
+      const totalUnread = orders.reduce((sum, o) => {
+        if (o && o.messages) {
+          return sum + o.messages.filter(m => m && m.sender === 'customer' && !m.read).length;
+        }
+        return sum;
+      }, 0);
+      setUnreadChatCount(totalUnread);
 
-    let highestTimestamp = lastNotifiedMsgTimeRef.current;
-    let shouldPlaySound = false;
-    const newToasts = [];
+      let highestTimestamp = lastNotifiedMsgTimeRef.current;
+      let shouldPlaySound = false;
+      const newToasts = [];
 
-    orders.forEach(order => {
-      if (order.messages) {
-        order.messages.forEach(msg => {
-          if (msg.sender === 'customer') {
-            if (msg.timestamp > appLoadTimeRef.current && msg.timestamp > lastNotifiedMsgTimeRef.current) {
-              shouldPlaySound = true;
-              
-              let body = msg.text || '';
-              if (msg.attachments && msg.attachments.length > 0) {
-                body = body ? `${body} (🖼️ ສົ່ງຮູບພາບ)` : '🖼️ ສົ່ງຮູບພາບ / File Attached';
-              }
+      orders.forEach(order => {
+        if (order && order.messages) {
+          order.messages.forEach(msg => {
+            if (msg && msg.sender === 'customer') {
+              if (msg.timestamp > appLoadTimeRef.current && msg.timestamp > lastNotifiedMsgTimeRef.current) {
+                shouldPlaySound = true;
+                
+                let body = msg.text || '';
+                if (msg.attachments && msg.attachments.length > 0) {
+                  body = body ? `${body} (🖼️ ສົ່ງຮູບພາບ)` : '🖼️ ສົ່ງຮູບພາບ / File Attached';
+                }
 
-              newToasts.push({
-                id: `${order.id}-${msg.timestamp}`,
-                title: `💬 ຂໍ້ຄວາມແຊັດໃໝ່ຈາກ: ${msg.senderName || 'ລູກຄ້າ'}`,
-                body: body,
-                orderId: order.id
-              });
-              
-              if (msg.timestamp > highestTimestamp) {
-                highestTimestamp = msg.timestamp;
+                newToasts.push({
+                  id: `${order.id}-${msg.timestamp}`,
+                  title: `💬 ຂໍ້ຄວາມແຊັດໃໝ່ຈາກ: ${msg.senderName || 'ລູກຄ້າ'}`,
+                  body: body,
+                  orderId: order.id
+                });
+                
+                if (msg.timestamp > highestTimestamp) {
+                  highestTimestamp = msg.timestamp;
+                }
               }
             }
-          }
+          });
+        }
+      });
+
+      if (newToasts.length > 0) {
+        setToasts(prev => [...prev, ...newToasts]);
+        newToasts.forEach(toast => {
+          setTimeout(() => {
+            setToasts(prev => prev.filter(t => t.id !== toast.id));
+          }, 6000);
         });
       }
-    });
 
-    if (newToasts.length > 0) {
-      setToasts(prev => [...prev, ...newToasts]);
-      newToasts.forEach(toast => {
-        setTimeout(() => {
-          setToasts(prev => prev.filter(t => t.id !== toast.id));
-        }, 6000);
-      });
-    }
+      if (shouldPlaySound) {
+        playPremiumNotificationChime();
+      }
 
-    if (shouldPlaySound) {
-      playPremiumNotificationChime();
-    }
-
-    if (highestTimestamp !== lastNotifiedMsgTimeRef.current) {
-      lastNotifiedMsgTimeRef.current = highestTimestamp;
-      localStorage.setItem('last_notified_msg_time', highestTimestamp);
+      if (highestTimestamp !== lastNotifiedMsgTimeRef.current) {
+        lastNotifiedMsgTimeRef.current = highestTimestamp;
+        try {
+          localStorage.setItem('last_notified_msg_time', highestTimestamp);
+        } catch (e) {}
+      }
+    } catch (err) {
+      console.error('Error checking new chat messages:', err);
     }
   };
 
