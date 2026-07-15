@@ -3008,6 +3008,52 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
     if (onUpdate) onUpdate();
   };
 
+  // Direct Warehouse Stock Adjustments (+ / - buttons in table)
+  const adjustWarehouseStock = (product, delta) => {
+    if (delta > 0) {
+      if (!hasInventoryPermission('inventoryAddStock')) {
+        if (!verifyAdminPin()) return;
+      }
+    } else if (delta < 0) {
+      if (!hasInventoryPermission('inventoryDeleteStock')) {
+        if (!verifyAdminPin()) return;
+      }
+    }
+    const newStock = Math.max(0, (product.warehouseStock || 0) + delta);
+    const updated = {
+      ...product,
+      warehouseStock: newStock
+    };
+    db.updateProduct(updated);
+    setProducts(db.getProducts());
+    if (onUpdate) onUpdate();
+  };
+
+  // Direct Warehouse Stock Input field change
+  const handleWarehouseStockInputChange = (product, value) => {
+    const qty = parseInt(value);
+    if (isNaN(qty) || qty < 0) return;
+
+    const currentWarehouseStock = product.warehouseStock || 0;
+    if (qty > currentWarehouseStock) {
+      if (!hasInventoryPermission('inventoryAddStock')) {
+        if (!verifyAdminPin()) return;
+      }
+    } else if (qty < currentWarehouseStock) {
+      if (!hasInventoryPermission('inventoryDeleteStock')) {
+        if (!verifyAdminPin()) return;
+      }
+    }
+
+    const updated = {
+      ...product,
+      warehouseStock: qty
+    };
+    db.updateProduct(updated);
+    setProducts(db.getProducts());
+    if (onUpdate) onUpdate();
+  };
+
   const handleOpenBarcodeGen = (p) => {
     setSelectedBarcodeProd(p);
     setCustomBarcodeText(p.barcode);
@@ -3683,7 +3729,14 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
           className={`nav-tab ${activeSubTab === 'products' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('products')}
         >
-          {db.getLabel('inv_tab_products', '📦 ສະຕັອກສິນຄ້າ (Products)')}
+          {db.getLabel('inv_tab_products', '📦 ສະຕັອກໜ້າຮ້ານ (Shop Stock)')}
+        </button>
+        <button
+          type="button"
+          className={`nav-tab ${activeSubTab === 'warehouse' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('warehouse')}
+        >
+          🏠 ຈັດການສາງໃຫຍ່ (Warehouse)
         </button>
         <button
           type="button"
