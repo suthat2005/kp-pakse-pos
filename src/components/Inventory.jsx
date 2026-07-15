@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../utils/db';
 import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
