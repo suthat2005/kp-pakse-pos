@@ -318,17 +318,17 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
 
   // Load database items on start and when database events fire
   const loadData = () => {
-    const orders = db.getOrders();
-    const debts = db.getDebts();
-    const onlineOrders = typeof db.getOnlineOrders === 'function' ? db.getOnlineOrders() : [];
-    const jobs = db.getFramingJobs();
+    const orders = db.getOrders().filter(Boolean);
+    const debts = db.getDebts().filter(Boolean);
+    const onlineOrders = (typeof db.getOnlineOrders === 'function' ? db.getOnlineOrders() : []).filter(Boolean);
+    const jobs = db.getFramingJobs().filter(Boolean);
     
-    // Filter out jobs that are picked_up/completed but their associated bill does not exist
     const activeJobs = jobs.filter(j => {
+      if (!j) return false;
       if (j.status === 'picked_up') {
-        const inPOS = orders.some(o => o.items.some(item => item.productId === j.id));
-        const inDebt = debts.some(d => d.items.some(item => item.productId === j.id));
-        const inOnline = onlineOrders.some(o => o.items.some(item => item.productId === j.id));
+        const inPOS = orders.some(o => (o.items || []).some(item => item && item.productId === j.id));
+        const inDebt = debts.some(d => (d.items || []).some(item => item && item.productId === j.id));
+        const inOnline = onlineOrders.some(o => (o.items || []).some(item => item && item.productId === j.id));
         return inPOS || inDebt || inOnline;
       }
       return true; // keep pending/ready jobs in queue
@@ -496,7 +496,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
       if (order && !order.skipStockReduction) {
         const products = db.getProducts();
         let restoredCount = 0;
-        order.items.forEach(item => {
+        (order.items || []).forEach(item => {
           const prod = products.find(p => p.id === item.productId);
           if (prod && !db.isServiceCategory(prod.category)) {
             prod.stock = (prod.stock || 0) + item.qty;
@@ -539,7 +539,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
       if (debt) {
         const products = db.getProducts();
         let restoredCount = 0;
-        debt.items.forEach(item => {
+        (debt.items || []).forEach(item => {
           const prod = products.find(p => p.id === item.productId);
           if (prod && !db.isServiceCategory(prod.category)) {
             prod.stock = (prod.stock || 0) + item.qty;
@@ -577,7 +577,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
       if (order && order.paymentStatus === 'paid') {
         const products = db.getProducts();
         let restoredCount = 0;
-        order.items.forEach(item => {
+        (order.items || []).forEach(item => {
           const prod = products.find(p => p.id === item.productId);
           if (prod && !db.isServiceCategory(prod.category)) {
             prod.stock = (prod.stock || 0) + item.qty;
@@ -892,7 +892,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
       let rawJobsTotal = 0;
       let rawProductsTotal = 0;
       
-      order.items.forEach(item => {
+      (order.items || []).forEach(item => {
         const itemTotal = (item.price || 0) * (item.qty || 0);
         if (item.productId && item.productId.startsWith('JOB')) {
           rawJobsTotal += itemTotal;
@@ -916,9 +916,8 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
     }
   });
 
-  // Calculate costs of items in orders in the selected range
   rangeOrders.forEach(o => {
-    o.items.forEach(item => {
+    (o.items || []).forEach(item => {
       if (item.productId && item.productId.startsWith('JOB')) {
         totalCost += (item.price || 0) * (item.qty || 0) * 0.3;
       } else {
@@ -1379,7 +1378,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
 
     rangeOrders.forEach(o => {
       if (o.isBalancePayment) return; // Skip balance payments to prevent double-counting category sales!
-      o.items.forEach(item => {
+      (o.items || []).forEach(item => {
         const cat = item.category || 'other';
         catSales[cat] = (catSales[cat] || 0) + getItemPaidTotal(item, o);
       });
@@ -2405,7 +2404,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
                         </div>
                       )}
                       <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.02)', padding: '6px 8px', borderRadius: '6px' }}>
-                        <b>ລາຍການ:</b> {debt.items.map(item => `${item.name} ×${item.qty}`).join(', ')}
+                        <b>ລາຍການ:</b> {(debt.items || []).map(item => `${item.name} ×${item.qty}`).join(', ')}
                       </div>
                       {debt.discount > 0 && (
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
@@ -2471,7 +2470,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
                           <div style={{ fontFamily: 'monospace', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{debt.customerPhone}</div>
                         </td>
                         <td style={{ padding: '12px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                          {debt.items.map(item => `${item.name} ×${item.qty}`).join(', ')}
+                          {(debt.items || []).map(item => `${item.name} ×${item.qty}`).join(', ')}
                         </td>
                         <td style={{ padding: '12px', textAlign: 'right', color: 'var(--success-green)' }}>
                           {debt.discount > 0 ? `-${debt.discount.toLocaleString()} ₭` : <span style={{ color: 'rgba(255,255,255,0.2)' }}>-</span>}

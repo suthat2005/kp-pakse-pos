@@ -43,7 +43,23 @@ export default function OnlineOrders({ activeUser, isMobile }) {
     loadOrders();
     const handleUpdate = () => loadOrders();
     window.addEventListener('db-updated', handleUpdate);
-    return () => window.removeEventListener('db-updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+
+    const handleSelectChat = (e) => {
+      const { orderId } = e.detail;
+      const freshOrders = db.getOnlineOrders();
+      const order = freshOrders.find(o => o.id === orderId);
+      if (order) {
+        handleSelectOrder(order);
+      }
+    };
+    window.addEventListener('select-online-chat', handleSelectChat);
+
+    return () => {
+      window.removeEventListener('db-updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+      window.removeEventListener('select-online-chat', handleSelectChat);
+    };
   }, []);
 
   function loadOrders() {

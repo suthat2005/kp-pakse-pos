@@ -5326,7 +5326,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       stock: Number(itemData.stock) || 0,
       minStock: Number(itemData.minStock) || 0,
       unit: itemData.unit || 'ອັນ',
-      category: 'consumables',
+      category: itemData.category || 'other',
       history: []
     };
     list.push(newItem);
@@ -5403,5 +5403,27 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       return item;
     }
     return null;
+  },
+  updateConsumable(id, itemData) {
+    const list = this.getConsumables();
+    const idx = list.findIndex(c => c.id === id);
+    if (idx !== -1) {
+      list[idx] = {
+        ...list[idx],
+        name: itemData.name,
+        costPerUnit: Number(itemData.costPerUnit) || 0,
+        minStock: Number(itemData.minStock) || 0,
+        unit: itemData.unit || 'ອັນ',
+        category: itemData.category || 'other'
+      };
+      this.saveConsumables(list);
+      return list[idx];
+    }
+    return null;
+  },
+  deleteConsumable(id) {
+    const list = this.getConsumables();
+    const filtered = list.filter(c => c.id !== id);
+    this.saveConsumables(filtered);
   }
 };
