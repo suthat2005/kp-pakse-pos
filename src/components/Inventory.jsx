@@ -3632,6 +3632,47 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
   const totalRetailValue = physicalProducts.reduce((sum, p) => sum + ((Number(p.price) || 0) * (Number(p.stock) || 0)), 0);
   const totalPotentialProfit = totalRetailValue - totalCostValue;
 
+  // Main Warehouse States and Calculations
+  const lowStockWarehouseProducts = products.filter(p => !db.isServiceCategory(p.category) && (p.warehouseStock || 0) <= p.minStock);
+
+  const filteredWarehouseProducts = products.filter(p => {
+    // Search matching
+    const searchMatch = !prodSearchQuery.trim() || 
+      p.name.toLowerCase().includes(prodSearchQuery.toLowerCase()) || 
+      (p.barcode && p.barcode.toLowerCase().includes(prodSearchQuery.toLowerCase())) ||
+      p.id.toLowerCase().includes(prodSearchQuery.toLowerCase());
+      
+    if (!searchMatch) return false;
+
+    // Category matching
+    if (selectedCatFilter === 'all') return true;
+    if (selectedCatFilter === 'low_stock') return !db.isServiceCategory(p.category) && (p.warehouseStock || 0) <= p.minStock;
+    if (selectedCatFilter === 'service') return db.isServiceCategory(p.category);
+    if (selectedCatFilter === 'physical') return !db.isServiceCategory(p.category);
+    return p.category === selectedCatFilter;
+  }).sort((a, b) => {
+    if (prodSortMode === 'name-asc') {
+      return a.name.localeCompare(b.name, 'lo-LA');
+    } else if (prodSortMode === 'name-desc') {
+      return b.name.localeCompare(a.name, 'lo-LA');
+    } else if (prodSortMode === 'stock-asc') {
+      const aStock = db.isServiceCategory(a.category) ? 999999 : (a.warehouseStock || 0);
+      const bStock = db.isServiceCategory(b.category) ? 999999 : (b.warehouseStock || 0);
+      return aStock - bStock;
+    } else if (prodSortMode === 'stock-desc') {
+      const aStock = db.isServiceCategory(a.category) ? -1 : (a.warehouseStock || 0);
+      const bStock = db.isServiceCategory(b.category) ? -1 : (b.warehouseStock || 0);
+      return bStock - aStock;
+    }
+    return 0;
+  });
+
+  const totalWarehouseStockCount = physicalProducts.reduce((sum, p) => sum + (Number(p.warehouseStock) || 0), 0);
+  const totalWarehouseCostValue = physicalProducts.reduce((sum, p) => sum + ((Number(p.cost) || 0) * (Number(p.warehouseStock) || 0)), 0);
+  const totalWarehouseRetailValue = physicalProducts.reduce((sum, p) => sum + ((Number(p.price) || 0) * (Number(p.warehouseStock) || 0)), 0);
+  const totalWarehousePotentialProfit = totalWarehouseRetailValue - totalWarehouseCostValue;
+
+
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       
@@ -3693,1388 +3734,371 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       {activeSubTab === 'products' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* Header and Actions */}
-      <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '8px' } : { display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h2 style={{ color: 'var(--gold-primary)', fontSize: isMobile ? '1.2rem' : '1.5rem', margin: 0 }}>
-            {db.getLabel('title_inventory', '📦 ຈັດການຄັງສິນຄ້າ & ສະຕັອກ (Inventory)')}
-          </h2>
-          {!isMobile && (
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0' }}>
-              ຈັດການລາຍການສິນຄ້າ, ຂອບພຣะ, ສ້ອຍຄໍ, ແລະ ປັບສະຕັອກໄດ້ໂດຍກົງ
-            </p>
-          )}
-        </div>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', width: isMobile ? '100%' : 'auto' }}>
-          <button 
-            className="btn btn-secondary" 
-            style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
-            onClick={() => { setSelectedBarcodeProd(null); setBarcodePrintQty(1); setShowBarcodeModal(true); }}
-          >
-            🏷️ ສ້າງບາໂຄ້ດເປົ່າ
-          </button>
-          <button 
-            className="btn btn-secondary" 
-            style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
-            onClick={() => { setBulkPrintQtys({}); setBulkSearch(''); setBulkCatFilter('all'); setShowBulkBarcodeModal(true); }}
-          >
-            🏷️ ປຣິນບາໂຄ້ດຫຼາຍ
-          </button>
-          <button 
-            className="btn btn-secondary" 
-            style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
-            onClick={openCategoryAdd}
-          >
-            🗂️ ຈັດການໝວດໝູ່
-          </button>
-{hasInventoryPermission('inventoryAddProduct') && (
-          <button 
-            className="btn btn-primary" 
-            style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
-            onClick={handleOpenAdd}
-          >
-            ➕ ເພີ່ມສິນຄ້າໃໝ່
-          </button>
-)}
-        </div>
-      </div>
-
-      {/* Stock Valuation KPI Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-        <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--gold-primary)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>📦 ຈຳນວນສິນຄ້າຄົງເຫຼືອທັງໝົດ</span>
-          <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'white' }}>
-            {totalStockCount.toLocaleString()} <span style={{ fontSize: '0.85rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>ຊິ້ນ/ອັນ (ຈາກ {physicalProducts.length} ລາຍການ)</span>
-          </span>
-        </div>
-        <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--accent-amber, #e67e22)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>💰 ມູນຄ່າຕົ້ນທຶນສະຕັອກລວມ</span>
-          <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'white' }}>
-            {hasInventoryPermission('inventoryViewCost') ? `${totalCostValue.toLocaleString()} ກີບ` : '*** ກີບ'}
-          </span>
-        </div>
-        <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--success-green, #27ae60)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>📈 ມູນຄ່າລາຄາຂາຍສະຕັອກລວມ</span>
-          <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'white' }}>
-            {totalRetailValue.toLocaleString()} <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>ກີບ</span>
-          </span>
-        </div>
-        <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--blue-primary, #3498db)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>✨ ກຳໄລຄາດຄະເນທັງໝົດ</span>
-          <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
-            {hasInventoryPermission('inventoryViewCost') ? `${totalPotentialProfit.toLocaleString()} ກີບ` : '*** ກີບ'}
-          </span>
-        </div>
-      </div>
-
-      {/* Category Summary Card */}
-      <div className="glass-card" style={{ padding: '20px', borderLeft: '4px solid var(--gold-primary)', marginTop: '4px' }}>
-        <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.92rem', marginBottom: '14px', marginTop: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-          📊 ສະຫຼຸບສິນຄ້າຕາມຫມວດຫມູ່ (Category Summary)
-        </h4>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '10px' }}>
-          {categories.map(cat => {
-            const catProducts = products.filter(p => p.category === cat.id);
-            const isService = db.isServiceCategory(cat.id);
-            const stockTotal = isService ? null : catProducts.reduce((sum, p) => sum + (Number(p.stock) || 0), 0);
-            const catTotalCost = isService ? 0 : catProducts.reduce((sum, p) => sum + ((Number(p.cost) || 0) * (Number(p.stock) || 0)), 0);
-            const catTotalRetail = isService ? 0 : catProducts.reduce((sum, p) => sum + ((Number(p.price) || 0) * (Number(p.stock) || 0)), 0);
-            const catProfit = catTotalRetail - catTotalCost;
-            return (
-              <div
-                key={cat.id}
-                onClick={() => { setSelectedCatFilter(cat.id); }}
-                style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: selectedCatFilter === cat.id ? '1.5px solid var(--gold-primary)' : '1px solid var(--border-color)',
-                  borderRadius: '10px',
-                  padding: '12px 14px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '4px'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                  {cat.icon && (cat.icon.startsWith('data:image/') || cat.icon.startsWith('http')) ? (
-                    <img src={cat.icon} style={{ width: '20px', height: '20px', objectFit: 'contain', borderRadius: '3px' }} alt="" />
-                  ) : (
-                    <span style={{ fontSize: '1rem' }}>{cat.icon || '📦'}</span>
-                  )}
-                  <span style={{ fontSize: '0.82rem', fontWeight: '600', color: 'var(--text-primary)', lineHeight: 1.3 }}>{cat.name}</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                    📋 ລາຍການ: <b style={{ color: 'white' }}>{catProducts.length}</b> ລາຍການ
-                  </span>
-                  {!isService && (
-                    <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                      📦 ສະຕັອກ: <b style={{ color: stockTotal === 0 ? 'var(--alert-red)' : 'var(--gold-primary)' }}>{stockTotal}</b> ຊິ້ນ
-                    </span>
-                  )}
-                  {isService && (
-                    <span style={{ fontSize: '0.75rem', color: 'var(--accent-amber, #e67e22)' }}>🛠️ ບໍລິການ (ບໍ່ມີສະຕັອກ)</span>
-                  )}
-                  {!isService && (
-                    <>
-                      <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', margin: '4px 0' }} />
-                      <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
-                        💰 ຕົ້ນທຶນ:{' '}
-                        <b style={{ color: 'var(--accent-amber, #e67e22)' }}>
-                          {hasInventoryPermission('inventoryViewCost') ? `${catTotalCost.toLocaleString()} ກີບ` : '***'}
-                        </b>
-                      </span>
-                      <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
-                        📈 ຂາຍ:{' '}
-                        <b style={{ color: 'var(--success-green, #27ae60)' }}>
-                          {catTotalRetail.toLocaleString()} ກີບ
-                        </b>
-                      </span>
-                      <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
-                        ✨ ກຳໄລ:{' '}
-                        <b style={{ color: catProfit >= 0 ? 'var(--gold-primary)' : 'var(--alert-red)' }}>
-                          {hasInventoryPermission('inventoryViewCost') ? `${catProfit.toLocaleString()} ກີບ` : '***'}
-                        </b>
-                      </span>
-                    </>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Low Stock Alerts Banner */}
-      {lowStockProducts.length > 0 && (
-        <div style={{ background: 'rgba(231, 76, 60, 0.1)', border: '1.5px solid var(--alert-red)', padding: '16px', borderRadius: 'var(--radius-lg)' }}>
-          <h3 style={{ color: 'var(--alert-red)', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            ⚠️ ແຈ້ງເຕືອນ: ສິນຄ້າໃກ້ໝົດສະຕັອກ ({lowStockProducts.length} ລາຍການ)
-          </h3>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            {lowStockProducts.map(p => (
-              <div
-                key={p.id}
-                style={{ background: 'rgba(20, 10, 10, 0.5)', border: '1px solid rgba(231, 76, 60, 0.3)', padding: '8px 12px', borderRadius: '8px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '10px' }}
-              >
-                <span>{p.name} (<b>ຄົງເຫຼືອ: {p.stock} {p.unit}</b>)</span>
-{hasInventoryPermission('inventoryEditProduct') && (
-                <button
-                  className="btn btn-primary"
-                  style={{ padding: '2px 8px', fontSize: '0.75rem', borderRadius: '4px' }}
-                  onClick={() => handleOpenEdit(p)}
-                >
-                  ຕື່ມສະຕັອກ
-                </button>
-)}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Search & Sort UI controls */}
-      <div 
-        className="glass-card" 
-        style={{ 
-          padding: '16px', 
-          display: 'flex', 
-          flexWrap: 'wrap', 
-          gap: '12px', 
-          alignItems: 'center', 
-          justifyContent: 'space-between',
-          background: 'rgba(255, 255, 255, 0.02)',
-          border: '1px solid var(--border-color)',
-          borderRadius: '8px',
-          marginTop: '10px'
-        }}
-      >
-        {/* Search Box */}
-        <div style={{ flex: '1', minWidth: '250px', display: 'flex', alignItems: 'center', gap: '8px', position: 'relative' }}>
-          <span style={{ position: 'absolute', left: '12px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>🔍</span>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="ຄົ້ນຫາສິນຄ້າ ດ້ວຍຊື່ ຫຼື ບາໂຄ້ດ (Search name/barcode)..."
-            value={prodSearchQuery}
-            onChange={(e) => setProdSearchQuery(e.target.value)}
-            style={{ 
-              width: '100%', 
-              padding: '8px 12px 8px 36px', 
-              background: '#191613', 
-              color: 'white', 
-              border: '1px solid var(--border-color)', 
-              borderRadius: '6px',
-              fontSize: '0.85rem'
-            }}
-          />
-          {prodSearchQuery && (
-            <button
-              onClick={() => setProdSearchQuery('')}
-              style={{
-                position: 'absolute',
-                right: '12px',
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-secondary)',
-                cursor: 'pointer',
-                fontSize: '0.9rem'
-              }}
-            >
-              ✕
-            </button>
-          )}
-        </div>
-
-        {/* Sorting Dropdown */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>ຈັດລຽງ / Sort:</span>
-          <select
-            value={prodSortMode}
-            onChange={(e) => setProdSortMode(e.target.value)}
-            style={{
-              padding: '8px 12px',
-              background: '#191613',
-              color: 'white',
-              border: '1px solid var(--border-color)',
-              borderRadius: '6px',
-              fontSize: '0.85rem',
-              cursor: 'pointer'
-            }}
-          >
-            <option value="none">ເລືອກການຈັດລຽງ (None)</option>
-            <option value="name-asc">🔠 ຊື່: ກ - ຮ (A-Z)</option>
-            <option value="name-desc">🔠 ຊື່: ຮ - ກ (Z-A)</option>
-            <option value="stock-asc">📉 ສະຕັອກ: ຕ່ຳ &rarr; ສູງ (Low to High)</option>
-            <option value="stock-desc">📈 ສະຕັອກ: ສູງ &rarr; ຕ່ຳ (High to Low)</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Category Tabs for easier visualization (แยกหมวดหมู่ให้ดูง่าย) */}
-      <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
-        {[
-          { id: 'all', icon: '📦', name: 'ທັງໝົດ', count: products.length },
-          { id: 'low_stock', icon: '⚠️', name: 'ສະຕັອກໃກ້ໝົດ', count: lowStockProducts.length },
-          { id: 'physical', icon: '📦', name: 'ສິນຄ້າ', count: physicalProducts.length },
-          { id: 'service', icon: '🛠️', name: 'ບໍລິການ', count: products.length - physicalProducts.length },
-          ...categories.map(cat => ({
-            id: cat.id,
-            icon: cat.icon || '📦',
-            name: cat.name,
-            count: products.filter(p => p.category === cat.id).length
-          }))
-        ].map(tab => (
-          <button
-            key={tab.id}
-            className={`nav-tab ${selectedCatFilter === tab.id ? 'active' : ''}`}
-            style={{ fontSize: '0.85rem', borderRadius: '20px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', padding: '8px 14px', minWidth: '80px', textAlign: 'center' }}
-            onClick={() => changeCatFilter(tab.id)}
-          >
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              {tab.icon && (tab.icon.startsWith('data:image/') || tab.icon.startsWith('http')) ? (
-                <img src={tab.icon} style={{ width: '14px', height: '14px', objectFit: 'contain', borderRadius: '2px' }} alt="" />
-              ) : (
-                <span style={{ fontSize: '0.8rem' }}>{tab.icon}</span>
+          <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '8px' } : { display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <h2 style={{ color: 'var(--gold-primary)', fontSize: isMobile ? '1.2rem' : '1.5rem', margin: 0 }}>
+                📦 ຈັດການສະຕັອກໜ້າຮ້ານ (Shop Stock)
+              </h2>
+              {!isMobile && (
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0' }}>
+                  ຈັດການລາຍການສິນຄ້າ ແລະ ປັບປຸງສະຕັອກສິນຄ້າຄົງເຫຼືອໜ້າຮ້ານໄດ້ໂດຍກົງ
+                </p>
               )}
-              <span style={{ fontWeight: '500', whiteSpace: 'nowrap' }}>{tab.name}</span>
-            </span>
-            <span style={{ fontSize: '0.8rem', fontWeight: 'bold', opacity: 0.9 }}>({tab.count})</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Products Inventory Table */}
-      <div className="desktop-table-view" style={{ overflowX: 'auto' }}>
-        <table className="table-premium" style={{ minWidth: '1000px', marginTop: 0 }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--gold-primary)', fontSize: '0.9rem' }}>
-              <th style={{ padding: '16px' }}>ຮູບພາບ</th>
-              <th style={{ padding: '16px' }}>ລະຫັດບາໂຄ້ด</th>
-              <th style={{ padding: '16px' }}>ຊື່ສິນຄ້າ</th>
-              <th style={{ padding: '16px', textAlign: 'right' }}>ຕົ້ນທຶນ</th>
-              <th style={{ padding: '16px', textAlign: 'right' }}>ລາຄາຂາຍ</th>
-              <th style={{ padding: '16px', textAlign: 'center', width: '160px' }}>ສະຕັອກໜ້າຮ້ານ</th>
-              <th style={{ padding: '16px', textAlign: 'center', width: '240px' }}>ສະຕັອກສາງໃຫຍ່</th>
-              <th style={{ padding: '16px', textAlign: 'right' }}>ຈັດການ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredProducts.map(p => {
-              const isService = db.isServiceCategory(p.category);
-              const isLow = !isService && p.stock <= p.minStock;
-              return (
-                <tr
-                  key={p.id}
-                  style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', fontSize: '0.9rem', background: isLow ? 'rgba(231,76,60,0.02)' : 'none' }}
+            </div>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', width: isMobile ? '100%' : 'auto' }}>
+              <button 
+                className="btn btn-secondary" 
+                style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
+                onClick={() => { setSelectedBarcodeProd(null); setBarcodePrintQty(1); setShowBarcodeModal(true); }}
+              >
+                🏷️ ສ້າງບາໂຄ້ດເປົ່າ
+              </button>
+              <button 
+                className="btn btn-secondary" 
+                style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
+                onClick={() => { setBulkPrintQtys({}); setBulkSearch(''); setBulkCatFilter('all'); setShowBulkBarcodeModal(true); }}
+              >
+                🏷️ ປຣິນບາໂຄ້ດຫຼາຍ
+              </button>
+              <button 
+                className="btn btn-secondary" 
+                style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
+                onClick={openCategoryAdd}
+              >
+                🗂️ ຈັດການໝວດໝູ່
+              </button>
+              {hasInventoryPermission('inventoryAddProduct') && (
+                <button 
+                  className="btn btn-primary" 
+                  style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
+                  onClick={handleOpenAdd}
                 >
-                  <td style={{ padding: '12px 16px' }}>
-                    <img src={p.image} alt={p.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border-color)' }} />
-                  </td>
-                  <td style={{ padding: '12px 16px', fontFamily: 'monospace' }}>
-                    {p.barcode}
-                  </td>
-                  <td style={{ padding: '12px 16px', fontWeight: '500' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <span>{p.name}</span>
-                      <span style={{ display: 'inline-flex', width: 'fit-content', fontSize: '0.7rem', padding: '2px 6px', borderRadius: '999px', color: isService ? 'var(--accent-amber)' : 'var(--success-green)', border: '1px solid ' + (isService ? 'rgba(229,169,59,0.3)' : 'rgba(39,174,96,0.3)'), background: isService ? 'rgba(229,169,59,0.08)' : 'rgba(39,174,96,0.08)' }}>
-                        {(() => {
-                          const cat = categories.find(c => c.id === p.category || c.name === p.category);
-                          const catName = cat ? db.getLabel('cat_' + cat.id, cat.name) : p.category;
-                          return isService ? `🛠️ ${catName || 'ບໍລິການ'}` : `📦 ${catName || 'ສິນຄ້າ'}`;
-                        })()}
-                      </span>
+                  ➕ ເພີ່ມສິນຄ້າໃໝ່
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Stock Valuation KPI Cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+            <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--gold-primary)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>📦 ຈຳນວນສິນຄ້າຄົງເຫຼືອໜ້າຮ້ານທັງໝົດ</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'white' }}>
+                {totalStockCount.toLocaleString()} <span style={{ fontSize: '0.85rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>ຊິ້ນ (ຈາກ {physicalProducts.length} ລາຍການ)</span>
+              </span>
+            </div>
+            <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--accent-amber, #e67e22)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>💰 ມູນຄ່າຕົ້ນທຶນສະຕັອກໜ້າຮ້ານລວມ</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'white' }}>
+                {hasInventoryPermission('inventoryViewCost') ? `${totalCostValue.toLocaleString()} ກີບ` : '*** ກີບ'}
+              </span>
+            </div>
+            <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--success-green, #27ae60)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>📈 ມູນຄ່າລາຄາາຍໜ້າຮ້ານລວມ</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'white' }}>
+                {totalRetailValue.toLocaleString()} <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>ກີບ</span>
+              </span>
+            </div>
+            <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--blue-primary, #3498db)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>✨ ກຳໄລຄາດຄະເນໜ້າຮ້ານ</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
+                {hasInventoryPermission('inventoryViewCost') ? `${totalPotentialProfit.toLocaleString()} ກີບ` : '*** ກີບ'}
+              </span>
+            </div>
+          </div>
+
+          {/* Category Summary Card */}
+          <div className="glass-card" style={{ padding: '20px', borderLeft: '4px solid var(--gold-primary)', marginTop: '4px' }}>
+            <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.92rem', marginBottom: '14px', marginTop: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              📊 ສະຫຼຸບສິນຄ້າໜ້າຮ້ານຕາມຫມວດຫມູ່ (Category Summary)
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '10px' }}>
+              {categories.map(cat => {
+                const catProducts = products.filter(p => p.category === cat.id);
+                const isService = db.isServiceCategory(cat.id);
+                const stockTotal = isService ? null : catProducts.reduce((sum, p) => sum + (Number(p.stock) || 0), 0);
+                const catTotalCost = isService ? 0 : catProducts.reduce((sum, p) => sum + ((Number(p.cost) || 0) * (Number(p.stock) || 0)), 0);
+                const catTotalRetail = isService ? 0 : catProducts.reduce((sum, p) => sum + ((Number(p.price) || 0) * (Number(p.stock) || 0)), 0);
+                const catProfit = catTotalRetail - catTotalCost;
+                return (
+                  <div
+                    key={cat.id}
+                    onClick={() => { setSelectedCatFilter(cat.id); }}
+                    style={{
+                      background: 'rgba(255,255,255,0.03)',
+                      border: selectedCatFilter === cat.id ? '1.5px solid var(--gold-primary)' : '1px solid var(--border-color)',
+                      borderRadius: '10px',
+                      padding: '12px 14px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '4px'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                      {cat.icon && (cat.icon.startsWith('data:image/') || cat.icon.startsWith('http')) ? (
+                        <img src={cat.icon} style={{ width: '20px', height: '20px', objectFit: 'contain', borderRadius: '3px' }} alt="" />
+                      ) : (
+                        <span style={{ fontSize: '1rem' }}>{cat.icon || '📦'}</span>
+                      )}
+                      <span style={{ fontSize: '0.82rem', fontWeight: '600', color: 'var(--text-primary)', lineHeight: 1.3 }}>{cat.name}</span>
                     </div>
-                  </td>
-                  <td style={{ padding: '12px 16px', textAlign: 'right' }}>
-                    {hasInventoryPermission('inventoryViewCost') ? `${p.cost.toLocaleString()} ກີບ` : '*** ກີບ'}
-                  </td>
-                  <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
-                    {p.price.toLocaleString()} ກີບ
-                  </td>
-                  
-                  <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                    {isService ? (
-                      <span style={{ color: 'var(--text-secondary)' }}>ບໍລິການ (ບໍ່ມີສະຕັອກ)</span>
-                    ) : (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                        <button
-                          className="cart-qty-btn"
-                          style={{ width: '22px', height: '22px' }}
-                          onClick={() => adjustStock(p, -1)}
-                        >
-                          -
-                        </button>
-                        <input
-                          type="number"
-                          value={p.stock}
-                          onChange={(e) => handleStockInputChange(p, e.target.value)}
-                          style={{
-                            width: '50px',
-                            background: '#0c0b09',
-                            border: '1.5px solid var(--border-color)',
-                            borderRadius: '4px',
-                            color: isLow ? 'var(--alert-red)' : 'var(--success-green)',
-                            textAlign: 'center',
-                            fontWeight: 'bold',
-                            padding: '2px',
-                            fontFamily: 'monospace'
-                          }}
-                        />
-                        <button
-                          className="cart-qty-btn"
-                          style={{ width: '22px', height: '22px' }}
-                          onClick={() => adjustStock(p, 1)}
-                        >
-                          +
-                        </button>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{p.unit}</span>
-                      </div>
-                    )}
-                  </td>
-
-                  <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                    {isService ? (
-                      <span style={{ color: 'var(--text-secondary)' }}>—</span>
-                    ) : (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                        <span style={{ fontWeight: 'bold', minWidth: '40px', textAlign: 'right', color: 'var(--accent-amber)' }}>
-                          {p.warehouseStock || 0}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                        📋 ລາຍການ: <b style={{ color: 'white' }}>{catProducts.length}</b> ລາຍການ
+                      </span>
+                      {!isService && (
+                        <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                          📦 ສະຕັອກ: <b style={{ color: stockTotal === 0 ? 'var(--alert-red)' : 'var(--gold-primary)' }}>{stockTotal}</b> ຊິ້ນ
                         </span>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginRight: '4px' }}>{p.unit}</span>
-                        <button
-                          type="button"
-                          className="btn btn-secondary"
-                          style={{ padding: '2px 6px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '2px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)' }}
-                          onClick={() => {
-                            setWarehouseActiveProduct(p);
-                            setShowWarehouseRestockModal(true);
-                          }}
-                        >
-                          📥 ຮັບເຂົ້າ
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-primary"
-                          style={{ padding: '2px 6px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '2px' }}
-                          onClick={() => {
-                            setWarehouseActiveProduct(p);
-                            setShowWarehouseTransferModal(true);
-                          }}
-                        >
-                          🚚 ໂອນຍ້າຍ
-                        </button>
-                      </div>
-                    )}
-                  </td>
+                      )}
+                      {isService && (
+                        <span style={{ fontSize: '0.75rem', color: 'var(--accent-amber, #e67e22)' }}>🛠️ ບໍລິການ (No Stock)</span>
+                      )}
+                      {!isService && (
+                        <>
+                          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', margin: '4px 0' }} />
+                          <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                            💰 ຕົ້ນທຶນ:{' '}
+                            <b style={{ color: 'var(--accent-amber, #e67e22)' }}>
+                              {hasInventoryPermission('inventoryViewCost') ? `${catTotalCost.toLocaleString()} ກີບ` : '***'}
+                            </b>
+                          </span>
+                          <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                            📈 ຂາຍ:{' '}
+                            <b style={{ color: 'var(--success-green, #27ae60)' }}>
+                              {catTotalRetail.toLocaleString()} ກີບ
+                            </b>
+                          </span>
+                          <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                            ✨ ກຳໄລ:{' '}
+                            <b style={{ color: catProfit >= 0 ? 'var(--gold-primary)' : 'var(--alert-red)' }}>
+                              {hasInventoryPermission('inventoryViewCost') ? `${catProfit.toLocaleString()} ກີບ` : '***'}
+                            </b>
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
 
-                  <td style={{ padding: '12px 16px', textAlign: 'right' }}>
-                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                      <button
-                        className="btn btn-secondary"
-                        style={{ padding: '4px 8px', fontSize: '0.8rem' }}
-                        onClick={() => handleOpenBarcodeGen(p)}
-                      >
-                        🏷️ ບາໂຄ້ດ
-                      </button>
-{hasInventoryPermission('inventoryEditProduct') && (
+          {/* Low Stock Alerts Banner */}
+          {lowStockProducts.length > 0 && (
+            <div style={{ background: 'rgba(231, 76, 60, 0.1)', border: '1.5px solid var(--alert-red)', padding: '16px', borderRadius: 'var(--radius-lg)' }}>
+              <h3 style={{ color: 'var(--alert-red)', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                ⚠️ ແຈ້ງເຕືອນ: ສິນຄ້າໃກ້ໝົດສະຕັອກ ({lowStockProducts.length} ລາຍການ)
+              </h3>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                {lowStockProducts.map(p => (
+                  <div
+                    key={p.id}
+                    style={{ background: 'rgba(20, 10, 10, 0.5)', border: '1px solid rgba(231, 76, 60, 0.3)', padding: '8px 12px', borderRadius: '8px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '10px' }}
+                  >
+                    <span>{p.name} (<b>ຄົງເຫຼືອ: {p.stock} {p.unit}</b>)</span>
+                    {hasInventoryPermission('inventoryEditProduct') && (
                       <button
                         className="btn btn-primary"
-                        style={{ padding: '4px 8px', fontSize: '0.8rem' }}
+                        style={{ padding: '2px 8px', fontSize: '0.75rem', borderRadius: '4px' }}
                         onClick={() => handleOpenEdit(p)}
                       >
-                        📝 ແກ້ໄຂ
+                        ຕື່ມສະຕັອກ
                       </button>
-)}
-{hasInventoryPermission('inventoryDeleteProduct') && (
-                      <button
-                        className="btn"
-                        style={{ padding: '4px 8px', fontSize: '0.8rem', background: '#c0392b', color: 'white', border: 'none' }}
-                        onClick={() => handleDeleteProduct(p)}
-                      >
-                        🗑️ ລົບ
-                      </button>
-)}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="mobile-cards-view" style={{ display: 'none', flexDirection: 'column', gap: '12px' }}>
-        {filteredProducts.map(p => {
-          const isService = db.isServiceCategory(p.category);
-          const isLow = !isService && p.stock <= p.minStock;
-          return (
-            <div key={p.id} className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px', borderLeft: '4px solid ' + (isLow ? 'var(--alert-red)' : 'var(--success-green)') }}>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                {p.image ? (
-                  <img src={p.image} style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }} alt="" />
-                ) : (
-                  <div style={{ width: '60px', height: '60px', borderRadius: '8px', background: 'rgba(255,255,255,0.02)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border-color)', fontSize: '1.2rem' }}>📦</div>
-                )}
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '1.05rem' }}>{p.name}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>ບາໂຄ້ດ: {p.barcode || '-'} • SKU: {p.sku || '-'}</div>
-                </div>
-              </div>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.85rem' }}>
-                <div>
-                  <span style={{ color: 'var(--text-secondary)' }}>ຕົ້ນທຶน: </span>
-                  <span>{hasInventoryPermission('inventoryViewCost') ? `${p.cost.toLocaleString()} ₭` : '*** ₭'}</span>
-                </div>
-                <div>
-                  <span style={{ color: 'var(--text-secondary)' }}>ລາຄາຂາຍ: </span>
-                  <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{p.price.toLocaleString()} ₭</span>
-                </div>
-                <div>
-                  <span style={{ color: 'var(--text-secondary)' }}>ໝວດໝູ່: </span>
-                  <span style={{ textTransform: 'capitalize' }}>{p.category}</span>
-                </div>
-                <div>
-                  <span style={{ color: 'var(--text-secondary)' }}>ສະຕັອກໜ້າຮ້ານ: </span>
-                  {isService ? (
-                    <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>ບໍລິການ (No Stock)</span>
-                  ) : (
-                    <span style={{ fontWeight: 'bold', color: isLow ? 'var(--alert-red)' : 'white' }}>{p.stock} / {p.minStock} {p.unit}</span>
-                  )}
-                </div>
-                <div>
-                  <span style={{ color: 'var(--text-secondary)' }}>ສະຕັອກສາງໃຫຍ່: </span>
-                  {isService ? (
-                    <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>—</span>
-                  ) : (
-                    <span style={{ fontWeight: 'bold', color: 'var(--accent-amber)' }}>{p.warehouseStock || 0} {p.unit}</span>
-                  )}
-                </div>
-              </div>
-
-              {!isService && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>ປັບສະຕັອກໜ້າຮ້ານ:</span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
-                      <button type="button" className="qty-btn" style={{ width: '32px', height: '32px', fontSize: '1rem' }} onClick={() => adjustStock(p, -1)}>-</button>
-                      <input 
-                        type="text" 
-                        value={p.stock} 
-                        readOnly 
-                        style={{ width: '40px', background: '#0c0b09', border: '1px solid var(--border-color)', borderRadius: '4px', color: 'white', textAlign: 'center', fontSize: '0.9rem', padding: '4px 0', fontWeight: 'bold' }} 
-                      />
-                      <button type="button" className="qty-btn" style={{ width: '32px', height: '32px', fontSize: '1rem' }} onClick={() => adjustStock(p, 1)}>+</button>
-                    </div>
+                    )}
                   </div>
-                  <div style={{ display: 'flex', gap: '8px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '8px' }}>
-                    <button
-                      type="button"
-                      className="btn btn-secondary btn-sm"
-                      style={{ flex: 1, fontSize: '0.75rem', padding: '6px' }}
-                      onClick={() => {
-                        setWarehouseActiveProduct(p);
-                        setShowWarehouseRestockModal(true);
-                      }}
-                    >
-                      📥 ຮັບເຂົ້າສາງໃຫຍ່
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      style={{ flex: 1, fontSize: '0.75rem', padding: '6px' }}
-                      onClick={() => {
-                        setWarehouseActiveProduct(p);
-                        setShowWarehouseTransferModal(true);
-                      }}
-                    >
-                      🚚 ໂອນຍ້າຍໜ້າຮ້ານ
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
-                <button type="button" className="btn btn-secondary btn-sm" onClick={() => handleOpenBarcodeGen(p)}>🏷️ ບາໂຄ້ດ</button>
-{hasInventoryPermission('inventoryEditProduct') && (
-                <button type="button" className="btn btn-primary btn-sm" onClick={() => handleOpenEdit(p)}>📝 ແກ້ໄຂ</button>
-)}
-{hasInventoryPermission('inventoryDeleteProduct') && (
-                <button type="button" className="btn btn-sm" style={{ background: '#c0392b', color: 'white', border: 'none' }} onClick={() => handleDeleteProduct(p)}>🗑️ ລົບ</button>
-)}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      
-      {/* Add / Edit Product Modal */}
-      {showModal && (
-        <Portal>
-        <div className="modal-overlay">
-          <div className="modal-content modal-sm animate-fade-in">
-            <div className="modal-header">
-              <span className="modal-title">{editProduct ? '📝 ແກ້ໄຂລາຍລະອຽດສິນຄ້າ' : '➕ ເພີ່ມສິນຄ້າໃໝ່'}</span>
-              <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowModal(false)}>✕</button>
-            </div>
-            
-            <form onSubmit={handleSave}>
-              <div className="modal-body">
-                <div className="form-group">
-                  <label className="form-label">ຊື່ສິນຄ້າ (ພາສາລາວ/ໄທ)</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    autoComplete="off"
-                  />
-                </div>
-
-                <div className="form-group" style={{ position: 'relative' }}>
-                  <label className="form-label">ໝວດໝູ່ (Category)</label>
-                  <div 
-                    onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      background: '#221e1a',
-                      color: 'white',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '6px',
-                      padding: '8px 12px',
-                      cursor: 'pointer',
-                      minHeight: '38px'
-                    }}
-                  >
-                    {(() => {
-                      const selectedCat = categories.find(c => c.id === formData.category || c.name === formData.category);
-                      if (selectedCat) {
-                        return (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            {selectedCat.icon && (selectedCat.icon.startsWith('data:image/') || selectedCat.icon.startsWith('http')) ? (
-                              <img src={selectedCat.icon} style={{ width: '18px', height: '18px', objectFit: 'contain', borderRadius: '2px' }} alt="" />
-                            ) : (
-                              <span>{selectedCat.icon || '📦'}</span>
-                            )}
-                            <span>{selectedCat.name}</span>
-                          </div>
-                        );
-                      }
-                      return <span style={{ color: 'var(--text-secondary)' }}>ເລືອກໝວດໝູ່...</span>;
-                    })()}
-                    <span style={{ transition: 'transform 0.2s', transform: showCategoryDropdown ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
-                  </div>
-
-                  {showCategoryDropdown && (
-                    <div 
-                      style={{
-                        position: 'absolute',
-                        top: '100%',
-                        left: 0,
-                        right: 0,
-                        background: '#1a1715',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: '6px',
-                        marginTop: '4px',
-                        maxHeight: '200px',
-                        overflowY: 'auto',
-                        zIndex: 1000,
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
-                      }}
-                    >
-                      {categories.map(cat => (
-                        <div
-                          key={cat.id}
-                          onClick={() => {
-                            const isService = db.isServiceCategory(cat.id);
-                            setFormData({
-                              ...formData,
-                              category: cat.id,
-                              stock: isService ? '0' : (formData.stock || '10'),
-                              minStock: isService ? '0' : (formData.minStock || '2'),
-                              unit: isService ? 'ຄັ້ງ' : (formData.unit || 'ອັນ')
-                            });
-                            setShowCategoryDropdown(false);
-                          }}
-                          style={{
-                            padding: '8px 12px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            borderBottom: '1px solid rgba(255,255,255,0.03)',
-                            background: formData.category === cat.id ? 'rgba(212,175,55,0.1)' : 'transparent'
-                          }}
-                        >
-                          {cat.icon && (cat.icon.startsWith('data:image/') || cat.icon.startsWith('http')) ? (
-                            <img src={cat.icon} style={{ width: '18px', height: '18px', objectFit: 'contain', borderRadius: '2px' }} alt="" />
-                          ) : (
-                            <span>{cat.icon || '📦'}</span>
-                          )}
-                          <span>{cat.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
-                  <div className="form-group">
-                    <label className="form-label">ລາຄາຂາຍ (ກີບ)</label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      required
-                      value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                      autoComplete="off"
-                    />
-                  </div>
-{hasInventoryPermission('inventoryViewCost') && (
-                  <div className="form-group">
-                    <label className="form-label">ລາຄาຕົ້ນທຶນ (ກີບ)</label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      required
-                      value={formData.cost}
-                      onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
-                      autoComplete="off"
-                      placeholder="0"
-                    />
-                  </div>
-)}
-                </div>
-
-                {!db.isServiceCategory(formData.category) ? (
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                    <div className="form-group">
-                      <label className="form-label">ຈຳນວນໃນສະຕັອກ</label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        required
-                        value={formData.stock}
-                        onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                        autoComplete="off"
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">ແຈ້ງເຕືອນເມື່ອຕໍ່າກວ່າ</label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        required
-                        value={formData.minStock}
-                        onChange={(e) => setFormData({ ...formData, minStock: e.target.value })}
-                        autoComplete="off"
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div style={{ padding: '10px 12px', border: '1px dashed var(--gold-primary)', borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                    ຄໍາແນະນຳ: ໝວດບໍລິການຈະບໍ່ໃຊ້ສະຕັອກ. ລະບົບຈະບັງຄັບ stock/min stock ເປັນ 0 ໃຫ້ອັດຕະໂນມັດ.
-                  </div>
-                )}
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                  <div className="form-group">
-                    <label className="form-label">ຫົວໜ່ວย</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={formData.unit}
-                      onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                      placeholder="ອັນ, ເສັ້ນ, ອົງ"
-                      autoComplete="off"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">ລະຫັດບາໂຄ້ດ (Barcode)</label>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <input
-                        type="text"
-                        className="form-control"
-                        required
-                        value={formData.barcode}
-                        onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                          }
-                        }}
-                        style={{ flex: 1, margin: 0 }}
-                        placeholder="ລະຫັດບາໂຄ້ດ..."
-                        autoComplete="off"
-                      />
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        style={{ padding: '0 12px', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '4px', margin: 0 }}
-                        onClick={() => {
-                          setScanHelperInput('');
-                          setShowScanHelperModal(true);
-                        }}
-                      >
-                        🔌 ສະແກນ
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '12px', marginBottom: '12px' }}>
-                  <div className="form-group" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', margin: 0 }}>
-                      <input
-                        type="checkbox"
-                        checked={!!formData.showOnline}
-                        onChange={(e) => setFormData({ ...formData, showOnline: e.target.checked })}
-                        style={{ width: '18px', height: '18px', cursor: 'pointer', margin: 0 }}
-                      />
-                      <span>ສະແດງໃນ Online Shop</span>
-                    </label>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">ລາຄາອອນລາຍ (ກີບ)</label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      value={formData.priceOnline}
-                      onChange={(e) => setFormData({ ...formData, priceOnline: e.target.value })}
-                      placeholder={formData.price || '0'}
-                      autoComplete="off"
-                    />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">ລາຍລະອຽດສິນຄ້າ (Product Description)</label>
-                  <textarea
-                    className="form-control"
-                    rows="3"
-                    style={{ background: '#1c1916', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
-                    placeholder="ປ້ອນລາຍລະອຽດສິນຄ້າ..."
-                    value={formData.description || ''}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">ຮູບພາບສິນຄ້າ (Product Photos - ອັບໂຫຼດໄດ້ຫຼາຍຮູບ)</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="form-control"
-                    onChange={(e) => {
-                      const files = Array.from(e.target.files);
-                      if (files.length > 0) {
-                        const promises = files.map(file => {
-                          return compressImage(file).catch(err => {
-                            console.error('Compression failed, falling back:', err);
-                            return new Promise((resolve) => {
-                              const reader = new FileReader();
-                              reader.onloadend = () => resolve(reader.result);
-                              reader.readAsDataURL(file);
-                            });
-                          });
-                        });
-                        Promise.all(promises).then(base64s => {
-                          setFormData(prev => {
-                            const newImages = [...(prev.images || []), ...base64s];
-                            return {
-                              ...prev,
-                              images: newImages,
-                              image: prev.image || base64s[0]
-                            };
-                          });
-                        });
-                      }
-                    }}
-                  />
-                  {formData.images && formData.images.length > 0 && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(60px, 1fr))', gap: '10px', marginTop: '10px' }}>
-                      {formData.images.map((img, idx) => (
-                        <div key={idx} style={{ position: 'relative', width: '60px', height: '60px', borderRadius: '6px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-                          <img src={img} alt={`Preview ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedEditImageIdx(idx);
-                              setEditorImageToEdit(img);
-                              setShowImageEditorModal(true);
-                            }}
-                            style={{
-                              position: 'absolute',
-                              bottom: '2px',
-                              left: '2px',
-                              background: 'rgba(212,175,55,0.95)',
-                              color: 'black',
-                              border: 'none',
-                              borderRadius: '50%',
-                              width: '18px',
-                              height: '18px',
-                              fontSize: '10px',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              zIndex: 5,
-                              boxShadow: '0 1px 4px rgba(0,0,0,0.5)'
-                            }}
-                            title="ແຕ່ງຮູບດ້ວຍ AI"
-                          >
-                            🎨
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const updatedImages = formData.images.filter((_, i) => i !== idx);
-                              setFormData(prev => ({
-                                ...prev,
-                                images: updatedImages,
-                                image: updatedImages.length > 0 ? updatedImages[0] : ''
-                              }));
-                            }}
-                            style={{
-                              position: 'absolute',
-                              top: '2px',
-                              right: '2px',
-                              background: 'rgba(231,76,60,0.85)',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '50%',
-                              width: '16px',
-                              height: '16px',
-                              fontSize: '10px',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              lineHeight: 1
-                            }}
-                          >
-                            ✕
-                          </button>
-                          {idx === 0 && (
-                            <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(212,175,55,0.85)', color: 'black', fontSize: '8px', textAlign: 'center', fontWeight: 'bold' }}>
-                              Primary
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => {
-                  setShowModal(false);
-                  setEditProduct(null);
-                  setFormData({
-                    name: '',
-                    category: '',
-                    price: '',
-                    cost: '',
-                    stock: '',
-                    minStock: '',
-                    unit: 'ອັນ',
-                    barcode: '',
-                    image: '',
-                    showOnline: true,
-                    priceOnline: '',
-                    priceVip: ''
-                  });
-                }}>ຍົກເລີກ</button>
-                <button type="submit" className="btn btn-primary">💾 ບັນທຶກສິນຄ້າ</button>
-              </div>
-            </form>
-          </div>
-        </div>
-        </Portal>
-      )}
-
-      {/* Warehouse Restock Modal */}
-      {showWarehouseRestockModal && warehouseActiveProduct && (
-        <Portal>
-          <div className="modal-overlay">
-            <div className="modal-content modal-sm animate-fade-in" style={{ maxWidth: '400px' }}>
-              <div className="modal-header">
-                <span className="modal-title">📥 ຮັບສິນຄ້າເຂົ້າສາງໃຫຍ່</span>
-                <button 
-                  type="button" 
-                  className="btn-secondary" 
-                  style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} 
-                  onClick={() => {
-                    setShowWarehouseRestockModal(false);
-                    setWarehouseActiveProduct(null);
-                  }}
-                >✕</button>
-              </div>
-              <form onSubmit={handleWarehouseRestockSubmit}>
-                <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                    <div style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{warehouseActiveProduct.name}</div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                      ບາໂຄ້ດ: {warehouseActiveProduct.barcode || '-'} | ສະຕັອກສາງໃຫຍ່ປັດຈຸບັນ: {warehouseActiveProduct.warehouseStock || 0} {warehouseActiveProduct.unit}
-                    </div>
-                  </div>
-                  
-                  <div className="form-group">
-                    <label className="form-label">ຈຳນວນຮັບເຂົ້າສາງໃຫຍ່ ({warehouseActiveProduct.unit}) <span style={{ color: 'var(--alert-red)' }}>*</span></label>
-                    <input 
-                      type="number" 
-                      className="form-control" 
-                      required 
-                      min="0.001"
-                      step="any"
-                      placeholder="ປ້ອນຈຳນວນ..." 
-                      value={warehouseRestockQty} 
-                      onChange={(e) => setWarehouseRestockQty(e.target.value)} 
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label className="form-label">ໝາຍເຫດ (ເຊັ່ນ: ຊື່ຜູ້ສະໜອງ, ເລກທີບິນ...)</label>
-                    <textarea 
-                      className="form-control" 
-                      rows="2"
-                      placeholder="ປ້ອນໝາຍເຫດ..."
-                      value={warehouseRestockNotes} 
-                      onChange={(e) => setWarehouseRestockNotes(e.target.value)} 
-                    />
-                  </div>
-                </div>
-                <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '12px' }}>
-                  <button 
-                    type="button" 
-                    className="btn btn-secondary" 
-                    onClick={() => {
-                      setShowWarehouseRestockModal(false);
-                      setWarehouseActiveProduct(null);
-                    }}
-                  >ຍົກເລີກ</button>
-                  <button type="submit" className="btn btn-primary">📥 ຢືນຢັນຮັບເຂົ້າ</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </Portal>
-      )}
-
-      {/* Warehouse Transfer Modal */}
-      {showWarehouseTransferModal && warehouseActiveProduct && (
-        <Portal>
-          <div className="modal-overlay">
-            <div className="modal-content modal-sm animate-fade-in" style={{ maxWidth: '400px' }}>
-              <div className="modal-header">
-                <span className="modal-title">🚚 ໂອນຍ້າຍສິນຄ້າໄປໜ້າຮ້ານ</span>
-                <button 
-                  type="button" 
-                  className="btn-secondary" 
-                  style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} 
-                  onClick={() => {
-                    setShowWarehouseTransferModal(false);
-                    setWarehouseActiveProduct(null);
-                  }}
-                >✕</button>
-              </div>
-              <form onSubmit={handleWarehouseTransferSubmit}>
-                <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                    <div style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{warehouseActiveProduct.name}</div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      <span>📦 ສະຕັອກໜ້າຮ້ານປັດຈຸບັນ: {warehouseActiveProduct.stock || 0} {warehouseActiveProduct.unit}</span>
-                      <span>🏠 ສະຕັອກສາງໃຫຍ່ປັດຈຸບັນ: {warehouseActiveProduct.warehouseStock || 0} {warehouseActiveProduct.unit}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="form-group">
-                    <label className="form-label">ຈຳນວນທີ່ຕ້ອງການໂອນຍ້າຍ ({warehouseActiveProduct.unit}) <span style={{ color: 'var(--alert-red)' }}>*</span></label>
-                    <input 
-                      type="number" 
-                      className="form-control" 
-                      required 
-                      min="0.001"
-                      step="any"
-                      placeholder="ປ້ອນຈຳນວນໂອນຍ້າຍ..." 
-                      value={warehouseTransferQty} 
-                      onChange={(e) => setWarehouseTransferQty(e.target.value)} 
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label className="form-label">ໝາຍເຫດ (ເຊັ່ນ: ໂອນໄປເພີ່ມໜ້າຮ້ານ...)</label>
-                    <textarea 
-                      className="form-control" 
-                      rows="2"
-                      placeholder="ປ້ອນໝາຍເຫດ..."
-                      value={warehouseTransferNotes} 
-                      onChange={(e) => setWarehouseTransferNotes(e.target.value)} 
-                    />
-                  </div>
-                </div>
-                <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '12px' }}>
-                  <button 
-                    type="button" 
-                    className="btn btn-secondary" 
-                    onClick={() => {
-                      setShowWarehouseTransferModal(false);
-                      setWarehouseActiveProduct(null);
-                    }}
-                  >ຍົກເລີກ</button>
-                  <button type="submit" className="btn btn-primary">🚚 ຢືນຢັນການໂອນ</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </Portal>
-      )}
-
-      {/* Barcode Canvas printing modal */}
-      {showBarcodeModal && (
-        <Portal>
-        <div className="modal-overlay">
-          <div className="modal-content modal-sm animate-fade-in">
-            <div className="modal-header">
-              <span className="modal-title">🏷️ ລະບົບສ້າງ & ປຣິນບາໂຄ້ດ</span>
-              <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowBarcodeModal(false)}>✕</button>
-            </div>
-            
-            <div className="modal-body" style={{ textAlign: 'center' }}>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                {selectedBarcodeProd 
-                  ? `ສິນຄ້າ: ${selectedBarcodeProd.name}`
-                  : 'ປ້ອນລະຫັດເພື່ອສ້າງບາໂຄ້ດສະເພາະກິດ'}
-              </p>
-
-              <div className="form-group" style={{ textAlign: 'left', marginBottom: '12px' }}>
-                <label className="form-label" style={{ fontSize: '0.8rem' }}>ຄົ້ນຫາປະເພດບາໂຄ້ດ (Search Barcode Format)</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="🔍 ພິມເພື່ອຄົ້ນຫາປະເພດບາໂຄ້ດ..."
-                  value={barcodeFormatSearch}
-                  onChange={(e) => setBarcodeFormatSearch(e.target.value)}
-                  style={{ marginBottom: '8px' }}
-                />
-                <label className="form-label">ປະເພດບາໂຄ້ດ (Barcode Type / Format)</label>
-                <select
-                  className="form-control"
-                  value={barcodeFormat}
-                  onChange={(e) => handleBarcodeFormatChange(e.target.value)}
-                  style={{ width: '100%' }}
-                >
-                  {ALL_BARCODE_FORMATS.filter(f => 
-                    f.value.toLowerCase().includes(barcodeFormatSearch.toLowerCase()) || 
-                    f.label.toLowerCase().includes(barcodeFormatSearch.toLowerCase())
-                  ).map(f => (
-                    <option key={f.value} value={f.value}>{f.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              {!selectedBarcodeProd && (
-                <div className="form-group" style={{ textAlign: 'left' }}>
-                  <label className="form-label">ລະຫັດບາໂຄ້ດ (ສະເພາະຕົວເລກ ແລະ ຕົວອັກສອນ A-Z)</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={customBarcodeText}
-                    onChange={(e) => setCustomBarcodeText(e.target.value.replace(/[^A-Za-z0-9]/g, ''))}
-                  />
-                </div>
-              )}
-
-              <div className="form-group" style={{ textAlign: 'left', marginTop: '12px' }}>
-                <label className="form-label">ຈຳນວນສະຕິກເກີທີ່ຕ້ອງການປຣິນ (Print Quantity)</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <button
-                    type="button"
-                    className="cart-qty-btn"
-                    style={{ width: '36px', height: '36px', fontSize: '1.2rem', padding: 0 }}
-                    onClick={() => setBarcodePrintQty(Math.max(1, barcodePrintQty - 1))}
-                  >
-                    -
-                  </button>
-                  <input
-                    type="number"
-                    min="1"
-                    className="form-control"
-                    style={{ textAlign: 'center', flex: 1, fontFamily: 'monospace', fontSize: '1.1rem', margin: 0 }}
-                    value={barcodePrintQty}
-                    onChange={(e) => setBarcodePrintQty(Math.max(1, parseInt(e.target.value) || 1))}
-                  />
-                  <button
-                    type="button"
-                    className="cart-qty-btn"
-                    style={{ width: '36px', height: '36px', fontSize: '1.2rem', padding: 0 }}
-                    onClick={() => setBarcodePrintQty(barcodePrintQty + 1)}
-                  >
-                    +
-                  </button>
-                  {selectedBarcodeProd && (
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      style={{ height: '36px', fontSize: '0.8rem', padding: '0 12px' }}
-                      onClick={() => setBarcodePrintQty(Math.max(1, selectedBarcodeProd.stock))}
-                    >
-                      ເທົ່າສະຕັອກ ({selectedBarcodeProd.stock})
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Barcode Canvas */}
-              <div style={{ background: 'white', padding: '16px', borderRadius: '8px', display: 'inline-block', marginTop: '12px' }}>
-                <canvas
-                  ref={barcodeCanvasRef}
-                  width="300"
-                  height="120"
-                  style={{ display: 'block' }}
-                />
-              </div>
-
-              <div style={{ marginTop: '16px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                *ສາມາດນຳບາໂຄ້ດນີ້ໄປປຣິນຕິດກັບຖົງພຣະ ຫຼື ຂອບພຣະ ເພື່ອໃຊ້ເຄື່ອງສະແກນຍິງຂາຍໄດ້ທັນທີ
-              </div>
-            </div>
-
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowBarcodeModal(false)}>ປິດ</button>
-              <button className="btn btn-primary" onClick={handlePrintBarcode}>🖨️ ປຣິນສະຕິກເກີບາໂຄ້ດ</button>
-            </div>
-          </div>
-        </div>
-        </Portal>
-      )}
-
-      {/* Bulk Barcode Modal */}
-      {showBulkBarcodeModal && (
-        <Portal>
-        <div className="modal-overlay">
-          <div className="modal-content modal-sm animate-fade-in">
-            <div className="modal-header">
-              <span className="modal-title">🏷️ ປຣິນບາໂຄ້ດຫຼາຍລາຍການ (Bulk Printer)</span>
-              <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowBulkBarcodeModal(false)}>✕</button>
-            </div>
-            
-            <div className="modal-body">
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '12px' }}>
-                ເລືອກຈຳນວນປຣິນບາໂຄ້ດໃຫ້ແຕ່ລະສິນຄ້າ. ລະບົບຈະລວມເປັນໜ້າດຽວເພື່ອໃຫ້ປຣິນອອກເຄື່ອງສະຕິກເກີໄດ້ງ່າຍ.
-              </p>
-              <div className="form-group" style={{ textAlign: 'left', marginBottom: '12px' }}>
-                <label className="form-label" style={{ fontSize: '0.8rem' }}>ຄົ້ນຫາປະເພດບາໂຄ້ດ (Search Barcode Format)</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="🔍 ພິມເພື່ອຄົ້ນຫາປະເພດບາໂຄ້ດ..."
-                  value={bulkBarcodeFormatSearch}
-                  onChange={(e) => setBulkBarcodeFormatSearch(e.target.value)}
-                  style={{ marginBottom: '8px', padding: '6px 10px', height: '34px', fontSize: '0.85rem' }}
-                />
-                <label className="form-label" style={{ fontSize: '0.8rem' }}>ປະເພດບາໂຄ້ດ (Barcode Type / Format)</label>
-                <select
-                  className="form-control"
-                  value={barcodeFormat}
-                  onChange={(e) => handleBarcodeFormatChange(e.target.value)}
-                  style={{ width: '100%', padding: '6px 10px', height: '34px', fontSize: '0.85rem' }}
-                >
-                  {ALL_BARCODE_FORMATS.filter(f => 
-                    f.value.toLowerCase().includes(bulkBarcodeFormatSearch.toLowerCase()) || 
-                    f.label.toLowerCase().includes(bulkBarcodeFormatSearch.toLowerCase())
-                  ).map(f => (
-                    <option key={f.value} value={f.value}>{f.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Filters inside Modal */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', marginBottom: '10px' }}>
-                <input
-                  type="text"
-                  placeholder="🔍 ຄົ້ນຫາຊື່ ຫຼື ບາໂຄ້ດ..."
-                  className="form-control"
-                  value={bulkSearch}
-                  onChange={(e) => setBulkSearch(e.target.value)}
-                />
-              </div>
-
-              <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', marginBottom: '12px', paddingBottom: '6px' }}>
-                {[
-                  { id: 'all', name: 'ທັງໝົດ' },
-                  ...categories.filter(cat => cat.type !== 'service').map(cat => ({
-                    id: cat.id,
-                    name: cat.name
-                  }))
-                ].map(cat => (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    className={`nav-tab ${bulkCatFilter === cat.id ? 'active' : ''}`}
-                    style={{ fontSize: '0.75rem', padding: '4px 10px', borderRadius: '15px' }}
-                    onClick={() => setBulkCatFilter(cat.id)}
-                  >
-                    {cat.name}
-                  </button>
                 ))}
               </div>
+            </div>
+          )}
 
-              {/* Global Preset Buttons */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', gap: '10px' }}>
+          {/* Search & Sort UI controls */}
+          <div 
+            className="glass-card" 
+            style={{ 
+              padding: '16px', 
+              display: 'flex', 
+              flexWrap: 'wrap', 
+              gap: '12px', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              background: 'rgba(255, 255, 255, 0.02)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '8px',
+              marginTop: '10px'
+            }}
+          >
+            {/* Search Box */}
+            <div style={{ flex: '1', minWidth: '250px', display: 'flex', alignItems: 'center', gap: '8px', position: 'relative' }}>
+              <span style={{ position: 'absolute', left: '12px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>🔍</span>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="ຄົ້ນຫາສິນຄ້າ ດ້ວຍຊື່ ຫຼື ບາໂຄ້ດ (Search name/barcode)..."
+                value={prodSearchQuery}
+                onChange={(e) => setProdSearchQuery(e.target.value)}
+                style={{ 
+                  width: '100%', 
+                  padding: '8px 12px 8px 36px', 
+                  background: '#191613', 
+                  color: 'white', 
+                  border: '1px solid var(--border-color)', 
+                  borderRadius: '6px',
+                  fontSize: '0.85rem'
+                }}
+              />
+              {prodSearchQuery && (
                 <button
-                  type="button"
-                  className="btn btn-secondary"
-                  style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}
-                  onClick={() => {
-                    const updated = { ...bulkPrintQtys };
-                    products.filter(p => {
-                      const matchesCat = bulkCatFilter === 'all' || p.category === bulkCatFilter;
-                      const matchesSearch = p.name.toLowerCase().includes(bulkSearch.toLowerCase()) || p.barcode.includes(bulkSearch);
-                      return matchesCat && matchesSearch && !db.isServiceCategory(p.category);
-                    }).forEach(p => {
-                      updated[p.id] = Math.max(0, p.stock);
-                    });
-                    setBulkPrintQtys(updated);
+                  onClick={() => setProdSearchQuery('')}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem'
                   }}
                 >
-                  📋 ຕັ້ງທັງໝົດເທົ່າກັບສະຕັອກ
+                  ✕
                 </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  style={{ padding: '6px 12px', fontSize: '0.8rem', color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }}
-                  onClick={() => {
-                    const updated = { ...bulkPrintQtys };
-                    products.filter(p => {
-                      const matchesCat = bulkCatFilter === 'all' || p.category === bulkCatFilter;
-                      const matchesSearch = p.name.toLowerCase().includes(bulkSearch.toLowerCase()) || p.barcode.includes(bulkSearch);
-                      return matchesCat && matchesSearch;
-                    }).forEach(p => {
-                      updated[p.id] = 0;
-                    });
-                    setBulkPrintQtys(updated);
-                  }}
-                >
-                  🗑️ ລ້າງທັງໝົດ
-                </button>
-              </div>
+              )}
+            </div>
 
-              {/* Products List */}
-              <div style={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '6px', background: 'rgba(0,0,0,0.2)' }}>
-                {products.filter(p => {
-                  const matchesCat = bulkCatFilter === 'all' || p.category === bulkCatFilter;
-                  const matchesSearch = p.name.toLowerCase().includes(bulkSearch.toLowerCase()) || p.barcode.includes(bulkSearch);
-                  return matchesCat && matchesSearch;
-                }).length === 0 ? (
-                  <div style={{ padding: '30px', color: 'var(--text-secondary)', textAlign: 'center' }}>
-                    ບໍ່ພົບສິນຄ້າທີ່ຄົ້ນຫາ
-                  </div>
-                ) : (
-                  products.filter(p => {
-                    const matchesCat = bulkCatFilter === 'all' || p.category === bulkCatFilter;
-                    const matchesSearch = p.name.toLowerCase().includes(bulkSearch.toLowerCase()) || p.barcode.includes(bulkSearch);
-                    return matchesCat && matchesSearch;
-                  }).map(p => {
-                    const qty = bulkPrintQtys[p.id] || 0;
-                    const isLow = !db.isServiceCategory(p.category) && p.stock <= p.minStock;
-                    return (
-                      <div
-                        key={p.id}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          padding: '8px',
-                          borderBottom: '1px solid rgba(255,255,255,0.05)',
-                          gap: '12px'
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
-                          <img
-                            src={p.image}
-                            alt={p.name}
-                            style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border-color)', flexShrink: 0 }}
-                          />
-                          <div style={{ minWidth: 0 }}>
-                            <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {p.name}
-                            </div>
-                            <div style={{ fontSize: '0.75rem', color: isLow ? 'var(--alert-red)' : 'var(--text-secondary)' }}>
-                              ບາໂຄ້ດ: <span style={{ fontFamily: 'monospace' }}>{p.barcode}</span> | ສະຕັອກ: {db.isServiceCategory(p.category) ? 'ບໍລິການ' : `${p.stock} ${p.unit}`}
-                            </div>
-                          </div>
+            {/* Sorting Dropdown */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>ຈັດລຽງ / Sort:</span>
+              <select
+                value={prodSortMode}
+                onChange={(e) => setProdSortMode(e.target.value)}
+                style={{
+                  padding: '8px 12px',
+                  background: '#191613',
+                  color: 'white',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '6px',
+                  fontSize: '0.85rem',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="none">ເລືອກການຈັດລຽງ (None)</option>
+                <option value="name-asc">🔠 ຊື່: ກ - ຮ (A-Z)</option>
+                <option value="name-desc">🔠 ຊື່: ຮ - ກ (Z-A)</option>
+                <option value="stock-asc">📉 ສະຕັອກ: ຕ່ຳ &rarr; ສູງ (Low to High)</option>
+                <option value="stock-desc">📈 ສະຕັອກ: ສູງ &rarr; ຕ່ຳ (High to Low)</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Category Tabs for easier visualization */}
+          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
+            {[
+              { id: 'all', icon: '📋', name: 'ທັງໝົດ', count: products.length },
+              { id: 'low_stock', icon: '⚠️', name: 'ສະຕັອກໃກ້ໝົດ', count: lowStockProducts.length },
+              { id: 'physical', icon: '📦', name: 'ສິນຄ້າ', count: physicalProducts.length },
+              { id: 'service', icon: '🛠️', name: 'ບໍລິການ', count: products.length - physicalProducts.length },
+              ...categories.map(cat => ({
+                id: cat.id,
+                icon: cat.icon || '📦',
+                name: cat.name,
+                count: products.filter(p => p.category === cat.id).length
+              }))
+            ].map(tab => (
+              <button
+                key={tab.id}
+                className={`nav-tab ${selectedCatFilter === tab.id ? 'active' : ''}`}
+                style={{ fontSize: '0.85rem', borderRadius: '20px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', padding: '8px 14px', minWidth: '80px', textAlign: 'center' }}
+                onClick={() => changeCatFilter(tab.id)}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  {tab.icon && (tab.icon.startsWith('data:image/') || tab.icon.startsWith('http')) ? (
+                    <img src={tab.icon} style={{ width: '14px', height: '14px', objectFit: 'contain', borderRadius: '2px' }} alt="" />
+                  ) : (
+                    <span style={{ fontSize: '0.8rem' }}>{tab.icon}</span>
+                  )}
+                  <span style={{ fontWeight: '500', whiteSpace: 'nowrap' }}>{tab.name}</span>
+                </span>
+                <span style={{ fontSize: '0.8rem', fontWeight: 'bold', opacity: 0.9 }}>({tab.count})</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Products Inventory Table */}
+          <div className="desktop-table-view" style={{ overflowX: 'auto' }}>
+            <table className="table-premium" style={{ minWidth: '1000px', marginTop: 0 }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--gold-primary)', fontSize: '0.9rem' }}>
+                  <th style={{ padding: '16px' }}>ຮູບພາບ</th>
+                  <th style={{ padding: '16px' }}>ລະຫັດບາໂຄ້ດ</th>
+                  <th style={{ padding: '16px' }}>ຊື່ສິນຄ້າ</th>
+                  <th style={{ padding: '16px', textAlign: 'right' }}>ຕົ້ນທຶນ</th>
+                  <th style={{ padding: '16px', textAlign: 'right' }}>ລາຄາຂາຍ</th>
+                  <th style={{ padding: '16px', textAlign: 'center', width: '200px' }}>ສະຕັອກໜ້າຮ້ານ</th>
+                  <th style={{ padding: '16px', textAlign: 'right' }}>ຈັດການ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredProducts.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>ບໍ່ມີລາຍການສິນຄ້າ</td>
+                  </tr>
+                ) : filteredProducts.map(p => {
+                  const isService = db.isServiceCategory(p.category);
+                  const isLow = !isService && p.stock <= p.minStock;
+                  return (
+                    <tr
+                      key={p.id}
+                      style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', fontSize: '0.9rem', background: isLow ? 'rgba(231,76,60,0.02)' : 'none' }}
+                    >
+                      <td style={{ padding: '12px 16px' }}>
+                        <img src={p.image} alt={p.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border-color)' }} />
+                      </td>
+                      <td style={{ padding: '12px 16px', fontFamily: 'monospace' }}>
+                        {p.barcode}
+                      </td>
+                      <td style={{ padding: '12px 16px', fontWeight: '500' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <span>{p.name}</span>
+                          <span style={{ display: 'inline-flex', width: 'fit-content', fontSize: '0.7rem', padding: '2px 6px', borderRadius: '999px', color: isService ? 'var(--accent-amber)' : 'var(--success-green)', border: '1px solid ' + (isService ? 'rgba(229,169,59,0.3)' : 'rgba(39,174,96,0.3)'), background: isService ? 'rgba(229,169,59,0.08)' : 'rgba(39,174,96,0.08)' }}>
+                            {(() => {
+                              const cat = categories.find(c => c.id === p.category || c.name === p.category);
+                              const catName = cat ? db.getLabel('cat_' + cat.id, cat.name) : p.category;
+                              return isService ? `🛠️ ${catName || 'ບໍລິການ'}` : `📦 ${catName || 'ສິນຄ້າ'}`;
+                            })()}
+                          </span>
                         </div>
-
-                        {!db.isServiceCategory(p.category) ? (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                      </td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right' }}>
+                        {hasInventoryPermission('inventoryViewCost') ? `${p.cost.toLocaleString()} ກີບ` : '*** ກີບ'}
+                      </td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
+                        {p.price.toLocaleString()} ກີບ
+                      </td>
+                      
+                      <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                        {isService ? (
+                          <span style={{ color: 'var(--text-secondary)' }}>ບໍລິການ (ບໍ່ມີສະຕັອກ)</span>
+                        ) : (
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                             <button
-                              type="button"
                               className="cart-qty-btn"
-                              style={{ width: '26px', height: '26px', padding: 0 }}
-                              onClick={() => setBulkPrintQtys({ ...bulkPrintQtys, [p.id]: Math.max(0, qty - 1) })}
+                              style={{ width: '22px', height: '22px' }}
+                              onClick={() => adjustStock(p, -1)}
                             >
                               -
                             </button>
                             <input
                               type="number"
-                              min="0"
-                              value={qty}
-                              onChange={(e) => setBulkPrintQtys({ ...bulkPrintQtys, [p.id]: Math.max(0, parseInt(e.target.value) || 0) })}
+                              value={p.stock}
+                              onChange={(e) => handleStockInputChange(p, e.target.value)}
                               style={{
                                 width: '50px',
-                                background: '#000',
+                                background: '#0c0b09',
                                 border: '1.5px solid var(--border-color)',
                                 borderRadius: '4px',
-                                color: qty > 0 ? 'var(--gold-primary)' : '#999',
+                                color: isLow ? 'var(--alert-red)' : 'var(--success-green)',
                                 textAlign: 'center',
                                 fontWeight: 'bold',
                                 padding: '2px',
@@ -5082,54 +4106,684 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                               }}
                             />
                             <button
-                              type="button"
                               className="cart-qty-btn"
-                              style={{ width: '26px', height: '26px', padding: 0 }}
-                              onClick={() => setBulkPrintQtys({ ...bulkPrintQtys, [p.id]: qty + 1 })}
+                              style={{ width: '22px', height: '22px' }}
+                              onClick={() => adjustStock(p, 1)}
                             >
                               +
                             </button>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{p.unit}</span>
+                          </div>
+                        )}
+                      </td>
+
+                      <td style={{ padding: '12px 16px', textAlign: 'right' }}>
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                          <button
+                            className="btn btn-secondary"
+                            style={{ padding: '4px 8px', fontSize: '0.8rem' }}
+                            onClick={() => handleOpenBarcodeGen(p)}
+                          >
+                            🏷️ ບາໂຄ້ດ
+                          </button>
+                          {hasInventoryPermission('inventoryEditProduct') && (
+                            <button
+                              className="btn btn-primary"
+                              style={{ padding: '4px 8px', fontSize: '0.8rem' }}
+                              onClick={() => handleOpenEdit(p)}
+                            >
+                              📝 ແກ້ໄຂ
+                            </button>
+                          )}
+                          {hasInventoryPermission('inventoryDeleteProduct') && (
+                            <button
+                              className="btn"
+                              style={{ padding: '4px 8px', fontSize: '0.8rem', background: '#c0392b', color: 'white', border: 'none' }}
+                              onClick={() => handleDeleteProduct(p)}
+                            >
+                              🗑️ ລົບ
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mobile-cards-view" style={{ display: 'none', flexDirection: 'column', gap: '12px' }}>
+            {filteredProducts.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>ບໍ່ມີລາຍການສິນຄ້າ</div>
+            ) : filteredProducts.map(p => {
+              const isService = db.isServiceCategory(p.category);
+              const isLow = !isService && p.stock <= p.minStock;
+              return (
+                <div key={p.id} className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px', borderLeft: '4px solid ' + (isLow ? 'var(--alert-red)' : 'var(--success-green)') }}>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    {p.image ? (
+                      <img src={p.image} style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }} alt="" />
+                    ) : (
+                      <div style={{ width: '60px', height: '60px', borderRadius: '8px', background: 'rgba(255,255,255,0.02)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border-color)', fontSize: '1.2rem' }}>📦</div>
+                    )}
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 'bold', fontSize: '1.05rem' }}>{p.name}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>ບາໂຄ້ດ: {p.barcode || '-'}</div>
+                    </div>
+                  </div>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.85rem' }}>
+                    <div>
+                      <span style={{ color: 'var(--text-secondary)' }}>ຕົ້ນທຶນ: </span>
+                      <span>{hasInventoryPermission('inventoryViewCost') ? `${p.cost.toLocaleString()} ₭` : '*** ₭'}</span>
+                    </div>
+                    <div>
+                      <span style={{ color: 'var(--text-secondary)' }}>ລາຄາາຍ: </span>
+                      <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{p.price.toLocaleString()} ₭</span>
+                    </div>
+                    <div>
+                      <span style={{ color: 'var(--text-secondary)' }}>ໝວດໝູ່: </span>
+                      <span style={{ textTransform: 'capitalize' }}>{p.category}</span>
+                    </div>
+                    <div>
+                      <span style={{ color: 'var(--text-secondary)' }}>ສະຕັອກໜ້າຮ້ານ: </span>
+                      {isService ? (
+                        <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>ບໍລິການ</span>
+                      ) : (
+                        <span style={{ fontWeight: 'bold', color: isLow ? 'var(--alert-red)' : 'white' }}>{p.stock} / {p.minStock} {p.unit}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {!isService && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}><b>ປັບສະຕັອກໜ້າຮ້ານ:</b></span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
+                        <button type="button" className="qty-btn" style={{ width: '32px', height: '32px', fontSize: '1rem' }} onClick={() => adjustStock(p, -1)}>-</button>
+                        <input 
+                          type="text" 
+                          value={p.stock} 
+                          readOnly 
+                          style={{ width: '40px', background: '#0c0b09', border: '1px solid var(--border-color)', borderRadius: '4px', color: 'white', textAlign: 'center', fontSize: '0.9rem', padding: '4px 0', fontWeight: 'bold' }} 
+                        />
+                        <button type="button" className="qty-btn" style={{ width: '32px', height: '32px', fontSize: '1rem' }} onClick={() => adjustStock(p, 1)}>+</button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
+                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => handleOpenBarcodeGen(p)}>🏷️ ບາໂຄ້ດ</button>
+                    {hasInventoryPermission('inventoryEditProduct') && (
+                      <button type="button" className="btn btn-primary btn-sm" onClick={() => handleOpenEdit(p)}>📝 ແກ້ໄຂ</button>
+                    )}
+                    {hasInventoryPermission('inventoryDeleteProduct') && (
+                      <button type="button" className="btn btn-sm" style={{ background: '#c0392b', color: 'white', border: 'none' }} onClick={() => handleDeleteProduct(p)}>🗑️ ລົບ</button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {activeSubTab === 'warehouse' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* Header and Actions */}
+          <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '8px' } : { display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <h2 style={{ color: 'var(--gold-primary)', fontSize: isMobile ? '1.2rem' : '1.5rem', margin: 0 }}>
+                🏠 ຈັດການສະຕັອກສາງໃຫຍ່ (Warehouse Stock)
+              </h2>
+              {!isMobile && (
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0' }}>
+                  ຮັບເຄື່ອງເຂົ້າສາງໃຫຍ່ ແລະ ໂອນຍ້າຍສິນຄ້າໄປໜ້າຮ້ານໄດ້ຢ່າງສະດວກ
+                </p>
+              )}
+            </div>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', width: isMobile ? '100%' : 'auto' }}>
+              <button 
+                className="btn btn-secondary" 
+                style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
+                onClick={() => { setSelectedBarcodeProd(null); setBarcodePrintQty(1); setShowBarcodeModal(true); }}
+              >
+                🏷️ ສ້າງບາໂຄ້ດເປົ່າ
+              </button>
+              <button 
+                className="btn btn-secondary" 
+                style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
+                onClick={() => { setBulkPrintQtys({}); setBulkSearch(''); setBulkCatFilter('all'); setShowBulkBarcodeModal(true); }}
+              >
+                🏷️ ປຣິນບາໂຄ້ດຫຼາຍ
+              </button>
+              <button 
+                className="btn btn-secondary" 
+                style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
+                onClick={openCategoryAdd}
+              >
+                🗂️ ຈັດການໝວດໝູ່
+              </button>
+              {hasInventoryPermission('inventoryAddProduct') && (
+                <button 
+                  className="btn btn-primary" 
+                  style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
+                  onClick={handleOpenAdd}
+                >
+                  ➕ ເພີ່ມສິນຄ້າໃໝ່
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Warehouse Valuation KPI Cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+            <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--gold-primary)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>🏠 ຈຳນວນສິນຄ້າໃນສາງໃຫຍ່ທັງໝົດ</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'white' }}>
+                {totalWarehouseStockCount.toLocaleString()} <span style={{ fontSize: '0.85rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>ຊິ້ນ (ຈາກ {physicalProducts.length} ລາຍການ)</span>
+              </span>
+            </div>
+            <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--accent-amber, #e67e22)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>💰 ມູນຄ່າຕົ້ນທຶນສາງໃຫຍ່ລວມ</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'white' }}>
+                {hasInventoryPermission('inventoryViewCost') ? `${totalWarehouseCostValue.toLocaleString()} ກີບ` : '*** ກີບ'}
+              </span>
+            </div>
+            <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--success-green, #27ae60)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>📈 ມູນຄ່າລາຄາຂາຍສາງໃຫຍ່ລວມ</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'white' }}>
+                {totalWarehouseRetailValue.toLocaleString()} <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>ກີບ</span>
+              </span>
+            </div>
+            <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--blue-primary, #3498db)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>✨ ກຳໄລຄາດຄະເນສາງໃຫຍ່</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
+                {hasInventoryPermission('inventoryViewCost') ? `${totalWarehousePotentialProfit.toLocaleString()} ກີບ` : '*** ກີບ'}
+              </span>
+            </div>
+          </div>
+
+          {/* Warehouse Category Summary Card */}
+          <div className="glass-card" style={{ padding: '20px', borderLeft: '4px solid var(--gold-primary)', marginTop: '4px' }}>
+            <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.92rem', marginBottom: '14px', marginTop: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              📊 ສະຫຼຸບສິນຄ້າໃນສາງໃຫຍ່ຕາມຫມວດຫມູ່ (Category Summary)
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '10px' }}>
+              {categories.map(cat => {
+                const catProducts = products.filter(p => p.category === cat.id);
+                const isService = db.isServiceCategory(cat.id);
+                const stockTotal = isService ? null : catProducts.reduce((sum, p) => sum + (Number(p.warehouseStock) || 0), 0);
+                const catTotalCost = isService ? 0 : catProducts.reduce((sum, p) => sum + ((Number(p.cost) || 0) * (Number(p.warehouseStock) || 0)), 0);
+                const catTotalRetail = isService ? 0 : catProducts.reduce((sum, p) => sum + ((Number(p.price) || 0) * (Number(p.warehouseStock) || 0)), 0);
+                const catProfit = catTotalRetail - catTotalCost;
+                return (
+                  <div
+                    key={cat.id}
+                    onClick={() => { setSelectedCatFilter(cat.id); }}
+                    style={{
+                      background: 'rgba(255,255,255,0.03)',
+                      border: selectedCatFilter === cat.id ? '1.5px solid var(--gold-primary)' : '1px solid var(--border-color)',
+                      borderRadius: '10px',
+                      padding: '12px 14px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '4px'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                      {cat.icon && (cat.icon.startsWith('data:image/') || cat.icon.startsWith('http')) ? (
+                        <img src={cat.icon} style={{ width: '20px', height: '20px', objectFit: 'contain', borderRadius: '3px' }} alt="" />
+                      ) : (
+                        <span style={{ fontSize: '1rem' }}>{cat.icon || '📦'}</span>
+                      )}
+                      <span style={{ fontSize: '0.82rem', fontWeight: '600', color: 'var(--text-primary)', lineHeight: 1.3 }}>{cat.name}</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                        📋 ລາຍການ: <b style={{ color: 'white' }}>{catProducts.length}</b> ລາຍການ
+                      </span>
+                      {!isService && (
+                        <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                          🏠 ສາງໃຫຍ່: <b style={{ color: stockTotal === 0 ? 'var(--alert-red)' : 'var(--gold-primary)' }}>{stockTotal}</b> ຊິ້ນ
+                        </span>
+                      )}
+                      {isService && (
+                        <span style={{ fontSize: '0.75rem', color: 'var(--accent-amber, #e67e22)' }}>🛠️ ບໍລິການ</span>
+                      )}
+                      {!isService && (
+                        <>
+                          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', margin: '4px 0' }} />
+                          <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                            💰 ຕົ້ນທຶນ:{' '}
+                            <b style={{ color: 'var(--accent-amber, #e67e22)' }}>
+                              {hasInventoryPermission('inventoryViewCost') ? `${catTotalCost.toLocaleString()} ກີບ` : '***'}
+                            </b>
+                          </span>
+                          <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                            📈 ຂາຍ:{' '}
+                            <b style={{ color: 'var(--success-green, #27ae60)' }}>
+                              {catTotalRetail.toLocaleString()} ກີບ
+                            </b>
+                          </span>
+                          <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                            ✨ ກຳໄລ:{' '}
+                            <b style={{ color: catProfit >= 0 ? 'var(--gold-primary)' : 'var(--alert-red)' }}>
+                              {hasInventoryPermission('inventoryViewCost') ? `${catProfit.toLocaleString()} ກີບ` : '***'}
+                            </b>
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Low Stock Warehouse Products Alert */}
+          {lowStockWarehouseProducts.length > 0 && (
+            <div style={{ background: 'rgba(230, 126, 34, 0.1)', border: '1.5px solid var(--accent-amber, #e67e22)', padding: '16px', borderRadius: 'var(--radius-lg)' }}>
+              <h3 style={{ color: 'var(--accent-amber, #e67e22)', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                ⚠️ ແຈ້ງເຕືອນ: ສິນຄ້າໃນສາງໃຫຍ່ໃກ້ໝົດ ({lowStockWarehouseProducts.length} ລາຍການ)
+              </h3>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                {lowStockWarehouseProducts.map(p => (
+                  <div
+                    key={p.id}
+                    style={{ background: 'rgba(20, 10, 10, 0.5)', border: '1px solid rgba(230, 126, 34, 0.3)', padding: '8px 12px', borderRadius: '8px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '10px' }}
+                  >
+                    <span>{p.name} (<b>ຄົງເຫຼືອໃນສາງ: {p.warehouseStock || 0} {p.unit}</b>)</span>
+                    <button
+                      className="btn btn-secondary"
+                      style={{ padding: '2px 8px', fontSize: '0.75rem', borderRadius: '4px', borderColor: '#2ecc71', color: '#2ecc71' }}
+                      onClick={() => {
+                        setWarehouseActiveProduct(p);
+                        setShowWarehouseRestockModal(true);
+                      }}
+                    >
+                      📥 ຮັບເຂົ້າສາງ
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Search & Sort UI controls */}
+          <div 
+            className="glass-card" 
+            style={{ 
+              padding: '16px', 
+              display: 'flex', 
+              flexWrap: 'wrap', 
+              gap: '12px', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              background: 'rgba(255, 255, 255, 0.02)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '8px',
+              marginTop: '10px'
+            }}
+          >
+            {/* Search Box */}
+            <div style={{ flex: '1', minWidth: '250px', display: 'flex', alignItems: 'center', gap: '8px', position: 'relative' }}>
+              <span style={{ position: 'absolute', left: '12px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>🔍</span>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="ຄົ້ນຫາສິນຄ້າໃນສາງ ດ້ວຍຊື່ ຫຼື ບາໂຄ້ດ (Search warehouse)..."
+                value={prodSearchQuery}
+                onChange={(e) => setProdSearchQuery(e.target.value)}
+                style={{ 
+                  width: '100%', 
+                  padding: '8px 12px 8px 36px', 
+                  background: '#191613', 
+                  color: 'white', 
+                  border: '1px solid var(--border-color)', 
+                  borderRadius: '6px',
+                  fontSize: '0.85rem'
+                }}
+              />
+              {prodSearchQuery && (
+                <button
+                  onClick={() => setProdSearchQuery('')}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem'
+                  }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Sorting Dropdown */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>ຈັດລຽງ / Sort:</span>
+              <select
+                value={prodSortMode}
+                onChange={(e) => setProdSortMode(e.target.value)}
+                style={{
+                  padding: '8px 12px',
+                  background: '#191613',
+                  color: 'white',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '6px',
+                  fontSize: '0.85rem',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="none">ເລືອກການຈັດລຽງ (None)</option>
+                <option value="name-asc">🔠 ຊື່: ກ - ຮ (A-Z)</option>
+                <option value="name-desc">🔠 ຊື່: ຮ - ກ (Z-A)</option>
+                <option value="stock-asc">📉 ສະຕັອກສາງ: ຕ່ຳ &rarr; ສູງ (Low to High)</option>
+                <option value="stock-desc">📈 ສະຕັອກສາງ: ສູງ &rarr; ຕ່ຳ (High to Low)</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Category Tabs for Warehouse */}
+          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
+            {[
+              { id: 'all', icon: '📋', name: 'ທັງໝົດ', count: products.length },
+              { id: 'low_stock', icon: '⚠️', name: 'ສະຕັອກໃກ້ໝົດ', count: lowStockWarehouseProducts.length },
+              { id: 'physical', icon: '📦', name: 'ສິນຄ້າ', count: physicalProducts.length },
+              { id: 'service', icon: '🛠️', name: 'ບໍລິການ', count: products.length - physicalProducts.length },
+              ...categories.map(cat => ({
+                id: cat.id,
+                icon: cat.icon || '📦',
+                name: cat.name,
+                count: products.filter(p => p.category === cat.id).length
+              }))
+            ].map(tab => (
+              <button
+                key={tab.id}
+                className={`nav-tab ${selectedCatFilter === tab.id ? 'active' : ''}`}
+                style={{ fontSize: '0.85rem', borderRadius: '20px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', padding: '8px 14px', minWidth: '80px', textAlign: 'center' }}
+                onClick={() => changeCatFilter(tab.id)}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  {tab.icon && (tab.icon.startsWith('data:image/') || tab.icon.startsWith('http')) ? (
+                    <img src={tab.icon} style={{ width: '14px', height: '14px', objectFit: 'contain', borderRadius: '2px' }} alt="" />
+                  ) : (
+                    <span style={{ fontSize: '0.8rem' }}>{tab.icon}</span>
+                  )}
+                  <span style={{ fontWeight: '500', whiteSpace: 'nowrap' }}>{tab.name}</span>
+                </span>
+                <span style={{ fontSize: '0.8rem', fontWeight: 'bold', opacity: 0.9 }}>({tab.count})</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Main Warehouse Table */}
+          <div className="desktop-table-view" style={{ overflowX: 'auto' }}>
+            <table className="table-premium" style={{ minWidth: '1000px', marginTop: 0 }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--gold-primary)', fontSize: '0.9rem' }}>
+                  <th style={{ padding: '16px' }}>ຮູບພາບ</th>
+                  <th style={{ padding: '16px' }}>ລະຫັດບາໂຄ້ດ</th>
+                  <th style={{ padding: '16px' }}>ຊື່ສິນຄ້າ</th>
+                  <th style={{ padding: '16px', textAlign: 'right' }}>ຕົ້ນທຶນ</th>
+                  <th style={{ padding: '16px', textAlign: 'right' }}>ລາຄາຂາຍ</th>
+                  <th style={{ padding: '16px', textAlign: 'center', width: '180px' }}>ສະຕັອກສາງໃຫຍ່</th>
+                  <th style={{ padding: '16px', textAlign: 'center', width: '140px' }}>ສະຕັອກໜ້າຮ້ານ</th>
+                  <th style={{ padding: '16px', textAlign: 'center', width: '220px' }}>ທຸລະກຳ</th>
+                  <th style={{ padding: '16px', textAlign: 'right' }}>ຈັດການ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredWarehouseProducts.length === 0 ? (
+                  <tr>
+                    <td colSpan="9" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>ບໍ່ມີລາຍການສິນຄ້າໃນສາງ</td>
+                  </tr>
+                ) : filteredWarehouseProducts.map(p => {
+                  const isService = db.isServiceCategory(p.category);
+                  const isLow = !isService && (p.warehouseStock || 0) <= p.minStock;
+                  return (
+                    <tr
+                      key={p.id}
+                      style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', fontSize: '0.9rem', background: isLow ? 'rgba(230, 126, 34, 0.02)' : 'none' }}
+                    >
+                      <td style={{ padding: '12px 16px' }}>
+                        <img src={p.image} alt={p.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border-color)' }} />
+                      </td>
+                      <td style={{ padding: '12px 16px', fontFamily: 'monospace' }}>
+                        {p.barcode}
+                      </td>
+                      <td style={{ padding: '12px 16px', fontWeight: '500' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <span>{p.name}</span>
+                          <span style={{ display: 'inline-flex', width: 'fit-content', fontSize: '0.7rem', padding: '2px 6px', borderRadius: '999px', color: isService ? 'var(--accent-amber)' : 'var(--success-green)', border: '1px solid ' + (isService ? 'rgba(229,169,59,0.3)' : 'rgba(39,174,96,0.3)'), background: isService ? 'rgba(229,169,59,0.08)' : 'rgba(39,174,96,0.08)' }}>
+                            {(() => {
+                              const cat = categories.find(c => c.id === p.category || c.name === p.category);
+                              const catName = cat ? db.getLabel('cat_' + cat.id, cat.name) : p.category;
+                              return isService ? `🛠️ ${catName || 'ບໍລິການ'}` : `📦 ${catName || 'ສິນຄ້າ'}`;
+                            })()}
+                          </span>
+                        </div>
+                      </td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right' }}>
+                        {hasInventoryPermission('inventoryViewCost') ? `${p.cost.toLocaleString()} ກີບ` : '*** ກີບ'}
+                      </td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
+                        {p.price.toLocaleString()} ກີບ
+                      </td>
+                      
+                      <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                        {isService ? (
+                          <span style={{ color: 'var(--text-secondary)' }}>—</span>
+                        ) : (
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                            <button
+                              className="cart-qty-btn"
+                              style={{ width: '22px', height: '22px' }}
+                              onClick={() => adjustWarehouseStock(p, -1)}
+                            >
+                              -
+                            </button>
+                            <input
+                              type="number"
+                              value={p.warehouseStock || 0}
+                              onChange={(e) => handleWarehouseStockInputChange(p, e.target.value)}
+                              style={{
+                                width: '50px',
+                                background: '#0c0b09',
+                                border: '1.5px solid var(--border-color)',
+                                borderRadius: '4px',
+                                color: isLow ? 'var(--alert-red)' : 'var(--success-green)',
+                                textAlign: 'center',
+                                fontWeight: 'bold',
+                                padding: '2px',
+                                fontFamily: 'monospace'
+                              }}
+                            />
+                            <button
+                              className="cart-qty-btn"
+                              style={{ width: '22px', height: '22px' }}
+                              onClick={() => adjustWarehouseStock(p, 1)}
+                            >
+                              +
+                            </button>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{p.unit}</span>
+                          </div>
+                        )}
+                      </td>
+
+                      <td style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                        {!isService ? `${p.stock} ${p.unit}` : '—'}
+                      </td>
+
+                      <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                        {!isService && (
+                          <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
                             <button
                               type="button"
                               className="btn btn-secondary"
-                              style={{ padding: '2px 6px', fontSize: '0.75rem', marginLeft: '4px' }}
-                              onClick={() => setBulkPrintQtys({ ...bulkPrintQtys, [p.id]: Math.max(0, p.stock) })}
+                              style={{ padding: '3px 7px', fontSize: '0.75rem', borderColor: '#2ecc71', color: '#2ecc71', background: 'rgba(46,204,113,0.05)' }}
+                              onClick={() => {
+                                setWarehouseActiveProduct(p);
+                                setShowWarehouseRestockModal(true);
+                              }}
                             >
-                              ເທົ່າສະຕັອກ
+                              📥 ຮັບເຂົ້າ
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-primary"
+                              style={{ padding: '3px 7px', fontSize: '0.75rem' }}
+                              onClick={() => {
+                                setWarehouseActiveProduct(p);
+                                setShowWarehouseTransferModal(true);
+                              }}
+                            >
+                              🚚 ໂອນຍ້າຍ
                             </button>
                           </div>
-                        ) : (
-                          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', flexShrink: 0 }}>ບໍ່ມີສະຕັອກ</span>
                         )}
-                      </div>
-                    );
-                  })
-                )}
-              </div>
+                      </td>
 
-              {/* Total labels selected counter */}
-              <div style={{ marginTop: '14px', textAlign: 'right', fontSize: '0.9rem', color: 'var(--gold-primary)', fontWeight: 'bold' }}>
-                ລວມສະຕິກເກີທີ່ຈະປຣິນທັງໝົດ: {Object.values(bulkPrintQtys).reduce((a, b) => a + b, 0)} ໃບ
-              </div>
-            </div>
-
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowBulkBarcodeModal(false)}>ຍົກເລີກ</button>
-              <button className="btn btn-primary" onClick={handlePrintBulkBarcodes}>🖨️ ປຣິນບາໂຄ້ດທັງໝົດທີ່ເລືອກ</button>
-            </div>
+                      <td style={{ padding: '12px 16px', textAlign: 'right' }}>
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                          <button
+                            className="btn btn-secondary"
+                            style={{ padding: '4px 8px', fontSize: '0.8rem' }}
+                            onClick={() => handleOpenBarcodeGen(p)}
+                          >
+                            🏷️ ບາໂຄ້ດ
+                          </button>
+                          {hasInventoryPermission('inventoryEditProduct') && (
+                            <button
+                              className="btn btn-primary"
+                              style={{ padding: '4px 8px', fontSize: '0.8rem' }}
+                              onClick={() => handleOpenEdit(p)}
+                            >
+                              📝 ແກ້ໄຂ
+                            </button>
+                          )}
+                          {hasInventoryPermission('inventoryDeleteProduct') && (
+                            <button
+                              className="btn"
+                              style={{ padding: '4px 8px', fontSize: '0.8rem', background: '#c0392b', color: 'white', border: 'none' }}
+                              onClick={() => handleDeleteProduct(p)}
+                            >
+                              🗑️ ລົບ
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-        </div>
-        </Portal>
-      )}
-          {/* Mobile FAB to Add Product */}
-          <button 
-            type="button" 
-            className="fab-btn" 
-            onClick={handleOpenAdd} 
-            title="ເພີ່ມສິນຄ້າໃໝ່ (Add Product)"
-          >
-            ➕
-          </button>
+
+          <div className="mobile-cards-view" style={{ display: 'none', flexDirection: 'column', gap: '12px' }}>
+            {filteredWarehouseProducts.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>ບໍ່ມີລາຍການສິນຄ້າໃນສາງ</div>
+            ) : filteredWarehouseProducts.map(p => {
+              const isService = db.isServiceCategory(p.category);
+              const isLow = !isService && (p.warehouseStock || 0) <= p.minStock;
+              return (
+                <div key={p.id} className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px', borderLeft: '4px solid ' + (isLow ? 'var(--accent-amber)' : 'var(--success-green)') }}>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    {p.image ? (
+                      <img src={p.image} style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }} alt="" />
+                    ) : (
+                      <div style={{ width: '60px', height: '60px', borderRadius: '8px', background: 'rgba(255,255,255,0.02)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border-color)', fontSize: '1.2rem' }}>📦</div>
+                    )}
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 'bold', fontSize: '1.05rem' }}>{p.name}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>ບາໂຄ້ດ: {p.barcode || '-'}</div>
+                    </div>
+                  </div>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.85rem' }}>
+                    <div>
+                      <span style={{ color: 'var(--text-secondary)' }}>ຕົ້ນທຶນ: </span>
+                      <span>{hasInventoryPermission('inventoryViewCost') ? `${p.cost.toLocaleString()} ₭` : '*** ₭'}</span>
+                    </div>
+                    <div>
+                      <span style={{ color: 'var(--text-secondary)' }}>ລາຄາຂາຍ: </span>
+                      <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{p.price.toLocaleString()} ₭</span>
+                    </div>
+                    <div>
+                      <span style={{ color: 'var(--text-secondary)' }}>ສະຕັອກສາງໃຫຍ່: </span>
+                      {isService ? (
+                        <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>—</span>
+                      ) : (
+                        <span style={{ fontWeight: 'bold', color: isLow ? 'var(--alert-red)' : 'white' }}>{p.warehouseStock || 0} / {p.minStock} {p.unit}</span>
+                      )}
+                    </div>
+                    <div>
+                      <span style={{ color: 'var(--text-secondary)' }}>ສະຕັອກໜ້າຮ້ាន: </span>
+                      <span>{p.stock} {p.unit}</span>
+                    </div>
+                  </div>
+
+                  {!isService && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>ປັບສະຕັອກສາງໃຫຍ່:</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
+                          <button type="button" className="qty-btn" style={{ width: '32px', height: '32px', fontSize: '1rem' }} onClick={() => adjustWarehouseStock(p, -1)}>-</button>
+                          <input 
+                            type="text" 
+                            value={p.warehouseStock || 0} 
+                            readOnly 
+                            style={{ width: '40px', background: '#0c0b09', border: '1px solid var(--border-color)', borderRadius: '4px', color: 'white', textAlign: 'center', fontSize: '0.9rem', padding: '4px 0', fontWeight: 'bold' }} 
+                          />
+                          <button type="button" className="qty-btn" style={{ width: '32px', height: '32px', fontSize: '1rem' }} onClick={() => adjustWarehouseStock(p, 1)}>+</button>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '8px' }}>
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          style={{ flex: 1, fontSize: '0.75rem', padding: '6px' }}
+                          onClick={() => {
+                            setWarehouseActiveProduct(p);
+                            setShowWarehouseRestockModal(true);
+                          }}
+                        >
+                          📥 ຮັບເຂົ້າສາງໃຫຍ່
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          style={{ flex: 1, fontSize: '0.75rem', padding: '6px' }}
+                          onClick={() => {
+                            setWarehouseActiveProduct(p);
+                            setShowWarehouseTransferModal(true);
+                          }}
+                        >
+                          🚚 ໂອນຍ້າຍໜ້າຮ້ານ
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
+                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => handleOpenBarcodeGen(p)}>🏷️ ບາໂຄ້ດ</button>
+                    {hasInventoryPermission('inventoryEditProduct') && (
+                      <button type="button" className="btn btn-primary btn-sm" onClick={() => handleOpenEdit(p)}>📝 ແກ້ໄຂ</button>
+                    )}
+                    {hasInventoryPermission('inventoryDeleteProduct') && (
+                      <button type="button" className="btn btn-sm" style={{ background: '#c0392b', color: 'white', border: 'none' }} onClick={() => handleDeleteProduct(p)}>🗑️ ລົບ</button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
   
