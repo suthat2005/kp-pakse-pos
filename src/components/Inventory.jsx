@@ -114,6 +114,465 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
 };
 
 // ==========================================
+// 🔧 CONSUMABLES STOCK SUB-VIEW
+// ==========================================
+function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
+  const [consumables, setConsumables] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  });
+  
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showRestockModal, setShowRestockModal] = useState(false);
+  const [showDisburseModal, setShowDisburseModal] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [activeItem, setActiveItem] = useState(null);
+  
+  const [addForm, setAddForm] = useState({ name: '', costPerUnit: '', stock: '', minStock: '', unit: 'ອັນ' });
+  const [restockForm, setRestockForm] = useState({ qty: '', costPerUnit: '', paymentMethod: 'cash', notes: '' });
+  const [disburseForm, setDisburseForm] = useState({ qty: '', notes: '' });
+  
+  useEffect(() => {
+    loadConsumables();
+  }, []);
+  
+  const loadConsumables = () => {
+    setConsumables(db.getConsumables());
+  };
+  
+  const handleAddConsumable = (e) => {
+    e.preventDefault();
+    if (!addForm.name.trim()) return alert('ກະລຸນາປ້ອນຊື່ອຸປະກອນ');
+    db.addConsumable({
+      name: addForm.name,
+      costPerUnit: parseFloat(addForm.costPerUnit) || 0,
+      stock: parseFloat(addForm.stock) || 0,
+      minStock: parseFloat(addForm.minStock) || 0,
+      unit: addForm.unit || 'ອັນ'
+    });
+    alert('✓ ເພີ່ມລາຍການອຸປະກອນສຳເລັດ!');
+    setAddForm({ name: '', costPerUnit: '', stock: '', minStock: '', unit: 'ອັນ' });
+    setShowAddModal(false);
+    loadConsumables();
+    if (onUpdate) onUpdate();
+  };
+  
+  const handleRestock = (e) => {
+    e.preventDefault();
+    const qtyVal = parseFloat(restockForm.qty);
+    if (!qtyVal || qtyVal <= 0) return alert('ກະລຸນາປ້ອນຈຳນວນຮັບເຂົ້າ');
+    const costVal = parseFloat(restockForm.costPerUnit) || activeItem.costPerUnit || 0;
+    
+    db.restockConsumable(activeItem.id, qtyVal, costVal, restockForm.paymentMethod, restockForm.notes);
+    alert('✓ ຮັບເຂົ້າອຸປະກອນສຳເລັດ (ແລະ ບັນທຶກລາຍຈ່າຍອັດຕະໂນມັດ)!');
+    setRestockForm({ qty: '', costPerUnit: '', paymentMethod: 'cash', notes: '' });
+    setShowRestockModal(false);
+    setActiveItem(null);
+    loadConsumables();
+    if (onUpdate) onUpdate();
+  };
+  
+  const handleDisburse = (e) => {
+    e.preventDefault();
+    const qtyVal = parseFloat(disburseForm.qty);
+    if (!qtyVal || qtyVal <= 0) return alert('ກະລຸນາປ້ອນຈຳນວນເບີກອອກ');
+    if (qtyVal > (activeItem.stock || 0)) {
+      if (!window.confirm('⚠️ ຈຳນວນເບີກອອກຫຼາຍກວ່າຄົງເຫຼືອໃນສາງ. ຕ້ອງການດຳເນີນການຕໍ່ບໍ່?')) return;
+    }
+    
+    db.disburseConsumable(activeItem.id, qtyVal, disburseForm.notes);
+    alert('✓ ເບີກອອກອຸປະກອນສຳເລັດ!');
+    setDisburseForm({ qty: '', notes: '' });
+    setShowDisburseModal(false);
+    setActiveItem(null);
+    loadConsumables();
+    if (onUpdate) onUpdate();
+  };
+  
+  const allHistory = [];
+  consumables.forEach(c => {
+    (c.history || []).forEach(h => {
+      allHistory.push({
+        ...h,
+        itemName: c.name,
+        unit: c.unit
+      });
+    });
+  });
+  allHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+  
+  const allExpenses = db.getExpenses();
+  const monthExpenses = allExpenses.filter(ex => ex.date.startsWith(selectedMonth));
+  const totalMonthExpenseVal = monthExpenses.reduce((sum, ex) => sum + (ex.convertedAmount || ex.amount), 0);
+  
+  const groupedExpenses = {};
+  monthExpenses.forEach(ex => {
+    const cat = ex.categoryName || ex.category || 'ອື່ນໆ';
+    if (!groupedExpenses[cat]) {
+      groupedExpenses[cat] = { name: cat, total: 0, count: 0 };
+    }
+    groupedExpenses[cat].total += (ex.convertedAmount || ex.amount);
+    groupedExpenses[cat].count++;
+  });
+  const sortedGroupedExpenses = Object.values(groupedExpenses).sort((a, b) => b.total - a.total);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.1rem', margin: 0 }}>🔧 ຈັດການສາງອຸປະກອນສິ້ນເປືອງ (Consumables Stock)</h3>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button type="button" className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', padding: '6px 12px' }} onClick={() => setShowReportModal(true)}>
+            📊 ລາຍງານລາຍຈ່າຍປະຈຳເດືອນ
+          </button>
+          <button type="button" className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', padding: '6px 12px' }} onClick={() => setShowHistoryModal(true)}>
+            📋 ປະຫວັດຮັບ-ເບີກ
+          </button>
+          <button type="button" className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', padding: '6px 12px', background: 'var(--gold-primary)', color: 'black', borderColor: 'var(--gold-primary)' }} onClick={() => setShowAddModal(true)}>
+            ➕ ເພີ່ມລາຍການອຸປະກອນ
+          </button>
+        </div>
+      </div>
+      
+      <div className="glass-card" style={{ padding: '20px' }}>
+        <div className="desktop-table-view" style={{ overflowX: 'auto' }}>
+          <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left', padding: '12px' }}>ລາຍການອຸປະກອນ</th>
+                <th style={{ textAlign: 'right', padding: '12px' }}>ຕົ້ນທຶນ/ໜ່ວຍ</th>
+                <th style={{ textAlign: 'center', padding: '12px' }}>ຍອດຄົງເຫຼືອ</th>
+                <th style={{ textAlign: 'center', padding: '12px' }}>ຂັ້ນຕ່ຳ</th>
+                <th style={{ textAlign: 'right', padding: '12px' }}>ມູນຄ່າສາງ</th>
+                <th style={{ textAlign: 'center', padding: '12px' }}>ທຸລະກຳສາງ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {consumables.length === 0 ? (
+                <tr>
+                  <td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-secondary)' }}>
+                    ບໍ່ມີລາຍການອຸປະກອນສິ້ນເປືອງ
+                  </td>
+                </tr>
+              ) : consumables.map(item => {
+                const totalVal = (item.stock || 0) * (item.costPerUnit || 0);
+                const isLow = (item.stock || 0) <= (item.minStock || 0);
+                return (
+                  <tr key={item.id} style={{ borderBottom: '1px solid var(--border-color)', background: isLow ? 'rgba(231,76,60,0.04)' : 'none' }}>
+                    <td style={{ padding: '12px' }}>
+                      <div style={{ fontWeight: 'bold' }}>{item.name}</div>
+                      {isLow && <span style={{ fontSize: '0.65rem', color: '#e74c3c', background: 'rgba(231,76,60,0.1)', padding: '2px 6px', borderRadius: '4px', marginTop: '4px', display: 'inline-block' }}>⚠️ ໃກ້ຈະໝົດສາງ</span>}
+                    </td>
+                    <td style={{ padding: '12px', textAlign: 'right' }}>{(item.costPerUnit || 0).toLocaleString()} ₭</td>
+                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: isLow ? '#e74c3c' : 'white' }}>
+                      {(item.stock || 0).toLocaleString()} {item.unit || 'ອັນ'}
+                    </td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                      {(item.minStock || 0).toLocaleString()} {item.unit || 'ອັນ'}
+                    </td>
+                    <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
+                      {totalVal.toLocaleString()} ₭
+                    </td>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                      <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                        <button type="button" className="btn btn-secondary" style={{ padding: '3px 8px', fontSize: '0.75rem', borderColor: '#2ecc71', color: '#2ecc71', background: 'rgba(46,204,113,0.05)' }} onClick={() => { setActiveItem(item); setShowRestockModal(true); }}>
+                          📥 ຮັບເຂົ້າ
+                        </button>
+                        <button type="button" className="btn btn-secondary" style={{ padding: '3px 8px', fontSize: '0.75rem', borderColor: '#e74c3c', color: '#e74c3c', background: 'rgba(231,76,60,0.05)' }} onClick={() => { setActiveItem(item); setShowDisburseModal(true); }}>
+                          📤 ເບີກອອກ
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {showAddModal && (
+        <Portal>
+          <div className="modal-overlay" style={{ zIndex: 1200 }}>
+            <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
+              <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>➕ ເພີ່ມລາຍການອຸປະກອນສິ້ນເປືອງ</h3>
+                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowAddModal(false)}>✕</button>
+              </div>
+              <form onSubmit={handleAddConsumable} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div>
+                  <label className="form-label">ຊື່ອຸປະກອນ *</label>
+                  <input type="text" className="form-control" placeholder="ຕົວຢ່າງ: ເຈ້ຍຫ້ອງນ້ຳ, ສະບູ, ສະກັອດເທບ..." value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })} required />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div>
+                    <label className="form-label">ຕົ້ນທຶນຕໍ່ໜ່ວຍ (LAK)</label>
+                    <input type="number" className="form-control" placeholder="0" value={addForm.costPerUnit} onChange={(e) => setAddForm({ ...addForm, costPerUnit: e.target.value })} />
+                  </div>
+                  <div>
+                    <label className="form-label">ຫົວໜ່ວຍ (Unit)</label>
+                    <input type="text" className="form-control" placeholder="ອັນ, ມ້ວນ, ແກັດ..." value={addForm.unit} onChange={(e) => setAddForm({ ...addForm, unit: e.target.value })} />
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div>
+                    <label className="form-label">ຍອດເລີ່ມຕົ້ນ</label>
+                    <input type="number" className="form-control" placeholder="0" value={addForm.stock} onChange={(e) => setAddForm({ ...addForm, stock: e.target.value })} />
+                  </div>
+                  <div>
+                    <label className="form-label">ລະດັບຂັ້ນຕ່ຳ</label>
+                    <input type="number" className="form-control" placeholder="5" value={addForm.minStock} onChange={(e) => setAddForm({ ...addForm, minStock: e.target.value })} />
+                  </div>
+                </div>
+                <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowAddModal(false)}>ຍົກເລີກ</button>
+                  <button type="submit" className="btn btn-primary" style={{ background: 'var(--gold-primary)', color: 'black', borderColor: 'var(--gold-primary)' }}>ບັນທຶກ</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {showRestockModal && activeItem && (
+        <Portal>
+          <div className="modal-overlay" style={{ zIndex: 1200 }}>
+            <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
+              <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ color: '#2ecc71', margin: 0 }}>📥 ຮັບເຂົ້າອຸປະກອນສິ້ນເປືອງ</h3>
+                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowRestockModal(false)}>✕</button>
+              </div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '14px' }}>
+                <b>ລາຍການ:</b> {activeItem.name} (ຍອດຄົງເຫຼືອ: {activeItem.stock} {activeItem.unit})
+              </div>
+              <form onSubmit={handleRestock} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div>
+                    <label className="form-label">ຈຳນວນຮັບເຂົ້າ *</label>
+                    <input type="number" className="form-control" placeholder="10" value={restockForm.qty} onChange={(e) => setRestockForm({ ...restockForm, qty: e.target.value })} required />
+                  </div>
+                  <div>
+                    <label className="form-label">ຕົ້ນທຶນຕໍ່ໜ່ວຍ (LAK)</label>
+                    <input type="number" className="form-control" placeholder={activeItem.costPerUnit} value={restockForm.costPerUnit} onChange={(e) => setRestockForm({ ...restockForm, costPerUnit: e.target.value })} />
+                  </div>
+                </div>
+                <div>
+                  <label className="form-label">ວິທີການຊຳລະເງິນ</label>
+                  <select className="form-control" value={restockForm.paymentMethod} onChange={(e) => setRestockForm({ ...restockForm, paymentMethod: e.target.value })}>
+                    <option value="cash">💵 ເງິນສົດ (Cash)</option>
+                    <option value="transfer">📱 ໂອນຜ່ານ BCEL One (Transfer)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="form-label">ໝາຍເຫດ/Supplier (Notes)</label>
+                  <input type="text" className="form-control" placeholder="ຊື້ຢູ່ຮ້ານສະດວກຊື້, ຊື້ມາເພີ່ມ..." value={restockForm.notes} onChange={(e) => setRestockForm({ ...restockForm, notes: e.target.value })} />
+                </div>
+                <div style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)', padding: '10px', borderRadius: '6px', fontSize: '0.75rem', color: 'var(--gold-primary)' }}>
+                  ⚠️ <b>ຫມາຍເຫດ:</b> ການຮັບເຂົ້າຈະເຮັດການ **ບັນທຶກລາຍຈ່າຍຮ້ານອັດຕະໂນມັດ** ມູນຄ່າ {((parseFloat(restockForm.qty) || 0) * (parseFloat(restockForm.costPerUnit) || activeItem.costPerUnit || 0)).toLocaleString()} ກີບ.
+                </div>
+                <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowRestockModal(false)}>ຍົກເລີກ</button>
+                  <button type="submit" className="btn btn-primary" style={{ background: '#2ecc71', color: 'black', borderColor: '#2ecc71', fontWeight: 'bold' }}> Restock 📥</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {showDisburseModal && activeItem && (
+        <Portal>
+          <div className="modal-overlay" style={{ zIndex: 1200 }}>
+            <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
+              <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ color: '#e74c3c', margin: 0 }}>📤 ເບີກອອກອຸປະກອນສິ້ນເປືອງ</h3>
+                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowDisburseModal(false)}>✕</button>
+              </div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '14px' }}>
+                <b>ລາຍການ:</b> {activeItem.name} (ຍອດຄົງເຫຼືອ: {activeItem.stock} {activeItem.unit})
+              </div>
+              <form onSubmit={handleDisburse} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div>
+                  <label className="form-label">ຈຳນວນເບີກອອກ *</label>
+                  <input type="number" className="form-control" placeholder="5" value={disburseForm.qty} onChange={(e) => setDisburseForm({ ...disburseForm, qty: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="form-label">ຈຸດປະສົງ/ໝາຍເຫດ</label>
+                  <input type="text" className="form-control" placeholder="ເບີກໄປໃຊ້ຢູ່ຫ້ອງນ້ຳ, ເບີກໄປແພັກເຄື່ອງ..." value={disburseForm.notes} onChange={(e) => setDisburseForm({ ...disburseForm, notes: e.target.value })} />
+                </div>
+                <div style={{ background: 'rgba(231,76,60,0.06)', border: '1px solid rgba(231,76,60,0.2)', padding: '10px', borderRadius: '6px', fontSize: '0.75rem', color: '#FAB1A0' }}>
+                  ℹ️ ການເບີກອອກໃຊ້ຈະບໍ່ມີການບັນທຶກລາຍຈ່າຍເພີ່ມ (ຍ້ອນວ່າໄດ້ບັນທຶກເປັນລາຍຈ່າຍໄປແລ້ວຕອນຊື້ຮັບເຂົ້າ).
+                </div>
+                <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowDisburseModal(false)}>ຍົກເລີກ</button>
+                  <button type="submit" className="btn btn-primary" style={{ background: '#e74c3c', color: 'white', borderColor: '#e74c3c', fontWeight: 'bold' }}>Disburse 📤</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {showHistoryModal && (
+        <Portal>
+          <div className="modal-overlay" style={{ zIndex: 1200 }}>
+            <div className="modal-content modal-md glass-card" style={{ padding: '24px', maxHeight: '80%', overflowY: 'auto' }}>
+              <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>📋 ປະຫວັດຮັບ-ເບີກອຸປະກອນສິ້ນເປືອງ</h3>
+                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowHistoryModal(false)}>✕</button>
+              </div>
+              <div className="desktop-table-view">
+                <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
+                  <thead>
+                    <tr>
+                      <th style={{ textAlign: 'left', padding: '10px' }}>ວັນທີ/ເວລາ</th>
+                      <th style={{ textAlign: 'left', padding: '10px' }}>ລາຍການ</th>
+                      <th style={{ textAlign: 'center', padding: '10px' }}>ປະເພດ</th>
+                      <th style={{ textAlign: 'center', padding: '10px' }}>ຈຳນວນ</th>
+                      <th style={{ textAlign: 'right', padding: '10px' }}>ມູນຄ່າ</th>
+                      <th style={{ textAlign: 'left', padding: '10px' }}>ໝາຍເຫດ/ຜູ້ເຮັດ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allHistory.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
+                          ບໍ່ມີປະຫວັດທຸລະກຳ
+                        </td>
+                      </tr>
+                    ) : allHistory.map(tx => (
+                      <tr key={tx.id} style={{ borderBottom: '1px solid var(--border-color)', fontSize: '0.8rem' }}>
+                        <td style={{ padding: '10px' }}>{new Date(tx.date).toLocaleString('lo-LA')}</td>
+                        <td style={{ padding: '10px', fontWeight: 'bold' }}>{tx.itemName}</td>
+                        <td style={{ padding: '10px', textAlign: 'center' }}>
+                          <span style={{
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            fontSize: '0.65rem',
+                            fontWeight: 'bold',
+                            background: tx.type === 'restock' ? 'rgba(46,204,113,0.15)' : 'rgba(231,76,60,0.15)',
+                            color: tx.type === 'restock' ? '#2ecc71' : '#e74c3c',
+                            border: `1px solid ${tx.type === 'restock' ? '#2ecc71' : '#e74c3c'}`
+                          }}>
+                            {tx.type === 'restock' ? 'ຮັບເຂົ້າ' : 'ເບີກອອກ'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold' }}>
+                          {tx.qty} {tx.unit}
+                        </td>
+                        <td style={{ padding: '10px', textAlign: 'right', color: 'var(--gold-primary)' }}>
+                          {tx.type === 'restock' ? `${(tx.totalCost || 0).toLocaleString()} ₭` : '-'}
+                        </td>
+                        <td style={{ padding: '10px' }}>
+                          <div style={{ color: 'white' }}>{tx.notes || '-'}</div>
+                          <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ໂດຍ: {tx.createdByName}</div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {showReportModal && (
+        <Portal>
+          <div className="modal-overlay" style={{ zIndex: 1200 }}>
+            <div className="modal-content modal-md glass-card" style={{ padding: '24px', maxHeight: '80%', overflowY: 'auto' }}>
+              <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>📊 ລາຍງານສະຫຼຸບລາຍຈ່າຍຮ້ານ</h3>
+                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowReportModal(false)}>✕</button>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>ເລືອກເດືອນ:</label>
+                <input type="month" className="form-control" style={{ width: '160px', background: '#1c1915' }} value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} />
+              </div>
+
+              <div style={{ background: 'rgba(231,76,60,0.06)', border: '1px solid rgba(231,76,60,0.22)', padding: '16px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💵 ລວມລາຍຈ່າຍທັງໝົດປະຈຳເດືອນ:</div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: 'bold', color: '#FAB1A0', marginTop: '4px' }}>
+                    {totalMonthExpenseVal.toLocaleString()} ₭
+                  </div>
+                </div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'right' }}>
+                  ຈຳນວນລາຍການ: <b>{monthExpenses.length} ລາຍການ</b>
+                </div>
+              </div>
+
+              <h4 style={{ color: 'white', fontSize: '0.9rem', marginBottom: '10px' }}>📁 ແຍກຕາມປະເພດລາຍຈ່າຍ (Category Summary):</h4>
+              <div className="desktop-table-view" style={{ marginBottom: '20px' }}>
+                <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
+                  <thead>
+                    <tr>
+                      <th style={{ textAlign: 'left', padding: '10px' }}>ປະເພດລາຍຈ່າຍ</th>
+                      <th style={{ textAlign: 'center', padding: '10px' }}>ຈຳນວນບິນ</th>
+                      <th style={{ textAlign: 'right', padding: '10px' }}>ຍອດລວມ (LAK)</th>
+                      <th style={{ textAlign: 'right', padding: '10px' }}>ເປີເຊັນ (%)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedGroupedExpenses.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
+                          ບໍ່ມີລາຍຈ່າຍໃນເດືອນນີ້
+                        </td>
+                      </tr>
+                    ) : sortedGroupedExpenses.map(row => {
+                      const pct = totalMonthExpenseVal > 0 ? Math.round((row.total / totalMonthExpenseVal) * 100) : 0;
+                      return (
+                        <tr key={row.name} style={{ borderBottom: '1px solid var(--border-color)', fontSize: '0.85rem' }}>
+                          <td style={{ padding: '10px', fontWeight: 'bold', color: 'white' }}>{row.name}</td>
+                          <td style={{ padding: '10px', textAlign: 'center' }}>{row.count}</td>
+                          <td style={{ padding: '10px', textAlign: 'right', fontWeight: 'bold', color: '#FAB1A0' }}>
+                            {row.total.toLocaleString()} ₭
+                          </td>
+                          <td style={{ padding: '10px', textAlign: 'right' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+                              <span>{pct}%</span>
+                              <div style={{ width: '50px', height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+                                <div style={{ width: `${pct}%`, height: '100%', background: '#E17055' }} />
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <h4 style={{ color: 'white', fontSize: '0.9rem', marginBottom: '10px' }}>📋 ລາຍການບັນທຶກລາຍຈ່າຍ (Expenses Log):</h4>
+              <div style={{ maxHeight: '250px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {monthExpenses.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>ບໍ່ມີລາຍການ</div>
+                ) : monthExpenses.map(ex => (
+                  <div key={ex.id} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem' }}>
+                    <div>
+                      <div style={{ fontWeight: 'bold', color: 'white' }}>{ex.categoryName || ex.category}</div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                        {new Date(ex.date).toLocaleDateString('lo-LA')} {ex.notes ? ` • ${ex.notes}` : ''}
+                      </div>
+                    </div>
+                    <div style={{ fontWeight: 'bold', color: '#FAB1A0' }}>
+                      {(ex.convertedAmount || ex.amount).toLocaleString()} ₭
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+    </div>
+  );
+}
+
+// ==========================================
 // 💎 RAW MATERIALS SUB-VIEW
 // ==========================================
 function RawMaterialsSubView({ isMobile, activeUser }) {
@@ -2654,7 +3113,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       
       {/* Sub Tab Bar Navigation */}
-      <div className="nav-tabs" style={{ margin: 0, display: 'flex', gap: '10px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px' }}>
+      <div className="nav-tabs" style={{ margin: 0, display: 'flex', gap: '10px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px', flexWrap: 'wrap' }}>
         <button
           type="button"
           className={`nav-tab ${activeSubTab === 'products' ? 'active' : ''}`}
@@ -2683,6 +3142,13 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         >
           {db.getLabel('inv_tab_purchasing', '🧾 ສັ່ງຊື້ & ຜູ້ສະໜອງ')}
         </button>
+        <button
+          type="button"
+          className={`nav-tab ${activeSubTab === 'consumables' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('consumables')}
+        >
+          🔧 ສາງອຸປະກອນສິ້ນເປືອງ (Consumables)
+        </button>
       </div>
 
       {activeSubTab === 'raw_materials' && (
@@ -2695,6 +3161,10 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
       {activeSubTab === 'purchasing' && (
         <PurchaseOrdersSubView isMobile={isMobile} activeUser={activeUser} onUpdate={onUpdate} />
+      )}
+
+      {activeSubTab === 'consumables' && (
+        <ConsumablesSubView isMobile={isMobile} activeUser={activeUser} onUpdate={onUpdate} />
       )}
 
       {activeSubTab === 'products' && (

@@ -5296,5 +5296,109 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       }
     }
     return false;
+  },
+  getConsumables() {
+    this.init();
+    return getStorage('consumables', []);
+  },
+  saveConsumables(list) {
+    setStorage('consumables', list);
+  },
+  addConsumable(itemData) {
+    const list = this.getConsumables();
+    let nextNum = 10001;
+    if (list.length > 0) {
+      const nums = list.map(c => {
+        if (!c.id) return 0;
+        const match = c.id.match(/\d+/);
+        return match ? parseInt(match[0], 10) : 0;
+      });
+      nextNum = Math.max(...nums) + 1;
+    }
+    const newId = 'CON-' + String(nextNum).padStart(5, '0');
+    const newItem = {
+      id: newId,
+      name: itemData.name,
+      costPerUnit: Number(itemData.costPerUnit) || 0,
+      stock: Number(itemData.stock) || 0,
+      minStock: Number(itemData.minStock) || 0,
+      unit: itemData.unit || 'ອັນ',
+      category: 'consumables',
+      history: []
+    };
+    list.push(newItem);
+    this.saveConsumables(list);
+    return newItem;
+  },
+  restockConsumable(itemId, qty, costPerUnit, paymentMethod, notes) {
+    const list = this.getConsumables();
+    const idx = list.findIndex(c => c.id === itemId);
+    if (idx !== -1) {
+      const item = list[idx];
+      const restockQty = Number(qty) || 0;
+      const unitCost = Number(costPerUnit) || item.costPerUnit || 0;
+      const totalCost = restockQty * unitCost;
+      
+      item.stock = (item.stock || 0) + restockQty;
+      item.costPerUnit = unitCost;
+      
+      const activeUser = this.getActiveUser();
+      const tx = {
+        id: 'TX-' + Date.now(),
+        type: 'restock',
+        qty: restockQty,
+        costPerUnit: unitCost,
+        totalCost,
+        date: new Date().toISOString(),
+        notes: notes || '',
+        createdByName: activeUser ? activeUser.name : 'Unknown'
+      };
+      
+      if (!item.history) item.history = [];
+      item.history.unshift(tx);
+      this.saveConsumables(list);
+      
+      // Auto add to expenses
+      this.addExpense({
+        category: 'consumables',
+        categoryName: 'ອຸປະກອນສິ້ນເປືອງ',
+        amount: totalCost,
+        notes: `ຮັບເຂົ້າ ${item.name} x ${restockQty} ${item.unit} (${notes || ''})`,
+        paymentMethod: paymentMethod || 'cash',
+        supplier: '',
+        currency: 'LAK'
+      });
+      
+      return item;
+    }
+    return null;
+  },
+  disburseConsumable(itemId, qty, notes) {
+    const list = this.getConsumables();
+    const idx = list.findIndex(c => c.id === itemId);
+    if (idx !== -1) {
+      const item = list[idx];
+      const disburseQty = Number(qty) || 0;
+      
+      item.stock = Math.max(0, (item.stock || 0) - disburseQty);
+      
+      const activeUser = this.getActiveUser();
+      const tx = {
+        id: 'TX-' + Date.now(),
+        type: 'disburse',
+        qty: disburseQty,
+        costPerUnit: item.costPerUnit || 0,
+        totalCost: disburseQty * (item.costPerUnit || 0),
+        date: new Date().toISOString(),
+        notes: notes || '',
+        createdByName: activeUser ? activeUser.name : 'Unknown'
+      };
+      
+      if (!item.history) item.history = [];
+      item.history.unshift(tx);
+      this.saveConsumables(list);
+      return item;
+    }
+    return null;
   }
 };
