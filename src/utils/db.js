@@ -118,7 +118,7 @@ const DEFAULT_SETTINGS = {
   shopSubtitle: 'ຮ້ານອັດກອບພຣະເຄື່ອງ & ວັດຖຸມຸງຄຸນ',
   shopPhone: '02023304555',
   shopAddress: 'ປາກເຊ, ແຂວງຈຳປາສັກ',
-  shopLogo: '',
+  shopLogo: '/logo.png',
   bankName: 'BCEL One (ທະນາຄານການຄ້າຕ່າງປະເທດລາວ)',
   bankAccountName: 'KOP PHRA KHRUANG POS CO., LTD',
   bankAccountNumber: '010-12-00-019284920',
@@ -137,10 +137,10 @@ const DEFAULT_SETTINGS = {
   lowStockThreshold: 5,
   taxRate: 0,
   logoSvg: '',
-  receiptLogoUrl: '',
+  receiptLogoUrl: '/logo.png',
   receiptHeaderNote: 'ຂອບພຣະຣັທເກຊ - ປາກເຊ',
   receiptFooterNote: 'ພຣະເຄື່ອງຄຸ້ມຄອງ, ໂຊກດີ ມີໄຊ!',
-  appTheme: 'gold', // gold, amber, emerald, blue, crimson
+  appTheme: 'blue', // gold, amber, emerald, blue, crimson
   showQrOnReceipt: true,
   masterAdminPin: '1111',
   exchangeRateThb: 750,
@@ -2072,11 +2072,16 @@ function seedStorage(key, value) {
   }
 }
 
-function setStorage(key, value, skipSync = false) {
+function setStorage(key, value, skipSync = false, keepTimestamp = false) {
 try {
 localStorage.setItem('amulet_pos_' + key, JSON.stringify(value));
-const now = Date.now();
-localStorage.setItem('amulet_pos_ts_' + key, String(now));
+let now = Date.now();
+if (keepTimestamp) {
+  const existingTs = localStorage.getItem('amulet_pos_ts_' + key);
+  now = existingTs ? Number(existingTs) : 0;
+} else {
+  localStorage.setItem('amulet_pos_ts_' + key, String(now));
+}
 
 window.dispatchEvent(new Event('db-updated'));
 
@@ -2378,7 +2383,7 @@ this.runDataRetention();
       migrated = true;
     }
     if (migrated) {
-      setStorage('settings', settings);
+      setStorage('settings', settings, true, true);
     }
 
     const labels = { ...DEFAULT_SETTINGS.labels, ...(settings.labels || {}) };
