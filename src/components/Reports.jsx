@@ -2078,7 +2078,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
         {/* 1. Product Sales */}
         <div style={{ position:'relative', overflow:'hidden', background:'rgba(52,152,219,0.07)', border:'1px solid rgba(52,152,219,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(52,152,219,0.12)' }}>
           <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#3498db', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
-          <span style={{ fontSize:'0.68rem', color:'rgba(52,152,219,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>🛍️ Product Sales</span>
+          <span style={{ fontSize:'0.68rem', color:'rgba(52,152,219,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>🛍️ ຍອດຂາຍສິນຄ້າ</span>
           <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#74B9FF', lineHeight:1.1, letterSpacing:'-0.5px' }}>
             {hasReportsPermission('reportsRevenue') ? Math.round(posProductsValue).toLocaleString() + " ₭" : "*** ₭"}
           </span>
@@ -2088,7 +2088,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
         {/* 2. Framing Sales */}
         <div style={{ position:'relative', overflow:'hidden', background:'rgba(243,156,18,0.07)', border:'1px solid rgba(243,156,18,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(243,156,18,0.12)' }}>
           <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#f39c12', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
-          <span style={{ fontSize:'0.68rem', color:'rgba(243,156,18,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>🛠️ Framing Sales</span>
+          <span style={{ fontSize:'0.68rem', color:'rgba(243,156,18,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>🛠️ ຍອດຂາຍອັດກອບ</span>
           <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#ffd740', lineHeight:1.1, letterSpacing:'-0.5px' }}>
             {hasReportsPermission('reportsRevenue') ? Math.round(posJobsValue).toLocaleString() + " ₭" : "*** ₭"}
           </span>
@@ -2098,7 +2098,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
         {/* 3. Total Bills */}
         <div style={{ position:'relative', overflow:'hidden', background:'rgba(108,92,231,0.07)', border:'1px solid rgba(108,92,231,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(108,92,231,0.12)' }}>
           <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#6C5CE7', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
-          <span style={{ fontSize:'0.68rem', color:'rgba(162,155,254,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>🛒 Total Bills</span>
+          <span style={{ fontSize:'0.68rem', color:'rgba(162,155,254,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>🛒 ໃບບິນທັງໝົດ</span>
           <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#A29BFE', lineHeight:1.1, letterSpacing:'-0.5px' }}>
             {rangeOrders.length} <span style={{ fontSize:'1rem' }}>ບິນ</span>
           </span>
@@ -2108,7 +2108,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
         {/* 4. Outstanding Debt */}
         <div style={{ position:'relative', overflow:'hidden', background:'rgba(231,76,60,0.07)', border:'1px solid rgba(231,76,60,0.25)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(231,76,60,0.15)' }}>
           <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#e74c3c', opacity:0.09, filter:'blur(18px)', pointerEvents:'none' }} />
-          <span style={{ fontSize:'0.68rem', color:'rgba(231,76,60,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>📒 Outstanding Debt</span>
+          <span style={{ fontSize:'0.68rem', color:'rgba(231,76,60,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>📒 ໜີ້ຄ້າງຊຳລະ</span>
           <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#FAB1A0', lineHeight:1.1, letterSpacing:'-0.5px' }}>
             {totalOutstandingDebt.toLocaleString()} ₭
           </span>
@@ -2118,7 +2118,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
         {/* 5. Total Revenue with payment breakdown */}
         <div style={{ position:'relative', overflow:'hidden', background:'rgba(212,175,55,0.07)', border:'1px solid rgba(212,175,55,0.25)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 24px rgba(212,175,55,0.15)' }}>
           <div style={{ position:'absolute', top:-14, right:-14, width:80, height:80, borderRadius:'50%', background:'#D4AF37', opacity:0.09, filter:'blur(22px)', pointerEvents:'none' }} />
-          <span style={{ fontSize:'0.68rem', color:'rgba(212,175,55,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>💵 Total Revenue</span>
+          <span style={{ fontSize:'0.68rem', color:'rgba(212,175,55,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>💵 ລາຍຮັບທັງໝົດ</span>
           <span style={{ fontSize:'1.5rem', fontWeight:800, color:'var(--gold-primary)', lineHeight:1.1, letterSpacing:'-0.5px' }}>
             {hasReportsPermission('reportsRevenue') ? totalSales.toLocaleString() + " ₭" : "*** ₭"}
           </span>
@@ -2153,7 +2153,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
         {/* 6. Total Expenses */}
         <div style={{ position:'relative', overflow:'hidden', background:'rgba(225,112,85,0.07)', border:'1px solid rgba(225,112,85,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(225,112,85,0.12)' }}>
           <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#E17055', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
-          <span style={{ fontSize:'0.68rem', color:'rgba(225,112,85,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>💸 Total Expenses</span>
+          <span style={{ fontSize:'0.68rem', color:'rgba(225,112,85,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>💸 ລາຍຈ່າຍທັງໝົດ</span>
           <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#FAB1A0', lineHeight:1.1, letterSpacing:'-0.5px' }}>
             {totalExpenses.toLocaleString()} ₭
           </span>
@@ -2163,7 +2163,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
         {/* 7. Est. Net Profit */}
         <div style={{ position:'relative', overflow:'hidden', background:'rgba(0,184,148,0.07)', border:'1px solid rgba(0,184,148,0.25)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 24px rgba(0,184,148,0.15)' }}>
           <div style={{ position:'absolute', top:-14, right:-14, width:80, height:80, borderRadius:'50%', background:'#00B894', opacity:0.09, filter:'blur(22px)', pointerEvents:'none' }} />
-          <span style={{ fontSize:'0.68rem', color:'rgba(0,184,148,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>📈 Est. Net Profit</span>
+          <span style={{ fontSize:'0.68rem', color:'rgba(0,184,148,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>📈 ກຳໄລສຸດທິ (ປະເມີນ)</span>
           <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#55EFC4', lineHeight:1.1, letterSpacing:'-0.5px' }}>
             {hasReportsPermission('reportsProfit') ? Math.round(netProfit).toLocaleString() + " ₭" : "*** ₭"}
           </span>
