@@ -4979,6 +4979,534 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       )}
 
       {/* Category Management Modal */}
+            {/* Add / Edit Product Modal */}
+      {showModal && (
+        <Portal>
+        <div className="modal-overlay">
+          <div className="modal-content modal-sm animate-fade-in">
+            <div className="modal-header">
+              <span className="modal-title">{editProduct ? '📝 ແກ້ໄຂລາຍລະອຽດສິນຄ້າ' : '➕ ເພີ່ມສິນຄ້າໃໝ່'}</span>
+              <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowModal(false)}>✕</button>
+            </div>
+            
+            <form onSubmit={handleSave}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label className="form-label">ຊື່ສິນຄ້າ (ພາສາລາວ/ໄທ)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    autoComplete="off"
+                  />
+                </div>
+
+                <div className="form-group" style={{ position: 'relative' }}>
+                  <label className="form-label">ໝວດໝູ່ (Category)</label>
+                  <div 
+                    onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      background: '#221e1a',
+                      color: 'white',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '6px',
+                      padding: '8px 12px',
+                      cursor: 'pointer',
+                      minHeight: '38px'
+                    }}
+                  >
+                    {(() => {
+                      const selectedCat = categories.find(c => c.id === formData.category || c.name === formData.category);
+                      if (selectedCat) {
+                        return (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {selectedCat.icon && (selectedCat.icon.startsWith('data:image/') || selectedCat.icon.startsWith('http')) ? (
+                              <img src={selectedCat.icon} style={{ width: '18px', height: '18px', objectFit: 'contain', borderRadius: '2px' }} alt="" />
+                            ) : (
+                              <span>{selectedCat.icon || '📦'}</span>
+                            )}
+                            <span>{selectedCat.name}</span>
+                          </div>
+                        );
+                      }
+                      return <span style={{ color: 'var(--text-secondary)' }}>ເລືອກໝວດໝູ່...</span>;
+                    })()}
+                    <span style={{ transition: 'transform 0.2s', transform: showCategoryDropdown ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
+                  </div>
+
+                  {showCategoryDropdown && (
+                    <div 
+                      style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        right: 0,
+                        background: '#1a1715',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '6px',
+                        marginTop: '4px',
+                        maxHeight: '200px',
+                        overflowY: 'auto',
+                        zIndex: 1000,
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
+                      }}
+                    >
+                      {categories.map(cat => (
+                        <div
+                          key={cat.id}
+                          onClick={() => {
+                            const isService = db.isServiceCategory(cat.id);
+                            setFormData({
+                              ...formData,
+                              category: cat.id,
+                              stock: isService ? '0' : (formData.stock || '10'),
+                              minStock: isService ? '0' : (formData.minStock || '2'),
+                              unit: isService ? 'ຄັ້ງ' : (formData.unit || 'ອັນ')
+                            });
+                            setShowCategoryDropdown(false);
+                          }}
+                          style={{
+                            padding: '8px 12px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            borderBottom: '1px solid rgba(255,255,255,0.03)',
+                            background: formData.category === cat.id ? 'rgba(212,175,55,0.1)' : 'transparent'
+                          }}
+                        >
+                          {cat.icon && (cat.icon.startsWith('data:image/') || cat.icon.startsWith('http')) ? (
+                            <img src={cat.icon} style={{ width: '18px', height: '18px', objectFit: 'contain', borderRadius: '2px' }} alt="" />
+                          ) : (
+                            <span>{cat.icon || '📦'}</span>
+                          )}
+                          <span>{cat.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
+                  <div className="form-group">
+                    <label className="form-label">ລາຄາຂາຍ (ກີບ)</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      required
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      autoComplete="off"
+                    />
+                  </div>
+{hasInventoryPermission('inventoryViewCost') && (
+                  <div className="form-group">
+                    <label className="form-label">ລາຄาຕົ້ນທຶນ (ກີບ)</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      required
+                      value={formData.cost}
+                      onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
+                      autoComplete="off"
+                      placeholder="0"
+                    />
+                  </div>
+)}
+                </div>
+
+                {!db.isServiceCategory(formData.category) ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div className="form-group">
+                      <label className="form-label">ຈຳນວນໃນສະຕັອກ</label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        required
+                        value={formData.stock}
+                        onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">ແຈ້ງເຕືອນເມື່ອຕໍ່າກວ່າ</label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        required
+                        value={formData.minStock}
+                        onChange={(e) => setFormData({ ...formData, minStock: e.target.value })}
+                        autoComplete="off"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ padding: '10px 12px', border: '1px dashed var(--gold-primary)', borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                    ຄໍາແນະນຳ: ໝວດບໍລິການຈະບໍ່ໃຊ້ສະຕັອກ. ລະບົບຈະບັງຄັບ stock/min stock ເປັນ 0 ໃຫ້ອັດຕະໂນມັດ.
+                  </div>
+                )}
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="form-group">
+                    <label className="form-label">ຫົວໜ່ວย</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={formData.unit}
+                      onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+                      placeholder="ອັນ, ເສັ້ນ, ອົງ"
+                      autoComplete="off"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">ລະຫັດບາໂຄ້ດ (Barcode)</label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        type="text"
+                        className="form-control"
+                        required
+                        value={formData.barcode}
+                        onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                          }
+                        }}
+                        style={{ flex: 1, margin: 0 }}
+                        placeholder="ລະຫັດບາໂຄ້ດ..."
+                        autoComplete="off"
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        style={{ padding: '0 12px', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '4px', margin: 0 }}
+                        onClick={() => {
+                          setScanHelperInput('');
+                          setShowScanHelperModal(true);
+                        }}
+                      >
+                        🔌 ສະແກນ
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px', borderTop: '1px solid var(--border-color)', paddingTop: '12px', marginBottom: '12px' }}>
+                  <div className="form-group" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', margin: 0 }}>
+                      <input
+                        type="checkbox"
+                        checked={!!formData.showOnline}
+                        onChange={(e) => setFormData({ ...formData, showOnline: e.target.checked })}
+                        style={{ width: '18px', height: '18px', cursor: 'pointer', margin: 0 }}
+                      />
+                      <span>ສະແດງໃນ Online Shop</span>
+                    </label>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">ລາຄາອອນລາຍ (ກີບ)</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={formData.priceOnline}
+                      onChange={(e) => setFormData({ ...formData, priceOnline: e.target.value })}
+                      placeholder={formData.price || '0'}
+                      autoComplete="off"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">ລາຍລະອຽດສິນຄ້າ (Product Description)</label>
+                  <textarea
+                    className="form-control"
+                    rows="3"
+                    style={{ background: '#1c1916', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
+                    placeholder="ປ້ອນລາຍລະອຽດສິນຄ້າ..."
+                    value={formData.description || ''}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">ຮູບພາບສິນຄ້າ (Product Photos - ອັບໂຫຼດໄດ້ຫຼາຍຮູບ)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="form-control"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files);
+                      if (files.length > 0) {
+                        const promises = files.map(file => {
+                          return compressImage(file).catch(err => {
+                            console.error('Compression failed, falling back:', err);
+                            return new Promise((resolve) => {
+                              const reader = new FileReader();
+                              reader.onloadend = () => resolve(reader.result);
+                              reader.readAsDataURL(file);
+                            });
+                          });
+                        });
+                        Promise.all(promises).then(base64s => {
+                          setFormData(prev => {
+                            const newImages = [...(prev.images || []), ...base64s];
+                            return {
+                              ...prev,
+                              images: newImages,
+                              image: prev.image || base64s[0]
+                            };
+                          });
+                        });
+                      }
+                    }}
+                  />
+                  {formData.images && formData.images.length > 0 && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(60px, 1fr))', gap: '10px', marginTop: '10px' }}>
+                      {formData.images.map((img, idx) => (
+                        <div key={idx} style={{ position: 'relative', width: '60px', height: '60px', borderRadius: '6px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+                          <img src={img} alt={`Preview ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedEditImageIdx(idx);
+                              setEditorImageToEdit(img);
+                              setShowImageEditorModal(true);
+                            }}
+                            style={{
+                              position: 'absolute',
+                              bottom: '2px',
+                              left: '2px',
+                              background: 'rgba(212,175,55,0.95)',
+                              color: 'black',
+                              border: 'none',
+                              borderRadius: '50%',
+                              width: '18px',
+                              height: '18px',
+                              fontSize: '10px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              zIndex: 5,
+                              boxShadow: '0 1px 4px rgba(0,0,0,0.5)'
+                            }}
+                            title="ແຕ່ງຮູບດ້ວຍ AI"
+                          >
+                            🎨
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updatedImages = formData.images.filter((_, i) => i !== idx);
+                              setFormData(prev => ({
+                                ...prev,
+                                images: updatedImages,
+                                image: updatedImages.length > 0 ? updatedImages[0] : ''
+                              }));
+                            }}
+                            style={{
+                              position: 'absolute',
+                              top: '2px',
+                              right: '2px',
+                              background: 'rgba(231,76,60,0.85)',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '50%',
+                              width: '16px',
+                              height: '16px',
+                              fontSize: '10px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              lineHeight: 1
+                            }}
+                          >
+                            ✕
+                          </button>
+                          {idx === 0 && (
+                            <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(212,175,55,0.85)', color: 'black', fontSize: '8px', textAlign: 'center', fontWeight: 'bold' }}>
+                              Primary
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => {
+                  setShowModal(false);
+                  setEditProduct(null);
+                  setFormData({
+                    name: '',
+                    category: '',
+                    price: '',
+                    cost: '',
+                    stock: '',
+                    minStock: '',
+                    unit: 'ອັນ',
+                    barcode: '',
+                    image: '',
+                    showOnline: true,
+                    priceOnline: '',
+                    priceVip: ''
+                  });
+                }}>ຍົກເລີກ</button>
+                <button type="submit" className="btn btn-primary">💾 ບັນທຶກສິນຄ້າ</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        </Portal>
+      )}
+
+      {/* Warehouse Restock Modal */}
+      {showWarehouseRestockModal && warehouseActiveProduct && (
+        <Portal>
+          <div className="modal-overlay">
+            <div className="modal-content modal-sm animate-fade-in" style={{ maxWidth: '400px' }}>
+              <div className="modal-header">
+                <span className="modal-title">📥 ຮັບສິນຄ້າເຂົ້າສາງໃຫຍ່</span>
+                <button 
+                  type="button" 
+                  className="btn-secondary" 
+                  style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} 
+                  onClick={() => {
+                    setShowWarehouseRestockModal(false);
+                    setWarehouseActiveProduct(null);
+                  }}
+                >✕</button>
+              </div>
+              <form onSubmit={handleWarehouseRestockSubmit}>
+                <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                    <div style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{warehouseActiveProduct.name}</div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                      ບາໂຄ້ດ: {warehouseActiveProduct.barcode || '-'} | ສະຕັອກສາງໃຫຍ່ປັດຈຸບັນ: {warehouseActiveProduct.warehouseStock || 0} {warehouseActiveProduct.unit}
+                    </div>
+                  </div>
+                  
+                  <div className="form-group">
+                    <label className="form-label">ຈຳນວນຮັບເຂົ້າສາງໃຫຍ່ ({warehouseActiveProduct.unit}) <span style={{ color: 'var(--alert-red)' }}>*</span></label>
+                    <input 
+                      type="number" 
+                      className="form-control" 
+                      required 
+                      min="0.001"
+                      step="any"
+                      placeholder="ປ້ອນຈຳນວນ..." 
+                      value={warehouseRestockQty} 
+                      onChange={(e) => setWarehouseRestockQty(e.target.value)} 
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label className="form-label">ໝາຍເຫດ (ເຊັ່ນ: ຊື່ຜູ້ສະໜອງ, ເລກທີບິນ...)</label>
+                    <textarea 
+                      className="form-control" 
+                      rows="2"
+                      placeholder="ປ້ອນໝາຍເຫດ..."
+                      value={warehouseRestockNotes} 
+                      onChange={(e) => setWarehouseRestockNotes(e.target.value)} 
+                    />
+                  </div>
+                </div>
+                <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '12px' }}>
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    onClick={() => {
+                      setShowWarehouseRestockModal(false);
+                      setWarehouseActiveProduct(null);
+                    }}
+                  >ຍົກເລີກ</button>
+                  <button type="submit" className="btn btn-primary">📥 ຢືນຢັນຮັບເຂົ້າ</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* Warehouse Transfer Modal */}
+      {showWarehouseTransferModal && warehouseActiveProduct && (
+        <Portal>
+          <div className="modal-overlay">
+            <div className="modal-content modal-sm animate-fade-in" style={{ maxWidth: '400px' }}>
+              <div className="modal-header">
+                <span className="modal-title">🚚 ໂອນຍ້າຍສິນຄ້າໄປໜ້າຮ້ານ</span>
+                <button 
+                  type="button" 
+                  className="btn-secondary" 
+                  style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} 
+                  onClick={() => {
+                    setShowWarehouseTransferModal(false);
+                    setWarehouseActiveProduct(null);
+                  }}
+                >✕</button>
+              </div>
+              <form onSubmit={handleWarehouseTransferSubmit}>
+                <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                    <div style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{warehouseActiveProduct.name}</div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <span>📦 ສະຕັອກໜ້າຮ້ານປັດຈຸບັນ: {warehouseActiveProduct.stock || 0} {warehouseActiveProduct.unit}</span>
+                      <span>🏠 ສະຕັອກສາງໃຫຍ່ປັດຈຸບັນ: {warehouseActiveProduct.warehouseStock || 0} {warehouseActiveProduct.unit}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="form-group">
+                    <label className="form-label">ຈຳນວນທີ່ຕ້ອງການໂອນຍ້າຍ ({warehouseActiveProduct.unit}) <span style={{ color: 'var(--alert-red)' }}>*</span></label>
+                    <input 
+                      type="number" 
+                      className="form-control" 
+                      required 
+                      min="0.001"
+                      step="any"
+                      placeholder="ປ້ອນຈຳນວນໂອນຍ້າຍ..." 
+                      value={warehouseTransferQty} 
+                      onChange={(e) => setWarehouseTransferQty(e.target.value)} 
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label className="form-label">ໝາຍເຫດ (ເຊັ່ນ: ໂອນໄປເພີ່ມໜ້າຮ້ານ...)</label>
+                    <textarea 
+                      className="form-control" 
+                      rows="2"
+                      placeholder="ປ້ອນໝາຍເຫດ..."
+                      value={warehouseTransferNotes} 
+                      onChange={(e) => setWarehouseTransferNotes(e.target.value)} 
+                    />
+                  </div>
+                </div>
+                <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '12px' }}>
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    onClick={() => {
+                      setShowWarehouseTransferModal(false);
+                      setWarehouseActiveProduct(null);
+                    }}
+                  >ຍົກເລີກ</button>
+                  <button type="submit" className="btn btn-primary">🚚 ຢືນຢັນການໂອນ</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </Portal>
+      )}
+
       {showCategoryModal && (
         <Portal>
         <div className="modal-overlay">
