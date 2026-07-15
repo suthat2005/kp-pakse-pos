@@ -318,16 +318,17 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
 
   // Load database items on start and when database events fire
   const loadData = () => {
-    const orders = db.getOrders();
-    const debts = db.getDebts();
-    const onlineOrders = typeof db.getOnlineOrders === 'function' ? db.getOnlineOrders() : [];
-    const jobs = db.getFramingJobs();
+    const orders = db.getOrders().filter(Boolean);
+    const debts = db.getDebts().filter(Boolean);
+    const onlineOrders = (typeof db.getOnlineOrders === 'function' ? db.getOnlineOrders() : []).filter(Boolean);
+    const jobs = db.getFramingJobs().filter(Boolean);
     
     const activeJobs = jobs.filter(j => {
+      if (!j) return false;
       if (j.status === 'picked_up') {
-        const inPOS = orders.some(o => (o.items || []).some(item => item.productId === j.id));
-        const inDebt = debts.some(d => (d.items || []).some(item => item.productId === j.id));
-        const inOnline = onlineOrders.some(o => (o.items || []).some(item => item.productId === j.id));
+        const inPOS = orders.some(o => (o.items || []).some(item => item && item.productId === j.id));
+        const inDebt = debts.some(d => (d.items || []).some(item => item && item.productId === j.id));
+        const inOnline = onlineOrders.some(o => (o.items || []).some(item => item && item.productId === j.id));
         return inPOS || inDebt || inOnline;
       }
       return true; // keep pending/ready jobs in queue
