@@ -4840,6 +4840,144 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         </div>
       )}
   
+      
+      {/* Warehouse Restock Modal */}
+      {showWarehouseRestockModal && warehouseActiveProduct && (
+        <Portal>
+          <div className="modal-overlay" style={{ zIndex: 1200 }}>
+            <div className="modal-content modal-sm glass-card animate-fade-in" style={{ maxWidth: '400px', padding: '24px' }}>
+              <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <span className="modal-title" style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#2ecc71' }}>📥 ຮັບສິນຄ້າເຂົ້າສາງໃຫຍ່</span>
+                <button 
+                  type="button" 
+                  className="btn-secondary" 
+                  style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} 
+                  onClick={() => {
+                    setShowWarehouseRestockModal(false);
+                    setWarehouseActiveProduct(null);
+                  }}
+                >✕</button>
+              </div>
+              <form onSubmit={handleWarehouseRestockSubmit}>
+                <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                    <div style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{warehouseActiveProduct.name}</div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                      ບາໂຄ້ດ: {warehouseActiveProduct.barcode || '-'} | ສະຕັອກສາງໃຫຍ່ປັດຈຸບັນ: {warehouseActiveProduct.warehouseStock || 0} {warehouseActiveProduct.unit}
+                    </div>
+                  </div>
+                  
+                  <div className="form-group">
+                    <label className="form-label" style={{ color: 'var(--text-secondary)' }}>ຈຳນວນຮັບເຂົ້າສາງໃຫຍ່ ({warehouseActiveProduct.unit}) <span style={{ color: 'var(--alert-red)' }}>*</span></label>
+                    <input 
+                      type="number" 
+                      className="form-control" 
+                      required 
+                      min="0.001"
+                      step="any"
+                      placeholder="ປ້ອນຈຳນວນ..." 
+                      value={warehouseRestockQty} 
+                      onChange={(e) => setWarehouseRestockQty(e.target.value)} 
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label className="form-label" style={{ color: 'var(--text-secondary)' }}>ໝາຍເຫດ (ເຊັ່ນ: ຊື່ຜູ້ສະໜອງ, ເລກທີບິນ...)</label>
+                    <textarea 
+                      className="form-control" 
+                      rows="2"
+                      placeholder="ປ້ອນໝາຍເຫດ..."
+                      value={warehouseRestockNotes} 
+                      onChange={(e) => setWarehouseRestockNotes(e.target.value)} 
+                    />
+                  </div>
+                </div>
+                <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '16px' }}>
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    onClick={() => {
+                      setShowWarehouseRestockModal(false);
+                      setWarehouseActiveProduct(null);
+                    }}
+                  >ຍົກເລີກ</button>
+                  <button type="submit" className="btn btn-primary" style={{ background: '#2ecc71', color: 'black', borderColor: '#2ecc71', fontWeight: 'bold' }}>📥 ຢືນຢັນຮັບເຂົ້າ</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {/* Warehouse Transfer Modal */}
+      {showWarehouseTransferModal && warehouseActiveProduct && (
+        <Portal>
+          <div className="modal-overlay" style={{ zIndex: 1200 }}>
+            <div className="modal-content modal-sm glass-card animate-fade-in" style={{ maxWidth: '400px', padding: '24px' }}>
+              <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <span className="modal-title" style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>🚚 ໂອນຍ້າຍສິນຄ້າໄປໜ້າຮ້ານ</span>
+                <button 
+                  type="button" 
+                  className="btn-secondary" 
+                  style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} 
+                  onClick={() => {
+                    setShowWarehouseTransferModal(false);
+                    setWarehouseActiveProduct(null);
+                  }}
+                >✕</button>
+              </div>
+              <form onSubmit={handleWarehouseTransferSubmit}>
+                <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                    <div style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{warehouseActiveProduct.name}</div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <span>📦 ສະຕັອກໜ້າຮ້ານປັດຈຸບັນ: {warehouseActiveProduct.stock || 0} {warehouseActiveProduct.unit}</span>
+                      <span>🏠 ສະຕັອກສາງໃຫຍ່ປັດຈຸບັນ: {warehouseActiveProduct.warehouseStock || 0} {warehouseActiveProduct.unit}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="form-group">
+                    <label className="form-label" style={{ color: 'var(--text-secondary)' }}>ຈຳນວນທີ່ຕ້ອງການໂອນຍ້າຍ ({warehouseActiveProduct.unit}) <span style={{ color: 'var(--alert-red)' }}>*</span></label>
+                    <input 
+                      type="number" 
+                      className="form-control" 
+                      required 
+                      min="0.001"
+                      step="any"
+                      placeholder="ປ້ອນຈຳນວນໂອນຍ້າຍ..." 
+                      value={warehouseTransferQty} 
+                      onChange={(e) => setWarehouseTransferQty(e.target.value)} 
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label className="form-label" style={{ color: 'var(--text-secondary)' }}>ໝາຍເຫດ (ເຊັ່ນ: ໂອນໄປເພີ່ມໜ້າຮ້ານ...)</label>
+                    <textarea 
+                      className="form-control" 
+                      rows="2"
+                      placeholder="ປ້ອນໝາຍເຫດ..."
+                      value={warehouseTransferNotes} 
+                      onChange={(e) => setWarehouseTransferNotes(e.target.value)} 
+                    />
+                  </div>
+                </div>
+                <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '16px' }}>
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    onClick={() => {
+                      setShowWarehouseTransferModal(false);
+                      setWarehouseActiveProduct(null);
+                    }}
+                  >ຍົກເລີກ</button>
+                  <button type="submit" className="btn btn-primary" style={{ fontWeight: 'bold' }}>🚚 ຢືນຢັນການໂອນ</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </Portal>
+      )}
+
       {/* Category Management Modal */}
       {showCategoryModal && (
         <Portal>
