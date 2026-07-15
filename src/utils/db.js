@@ -2476,6 +2476,66 @@ this.saveSettings(settings);
         }
       }
     }
+
+    // --- AUTOMATIC STOCK DEDUCTION / REFUND FROM SLOTS ---
+    try {
+      const products = this.getProducts();
+      const oldItemsCount = {};
+      const newItemsCount = {};
+
+      const countSlotItems = (slotsObj, countMap) => {
+        Object.values(slotsObj).forEach(slot => {
+          if (slot && slot.items && Array.isArray(slot.items)) {
+            slot.items.forEach(item => {
+              if (item && item.productId && item.qty) {
+                // Ignore job items (framing jobs) since they don't have stock
+                if (!item.productId.startsWith('JOB')) {
+                  countMap[item.productId] = (countMap[item.productId] || 0) + Number(item.qty);
+                }
+              }
+            });
+          }
+        });
+      };
+
+      countSlotItems(oldSlots, oldItemsCount);
+      countSlotItems(updatedSlots, newItemsCount);
+
+      let stockChanged = false;
+      const lowStockItemsList = [];
+      const allProductIds = new Set([...Object.keys(oldItemsCount), ...Object.keys(newItemsCount)]);
+
+      allProductIds.forEach(pId => {
+        const oldQty = oldItemsCount[pId] || 0;
+        const newQty = newItemsCount[pId] || 0;
+        const diff = newQty - oldQty;
+
+        if (diff !== 0) {
+          const prod = products.find(p => p.id === pId);
+          if (prod && !this.isServiceCategory(prod.category)) {
+            prod.stock = Math.max(0, prod.stock - diff);
+            stockChanged = true;
+            if (diff > 0 && prod.stock <= prod.minStock) {
+              lowStockItemsList.push(prod);
+            }
+          }
+        }
+      });
+
+      if (stockChanged) {
+        this.saveProducts(products);
+        if (lowStockItemsList.length > 0) {
+          let message = `⚠️ *ແຈ້ງເຕືອນສິນຄ້າໃກ້ໝົດສະຕັອກ (ຈາກການຈອງ/ບັດຄິວ)!*\n`;
+          lowStockItemsList.forEach(item => {
+            message += `• ${item.name} (ເຫຼືອ ${item.stock} ${item.unit || 'ອັນ'}, ເກນຕໍ່າສຸດ ${item.minStock} ${item.unit || 'ອັນ'})\n`;
+          });
+          this.sendNotification(message);
+        }
+      }
+    } catch (e) {
+      console.error('Error updating stock from slots:', e);
+    }
+
     setStorage('slots', updatedSlots);
   },
   renameSlot(slotId, newLabel, customerName = '', customerPhone = '', customerId = '', discountType = 'percent', discountPercent = 0, discountAmount = 0) {

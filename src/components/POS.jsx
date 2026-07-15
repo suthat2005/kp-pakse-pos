@@ -1835,6 +1835,7 @@ export default function POS({
       pointsEarned: Math.floor(finalLAKAmountToPay / 10000),
       redeemedPoints: redeemedPoints,
       redeemedDiscount: redeemedDiscount,
+      skipStockReduction: checkoutIsDepositMode,
       paymentMethod,
       cashReceived: paymentMethod === 'cash' 
         ? Number(cashReceived) 
@@ -2060,6 +2061,7 @@ export default function POS({
     db.addOrder({
       id: savedDebt.id,
       date: new Date().toISOString(),
+      skipStockReduction: true,
       items: adjustedCartItems,
       customerName: debtCustomerName,
       customerPhone: debtCustomerPhone,
