@@ -4980,21 +4980,12 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       });
 
       if (paymentStatus === 'paid' && prevPaymentStatus !== 'paid') {
-        const products = this.getProducts();
-        order.items.forEach(item => {
-          const prod = products.find(p => p.id === item.productId);
-          if (prod && !this.isServiceCategory(prod.category)) {
-            prod.stock = Math.max(0, prod.stock - item.qty);
-          }
-        });
-        this.saveProducts(products);
-        
         if (order.customerId) {
           this.updateCustomerSpend(order.customerId, order.total);
         }
       }
       
-      if (shippingStatus === 'cancelled' && prevShippingStatus !== 'cancelled' && order.paymentStatus === 'paid') {
+      if (shippingStatus === 'cancelled' && prevShippingStatus !== 'cancelled') {
         const products = this.getProducts();
         order.items.forEach(item => {
           const prod = products.find(p => p.id === item.productId);
