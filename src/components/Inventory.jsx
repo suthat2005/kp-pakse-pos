@@ -4978,6 +4978,350 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         </Portal>
       )}
 
+            {/* Barcode Canvas printing modal */}
+      {showBarcodeModal && (
+        <Portal>
+        <div className="modal-overlay">
+          <div className="modal-content modal-sm animate-fade-in">
+            <div className="modal-header">
+              <span className="modal-title">🏷️ ລະບົບສ້າງ & ປຣິນບາໂຄ້ດ</span>
+              <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowBarcodeModal(false)}>✕</button>
+            </div>
+            
+            <div className="modal-body" style={{ textAlign: 'center' }}>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+                {selectedBarcodeProd 
+                  ? `ສິນຄ້າ: ${selectedBarcodeProd.name}`
+                  : 'ປ້ອນລະຫັດເພື່ອສ້າງບາໂຄ້ດສະເພາະກິດ'}
+              </p>
+
+              <div className="form-group" style={{ textAlign: 'left', marginBottom: '12px' }}>
+                <label className="form-label" style={{ fontSize: '0.8rem' }}>ຄົ້ນຫາປະເພດບາໂຄ້ດ (Search Barcode Format)</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="🔍 ພິມເພື່ອຄົ້ນຫາປະເພດບາໂຄ້ດ..."
+                  value={barcodeFormatSearch}
+                  onChange={(e) => setBarcodeFormatSearch(e.target.value)}
+                  style={{ marginBottom: '8px' }}
+                />
+                <label className="form-label">ປະເພດບາໂຄ້ດ (Barcode Type / Format)</label>
+                <select
+                  className="form-control"
+                  value={barcodeFormat}
+                  onChange={(e) => handleBarcodeFormatChange(e.target.value)}
+                  style={{ width: '100%' }}
+                >
+                  {ALL_BARCODE_FORMATS.filter(f => 
+                    f.value.toLowerCase().includes(barcodeFormatSearch.toLowerCase()) || 
+                    f.label.toLowerCase().includes(barcodeFormatSearch.toLowerCase())
+                  ).map(f => (
+                    <option key={f.value} value={f.value}>{f.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {!selectedBarcodeProd && (
+                <div className="form-group" style={{ textAlign: 'left' }}>
+                  <label className="form-label">ລະຫັດບາໂຄ້ດ (ສະເພາະຕົວເລກ ແລະ ຕົວອັກສອນ A-Z)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={customBarcodeText}
+                    onChange={(e) => setCustomBarcodeText(e.target.value.replace(/[^A-Za-z0-9]/g, ''))}
+                  />
+                </div>
+              )}
+
+              <div className="form-group" style={{ textAlign: 'left', marginTop: '12px' }}>
+                <label className="form-label">ຈຳນວນສະຕິກເກີທີ່ຕ້ອງການປຣິນ (Print Quantity)</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <button
+                    type="button"
+                    className="cart-qty-btn"
+                    style={{ width: '36px', height: '36px', fontSize: '1.2rem', padding: 0 }}
+                    onClick={() => setBarcodePrintQty(Math.max(1, barcodePrintQty - 1))}
+                  >
+                    -
+                  </button>
+                  <input
+                    type="number"
+                    min="1"
+                    className="form-control"
+                    style={{ textAlign: 'center', flex: 1, fontFamily: 'monospace', fontSize: '1.1rem', margin: 0 }}
+                    value={barcodePrintQty}
+                    onChange={(e) => setBarcodePrintQty(Math.max(1, parseInt(e.target.value) || 1))}
+                  />
+                  <button
+                    type="button"
+                    className="cart-qty-btn"
+                    style={{ width: '36px', height: '36px', fontSize: '1.2rem', padding: 0 }}
+                    onClick={() => setBarcodePrintQty(barcodePrintQty + 1)}
+                  >
+                    +
+                  </button>
+                  {selectedBarcodeProd && (
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      style={{ height: '36px', fontSize: '0.8rem', padding: '0 12px' }}
+                      onClick={() => setBarcodePrintQty(Math.max(1, selectedBarcodeProd.stock))}
+                    >
+                      ເທົ່າສະຕັອກ ({selectedBarcodeProd.stock})
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Barcode Canvas */}
+              <div style={{ background: 'white', padding: '16px', borderRadius: '8px', display: 'inline-block', marginTop: '12px' }}>
+                <canvas
+                  ref={barcodeCanvasRef}
+                  width="300"
+                  height="120"
+                  style={{ display: 'block' }}
+                />
+              </div>
+
+              <div style={{ marginTop: '16px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                *ສາມາດນຳບາໂຄ້ດນີ້ໄປປຣິນຕິດກັບຖົງພຣະ ຫຼື ຂອບພຣະ ເພື່ອໃຊ້ເຄື່ອງສະແກນຍິງຂາຍໄດ້ທັນທີ
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setShowBarcodeModal(false)}>ປິດ</button>
+              <button className="btn btn-primary" onClick={handlePrintBarcode}>🖨️ ປຣິນສະຕິກເກີບາໂຄ້ດ</button>
+            </div>
+          </div>
+        </div>
+        </Portal>
+      )}
+
+      {/* Bulk Barcode Modal */}
+      {showBulkBarcodeModal && (
+        <Portal>
+        <div className="modal-overlay">
+          <div className="modal-content modal-sm animate-fade-in">
+            <div className="modal-header">
+              <span className="modal-title">🏷️ ປຣິນບາໂຄ້ດຫຼາຍລາຍການ (Bulk Printer)</span>
+              <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowBulkBarcodeModal(false)}>✕</button>
+            </div>
+            
+            <div className="modal-body">
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '12px' }}>
+                ເລືອກຈຳນວນປຣິນບາໂຄ້ດໃຫ້ແຕ່ລະສິນຄ້າ. ລະບົບຈະລວມເປັນໜ້າດຽວເພື່ອໃຫ້ປຣິນອອກເຄື່ອງສະຕິກເກີໄດ້ງ່າຍ.
+              </p>
+              <div className="form-group" style={{ textAlign: 'left', marginBottom: '12px' }}>
+                <label className="form-label" style={{ fontSize: '0.8rem' }}>ຄົ້ນຫາປະເພດບາໂຄ້ດ (Search Barcode Format)</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="🔍 ພິມເພື່ອຄົ້ນຫາປະເພດບາໂຄ້ດ..."
+                  value={bulkBarcodeFormatSearch}
+                  onChange={(e) => setBulkBarcodeFormatSearch(e.target.value)}
+                  style={{ marginBottom: '8px', padding: '6px 10px', height: '34px', fontSize: '0.85rem' }}
+                />
+                <label className="form-label" style={{ fontSize: '0.8rem' }}>ປະເພດບາໂຄ້ດ (Barcode Type / Format)</label>
+                <select
+                  className="form-control"
+                  value={barcodeFormat}
+                  onChange={(e) => handleBarcodeFormatChange(e.target.value)}
+                  style={{ width: '100%', padding: '6px 10px', height: '34px', fontSize: '0.85rem' }}
+                >
+                  {ALL_BARCODE_FORMATS.filter(f => 
+                    f.value.toLowerCase().includes(bulkBarcodeFormatSearch.toLowerCase()) || 
+                    f.label.toLowerCase().includes(bulkBarcodeFormatSearch.toLowerCase())
+                  ).map(f => (
+                    <option key={f.value} value={f.value}>{f.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Filters inside Modal */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', marginBottom: '10px' }}>
+                <input
+                  type="text"
+                  placeholder="🔍 ຄົ້ນຫາຊື່ ຫຼື ບາໂຄ້ດ..."
+                  className="form-control"
+                  value={bulkSearch}
+                  onChange={(e) => setBulkSearch(e.target.value)}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', marginBottom: '12px', paddingBottom: '6px' }}>
+                {[
+                  { id: 'all', name: 'ທັງໝົດ' },
+                  ...categories.filter(cat => cat.type !== 'service').map(cat => ({
+                    id: cat.id,
+                    name: cat.name
+                  }))
+                ].map(cat => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    className={`nav-tab ${bulkCatFilter === cat.id ? 'active' : ''}`}
+                    style={{ fontSize: '0.75rem', padding: '4px 10px', borderRadius: '15px' }}
+                    onClick={() => setBulkCatFilter(cat.id)}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
+
+              {/* Global Preset Buttons */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', gap: '10px' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                  onClick={() => {
+                    const updated = { ...bulkPrintQtys };
+                    products.filter(p => {
+                      const matchesCat = bulkCatFilter === 'all' || p.category === bulkCatFilter;
+                      const matchesSearch = p.name.toLowerCase().includes(bulkSearch.toLowerCase()) || p.barcode.includes(bulkSearch);
+                      return matchesCat && matchesSearch && !db.isServiceCategory(p.category);
+                    }).forEach(p => {
+                      updated[p.id] = Math.max(0, p.stock);
+                    });
+                    setBulkPrintQtys(updated);
+                  }}
+                >
+                  📋 ຕັ້ງທັງໝົດເທົ່າກັບສະຕັອກ
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ padding: '6px 12px', fontSize: '0.8rem', color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }}
+                  onClick={() => {
+                    const updated = { ...bulkPrintQtys };
+                    products.filter(p => {
+                      const matchesCat = bulkCatFilter === 'all' || p.category === bulkCatFilter;
+                      const matchesSearch = p.name.toLowerCase().includes(bulkSearch.toLowerCase()) || p.barcode.includes(bulkSearch);
+                      return matchesCat && matchesSearch;
+                    }).forEach(p => {
+                      updated[p.id] = 0;
+                    });
+                    setBulkPrintQtys(updated);
+                  }}
+                >
+                  🗑️ ລ້າງທັງໝົດ
+                </button>
+              </div>
+
+              {/* Products List */}
+              <div style={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '6px', background: 'rgba(0,0,0,0.2)' }}>
+                {products.filter(p => {
+                  const matchesCat = bulkCatFilter === 'all' || p.category === bulkCatFilter;
+                  const matchesSearch = p.name.toLowerCase().includes(bulkSearch.toLowerCase()) || p.barcode.includes(bulkSearch);
+                  return matchesCat && matchesSearch;
+                }).length === 0 ? (
+                  <div style={{ padding: '30px', color: 'var(--text-secondary)', textAlign: 'center' }}>
+                    ບໍ່ພົບສິນຄ້າທີ່ຄົ້ນຫາ
+                  </div>
+                ) : (
+                  products.filter(p => {
+                    const matchesCat = bulkCatFilter === 'all' || p.category === bulkCatFilter;
+                    const matchesSearch = p.name.toLowerCase().includes(bulkSearch.toLowerCase()) || p.barcode.includes(bulkSearch);
+                    return matchesCat && matchesSearch;
+                  }).map(p => {
+                    const qty = bulkPrintQtys[p.id] || 0;
+                    const isLow = !db.isServiceCategory(p.category) && p.stock <= p.minStock;
+                    return (
+                      <div
+                        key={p.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '8px',
+                          borderBottom: '1px solid rgba(255,255,255,0.05)',
+                          gap: '12px'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+                          <img
+                            src={p.image}
+                            alt={p.name}
+                            style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border-color)', flexShrink: 0 }}
+                          />
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {p.name}
+                            </div>
+                            <div style={{ fontSize: '0.75rem', color: isLow ? 'var(--alert-red)' : 'var(--text-secondary)' }}>
+                              ບາໂຄ້ດ: <span style={{ fontFamily: 'monospace' }}>{p.barcode}</span> | ສະຕັອກ: {db.isServiceCategory(p.category) ? 'ບໍລິການ' : `${p.stock} ${p.unit}`}
+                            </div>
+                          </div>
+                        </div>
+
+                        {!db.isServiceCategory(p.category) ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                            <button
+                              type="button"
+                              className="cart-qty-btn"
+                              style={{ width: '26px', height: '26px', padding: 0 }}
+                              onClick={() => setBulkPrintQtys({ ...bulkPrintQtys, [p.id]: Math.max(0, qty - 1) })}
+                            >
+                              -
+                            </button>
+                            <input
+                              type="number"
+                              min="0"
+                              value={qty}
+                              onChange={(e) => setBulkPrintQtys({ ...bulkPrintQtys, [p.id]: Math.max(0, parseInt(e.target.value) || 0) })}
+                              style={{
+                                width: '50px',
+                                background: '#000',
+                                border: '1.5px solid var(--border-color)',
+                                borderRadius: '4px',
+                                color: qty > 0 ? 'var(--gold-primary)' : '#999',
+                                textAlign: 'center',
+                                fontWeight: 'bold',
+                                padding: '2px',
+                                fontFamily: 'monospace'
+                              }}
+                            />
+                            <button
+                              type="button"
+                              className="cart-qty-btn"
+                              style={{ width: '26px', height: '26px', padding: 0 }}
+                              onClick={() => setBulkPrintQtys({ ...bulkPrintQtys, [p.id]: qty + 1 })}
+                            >
+                              +
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-secondary"
+                              style={{ padding: '2px 6px', fontSize: '0.75rem', marginLeft: '4px' }}
+                              onClick={() => setBulkPrintQtys({ ...bulkPrintQtys, [p.id]: Math.max(0, p.stock) })}
+                            >
+                              ເທົ່າສະຕັອກ
+                            </button>
+                          </div>
+                        ) : (
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', flexShrink: 0 }}>ບໍ່ມີສະຕັອກ</span>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Total labels selected counter */}
+              <div style={{ marginTop: '14px', textAlign: 'right', fontSize: '0.9rem', color: 'var(--gold-primary)', fontWeight: 'bold' }}>
+                ລວມສະຕິກເກີທີ່ຈະປຣິນທັງໝົດ: {Object.values(bulkPrintQtys).reduce((a, b) => a + b, 0)} ໃບ
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setShowBulkBarcodeModal(false)}>ຍົກເລີກ</button>
+              <button className="btn btn-primary" onClick={handlePrintBulkBarcodes}>🖨️ ປຣິນບາໂຄ້ດທັງໝົດທີ່ເລືອກ</button>
+            </div>
+          </div>
+        </div>
+        </Portal>
+      )}
+
       {/* Category Management Modal */}
             {/* Add / Edit Product Modal */}
       {showModal && (
