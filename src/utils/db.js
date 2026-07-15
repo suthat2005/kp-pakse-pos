@@ -2056,7 +2056,9 @@ function sha256(ascii) {
 function getStorage(key, defaultValue) {
 try {
 const val = localStorage.getItem('amulet_pos_' + key);
-return val ? JSON.parse(val) : defaultValue;
+if (!val) return defaultValue;
+const parsed = JSON.parse(val);
+return (parsed !== null && parsed !== undefined) ? parsed : defaultValue;
 } catch (e) {
 console.error(e);
 return defaultValue;
@@ -2091,7 +2093,8 @@ const syncKeys = [
   'shifts', 'leaves', 'payrolls', 'users', 'promotions', 'cameras', 'cctv_alerts',
   'online_orders', 'customers',
   'returns', 'suppliers', 'purchase_orders',
-  'deposits', 'deposit_transactions', 'payment_logs', 'payment_qr', 'payment_history', 'payment_audit', 'payment_events'
+  'deposits', 'deposit_transactions', 'payment_logs', 'payment_qr', 'payment_history', 'payment_audit', 'payment_events',
+  'consumables'
 ];
 if (!skipSync && syncKeys.includes(key)) {
 const baseUrl = window.location.protocol + '//' + window.location.host;
