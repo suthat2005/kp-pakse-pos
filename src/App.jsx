@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy, useRef } from 'react';
 import { db, DEFAULT_LABEL_KEYS } from './utils/db';
 import Portal from './components/Portal';
 
