@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../utils/db';
+import { createPermissionChecker } from '../utils/permissions';
 import Portal from './Portal';
 
 // Optimized Isolated Modal Component to prevent parent re-renders and keypress lag
@@ -408,12 +409,7 @@ function CustomerDetailModal({ show, customer, onClose }) {
 }
 
 export default function Customers({ activeUser, onUpdate }) {
-  const hasCustomersPermission = (subKey) => {
-    if (!activeUser) return false;
-    if (activeUser.role === 'owner') return true;
-    if (activeUser.permissions?.admin) return true;
-    return !!activeUser.permissions?.[subKey];
-  };
+  const hasCustomersPermission = createPermissionChecker(activeUser);
   const [customersList, setCustomersList] = useState([]);
   const [showCustModal, setShowCustModal] = useState(false);
   const [editingCust, setEditingCust] = useState(null);

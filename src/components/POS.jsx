@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { db } from '../utils/db';
+import { createPermissionChecker } from '../utils/permissions';
+import { useServerIp } from '../utils/useServerIp';
 import FramingBoard from './FramingBoard';
 import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
@@ -129,12 +131,7 @@ export default function POS({
   onTrackJob,
   isMobile
 }) {
-  const hasPosPermission = (subKey) => {
-    if (!activeUser) return false;
-    if (activeUser.role === 'owner') return true;
-    if (activeUser.permissions?.admin) return true;
-    return !!activeUser.permissions?.[subKey];
-  };
+  const hasPosPermission = createPermissionChecker(activeUser);
   const [localViewMode, setLocalViewMode] = useState(initialViewMode || (activeUser.role === 'technician' ? 'framing' : 'slots'));
   const viewMode = propViewMode !== undefined ? propViewMode : localViewMode;
   const setViewMode = propSetViewMode !== undefined ? propSetViewMode : setLocalViewMode;
@@ -340,18 +337,7 @@ export default function POS({
   const [showReceipt, setShowReceipt] = useState(false);
   const [currentReceipt, setCurrentReceipt] = useState(null);
   const [trackingQrUrl, setTrackingQrUrl] = useState('');
-  const [serverIp, setServerIp] = useState('127.0.0.1');
-
-  useEffect(() => {
-    fetch('/api/server-ip')
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.ip) {
-          setServerIp(data.ip);
-        }
-      })
-      .catch(err => console.error('Error fetching server IP:', err));
-  }, []);
+  const serverIp = useServerIp();
 
   const [showWorkOrder, setShowWorkOrder] = useState(false);
   const [currentWorkOrder, setCurrentWorkOrder] = useState(null);

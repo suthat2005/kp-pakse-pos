@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../utils/db';
+import { createPermissionChecker } from '../utils/permissions';
 import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
 import Portal from './Portal';
@@ -1038,12 +1039,7 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
 // 💎 RAW MATERIALS SUB-VIEW
 // ==========================================
 function RawMaterialsSubView({ isMobile, activeUser }) {
-  const hasInventoryPermission = (subKey) => {
-    if (!activeUser) return false;
-    if (activeUser.role === 'owner') return true;
-    if (activeUser.permissions?.admin) return true;
-    return !!activeUser.permissions?.[subKey];
-  };
+  const hasInventoryPermission = createPermissionChecker(activeUser);
   const [materials, setMaterials] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editMaterial, setEditMaterial] = useState(null);
@@ -1501,12 +1497,7 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
 // 🏭 BOM FORMULA & MANUFACTURING SUB-VIEW
 // ==========================================
 function ManufacturingSubView({ isMobile, activeUser }) {
-  const hasInventoryPermission = (subKey) => {
-    if (!activeUser) return false;
-    if (activeUser.role === 'owner') return true;
-    if (activeUser.permissions?.admin) return true;
-    return !!activeUser.permissions?.[subKey];
-  };
+  const hasInventoryPermission = createPermissionChecker(activeUser);
   const [products, setProducts] = useState([]);
   const [rawMaterials, setRawMaterials] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -2276,12 +2267,7 @@ const compressImage = (file, maxWidth = 800, maxHeight = 800, quality = 0.7) => 
 };
 
 function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
-  const hasInventoryPermission = (subKey) => {
-    if (!activeUser) return false;
-    if (activeUser.role === 'owner') return true;
-    if (activeUser.permissions?.admin) return true;
-    return !!activeUser.permissions?.[subKey];
-  };
+  const hasInventoryPermission = createPermissionChecker(activeUser);
 
   const [section, setSection] = useState('orders'); // 'orders' | 'suppliers'
   const [suppliers, setSuppliers] = useState([]);
@@ -2626,12 +2612,7 @@ function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
 }
 
 export default function Inventory({ activeUser, onUpdate, initialFilter, onFilterChange, isMobile }) {
-  const hasInventoryPermission = (subKey) => {
-    if (!activeUser) return false;
-    if (activeUser.role === 'owner') return true;
-    if (activeUser.permissions?.admin) return true;
-    return !!activeUser.permissions?.[subKey];
-  };
+  const hasInventoryPermission = createPermissionChecker(activeUser);
   const [activeSubTab, setActiveSubTab] = useState('products');
   const [products, setProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
