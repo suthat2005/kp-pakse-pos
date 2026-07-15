@@ -4620,6 +4620,9 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     let lateDeductions = 0;
     let totalHoursWorked = 0;
     let expectedShiftHoursTotal = 0;
+    let totalLateDays = 0;
+    let totalOtDays = 0;
+    let totalOtHours = 0;
     
     const shifts = this.getShifts();
     const userShifts = shifts.filter(s => s.userId === userId);
@@ -4651,6 +4654,10 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
 
       if (rec.status === 'present') {
         totalWorkDays++;
+        if (rec.otHours && rec.otHours > 0) {
+          totalOtDays++;
+          totalOtHours += rec.otHours;
+        }
         totalOtPay += (rec.otHours || 0) * otRate;
         
         // Late minute calculation
@@ -4664,6 +4671,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
             const diffMin = Math.floor((clockInTime - expectedTime) / (1000 * 60));
             if (diffMin > (rules.lateGraceMinutes ?? 5)) {
               lateDeductions += diffMin * (rules.lateDeductionRate ?? 1000);
+              totalLateDays++;
             }
           }
         }
@@ -4717,6 +4725,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     return {
       userId: user.id,
       userName: user.name,
+      userRole: user.role || '',
       month: month,
       baseWages: Math.round(baseWages),
       otPay: Math.round(totalOtPay),
@@ -4730,6 +4739,9 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
         totalAbsentDays,
         totalHoursWorked,
         expectedShiftHoursTotal,
+        totalLateDays,
+        totalOtDays,
+        totalOtHours,
         vacationDays,
         sickDays,
         personalDays,

@@ -181,7 +181,14 @@ export default function HRM({ activeUser, onUpdate }) {
           const paidRecords = db.getPayrolls();
           const paid = paidRecords.find(p => p.userId === u.id && p.month === selectedMonth);
           if (paid) {
-            list.push(paid);
+            list.push({
+              ...calculated,
+              ...paid,
+              details: {
+                ...calculated.details,
+                ...(paid.details || {})
+              }
+            });
           } else {
             list.push(calculated);
           }
@@ -1440,7 +1447,12 @@ export default function HRM({ activeUser, onUpdate }) {
                 <tbody>
                   {payrolls.map(p => (
                     <tr key={p.userId} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                      <td style={{ padding: '12px', fontWeight: 'bold' }}>{p.userName}</td>
+                      <td 
+                        style={{ padding: '12px', fontWeight: 'bold', color: 'var(--gold-primary)', cursor: 'pointer', textDecoration: 'underline' }}
+                        onClick={() => handlePrintPayslip(p)}
+                      >
+                        {p.userName}
+                      </td>
                       <td style={{ padding: '12px', textAlign: 'right' }}>{(p.baseWages).toLocaleString()} ₭</td>
                       <td style={{ padding: '12px', textAlign: 'right', color: 'var(--success-green)' }}>+{(p.otPay).toLocaleString()} ₭</td>
                       <td style={{ padding: '12px', textAlign: 'right', color: 'var(--alert-red)' }}>-{(p.lateDeduction).toLocaleString()} ₭</td>
@@ -2504,11 +2516,20 @@ export default function HRM({ activeUser, onUpdate }) {
                 <div>
                   <div><b>ຊື່ພະນັກງານ (Name):</b> {selectedPayslip.userName}</div>
                   <div><b>ລະຫັດພະນັກງານ (ID):</b> {selectedPayslip.userId}</div>
+                  <div><b>ຕຳແໜ່ງ (Position):</b> <span style={{ fontWeight: 'bold' }}>{{ owner: 'ເຈົ້າຂອງຮ້ານ (Owner)', cashier: 'ພະນັກງານຂາຍ (Cashier)', waiter: 'ພະນັກງານເສີບ (Waiter)', chef: 'ພໍ່ຄົວ (Chef)', staff: 'ພະນັກງານ (Staff)' }[selectedPayslip.userRole] || selectedPayslip.userRole || 'ພະນັກງານ'}</span></div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div><b>ວັນທີຈ່າຍ (Date paid):</b> {selectedPayslip.paidAt ? new Date(selectedPayslip.paidAt).toLocaleDateString('lo-LA') : 'ລໍຖ້າການຊຳລະ'}</div>
+                  <div><b>ວันທີຈ່າຍ (Date paid):</b> {selectedPayslip.paidAt ? new Date(selectedPayslip.paidAt).toLocaleDateString('lo-LA') : 'ລໍຖ້າການຊຳລະ'}</div>
                   <div><b>ວິທີການຊຳລະ (Method):</b> ໂອນຜ່ານ BCEL One</div>
                 </div>
+              </div>
+
+              {/* Detailed Work Statistics Summary */}
+              <div style={{ background: '#f5f6fa', padding: '10px 14px', borderRadius: '6px', border: '1px solid #dcdde1', marginBottom: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', fontSize: '11px', color: '#2f3640' }}>
+                <div>📅 <b>ວັນເຮັດວຽກ (Work Days):</b> {selectedPayslip.details?.totalWorkDays || 0} ວັນ</div>
+                <div>⏱️ <b>ມາສາຍ (Late):</b> {selectedPayslip.details?.totalLateDays || 0} ວັນ</div>
+                <div>❌ <b>ຂາດວຽກ (Absent):</b> {selectedPayslip.details?.totalAbsentDays || 0} ວັນ</div>
+                <div>🔥 <b>ໂອທີ (OT):</b> {selectedPayslip.details?.totalOtDays || 0} ວັນ ({selectedPayslip.details?.totalOtHours || 0} ຊົ່ວໂມງ)</div>
               </div>
 
               <table className="table-premium" style={{ width: '100%', marginTop: 0, marginBottom: '20px' }}>
