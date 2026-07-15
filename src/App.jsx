@@ -2390,19 +2390,6 @@ export default function App() {
           width: '100%'
         }}
       >
-        <style>{`
-          @keyframes toast-progress {
-            from { width: 100%; }
-            to { width: 0%; }
-          }
-          .animate-slide-in {
-            animation: slideInRight 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-          }
-          @keyframes slideInRight {
-            from { transform: translateX(120%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-          }
-        `}</style>
         {toasts.map(toast => (
           <div 
             key={toast.id}
