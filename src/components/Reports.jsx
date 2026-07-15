@@ -2123,11 +2123,23 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
               {(rangeCashUSD > 0 || settings.exchangeRateUsd) && <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນສົດ USD:</span><span style={{ color:'white' }}>${rangeCashUSD.toFixed(2)}</span></div>}
             </div>
             <div style={{ display:'flex', flexDirection:'column', gap:2 }}>
-              <span style={{ fontWeight:700, color:'#74B9FF' }}>📱 ລວມຮັບເງິນໂอน (Transfer):</span>
+              <span style={{ fontWeight:700, color:'#74B9FF' }}>📱 ລວມຮັບເງິນໂອນ (Transfer):</span>
               <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນໂອນ LAK:</span><span style={{ color:'white' }}>{rangeTransferLAK.toLocaleString()} ₭</span></div>
               {(rangeTransferTHB > 0 || settings.exchangeRateThb) && <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນໂອນ THB:</span><span style={{ color:'white' }}>{rangeTransferTHB.toLocaleString()} ฿</span></div>}
               {(rangeTransferUSD > 0 || settings.exchangeRateUsd) && <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນໂອນ USD:</span><span style={{ color:'white' }}>${rangeTransferUSD.toFixed(2)}</span></div>}
             </div>
+            {rangeDebtLAK > 0 && (
+              <div style={{ display:'flex', flexDirection:'column', gap:2, marginTop:4, borderTop:'1px dashed rgba(255,255,255,0.05)', paddingTop:4 }}>
+                <span style={{ fontWeight:700, color:'#E74C3C' }}>🔴 ຕິດໜີ້ (Debt):</span>
+                <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ຄ້າງຊຳລະ LAK:</span><span style={{ color:'white' }}>{rangeDebtLAK.toLocaleString()} ₭</span></div>
+              </div>
+            )}
+            {rangeTreatLAK > 0 && (
+              <div style={{ display:'flex', flexDirection:'column', gap:2, marginTop:4, borderTop:'1px dashed rgba(255,255,255,0.05)', paddingTop:4 }}>
+                <span style={{ fontWeight:700, color:'#2ECC71' }}>🟢 ລ້ຽງ/ກິນຟຣີ (Treat):</span>
+                <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ຍອດລ້ຽງ LAK:</span><span style={{ color:'white' }}>{rangeTreatLAK.toLocaleString()} ₭</span></div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -2954,7 +2966,6 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
                   )}
                 </div>
 
-                {/* Transfer portion */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                   <span style={{ fontWeight: 'bold', color: '#3498db' }}>📱 ລວມຮັບເງິນໂອນ (Transfer):</span>
                   <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
@@ -2974,6 +2985,24 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
                     </div>
                   )}
                 </div>
+                {ovDebtLAK > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '4px', borderTop: '1px dashed rgba(255,255,255,0.05)', paddingTop: '4px' }}>
+                    <span style={{ fontWeight: 'bold', color: '#E74C3C' }}>🔴 ຕິດໜີ້ (Debt):</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                      <span>• ຄ້າງຊຳລະ LAK:</span>
+                      <span style={{ color: 'white' }}>{ovDebtLAK.toLocaleString()} ₭</span>
+                    </div>
+                  </div>
+                )}
+                {ovTreatLAK > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '4px', borderTop: '1px dashed rgba(255,255,255,0.05)', paddingTop: '4px' }}>
+                    <span style={{ fontWeight: 'bold', color: '#2ECC71' }}>🟢 ລ້ຽງ/ກິນຟຣີ (Treat):</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
+                      <span>• ຍອດລ້ຽງ LAK:</span>
+                      <span style={{ color: 'white' }}>{ovTreatLAK.toLocaleString()} ₭</span>
+                    </div>
+                  </div>
+                )}
 
               </div>
             </div>
