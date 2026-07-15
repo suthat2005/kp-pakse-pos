@@ -2094,7 +2094,7 @@ const syncKeys = [
   'online_orders', 'customers',
   'returns', 'suppliers', 'purchase_orders',
   'deposits', 'deposit_transactions', 'payment_logs', 'payment_qr', 'payment_history', 'payment_audit', 'payment_events',
-  'consumables'
+  'consumables', 'consumable_categories'
 ];
 if (!skipSync && syncKeys.includes(key)) {
 const baseUrl = window.location.protocol + '//' + window.location.host;
@@ -5425,5 +5425,50 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     const list = this.getConsumables();
     const filtered = list.filter(c => c.id !== id);
     this.saveConsumables(filtered);
+  },
+
+  // ==========================================
+  // CONSUMABLE CATEGORIES
+  // ==========================================
+  getConsumableCategories() {
+    this.init();
+    const stored = getStorage('consumable_categories', null);
+    if (stored && Array.isArray(stored) && stored.length > 0) return stored;
+    // Default categories
+    return [
+      { id: 'packaging', name: 'ອຸປະກອນແພັກເຄື່ອງ', icon: '📦' },
+      { id: 'cleaning',  name: 'ອຸປະກອນທຳຄວາມສະອາດ', icon: '🧼' },
+      { id: 'office',    name: 'ເຄື່ອງຂຽນ & ສຳນັກງານ', icon: '📝' },
+      { id: 'other',     name: 'ອື່ນໆ', icon: '📁' }
+    ];
+  },
+  saveConsumableCategories(categories) {
+    setStorage('consumable_categories', categories);
+  },
+  addConsumableCategory(catData) {
+    const list = this.getConsumableCategories();
+    const newCat = {
+      id: 'CAT-' + Date.now(),
+      name: catData.name,
+      icon: catData.icon || '📦'
+    };
+    list.push(newCat);
+    this.saveConsumableCategories(list);
+    return newCat;
+  },
+  updateConsumableCategory(id, catData) {
+    const list = this.getConsumableCategories();
+    const idx = list.findIndex(c => c.id === id);
+    if (idx !== -1) {
+      list[idx] = { ...list[idx], name: catData.name, icon: catData.icon || list[idx].icon };
+      this.saveConsumableCategories(list);
+      return list[idx];
+    }
+    return null;
+  },
+  deleteConsumableCategory(id) {
+    const list = this.getConsumableCategories();
+    const filtered = list.filter(c => c.id !== id);
+    this.saveConsumableCategories(filtered);
   }
 };
