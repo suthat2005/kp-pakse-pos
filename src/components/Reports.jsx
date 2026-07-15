@@ -834,6 +834,9 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
   let rangeTransferTHB = 0;
   let rangeTransferUSD = 0;
   
+  let rangeDebtLAK = 0;
+  let rangeTreatLAK = 0;
+  
   rangePayments.forEach(p => {
     const amt = p.amount_paid;
     const currency = p.payCurrency || 'LAK';
@@ -868,6 +871,10 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
       } else if (currency === 'USD') {
         rangeCashUSD += (p.currencyCashReceived || 0) - (p.currencyChange || 0);
       }
+    } else if (p.payment_method === 'Debt') {
+      if (currency === 'LAK') rangeDebtLAK += amt;
+    } else if (p.payment_method === 'Treat') {
+      if (currency === 'LAK') rangeTreatLAK += amt;
     }
   });
   
