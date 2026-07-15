@@ -6,27 +6,27 @@ import Portal from './Portal';
 import AmuletImageEditor from './AmuletImageEditor';
 
 const ALL_BARCODE_FORMATS = [
-  { value: 'QRCODE', label: 'QR Code (àºªàº³àº¥àº±àºšàºšàº²à»‚àº„à»‰àº”àºªàº±à»‰àº™/2D)' },
-  { value: 'CODE128', label: 'Code 128 (à»àº™àº°àº™àº³ / Auto Alphanumeric)' },
-  { value: 'CODE128A', label: 'Code 128 A (àº•àº»àº§àºžàº´àº¡à»ƒàº«àºà»ˆ & àº„àº§àºšàº„àº¸àº¡)' },
-  { value: 'CODE128B', label: 'Code 128 B (àº•àº»àº§àºžàº´àº¡à»ƒàº«àºà»ˆ & àº™à»‰àº­àº)' },
-  { value: 'CODE128C', label: 'Code 128 C (àº•àº»àº§à»€àº¥àºà»€àº—àº»à»ˆàº²àº™àº±à»‰àº™)' },
-  { value: 'CODE39', label: 'Code 39 (àº•àº»àº§à»€àº¥àº & àº•àº»àº§àº­àº±àºàºªàº­àº™àº„àº¥àº²àºªàºªàº´àº)' },
-  { value: 'EAN13', label: 'EAN-13 (àº¡àº²àº”àº•àº°àº–àº²àº™àºªàº²àºàº»àº™ 13 àº«àº¼àº±àº)' },
-  { value: 'EAN8', label: 'EAN-8 (àº¡àº²àº”àº•àº°àº–àº²àº™àºªàº±à»‰àº™ 8 àº«àº¼àº±àº)' },
-  { value: 'EAN5', label: 'EAN-5 (à»€àºžàºµà»ˆàº¡à»€àº•àºµàº¡àº›àº¶à»‰àº¡ 5 àº«àº¼àº±àº)' },
-  { value: 'EAN2', label: 'EAN-2 (à»€àºžàºµà»ˆàº¡à»€àº•àºµàº¡àº§àº²àº¥àº°àºªàº²àº™ 2 àº«àº¼àº±àº)' },
-  { value: 'UPC', label: 'UPC-A (àº¡àº²àº”àº•àº°àº–àº²àº™àº­àº²à»€àº¡àº¥àº´àºàº² 12 àº«àº¼àº±àº)' },
-  { value: 'UPCE', label: 'UPC-E (àº¡àº²àº”àº•àº°àº–àº²àº™àº­àº²à»€àº¡àº¥àº´àºàº²àºªàº±à»‰àº™ 8 àº«àº¼àº±àº)' },
-  { value: 'ITF', label: 'ITF / Interleaved 2 of 5 (àº•àº»àº§à»€àº¥àºàº„àº¹à»ˆ)' },
-  { value: 'ITF14', label: 'ITF-14 (àº‚àº»àº™àºªàº»à»ˆàº‡/àºªàº²àº‡àºªàº´àº™àº„à»‰àº² 14 àº«àº¼àº±àº)' },
-  { value: 'MSI', label: 'MSI Plessey (àº•àº»àº§à»€àº¥àº)' },
-  { value: 'MSI10', label: 'MSI Mod 10 (àº•àº»àº§à»€àº¥àº)' },
-  { value: 'MSI11', label: 'MSI Mod 11 (àº•àº»àº§à»€àº¥àº)' },
-  { value: 'MSI1010', label: 'MSI Mod 1010 (àº•àº»àº§à»€àº¥àº)' },
-  { value: 'MSI1110', label: 'MSI Mod 1110 (àº•àº»àº§à»€àº¥àº)' },
-  { value: 'pharmacode', label: 'Pharmacode (àº¥àº°àº«àº±àº”àº¢àº²/àºàº²àº™à»àºžàº”)' },
-  { value: 'codabar', label: 'Codabar (àº•àº»àº§à»€àº¥àº/àº­àº±àºàºªàº­àº™àºžàº´à»€àºªàº”)' }
+  { value: 'QRCODE', label: 'QR Code (ສຳລັບບາໂຄ້ດສັ້ນ/2D)' },
+  { value: 'CODE128', label: 'Code 128 (ແນະນຳ / Auto Alphanumeric)' },
+  { value: 'CODE128A', label: 'Code 128 A (ຕົວພິມໃຫຍ່ & ຄວບຄຸມ)' },
+  { value: 'CODE128B', label: 'Code 128 B (ຕົວພິມໃຫຍ່ & ນ້ອຍ)' },
+  { value: 'CODE128C', label: 'Code 128 C (ຕົວເລກເທົ່ານັ້ນ)' },
+  { value: 'CODE39', label: 'Code 39 (ຕົວເລກ & ຕົວອັກສອນຄລາສສິກ)' },
+  { value: 'EAN13', label: 'EAN-13 (ມາດຕະຖານສາກົນ 13 ຫຼັກ)' },
+  { value: 'EAN8', label: 'EAN-8 (ມາດຕະຖານສັ້ນ 8 ຫຼັກ)' },
+  { value: 'EAN5', label: 'EAN-5 (ເພີ່ມເຕີມປຶ້ມ 5 ຫຼັກ)' },
+  { value: 'EAN2', label: 'EAN-2 (ເພີ່ມເຕີມວາລະສານ 2 ຫຼັກ)' },
+  { value: 'UPC', label: 'UPC-A (ມາດຕະຖານອາເມລິກາ 12 ຫຼັກ)' },
+  { value: 'UPCE', label: 'UPC-E (ມາດຕະຖານອາເມລິກາສັ້ນ 8 ຫຼັກ)' },
+  { value: 'ITF', label: 'ITF / Interleaved 2 of 5 (ຕົວເລກຄູ່)' },
+  { value: 'ITF14', label: 'ITF-14 (ຂົນສົ່ງ/ສາງສິນຄ້າ 14 ຫຼັກ)' },
+  { value: 'MSI', label: 'MSI Plessey (ຕົວເລກ)' },
+  { value: 'MSI10', label: 'MSI Mod 10 (ຕົວເລກ)' },
+  { value: 'MSI11', label: 'MSI Mod 11 (ຕົວເລກ)' },
+  { value: 'MSI1010', label: 'MSI Mod 1010 (ຕົວເລກ)' },
+  { value: 'MSI1110', label: 'MSI Mod 1110 (ຕົວເລກ)' },
+  { value: 'pharmacode', label: 'Pharmacode (ລະຫັດຢາ/ການແພດ)' },
+  { value: 'codabar', label: 'Codabar (ຕົວເລກ/ອັກສອນພິເສດ)' }
 ];
 
 const parseSizeToPx = (sizeStr, defaultVal = 100) => {
@@ -107,7 +107,7 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
     ctx.fillStyle = '#FF0000';
     ctx.font = '10px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('âŒ àº‚à»à»‰àº¡àº¹àº™àºšà»à»ˆàº–àº·àºàº•à»‰àº­àº‡àºªàº³àº¥àº±àºš ' + format, canvas.width / 2, canvas.height / 2 - 10);
+    ctx.fillText('❌ ຂໍ້ມູນບໍ່ຖືກຕ້ອງສຳລັບ ' + format, canvas.width / 2, canvas.height / 2 - 10);
     ctx.fillText('(' + text + ')', canvas.width / 2, canvas.height / 2 + 10);
     return canvas.toDataURL();
   }
@@ -115,13 +115,13 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
   const handleDisburse = (e) => {
     e.preventDefault();
     const qtyVal = parseFloat(disburseForm.qty);
-    if (!qtyVal || qtyVal <= 0) return alert('àºàº°àº¥àº¸àº™àº²àº›à»‰àº­àº™àºˆàº³àº™àº§àº™à»€àºšàºµàºàº­àº­àº');
+    if (!qtyVal || qtyVal <= 0) return alert('ກະລຸນາປ້ອນຈຳນວນເບີກອອກ');
     if (qtyVal > (activeItem.stock || 0)) {
-      if (!window.confirm('âš ï¸ àºˆàº³àº™àº§àº™à»€àºšàºµàºàº­àº­àºàº«àº¼àº²àºàºàº§à»ˆàº²àº„àº»àº‡à»€àº«àº¼àº·àº­à»ƒàº™àºªàº²àº‡. àº•à»‰àº­àº‡àºàº²àº™àº”àº³à»€àº™àºµàº™àºàº²àº™àº•à»à»ˆàºšà»à»ˆ?')) return;
+      if (!window.confirm('⚠️ ຈຳນວນເບີກອອກຫຼາຍກວ່າຄົງເຫຼືອໃນສາງ. ຕ້ອງການດຳເນີນການຕໍ່ບໍ່?')) return;
     }
     
     db.disburseConsumable(activeItem.id, qtyVal, disburseForm.notes);
-    alert('âœ“ à»€àºšàºµàºàº­àº­àºàº­àº¸àº›àº°àºàº­àº™àºªàº³à»€àº¥àº±àº”!');
+    alert('✓ ເບີກອອກອຸປະກອນສຳເລັດ!');
     setDisburseForm({ qty: '', notes: '' });
     setShowDisburseModal(false);
     setActiveItem(null);
@@ -147,7 +147,7 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
   
   const groupedExpenses = {};
   monthExpenses.forEach(ex => {
-    const cat = ex.categoryName || ex.category || 'àº­àº·à»ˆàº™à»†';
+    const cat = ex.categoryName || ex.category || 'ອື່ນໆ';
     if (!groupedExpenses[cat]) {
       groupedExpenses[cat] = { name: cat, total: 0, count: 0 };
     }
@@ -159,16 +159,16 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-        <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.1rem', margin: 0 }}>ðŸ”§ àºˆàº±àº”àºàº²àº™àºªàº²àº‡àº­àº¸àº›àº°àºàº­àº™àºªàº´à»‰àº™à»€àº›àº·àº­àº‡ (Consumables Stock)</h3>
+        <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.1rem', margin: 0 }}>🔧 ຈັດການສາງອຸປະກອນສິ້ນເປືອງ (Consumables Stock)</h3>
         <div style={{ display: 'flex', gap: '10px' }}>
           <button type="button" className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', padding: '6px 12px' }} onClick={() => setShowReportModal(true)}>
-            ðŸ“Š àº¥àº²àºàº‡àº²àº™àº¥àº²àºàºˆà»ˆàº²àºàº›àº°àºˆàº³à»€àº”àº·àº­àº™
+            📊 ລາຍງານລາຍຈ່າຍປະຈຳເດືອນ
           </button>
           <button type="button" className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', padding: '6px 12px' }} onClick={() => setShowHistoryModal(true)}>
-            ðŸ“‹ àº›àº°àº«àº§àº±àº”àº®àº±àºš-à»€àºšàºµàº
+            📋 ປະຫວັດຮັບ-ເບີກ
           </button>
           <button type="button" className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', padding: '6px 12px', background: 'var(--gold-primary)', color: 'black', borderColor: 'var(--gold-primary)' }} onClick={() => setShowAddModal(true)}>
-            âž• à»€àºžàºµà»ˆàº¡àº¥àº²àºàºàº²àº™àº­àº¸àº›àº°àºàº­àº™
+            ➕ ເພີ່ມລາຍການອຸປະກອນ
           </button>
         </div>
       </div>
@@ -178,19 +178,19 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
           <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
             <thead>
               <tr>
-                <th style={{ textAlign: 'left', padding: '12px' }}>àº¥àº²àºàºàº²àº™àº­àº¸àº›àº°àºàº­àº™</th>
-                <th style={{ textAlign: 'right', padding: '12px' }}>àº•àº»à»‰àº™àº—àº¶àº™/à»œà»ˆàº§àº</th>
-                <th style={{ textAlign: 'center', padding: '12px' }}>àºàº­àº”àº„àº»àº‡à»€àº«àº¼àº·àº­</th>
-                <th style={{ textAlign: 'center', padding: '12px' }}>àº‚àº±à»‰àº™àº•à»ˆàº³</th>
-                <th style={{ textAlign: 'right', padding: '12px' }}>àº¡àº¹àº™àº„à»ˆàº²àºªàº²àº‡</th>
-                <th style={{ textAlign: 'center', padding: '12px' }}>àº—àº¸àº¥àº°àºàº³àºªàº²àº‡</th>
+                <th style={{ textAlign: 'left', padding: '12px' }}>ລາຍການອຸປະກອນ</th>
+                <th style={{ textAlign: 'right', padding: '12px' }}>ຕົ້ນທຶນ/ໜ່ວຍ</th>
+                <th style={{ textAlign: 'center', padding: '12px' }}>ຍອດຄົງເຫຼືອ</th>
+                <th style={{ textAlign: 'center', padding: '12px' }}>ຂັ້ນຕ່ຳ</th>
+                <th style={{ textAlign: 'right', padding: '12px' }}>ມູນຄ່າສາງ</th>
+                <th style={{ textAlign: 'center', padding: '12px' }}>ທຸລະກຳສາງ</th>
               </tr>
             </thead>
             <tbody>
               {consumables.length === 0 ? (
                 <tr>
                   <td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-secondary)' }}>
-                    àºšà»à»ˆàº¡àºµàº¥àº²àºàºàº²àº™àº­àº¸àº›àº°àºàº­àº™àºªàº´à»‰àº™à»€àº›àº·àº­àº‡
+                    ບໍ່ມີລາຍການອຸປະກອນສິ້ນເປືອງ
                   </td>
                 </tr>
               ) : consumables.map(item => {
@@ -200,25 +200,25 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
                   <tr key={item.id} style={{ borderBottom: '1px solid var(--border-color)', background: isLow ? 'rgba(231,76,60,0.04)' : 'none' }}>
                     <td style={{ padding: '12px' }}>
                       <div style={{ fontWeight: 'bold' }}>{item.name}</div>
-                      {isLow && <span style={{ fontSize: '0.65rem', color: '#e74c3c', background: 'rgba(231,76,60,0.1)', padding: '2px 6px', borderRadius: '4px', marginTop: '4px', display: 'inline-block' }}>âš ï¸ à»ƒàºà»‰àºˆàº°à»àº»àº”àºªàº²àº‡</span>}
+                      {isLow && <span style={{ fontSize: '0.65rem', color: '#e74c3c', background: 'rgba(231,76,60,0.1)', padding: '2px 6px', borderRadius: '4px', marginTop: '4px', display: 'inline-block' }}>⚠️ ໃກ້ຈະໝົດສາງ</span>}
                     </td>
-                    <td style={{ padding: '12px', textAlign: 'right' }}>{(item.costPerUnit || 0).toLocaleString()} â‚­</td>
+                    <td style={{ padding: '12px', textAlign: 'right' }}>{(item.costPerUnit || 0).toLocaleString()} ₭</td>
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: isLow ? '#e74c3c' : 'white' }}>
-                      {(item.stock || 0).toLocaleString()} {item.unit || 'àº­àº±àº™'}
+                      {(item.stock || 0).toLocaleString()} {item.unit || 'ອັນ'}
                     </td>
                     <td style={{ padding: '12px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                      {(item.minStock || 0).toLocaleString()} {item.unit || 'àº­àº±àº™'}
+                      {(item.minStock || 0).toLocaleString()} {item.unit || 'ອັນ'}
                     </td>
                     <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
-                      {totalVal.toLocaleString()} â‚­
+                      {totalVal.toLocaleString()} ₭
                     </td>
                     <td style={{ padding: '12px', textAlign: 'center' }}>
                       <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
                         <button type="button" className="btn btn-secondary" style={{ padding: '3px 8px', fontSize: '0.75rem', borderColor: '#2ecc71', color: '#2ecc71', background: 'rgba(46,204,113,0.05)' }} onClick={() => { setActiveItem(item); setShowRestockModal(true); }}>
-                          ðŸ“¥ àº®àº±àºšà»€àº‚àº»à»‰àº²
+                          📥 ຮັບເຂົ້າ
                         </button>
                         <button type="button" className="btn btn-secondary" style={{ padding: '3px 8px', fontSize: '0.75rem', borderColor: '#e74c3c', color: '#e74c3c', background: 'rgba(231,76,60,0.05)' }} onClick={() => { setActiveItem(item); setShowDisburseModal(true); }}>
-                          ðŸ“¤ à»€àºšàºµàºàº­àº­àº
+                          📤 ເບີກອອກ
                         </button>
                       </div>
                     </td>
@@ -235,37 +235,37 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
           <div className="modal-overlay" style={{ zIndex: 1200 }}>
             <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
               <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>âž• à»€àºžàºµà»ˆàº¡àº¥àº²àºàºàº²àº™àº­àº¸àº›àº°àºàº­àº™àºªàº´à»‰àº™à»€àº›àº·àº­àº‡</h3>
-                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowAddModal(false)}>âœ•</button>
+                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>➕ ເພີ່ມລາຍການອຸປະກອນສິ້ນເປືອງ</h3>
+                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowAddModal(false)}>✕</button>
               </div>
               <form onSubmit={handleAddConsumable} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div>
-                  <label className="form-label">àºŠàº·à»ˆàº­àº¸àº›àº°àºàº­àº™ *</label>
-                  <input type="text" className="form-control" placeholder="àº•àº»àº§àº¢à»ˆàº²àº‡: à»€àºˆà»‰àºàº«à»‰àº­àº‡àº™à»‰àº³, àºªàº°àºšàº¹, àºªàº°àºàº±àº­àº”à»€àº—àºš..." value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })} required />
+                  <label className="form-label">ຊື່ອຸປະກອນ *</label>
+                  <input type="text" className="form-control" placeholder="ຕົວຢ່າງ: ເຈ້ຍຫ້ອງນ້ຳ, ສະບູ, ສະກັອດເທບ..." value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })} required />
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                   <div>
-                    <label className="form-label">àº•àº»à»‰àº™àº—àº¶àº™àº•à»à»ˆà»œà»ˆàº§àº (LAK)</label>
+                    <label className="form-label">ຕົ້ນທຶນຕໍ່ໜ່ວຍ (LAK)</label>
                     <input type="number" className="form-control" placeholder="0" value={addForm.costPerUnit} onChange={(e) => setAddForm({ ...addForm, costPerUnit: e.target.value })} />
                   </div>
                   <div>
-                    <label className="form-label">àº«àº»àº§à»œà»ˆàº§àº (Unit)</label>
-                    <input type="text" className="form-control" placeholder="àº­àº±àº™, àº¡à»‰àº§àº™, à»àºàº±àº”..." value={addForm.unit} onChange={(e) => setAddForm({ ...addForm, unit: e.target.value })} />
+                    <label className="form-label">ຫົວໜ່ວຍ (Unit)</label>
+                    <input type="text" className="form-control" placeholder="ອັນ, ມ້ວນ, ແກັດ..." value={addForm.unit} onChange={(e) => setAddForm({ ...addForm, unit: e.target.value })} />
                   </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                   <div>
-                    <label className="form-label">àºàº­àº”à»€àº¥àºµà»ˆàº¡àº•àº»à»‰àº™</label>
+                    <label className="form-label">ຍອດເລີ່ມຕົ້ນ</label>
                     <input type="number" className="form-control" placeholder="0" value={addForm.stock} onChange={(e) => setAddForm({ ...addForm, stock: e.target.value })} />
                   </div>
                   <div>
-                    <label className="form-label">àº¥àº°àº”àº±àºšàº‚àº±à»‰àº™àº•à»ˆàº³</label>
+                    <label className="form-label">ລະດັບຂັ້ນຕ່ຳ</label>
                     <input type="number" className="form-control" placeholder="5" value={addForm.minStock} onChange={(e) => setAddForm({ ...addForm, minStock: e.target.value })} />
                   </div>
                 </div>
                 <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-                  <button type="button" className="btn btn-secondary" onClick={() => setShowAddModal(false)}>àºàº»àºà»€àº¥àºµàº</button>
-                  <button type="submit" className="btn btn-primary" style={{ background: 'var(--gold-primary)', color: 'black', borderColor: 'var(--gold-primary)' }}>àºšàº±àº™àº—àº¶àº</button>
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowAddModal(false)}>ຍົກເລີກ</button>
+                  <button type="submit" className="btn btn-primary" style={{ background: 'var(--gold-primary)', color: 'black', borderColor: 'var(--gold-primary)' }}>ບັນທຶກ</button>
                 </div>
               </form>
             </div>
@@ -278,40 +278,40 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
           <div className="modal-overlay" style={{ zIndex: 1200 }}>
             <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
               <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ color: '#2ecc71', margin: 0 }}>ðŸ“¥ àº®àº±àºšà»€àº‚àº»à»‰àº²àº­àº¸àº›àº°àºàº­àº™àºªàº´à»‰àº™à»€àº›àº·àº­àº‡</h3>
-                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowRestockModal(false)}>âœ•</button>
+                <h3 style={{ color: '#2ecc71', margin: 0 }}>📥 ຮັບເຂົ້າອຸປະກອນສິ້ນເປືອງ</h3>
+                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowRestockModal(false)}>✕</button>
               </div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '14px' }}>
-                <b>àº¥àº²àºàºàº²àº™:</b> {activeItem.name} (àºàº­àº”àº„àº»àº‡à»€àº«àº¼àº·àº­: {activeItem.stock} {activeItem.unit})
+                <b>ລາຍການ:</b> {activeItem.name} (ຍອດຄົງເຫຼືອ: {activeItem.stock} {activeItem.unit})
               </div>
               <form onSubmit={handleRestock} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                   <div>
-                    <label className="form-label">àºˆàº³àº™àº§àº™àº®àº±àºšà»€àº‚àº»à»‰àº² *</label>
+                    <label className="form-label">ຈຳນວນຮັບເຂົ້າ *</label>
                     <input type="number" className="form-control" placeholder="10" value={restockForm.qty} onChange={(e) => setRestockForm({ ...restockForm, qty: e.target.value })} required />
                   </div>
                   <div>
-                    <label className="form-label">àº•àº»à»‰àº™àº—àº¶àº™àº•à»à»ˆà»œà»ˆàº§àº (LAK)</label>
+                    <label className="form-label">ຕົ້ນທຶນຕໍ່ໜ່ວຍ (LAK)</label>
                     <input type="number" className="form-control" placeholder={activeItem.costPerUnit} value={restockForm.costPerUnit} onChange={(e) => setRestockForm({ ...restockForm, costPerUnit: e.target.value })} />
                   </div>
                 </div>
                 <div>
-                  <label className="form-label">àº§àº´àº—àºµàºàº²àº™àºŠàº³àº¥àº°à»€àº‡àº´àº™</label>
+                  <label className="form-label">ວິທີການຊຳລະເງິນ</label>
                   <select className="form-control" value={restockForm.paymentMethod} onChange={(e) => setRestockForm({ ...restockForm, paymentMethod: e.target.value })}>
-                    <option value="cash">ðŸ’µ à»€àº‡àº´àº™àºªàº»àº” (Cash)</option>
-                    <option value="transfer">ðŸ“± à»‚àº­àº™àºœà»ˆàº²àº™ BCEL One (Transfer)</option>
+                    <option value="cash">💵 ເງິນສົດ (Cash)</option>
+                    <option value="transfer">📱 ໂອນຜ່ານ BCEL One (Transfer)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="form-label">à»àº²àºà»€àº«àº”/Supplier (Notes)</label>
-                  <input type="text" className="form-control" placeholder="àºŠàº·à»‰àº¢àº¹à»ˆàº®à»‰àº²àº™àºªàº°àº”àº§àºàºŠàº·à»‰, àºŠàº·à»‰àº¡àº²à»€àºžàºµà»ˆàº¡..." value={restockForm.notes} onChange={(e) => setRestockForm({ ...restockForm, notes: e.target.value })} />
+                  <label className="form-label">ໝາຍເຫດ/Supplier (Notes)</label>
+                  <input type="text" className="form-control" placeholder="ຊື້ຢູ່ຮ້ານສະດວກຊື້, ຊື້ມາເພີ່ມ..." value={restockForm.notes} onChange={(e) => setRestockForm({ ...restockForm, notes: e.target.value })} />
                 </div>
                 <div style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)', padding: '10px', borderRadius: '6px', fontSize: '0.75rem', color: 'var(--gold-primary)' }}>
-                  âš ï¸ <b>àº«àº¡àº²àºà»€àº«àº”:</b> àºàº²àº™àº®àº±àºšà»€àº‚àº»à»‰àº²àºˆàº°à»€àº®àº±àº”àºàº²àº™ **àºšàº±àº™àº—àº¶àºàº¥àº²àºàºˆà»ˆàº²àºàº®à»‰àº²àº™àº­àº±àº”àº•àº°à»‚àº™àº¡àº±àº”** àº¡àº¹àº™àº„à»ˆàº² {((parseFloat(restockForm.qty) || 0) * (parseFloat(restockForm.costPerUnit) || activeItem.costPerUnit || 0)).toLocaleString()} àºàºµàºš.
+                  ⚠️ <b>ຫມາຍເຫດ:</b> ການຮັບເຂົ້າຈະເຮັດການ **ບັນທຶກລາຍຈ່າຍຮ້ານອັດຕະໂນມັດ** ມູນຄ່າ {((parseFloat(restockForm.qty) || 0) * (parseFloat(restockForm.costPerUnit) || activeItem.costPerUnit || 0)).toLocaleString()} ກີບ.
                 </div>
                 <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-                  <button type="button" className="btn btn-secondary" onClick={() => setShowRestockModal(false)}>àºàº»àºà»€àº¥àºµàº</button>
-                  <button type="submit" className="btn btn-primary" style={{ background: '#2ecc71', color: 'black', borderColor: '#2ecc71', fontWeight: 'bold' }}> Restock ðŸ“¥</button>
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowRestockModal(false)}>ຍົກເລີກ</button>
+                  <button type="submit" className="btn btn-primary" style={{ background: '#2ecc71', color: 'black', borderColor: '#2ecc71', fontWeight: 'bold' }}> Restock 📥</button>
                 </div>
               </form>
             </div>
@@ -324,27 +324,27 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
           <div className="modal-overlay" style={{ zIndex: 1200 }}>
             <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
               <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ color: '#e74c3c', margin: 0 }}>ðŸ“¤ à»€àºšàºµàºàº­àº­àºàº­àº¸àº›àº°àºàº­àº™àºªàº´à»‰àº™à»€àº›àº·àº­àº‡</h3>
-                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowDisburseModal(false)}>âœ•</button>
+                <h3 style={{ color: '#e74c3c', margin: 0 }}>📤 ເບີກອອກອຸປະກອນສິ້ນເປືອງ</h3>
+                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowDisburseModal(false)}>✕</button>
               </div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '14px' }}>
-                <b>àº¥àº²àºàºàº²àº™:</b> {activeItem.name} (àºàº­àº”àº„àº»àº‡à»€àº«àº¼àº·àº­: {activeItem.stock} {activeItem.unit})
+                <b>ລາຍການ:</b> {activeItem.name} (ຍອດຄົງເຫຼືອ: {activeItem.stock} {activeItem.unit})
               </div>
               <form onSubmit={handleDisburse} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div>
-                  <label className="form-label">àºˆàº³àº™àº§àº™à»€àºšàºµàºàº­àº­àº *</label>
+                  <label className="form-label">ຈຳນວນເບີກອອກ *</label>
                   <input type="number" className="form-control" placeholder="5" value={disburseForm.qty} onChange={(e) => setDisburseForm({ ...disburseForm, qty: e.target.value })} required />
                 </div>
                 <div>
-                  <label className="form-label">àºˆàº¸àº”àº›àº°àºªàº»àº‡/à»àº²àºà»€àº«àº”</label>
-                  <input type="text" className="form-control" placeholder="à»€àºšàºµàºà»„àº›à»ƒàºŠà»‰àº¢àº¹à»ˆàº«à»‰àº­àº‡àº™à»‰àº³, à»€àºšàºµàºà»„àº›à»àºžàº±àºà»€àº„àº·à»ˆàº­àº‡..." value={disburseForm.notes} onChange={(e) => setDisburseForm({ ...disburseForm, notes: e.target.value })} />
+                  <label className="form-label">ຈຸດປະສົງ/ໝາຍເຫດ</label>
+                  <input type="text" className="form-control" placeholder="ເບີກໄປໃຊ້ຢູ່ຫ້ອງນ້ຳ, ເບີກໄປແພັກເຄື່ອງ..." value={disburseForm.notes} onChange={(e) => setDisburseForm({ ...disburseForm, notes: e.target.value })} />
                 </div>
                 <div style={{ background: 'rgba(231,76,60,0.06)', border: '1px solid rgba(231,76,60,0.2)', padding: '10px', borderRadius: '6px', fontSize: '0.75rem', color: '#FAB1A0' }}>
-                  â„¹ï¸ àºàº²àº™à»€àºšàºµàºàº­àº­àºà»ƒàºŠà»‰àºˆàº°àºšà»à»ˆàº¡àºµàºàº²àº™àºšàº±àº™àº—àº¶àºàº¥àº²àºàºˆà»ˆàº²àºà»€àºžàºµà»ˆàº¡ (àºà»‰àº­àº™àº§à»ˆàº²à»„àº”à»‰àºšàº±àº™àº—àº¶àºà»€àº›àº±àº™àº¥àº²àºàºˆà»ˆàº²àºà»„àº›à»àº¥à»‰àº§àº•àº­àº™àºŠàº·à»‰àº®àº±àºšà»€àº‚àº»à»‰àº²).
+                  ℹ️ ການເບີກອອກໃຊ້ຈະບໍ່ມີການບັນທຶກລາຍຈ່າຍເພີ່ມ (ຍ້ອນວ່າໄດ້ບັນທຶກເປັນລາຍຈ່າຍໄປແລ້ວຕອນຊື້ຮັບເຂົ້າ).
                 </div>
                 <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-                  <button type="button" className="btn btn-secondary" onClick={() => setShowDisburseModal(false)}>àºàº»àºà»€àº¥àºµàº</button>
-                  <button type="submit" className="btn btn-primary" style={{ background: '#e74c3c', color: 'white', borderColor: '#e74c3c', fontWeight: 'bold' }}>Disburse ðŸ“¤</button>
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowDisburseModal(false)}>ຍົກເລີກ</button>
+                  <button type="submit" className="btn btn-primary" style={{ background: '#e74c3c', color: 'white', borderColor: '#e74c3c', fontWeight: 'bold' }}>Disburse 📤</button>
                 </div>
               </form>
             </div>
@@ -357,26 +357,26 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
           <div className="modal-overlay" style={{ zIndex: 1200 }}>
             <div className="modal-content modal-md glass-card" style={{ padding: '24px', maxHeight: '80%', overflowY: 'auto' }}>
               <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>ðŸ“‹ àº›àº°àº«àº§àº±àº”àº®àº±àºš-à»€àºšàºµàºàº­àº¸àº›àº°àºàº­àº™àºªàº´à»‰àº™à»€àº›àº·àº­àº‡</h3>
-                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowHistoryModal(false)}>âœ•</button>
+                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>📋 ປະຫວັດຮັບ-ເບີກອຸປະກອນສິ້ນເປືອງ</h3>
+                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowHistoryModal(false)}>✕</button>
               </div>
               <div className="desktop-table-view">
                 <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
                   <thead>
                     <tr>
-                      <th style={{ textAlign: 'left', padding: '10px' }}>àº§àº±àº™àº—àºµ/à»€àº§àº¥àº²</th>
-                      <th style={{ textAlign: 'left', padding: '10px' }}>àº¥àº²àºàºàº²àº™</th>
-                      <th style={{ textAlign: 'center', padding: '10px' }}>àº›àº°à»€àºžàº”</th>
-                      <th style={{ textAlign: 'center', padding: '10px' }}>àºˆàº³àº™àº§àº™</th>
-                      <th style={{ textAlign: 'right', padding: '10px' }}>àº¡àº¹àº™àº„à»ˆàº²</th>
-                      <th style={{ textAlign: 'left', padding: '10px' }}>à»àº²àºà»€àº«àº”/àºœàº¹à»‰à»€àº®àº±àº”</th>
+                      <th style={{ textAlign: 'left', padding: '10px' }}>ວັນທີ/ເວລາ</th>
+                      <th style={{ textAlign: 'left', padding: '10px' }}>ລາຍການ</th>
+                      <th style={{ textAlign: 'center', padding: '10px' }}>ປະເພດ</th>
+                      <th style={{ textAlign: 'center', padding: '10px' }}>ຈຳນວນ</th>
+                      <th style={{ textAlign: 'right', padding: '10px' }}>ມູນຄ່າ</th>
+                      <th style={{ textAlign: 'left', padding: '10px' }}>ໝາຍເຫດ/ຜູ້ເຮັດ</th>
                     </tr>
                   </thead>
                   <tbody>
                     {allHistory.length === 0 ? (
                       <tr>
                         <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
-                          àºšà»à»ˆàº¡àºµàº›àº°àº«àº§àº±àº”àº—àº¸àº¥àº°àºàº³
+                          ບໍ່ມີປະຫວັດທຸລະກຳ
                         </td>
                       </tr>
                     ) : allHistory.map(tx => (
@@ -393,18 +393,18 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
                             color: tx.type === 'restock' ? '#2ecc71' : '#e74c3c',
                             border: `1px solid ${tx.type === 'restock' ? '#2ecc71' : '#e74c3c'}`
                           }}>
-                            {tx.type === 'restock' ? 'àº®àº±àºšà»€àº‚àº»à»‰àº²' : 'à»€àºšàºµàºàº­àº­àº'}
+                            {tx.type === 'restock' ? 'ຮັບເຂົ້າ' : 'ເບີກອອກ'}
                           </span>
                         </td>
                         <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold' }}>
                           {tx.qty} {tx.unit}
                         </td>
                         <td style={{ padding: '10px', textAlign: 'right', color: 'var(--gold-primary)' }}>
-                          {tx.type === 'restock' ? `${(tx.totalCost || 0).toLocaleString()} â‚­` : '-'}
+                          {tx.type === 'restock' ? `${(tx.totalCost || 0).toLocaleString()} ₭` : '-'}
                         </td>
                         <td style={{ padding: '10px' }}>
                           <div style={{ color: 'white' }}>{tx.notes || '-'}</div>
-                          <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>à»‚àº”àº: {tx.createdByName}</div>
+                          <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ໂດຍ: {tx.createdByName}</div>
                         </td>
                       </tr>
                     ))}
@@ -421,43 +421,43 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
           <div className="modal-overlay" style={{ zIndex: 1200 }}>
             <div className="modal-content modal-md glass-card" style={{ padding: '24px', maxHeight: '80%', overflowY: 'auto' }}>
               <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>ðŸ“Š àº¥àº²àºàº‡àº²àº™àºªàº°àº«àº¼àº¸àºšàº¥àº²àºàºˆà»ˆàº²àºàº®à»‰àº²àº™</h3>
-                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowReportModal(false)}>âœ•</button>
+                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>📊 ລາຍງານສະຫຼຸບລາຍຈ່າຍຮ້ານ</h3>
+                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowReportModal(false)}>✕</button>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>à»€àº¥àº·àº­àºà»€àº”àº·àº­àº™:</label>
+                <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>ເລືອກເດືອນ:</label>
                 <input type="month" className="form-control" style={{ width: '160px', background: '#1c1915' }} value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} />
               </div>
 
               <div style={{ background: 'rgba(231,76,60,0.06)', border: '1px solid rgba(231,76,60,0.22)', padding: '16px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ðŸ’µ àº¥àº§àº¡àº¥àº²àºàºˆà»ˆàº²àºàº—àº±àº‡à»àº»àº”àº›àº°àºˆàº³à»€àº”àº·àº­àº™:</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💵 ລວມລາຍຈ່າຍທັງໝົດປະຈຳເດືອນ:</div>
                   <div style={{ fontSize: '1.6rem', fontWeight: 'bold', color: '#FAB1A0', marginTop: '4px' }}>
-                    {totalMonthExpenseVal.toLocaleString()} â‚­
+                    {totalMonthExpenseVal.toLocaleString()} ₭
                   </div>
                 </div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'right' }}>
-                  àºˆàº³àº™àº§àº™àº¥àº²àºàºàº²àº™: <b>{monthExpenses.length} àº¥àº²àºàºàº²àº™</b>
+                  ຈຳນວນລາຍການ: <b>{monthExpenses.length} ລາຍການ</b>
                 </div>
               </div>
 
-              <h4 style={{ color: 'white', fontSize: '0.9rem', marginBottom: '10px' }}>ðŸ“ à»àºàºàº•àº²àº¡àº›àº°à»€àºžàº”àº¥àº²àºàºˆà»ˆàº²àº (Category Summary):</h4>
+              <h4 style={{ color: 'white', fontSize: '0.9rem', marginBottom: '10px' }}>📁 ແຍກຕາມປະເພດລາຍຈ່າຍ (Category Summary):</h4>
               <div className="desktop-table-view" style={{ marginBottom: '20px' }}>
                 <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
                   <thead>
                     <tr>
-                      <th style={{ textAlign: 'left', padding: '10px' }}>àº›àº°à»€àºžàº”àº¥àº²àºàºˆà»ˆàº²àº</th>
-                      <th style={{ textAlign: 'center', padding: '10px' }}>àºˆàº³àº™àº§àº™àºšàº´àº™</th>
-                      <th style={{ textAlign: 'right', padding: '10px' }}>àºàº­àº”àº¥àº§àº¡ (LAK)</th>
-                      <th style={{ textAlign: 'right', padding: '10px' }}>à»€àº›àºµà»€àºŠàº±àº™ (%)</th>
+                      <th style={{ textAlign: 'left', padding: '10px' }}>ປະເພດລາຍຈ່າຍ</th>
+                      <th style={{ textAlign: 'center', padding: '10px' }}>ຈຳນວນບິນ</th>
+                      <th style={{ textAlign: 'right', padding: '10px' }}>ຍອດລວມ (LAK)</th>
+                      <th style={{ textAlign: 'right', padding: '10px' }}>ເປີເຊັນ (%)</th>
                     </tr>
                   </thead>
                   <tbody>
                     {sortedGroupedExpenses.length === 0 ? (
                       <tr>
                         <td colSpan="4" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>
-                          àºšà»à»ˆàº¡àºµàº¥àº²àºàºˆà»ˆàº²àºà»ƒàº™à»€àº”àº·àº­àº™àº™àºµà»‰
+                          ບໍ່ມີລາຍຈ່າຍໃນເດືອນນີ້
                         </td>
                       </tr>
                     ) : sortedGroupedExpenses.map(row => {
@@ -467,7 +467,7 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
                           <td style={{ padding: '10px', fontWeight: 'bold', color: 'white' }}>{row.name}</td>
                           <td style={{ padding: '10px', textAlign: 'center' }}>{row.count}</td>
                           <td style={{ padding: '10px', textAlign: 'right', fontWeight: 'bold', color: '#FAB1A0' }}>
-                            {row.total.toLocaleString()} â‚­
+                            {row.total.toLocaleString()} ₭
                           </td>
                           <td style={{ padding: '10px', textAlign: 'right' }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
@@ -484,20 +484,20 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
                 </table>
               </div>
 
-              <h4 style={{ color: 'white', fontSize: '0.9rem', marginBottom: '10px' }}>ðŸ“‹ àº¥àº²àºàºàº²àº™àºšàº±àº™àº—àº¶àºàº¥àº²àºàºˆà»ˆàº²àº (Expenses Log):</h4>
+              <h4 style={{ color: 'white', fontSize: '0.9rem', marginBottom: '10px' }}>📋 ລາຍການບັນທຶກລາຍຈ່າຍ (Expenses Log):</h4>
               <div style={{ maxHeight: '250px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {monthExpenses.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>àºšà»à»ˆàº¡àºµàº¥àº²àºàºàº²àº™</div>
+                  <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>ບໍ່ມີລາຍການ</div>
                 ) : monthExpenses.map(ex => (
                   <div key={ex.id} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem' }}>
                     <div>
                       <div style={{ fontWeight: 'bold', color: 'white' }}>{ex.categoryName || ex.category}</div>
                       <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                        {new Date(ex.date).toLocaleDateString('lo-LA')} {ex.notes ? ` â€¢ ${ex.notes}` : ''}
+                        {new Date(ex.date).toLocaleDateString('lo-LA')} {ex.notes ? ` • ${ex.notes}` : ''}
                       </div>
                     </div>
                     <div style={{ fontWeight: 'bold', color: '#FAB1A0' }}>
-                      {(ex.convertedAmount || ex.amount).toLocaleString()} â‚­
+                      {(ex.convertedAmount || ex.amount).toLocaleString()} ₭
                     </div>
                   </div>
                 ))}
@@ -511,271 +511,185 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
 }
 
 // ==========================================
-// ðŸ”§ CONSUMABLES STOCK SUB-VIEW
+// 🔧 CONSUMABLES STOCK SUB-VIEW
 // ==========================================
 function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
-  const [consumables, setConsumables] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState(() => {
+  const [consumables, setConsumables] = React.useState([]);
+  const [categories, setCategories] = React.useState([]);
+  const [selectedMonth, setSelectedMonth] = React.useState(() => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
   });
-
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showRestockModal, setShowRestockModal] = useState(false);
-  const [showDisburseModal, setShowDisburseModal] = useState(false);
-  const [showHistoryModal, setShowHistoryModal] = useState(false);
-  const [showReportModal, setShowReportModal] = useState(false);
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [activeItem, setActiveItem] = useState(null);
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [sortMode, setSortMode] = useState('none');
-
-  // Category manager states
-  const [newCatName, setNewCatName] = useState('');
-  const [newCatIcon, setNewCatIcon] = useState('ðŸ“¦');
-  const [editingCategory, setEditingCategory] = useState(null);
-  const [categoryError, setCategoryError] = useState('');
-
-  const [addForm, setAddForm] = useState({ name: '', costPerUnit: '', stock: '', minStock: '', unit: 'àº­àº±àº™', category: 'other' });
-  const [editForm, setEditForm] = useState({ id: '', name: '', costPerUnit: '', minStock: '', unit: 'àº­àº±àº™', category: 'other' });
-  const [restockForm, setRestockForm] = useState({ qty: '', costPerUnit: '', paymentMethod: 'cash', notes: '' });
-  const [disburseForm, setDisburseForm] = useState({ qty: '', notes: '' });
+  const [showAddModal, setShowAddModal] = React.useState(false);
+  const [showEditModal, setShowEditModal] = React.useState(false);
+  const [showRestockModal, setShowRestockModal] = React.useState(false);
+  const [showDisburseModal, setShowDisburseModal] = React.useState(false);
+  const [showHistoryModal, setShowHistoryModal] = React.useState(false);
+  const [showReportModal, setShowReportModal] = React.useState(false);
+  const [showCategoryModal, setShowCategoryModal] = React.useState(false);
+  const [activeItem, setActiveItem] = React.useState(null);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [activeFilter, setActiveFilter] = React.useState('all');
+  const [sortMode, setSortMode] = React.useState('none');
+  const [newCatName, setNewCatName] = React.useState('');
+  const [newCatIcon, setNewCatIcon] = React.useState('📦');
+  const [editingCategory, setEditingCategory] = React.useState(null);
+  const [categoryError, setCategoryError] = React.useState('');
+  const [addForm, setAddForm] = React.useState({ name: '', costPerUnit: '', stock: '', minStock: '', unit: 'ອັນ', category: 'other' });
+  const [editForm, setEditForm] = React.useState({ id: '', name: '', costPerUnit: '', minStock: '', unit: 'ອັນ', category: 'other' });
+  const [restockForm, setRestockForm] = React.useState({ qty: '', costPerUnit: '', paymentMethod: 'cash', notes: '' });
+  const [disburseForm, setDisburseForm] = React.useState({ qty: '', notes: '' });
 
   const loadData = () => {
     setConsumables((db.getConsumables() || []).filter(Boolean));
     setCategories(db.getConsumableCategories() || []);
   };
-
   useEffect(() => { loadData(); }, []);
   useEffect(() => { loadData(); }, [showCategoryModal]);
 
   const handleAddConsumable = (e) => {
     e.preventDefault();
-    if (!addForm.name.trim()) return alert('àºàº°àº¥àº¸àº™àº²àº›à»‰àº­àº™àºŠàº·à»ˆàº­àº¸àº›àº°àºàº­àº™');
-    db.addConsumable({
-      name: addForm.name,
-      costPerUnit: parseFloat(addForm.costPerUnit) || 0,
-      stock: parseFloat(addForm.stock) || 0,
-      minStock: parseFloat(addForm.minStock) || 0,
-      unit: addForm.unit || 'àº­àº±àº™',
-      category: addForm.category || 'other'
-    });
-    alert('âœ“ à»€àºžàºµà»ˆàº¡àº¥àº²àºàºàº²àº™àº­àº¸àº›àº°àºàº­àº™àºªàº³à»€àº¥àº±àº”!');
-    setAddForm({ name: '', costPerUnit: '', stock: '', minStock: '', unit: 'àº­àº±àº™', category: categories[0]?.id || 'other' });
-    setShowAddModal(false);
-    loadData();
-    if (onUpdate) onUpdate();
+    if (!addForm.name.trim()) return alert('ກະລຸນາປ້ອນຊື່ອຸປະກອນ');
+    db.addConsumable({ name: addForm.name, costPerUnit: parseFloat(addForm.costPerUnit)||0, stock: parseFloat(addForm.stock)||0, minStock: parseFloat(addForm.minStock)||0, unit: addForm.unit||'ອັນ', category: addForm.category||'other' });
+    alert('✓ ເພີ່ມລາຍການອຸປະກອນສຳເລັດ!');
+    setAddForm({ name:'', costPerUnit:'', stock:'', minStock:'', unit:'ອັນ', category: categories[0]?.id||'other' });
+    setShowAddModal(false); loadData(); if (onUpdate) onUpdate();
   };
 
   const handleEditConsumable = (e) => {
     e.preventDefault();
-    if (!editForm.name.trim()) return alert('àºàº°àº¥àº¸àº™àº²àº›à»‰àº­àº™àºŠàº·à»ˆàº­àº¸àº›àº°àºàº­àº™');
-    db.updateConsumable(editForm.id, {
-      name: editForm.name,
-      costPerUnit: parseFloat(editForm.costPerUnit) || 0,
-      minStock: parseFloat(editForm.minStock) || 0,
-      unit: editForm.unit || 'àº­àº±àº™',
-      category: editForm.category || 'other'
-    });
-    alert('âœ“ à»àºà»‰à»„àº‚àº¥àº²àºàºàº²àº™àº­àº¸àº›àº°àºàº­àº™àºªàº³à»€àº¥àº±àº”!');
-    setShowEditModal(false);
-    loadData();
-    if (onUpdate) onUpdate();
+    if (!editForm.name.trim()) return alert('ກະລຸນາປ້ອນຊື່ອຸປະກອນ');
+    db.updateConsumable(editForm.id, { name: editForm.name, costPerUnit: parseFloat(editForm.costPerUnit)||0, minStock: parseFloat(editForm.minStock)||0, unit: editForm.unit||'ອັນ', category: editForm.category||'other' });
+    alert('✓ ແກ້ໄຂລາຍການສຳເລັດ!');
+    setShowEditModal(false); loadData(); if (onUpdate) onUpdate();
   };
 
   const handleDeleteConsumable = (item) => {
-    if (window.confirm(`âš ï¸ àº—à»ˆàº²àº™àº•à»‰àº­àº‡àºàº²àº™àº¥àº¶àºšàº­àº¸àº›àº°àºàº­àº™: ${item.name} à»àº—à»‰àºšà»à»ˆ?`)) {
-      db.deleteConsumable(item.id);
-      alert('âœ“ àº¥àº¶àºšàº¥àº²àºàºàº²àº™àº­àº¸àº›àº°àºàº­àº™àºªàº³à»€àº¥àº±àº”!');
-      loadData();
-      if (onUpdate) onUpdate();
+    if (window.confirm(`⚠️ ລຶບ: ${item.name} ແທ້ບໍ່?`)) {
+      db.deleteConsumable(item.id); alert('✓ ລຶບສຳເລັດ!');
+      loadData(); if (onUpdate) onUpdate();
     }
   };
 
   const handleRestock = (e) => {
     e.preventDefault();
     const qtyVal = parseFloat(restockForm.qty);
-    if (!qtyVal || qtyVal <= 0) return alert('àºàº°àº¥àº¸àº™àº²àº›à»‰àº­àº™àºˆàº³àº™àº§àº™àº®àº±àºšà»€àº‚àº»à»‰àº²');
+    if (!qtyVal || qtyVal <= 0) return alert('ກະລຸນາປ້ອນຈຳນວນ');
     const costVal = parseFloat(restockForm.costPerUnit) || activeItem.costPerUnit || 0;
     db.restockConsumable(activeItem.id, qtyVal, costVal, restockForm.paymentMethod, restockForm.notes);
-    alert('âœ“ àº®àº±àºšà»€àº‚àº»à»‰àº²àº­àº¸àº›àº°àºàº­àº™àºªàº³à»€àº¥àº±àº” (à»àº¥àº° àºšàº±àº™àº—àº¶àºàº¥àº²àºàºˆà»ˆàº²àºàº­àº±àº”àº•àº°à»‚àº™àº¡àº±àº”)!');
-    setRestockForm({ qty: '', costPerUnit: '', paymentMethod: 'cash', notes: '' });
-    setShowRestockModal(false);
-    setActiveItem(null);
-    loadData();
-    if (onUpdate) onUpdate();
+    alert('✓ ຮັບເຂົ້າສຳເລັດ!');
+    setRestockForm({ qty:'', costPerUnit:'', paymentMethod:'cash', notes:'' });
+    setShowRestockModal(false); setActiveItem(null); loadData(); if (onUpdate) onUpdate();
   };
 
   const handleDisburse = (e) => {
     e.preventDefault();
     const qtyVal = parseFloat(disburseForm.qty);
-    if (!qtyVal || qtyVal <= 0) return alert('àºàº°àº¥àº¸àº™àº²àº›à»‰àº­àº™àºˆàº³àº™àº§àº™à»€àºšàºµàºàº­àº­àº');
-    if (qtyVal > (activeItem.stock || 0)) {
-      if (!window.confirm('âš ï¸ àºˆàº³àº™àº§àº™à»€àºšàºµàºàº­àº­àºàº«àº¼àº²àºàºàº§à»ˆàº²àº„àº»àº‡à»€àº«àº¼àº·àº­à»ƒàº™àºªàº²àº‡. àº•à»‰àº­àº‡àºàº²àº™àº”àº³à»€àº™àºµàº™àºàº²àº™àº•à»à»ˆàºšà»à»ˆ?')) return;
-    }
+    if (!qtyVal || qtyVal <= 0) return alert('ກະລຸນາປ້ອນຈຳນວນ');
+    if (qtyVal > (activeItem.stock||0) && !window.confirm('⚠️ ຈຳນວນເກີນ. ດຳເນີນຕໍ່?')) return;
     db.disburseConsumable(activeItem.id, qtyVal, disburseForm.notes);
-    alert('âœ“ à»€àºšàºµàºàº­àº­àºàº­àº¸àº›àº°àºàº­àº™àºªàº³à»€àº¥àº±àº”!');
-    setDisburseForm({ qty: '', notes: '' });
-    setShowDisburseModal(false);
-    setActiveItem(null);
-    loadData();
-    if (onUpdate) onUpdate();
+    alert('✓ ເບີກອອກສຳເລັດ!');
+    setDisburseForm({ qty:'', notes:'' });
+    setShowDisburseModal(false); setActiveItem(null); loadData(); if (onUpdate) onUpdate();
   };
 
-  // Category Manager handlers
   const handleAddCategory = () => {
-    if (!newCatName.trim()) { setCategoryError('àºàº°àº¥àº¸àº™àº²àº›à»‰àº­àº™àºŠàº·à»ˆà»àº§àº”à»àº¹à»ˆ'); return; }
+    if (!newCatName.trim()) { setCategoryError('ກະລຸນາປ້ອນຊື່'); return; }
     db.addConsumableCategory({ name: newCatName.trim(), icon: newCatIcon });
-    setNewCatName(''); setNewCatIcon('ðŸ“¦'); setCategoryError('');
+    setNewCatName(''); setNewCatIcon('📦'); setCategoryError('');
     setCategories(db.getConsumableCategories());
   };
   const handleUpdateCategory = () => {
-    if (!editingCategory || !editingCategory.name.trim()) { setCategoryError('àºàº°àº¥àº¸àº™àº²àº›à»‰àº­àº™àºŠàº·à»ˆ'); return; }
+    if (!editingCategory?.name.trim()) { setCategoryError('ກະລຸນາປ້ອນຊື່'); return; }
     db.updateConsumableCategory(editingCategory.id, { name: editingCategory.name, icon: editingCategory.icon });
-    setEditingCategory(null); setCategoryError('');
-    setCategories(db.getConsumableCategories());
+    setEditingCategory(null); setCategoryError(''); setCategories(db.getConsumableCategories());
   };
   const handleDeleteCategory = (cat) => {
-    const inUse = consumables.some(c => c.category === cat.id);
-    if (inUse) return alert(`âš ï¸ à»àº§àº”à»àº¹à»ˆ "${cat.icon} ${cat.name}" àºàº³àº¥àº±àº‡àº–àº·àºà»ƒàºŠà»‰àº‡àº²àº™. à»‚àºàº/àº¥àº¶àºšàº¥àº²àºàºàº²àº™àºà»ˆàº­àº™.`);
-    if (window.confirm(`àº¥àº¶àºšà»àº§àº”à»àº¹à»ˆ "${cat.name}" à»àº—à»‰àºšà»à»ˆ?`)) {
-      db.deleteConsumableCategory(cat.id);
-      setCategories(db.getConsumableCategories());
-    }
+    if (consumables.some(c => c.category===cat.id)) return alert(`⚠️ ໝວດ "${cat.name}" ກຳລັງໃຊ້ງານ`);
+    if (window.confirm(`ລຶບ "${cat.name}"?`)) { db.deleteConsumableCategory(cat.id); setCategories(db.getConsumableCategories()); }
   };
+  const getCategoryInfo = (catId) => { const c = categories.find(x => x.id===catId); return c ? `${c.icon} ${c.name}` : '📁 ອື່ນໆ'; };
 
-  const getCategoryInfo = (catId) => {
-    const cat = categories.find(c => c.id === catId);
-    return cat ? `${cat.icon} ${cat.name}` : 'ðŸ“ àº­àº·à»ˆàº™à»†';
-  };
-
-  // Derived data
   const filteredConsumables = React.useMemo(() => {
     let list = consumables.filter(c => {
       if (!c) return false;
       const q = searchQuery.toLowerCase().trim();
-      const matchesSearch = q === '' || c.name.toLowerCase().includes(q) || (c.id && c.id.toLowerCase().includes(q));
-      if (!matchesSearch) return false;
-      if (activeFilter === 'all') return true;
-      if (activeFilter === 'low') return (c.stock || 0) <= (c.minStock || 0);
-      return c.category === activeFilter;
+      if (q && !c.name.toLowerCase().includes(q) && !(c.id||'').toLowerCase().includes(q)) return false;
+      if (activeFilter==='all') return true;
+      if (activeFilter==='low') return (c.stock||0)<=(c.minStock||0);
+      return c.category===activeFilter;
     });
-    switch (sortMode) {
-      case 'name_az': list = [...list].sort((a, b) => a.name.localeCompare(b.name)); break;
-      case 'name_za': list = [...list].sort((a, b) => b.name.localeCompare(a.name)); break;
-      case 'cost_hl': list = [...list].sort((a, b) => (b.costPerUnit || 0) - (a.costPerUnit || 0)); break;
-      case 'cost_lh': list = [...list].sort((a, b) => (a.costPerUnit || 0) - (b.costPerUnit || 0)); break;
-      case 'stock_hl': list = [...list].sort((a, b) => (b.stock || 0) - (a.stock || 0)); break;
-      case 'stock_lh': list = [...list].sort((a, b) => (a.stock || 0) - (b.stock || 0)); break;
-      default: break;
+    switch(sortMode) {
+      case 'name_az': list=[...list].sort((a,b)=>a.name.localeCompare(b.name)); break;
+      case 'name_za': list=[...list].sort((a,b)=>b.name.localeCompare(a.name)); break;
+      case 'cost_hl': list=[...list].sort((a,b)=>(b.costPerUnit||0)-(a.costPerUnit||0)); break;
+      case 'cost_lh': list=[...list].sort((a,b)=>(a.costPerUnit||0)-(b.costPerUnit||0)); break;
+      case 'stock_hl': list=[...list].sort((a,b)=>(b.stock||0)-(a.stock||0)); break;
+      case 'stock_lh': list=[...list].sort((a,b)=>(a.stock||0)-(b.stock||0)); break;
     }
     return list;
   }, [consumables, searchQuery, activeFilter, sortMode]);
 
-  const lowStockItems = consumables.filter(c => c && (c.stock || 0) <= (c.minStock || 0));
-  const totalStockValue = consumables.reduce((s, c) => s + ((c.stock || 0) * (c.costPerUnit || 0)), 0);
-
-  // Monthly disburse cost
-  const currentMonth = selectedMonth;
-  let totalDisburseMonth = 0;
-  consumables.forEach(c => {
-    (c.history || []).forEach(h => {
-      if (h.type === 'disburse' && h.date && h.date.startsWith(currentMonth)) {
-        totalDisburseMonth += (h.qty || 0) * (h.costPerUnit || c.costPerUnit || 0);
-      }
-    });
-  });
-
-  const allHistory = [];
-  consumables.forEach(c => {
-    (c.history || []).forEach(h => {
-      allHistory.push({ ...h, itemName: c.name, unit: c.unit });
-    });
-  });
-  allHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  const allExpenses = db.getExpenses();
-  const monthExpenses = allExpenses.filter(ex => ex.date && ex.date.startsWith(selectedMonth));
-  const totalMonthExpenseVal = monthExpenses.reduce((sum, ex) => sum + (ex.convertedAmount || ex.amount), 0);
-  const groupedExpenses = {};
-  monthExpenses.forEach(ex => {
-    const cat = ex.categoryName || ex.category || 'àº­àº·à»ˆàº™à»†';
-    if (!groupedExpenses[cat]) groupedExpenses[cat] = { name: cat, total: 0, count: 0 };
-    groupedExpenses[cat].total += (ex.convertedAmount || ex.amount);
-    groupedExpenses[cat].count++;
-  });
-  const sortedGroupedExpenses = Object.values(groupedExpenses).sort((a, b) => b.total - a.total);
+  const lowStockItems = consumables.filter(c => c && (c.stock||0)<=(c.minStock||0));
+  const totalStockValue = consumables.reduce((s,c)=>s+((c.stock||0)*(c.costPerUnit||0)), 0);
+  let totalDisburseMonth=0;
+  consumables.forEach(c => (c.history||[]).forEach(h => {
+    if (h.type==='disburse' && h.date?.startsWith(selectedMonth)) totalDisburseMonth+=(h.qty||0)*(h.costPerUnit||c.costPerUnit||0);
+  }));
+  const allHistory=[];
+  consumables.forEach(c=>(c.history||[]).forEach(h=>allHistory.push({...h,itemName:c.name,unit:c.unit})));
+  allHistory.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const allExpenses=db.getExpenses();
+  const monthExpenses=allExpenses.filter(ex=>ex.date?.startsWith(selectedMonth));
+  const totalMonthExpenseVal=monthExpenses.reduce((s,ex)=>s+(ex.convertedAmount||ex.amount),0);
+  const groupedExpenses={};
+  monthExpenses.forEach(ex=>{const cat=ex.categoryName||ex.category||'ອື່ນໆ';if(!groupedExpenses[cat])groupedExpenses[cat]={name:cat,total:0,count:0};groupedExpenses[cat].total+=(ex.convertedAmount||ex.amount);groupedExpenses[cat].count++;});
+  const sortedGroupedExpenses=Object.values(groupedExpenses).sort((a,b)=>b.total-a.total);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-
-      {/* â”€â”€â”€ TOP ACTION BAR â”€â”€â”€ */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-        <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.1rem', margin: 0 }}>ðŸ”§ àºˆàº±àº”àºàº²àº™àºªàº²àº‡àº­àº¸àº›àº°àºàº­àº™àºªàº´à»‰àº™à»€àº›àº·àº­àº‡</h3>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          <button type="button" className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '6px 12px' }} onClick={() => setShowCategoryModal(true)}>
-            ðŸ—‚ï¸ àºˆàº±àº”àºàº²àº™à»àº§àº”à»àº¹à»ˆ
-          </button>
-          <button type="button" className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '6px 12px' }} onClick={() => setShowReportModal(true)}>
-            ðŸ“Š àº¥àº²àºàº‡àº²àº™àº¥àº²àºàºˆà»ˆàº²àº
-          </button>
-          <button type="button" className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '6px 12px' }} onClick={() => setShowHistoryModal(true)}>
-            ðŸ“‹ àº›àº°àº«àº§àº±àº”àº®àº±àºš-à»€àºšàºµàº
-          </button>
-          <button type="button" className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '6px 14px', background: 'var(--gold-primary)', color: 'black', borderColor: 'var(--gold-primary)', fontWeight: 'bold' }} onClick={() => setShowAddModal(true)}>
-            âž• à»€àºžàºµà»ˆàº¡àº¥àº²àºàºàº²àº™
-          </button>
+    <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
+      {/* ACTION BAR */}
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:'12px'}}>
+        <h3 style={{color:'var(--gold-primary)',fontSize:'1.1rem',margin:0}}>🔧 ຈັດການສາງອຸປະກອນສິ້ນເປືອງ</h3>
+        <div style={{display:'flex',gap:'8px',flexWrap:'wrap'}}>
+          <button type="button" className="btn btn-secondary" style={{fontSize:'0.8rem',padding:'6px 12px'}} onClick={()=>setShowCategoryModal(true)}>🗂️ ຈັດການໝວດໝູ່</button>
+          <button type="button" className="btn btn-secondary" style={{fontSize:'0.8rem',padding:'6px 12px'}} onClick={()=>setShowReportModal(true)}>📊 ລາຍງານລາຍຈ່າຍ</button>
+          <button type="button" className="btn btn-secondary" style={{fontSize:'0.8rem',padding:'6px 12px'}} onClick={()=>setShowHistoryModal(true)}>📋 ປະຫວັດຮັບ-ເບີກ</button>
+          <button type="button" className="btn btn-primary" style={{fontSize:'0.8rem',padding:'6px 14px',background:'var(--gold-primary)',color:'black',borderColor:'var(--gold-primary)',fontWeight:'bold'}} onClick={()=>setShowAddModal(true)}>➕ ເພີ່ມລາຍການ</button>
         </div>
       </div>
 
-      {/* â”€â”€â”€ KPI SUMMARY CARDS â”€â”€â”€ */}
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4,1fr)', gap: '12px' }}>
+      {/* KPI CARDS */}
+      <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)',gap:'12px'}}>
         {[
-          { icon: 'ðŸ“¦', label: 'àº¥àº²àºàºàº²àº™àº—àº±àº‡à»àº»àº”', value: consumables.length + ' àº¥àº²àºàºàº²àº™', color: '#4fc3f7' },
-          { icon: 'ðŸ’°', label: 'àº¡àº¹àº™àº„à»ˆàº²àºªàº²àº‡àº¥àº§àº¡', value: totalStockValue.toLocaleString() + ' â‚­', color: 'var(--gold-primary)' },
-          { icon: 'âš ï¸', label: 'àºªàº²àº‡à»ƒàºà»‰à»àº»àº”', value: lowStockItems.length + ' àº¥àº²àºàºàº²àº™', color: lowStockItems.length > 0 ? '#e74c3c' : '#2ecc71' },
-          { icon: 'ðŸ“¤', label: 'à»€àºšàºµàºà»ƒàºŠà»‰à»€àº”àº·àº­àº™àº™àºµà»‰', value: totalDisburseMonth.toLocaleString() + ' â‚­', color: '#e17055' },
-        ].map((card, i) => (
-          <div key={i} className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '6px', borderTop: `3px solid ${card.color}` }}>
-            <div style={{ fontSize: '1.5rem' }}>{card.icon}</div>
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{card.label}</div>
-            <div style={{ fontWeight: 'bold', fontSize: '1rem', color: card.color }}>{card.value}</div>
+          {icon:'📦',label:'ລາຍການທັງໝົດ',value:consumables.length+' ລາຍການ',color:'#4fc3f7'},
+          {icon:'💰',label:'ມູນຄ່າສາງລວມ',value:totalStockValue.toLocaleString()+' ₭',color:'var(--gold-primary)'},
+          {icon:'⚠️',label:'ສາງໃກ້ໝົດ',value:lowStockItems.length+' ລາຍການ',color:lowStockItems.length>0?'#e74c3c':'#2ecc71'},
+          {icon:'📤',label:'ເບີກໃຊ້ເດືອນນີ້',value:totalDisburseMonth.toLocaleString()+' ₭',color:'#e17055'},
+        ].map((card,i)=>(
+          <div key={i} className="glass-card" style={{padding:'16px',display:'flex',flexDirection:'column',gap:'6px',borderTop:`3px solid ${card.color}`}}>
+            <div style={{fontSize:'1.5rem'}}>{card.icon}</div>
+            <div style={{fontSize:'0.72rem',color:'var(--text-secondary)'}}>{card.label}</div>
+            <div style={{fontWeight:'bold',fontSize:'1rem',color:card.color}}>{card.value}</div>
           </div>
         ))}
       </div>
 
-      {/* â”€â”€â”€ CATEGORY BREAKDOWN GRID â”€â”€â”€ */}
-      {categories.length > 0 && (
+      {/* CATEGORY BREAKDOWN */}
+      {categories.length>0&&(
         <div>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '8px', fontWeight: '600' }}>ðŸ“ àºªàº°àº«àº¼àº¸àºšàº•àº²àº¡à»àº§àº”à»àº¹à»ˆ:</div>
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fill, minmax(180px,1fr))', gap: '10px' }}>
-            {categories.map(cat => {
-              const items = consumables.filter(c => c.category === cat.id);
-              const catVal = items.reduce((s, c) => s + ((c.stock || 0) * (c.costPerUnit || 0)), 0);
-              const isActive = activeFilter === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => setActiveFilter(isActive ? 'all' : cat.id)}
-                  style={{
-                    background: isActive ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${isActive ? 'var(--gold-primary)' : 'var(--border-color)'}`,
-                    borderRadius: '10px',
-                    padding: '12px',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  <div style={{ fontSize: '1.3rem', marginBottom: '4px' }}>{cat.icon}</div>
-                  <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: isActive ? 'var(--gold-primary)' : 'white' }}>{cat.name}</div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '2px' }}>{items.length} àº¥àº²àºàºàº²àº™</div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--gold-primary)', fontWeight: '600' }}>{catVal.toLocaleString()} â‚­</div>
+          <div style={{fontSize:'0.8rem',color:'var(--text-secondary)',marginBottom:'8px',fontWeight:'600'}}>📁 ສະຫຼຸບຕາມໝວດໝູ່:</div>
+          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(auto-fill,minmax(180px,1fr))',gap:'10px'}}>
+            {categories.map(cat=>{
+              const items=consumables.filter(c=>c.category===cat.id);
+              const catVal=items.reduce((s,c)=>s+((c.stock||0)*(c.costPerUnit||0)),0);
+              const isActive=activeFilter===cat.id;
+              return(
+                <button key={cat.id} type="button" onClick={()=>setActiveFilter(isActive?'all':cat.id)} style={{background:isActive?'rgba(212,175,55,0.12)':'rgba(255,255,255,0.03)',border:`1px solid ${isActive?'var(--gold-primary)':'var(--border-color)'}`,borderRadius:'10px',padding:'12px',cursor:'pointer',textAlign:'left',transition:'all 0.2s'}}>
+                  <div style={{fontSize:'1.3rem',marginBottom:'4px'}}>{cat.icon}</div>
+                  <div style={{fontSize:'0.8rem',fontWeight:'bold',color:isActive?'var(--gold-primary)':'white'}}>{cat.name}</div>
+                  <div style={{fontSize:'0.7rem',color:'var(--text-secondary)',marginTop:'2px'}}>{items.length} ລາຍການ</div>
+                  <div style={{fontSize:'0.7rem',color:'var(--gold-primary)',fontWeight:'600'}}>{catVal.toLocaleString()} ₭</div>
                 </button>
               );
             })}
@@ -783,536 +697,345 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
         </div>
       )}
 
-      {/* â”€â”€â”€ LOW STOCK ALERT BANNER â”€â”€â”€ */}
-      {lowStockItems.length > 0 && (
-        <div style={{ background: 'rgba(231,76,60,0.08)', border: '1px solid rgba(231,76,60,0.35)', borderRadius: '10px', padding: '14px 16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-            <span style={{ fontSize: '1rem' }}>ðŸš¨</span>
-            <span style={{ fontWeight: 'bold', color: '#e74c3c', fontSize: '0.9rem' }}>àº­àº¸àº›àº°àºàº­àº™à»ƒàºà»‰à»àº»àº”àºªàº²àº‡ ({lowStockItems.length} àº¥àº²àºàºàº²àº™)</span>
+      {/* LOW STOCK BANNER */}
+      {lowStockItems.length>0&&(
+        <div style={{background:'rgba(231,76,60,0.08)',border:'1px solid rgba(231,76,60,0.35)',borderRadius:'10px',padding:'14px 16px'}}>
+          <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'10px'}}>
+            <span>🚨</span>
+            <span style={{fontWeight:'bold',color:'#e74c3c',fontSize:'0.9rem'}}>ອຸປະກອນໃກ້ໝົດສາງ ({lowStockItems.length} ລາຍການ)</span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            {lowStockItems.map(item => (
-              <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(231,76,60,0.06)', borderRadius: '6px', padding: '8px 12px' }}>
+          <div style={{display:'flex',flexDirection:'column',gap:'6px'}}>
+            {lowStockItems.map(item=>(
+              <div key={item.id} style={{display:'flex',justifyContent:'space-between',alignItems:'center',background:'rgba(231,76,60,0.06)',borderRadius:'6px',padding:'8px 12px'}}>
                 <div>
-                  <span style={{ fontWeight: 'bold', color: 'white', fontSize: '0.85rem' }}>{item.name}</span>
-                  <span style={{ marginLeft: '8px', color: '#e74c3c', fontSize: '0.8rem' }}>àºàº­àº”: {item.stock} / àº‚àº±à»‰àº™àº•à»ˆàº³: {item.minStock} {item.unit}</span>
+                  <span style={{fontWeight:'bold',color:'white',fontSize:'0.85rem'}}>{item.name}</span>
+                  <span style={{marginLeft:'8px',color:'#e74c3c',fontSize:'0.8rem'}}>ຍອດ: {item.stock} / ຂັ້ນຕ່ຳ: {item.minStock} {item.unit}</span>
                 </div>
-                <button type="button" className="btn btn-secondary" style={{ padding: '3px 10px', fontSize: '0.75rem', borderColor: '#2ecc71', color: '#2ecc71', background: 'rgba(46,204,113,0.05)', whiteSpace: 'nowrap' }}
-                  onClick={() => { setActiveItem(item); setShowRestockModal(true); }}>
-                  ðŸ“¥ àº•àº·à»ˆàº¡àºªàº°àº•àº±àº­àº
-                </button>
+                <button type="button" className="btn btn-secondary" style={{padding:'3px 10px',fontSize:'0.75rem',borderColor:'#2ecc71',color:'#2ecc71',background:'rgba(46,204,113,0.05)',whiteSpace:'nowrap'}}
+                  onClick={()=>{setActiveItem(item);setShowRestockModal(true);}}>📥 ຕື່ມສະຕັອກ</button>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* â”€â”€â”€ SEARCH + SORT + FILTER TABS â”€â”€â”€ */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: 'rgba(255,255,255,0.01)', padding: '14px 16px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <div style={{ position: 'relative', flex: '1', minWidth: '200px' }}>
-            <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>ðŸ”</span>
-            <input type="text" className="form-control" style={{ paddingLeft: '36px', height: '38px', fontSize: '0.85rem' }} placeholder="àº„àº»à»‰àº™àº«àº²àº­àº¸àº›àº°àºàº­àº™..."
-              value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-            {searchQuery && (
-              <button type="button" onClick={() => setSearchQuery('')} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>âœ•</button>
-            )}
+      {/* SEARCH + SORT + FILTER */}
+      <div style={{display:'flex',flexDirection:'column',gap:'10px',background:'rgba(255,255,255,0.01)',padding:'14px 16px',borderRadius:'8px',border:'1px solid var(--border-color)'}}>
+        <div style={{display:'flex',gap:'10px',flexWrap:'wrap',alignItems:'center'}}>
+          <div style={{position:'relative',flex:'1',minWidth:'200px'}}>
+            <span style={{position:'absolute',left:'12px',top:'50%',transform:'translateY(-50%)',color:'var(--text-secondary)'}}>🔍</span>
+            <input type="text" className="form-control" style={{paddingLeft:'36px',height:'38px',fontSize:'0.85rem'}} placeholder="ຄົ້ນຫາອຸປະກອນ..." value={searchQuery} onChange={e=>setSearchQuery(e.target.value)}/>
+            {searchQuery&&<button type="button" onClick={()=>setSearchQuery('')} style={{position:'absolute',right:'10px',top:'50%',transform:'translateY(-50%)',background:'none',border:'none',color:'var(--text-secondary)',cursor:'pointer'}}>✕</button>}
           </div>
-          <select className="form-control" style={{ width: isMobile ? '100%' : '200px', height: '38px', fontSize: '0.85rem', background: '#1c1915' }}
-            value={sortMode} onChange={e => setSortMode(e.target.value)}>
-            <option value="none">ðŸ“‹ àº®àº½àº‡: àº„à»ˆàº²à»€àº¥àºµà»ˆàº¡àº•àº»à»‰àº™</option>
-            <option value="name_az">ðŸ”¤ àºŠàº·à»ˆ àº-àºˆ (A-Z)</option>
-            <option value="name_za">ðŸ”¤ àºŠàº·à»ˆ àºˆ-àº (Z-A)</option>
-            <option value="cost_hl">ðŸ’° àº•àº»à»‰àº™àº—àº¶àº™ àºªàº¹àº‡â†’àº•à»ˆàº³</option>
-            <option value="cost_lh">ðŸ’° àº•àº»à»‰àº™àº—àº¶àº™ àº•à»ˆàº³â†’àºªàº¹àº‡</option>
-            <option value="stock_hl">ðŸ“¦ àºªàº²àº‡ àº«àº¼àº²àºâ†’à»œà»‰àº­àº</option>
-            <option value="stock_lh">ðŸ“¦ àºªàº²àº‡ à»œà»‰àº­àºâ†’àº«àº¼àº²àº</option>
+          <select className="form-control" style={{width:isMobile?'100%':'200px',height:'38px',fontSize:'0.85rem',background:'#1c1915'}} value={sortMode} onChange={e=>setSortMode(e.target.value)}>
+            <option value="none">📋 ຮຽງ: ຄ່າເລີ່ມຕົ້ນ</option>
+            <option value="name_az">🔤 ຊື່ A-Z</option>
+            <option value="name_za">🔤 ຊື່ Z-A</option>
+            <option value="cost_hl">💰 ຕົ້ນທຶນ ສູງ→ຕ່ຳ</option>
+            <option value="cost_lh">💰 ຕົ້ນທຶນ ຕ່ຳ→ສູງ</option>
+            <option value="stock_hl">📦 ສາງ ຫຼາຍ→ໜ້ອຍ</option>
+            <option value="stock_lh">📦 ສາງ ໜ້ອຍ→ຫຼາຍ</option>
           </select>
         </div>
-
-        <div className="no-scrollbar" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px' }}>
-          {[{ id: 'all', icon: 'ðŸ“‹', label: 'àº—àº±àº‡à»àº»àº”' }, { id: 'low', icon: 'âš ï¸', label: 'à»ƒàºà»‰à»àº»àº”' }, ...categories.map(c => ({ id: c.id, icon: c.icon, label: c.name }))].map(tab => {
-            const count = tab.id === 'all' ? consumables.length
-              : tab.id === 'low' ? consumables.filter(c => (c.stock || 0) <= (c.minStock || 0)).length
-              : consumables.filter(c => c.category === tab.id).length;
-            const isActive = activeFilter === tab.id;
-            return (
-              <button key={tab.id} type="button" onClick={() => setActiveFilter(tab.id)} style={{
-                padding: '5px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '600', whiteSpace: 'nowrap',
-                cursor: 'pointer', border: '1px solid', display: 'flex', alignItems: 'center', gap: '5px',
-                borderColor: isActive ? 'var(--gold-primary)' : 'var(--border-color)',
-                background: isActive ? 'var(--gold-primary)' : 'rgba(255,255,255,0.02)',
-                color: isActive ? 'black' : 'var(--text-secondary)', transition: 'all 0.2s'
-              }}>
-                <span>{tab.icon}</span><span>{tab.label}</span>
-                <span style={{ fontSize: '0.7rem', padding: '1px 5px', borderRadius: '10px', background: isActive ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.08)', color: isActive ? 'black' : 'var(--text-secondary)' }}>{count}</span>
-              </button>
-            );
+        <div className="no-scrollbar" style={{display:'flex',gap:'8px',overflowX:'auto',paddingBottom:'2px'}}>
+          {[{id:'all',icon:'📋',label:'ທັງໝົດ'},{id:'low',icon:'⚠️',label:'ໃກ້ໝົດ'},...categories.map(c=>({id:c.id,icon:c.icon,label:c.name}))].map(tab=>{
+            const count=tab.id==='all'?consumables.length:tab.id==='low'?consumables.filter(c=>(c.stock||0)<=(c.minStock||0)).length:consumables.filter(c=>c.category===tab.id).length;
+            const isActive=activeFilter===tab.id;
+            return(<button key={tab.id} type="button" onClick={()=>setActiveFilter(tab.id)} style={{padding:'5px 12px',borderRadius:'20px',fontSize:'0.8rem',fontWeight:'600',whiteSpace:'nowrap',cursor:'pointer',border:'1px solid',display:'flex',alignItems:'center',gap:'5px',borderColor:isActive?'var(--gold-primary)':'var(--border-color)',background:isActive?'var(--gold-primary)':'rgba(255,255,255,0.02)',color:isActive?'black':'var(--text-secondary)',transition:'all 0.2s'}}>
+              <span>{tab.icon}</span><span>{tab.label}</span>
+              <span style={{fontSize:'0.7rem',padding:'1px 5px',borderRadius:'10px',background:isActive?'rgba(0,0,0,0.12)':'rgba(255,255,255,0.08)',color:isActive?'black':'var(--text-secondary)'}}>{count}</span>
+            </button>);
           })}
         </div>
       </div>
 
-      {/* â”€â”€â”€ ITEMS TABLE (DESKTOP) + CARDS (MOBILE) â”€â”€â”€ */}
-      <div className="glass-card" style={{ padding: '20px' }}>
-        <div className="desktop-table-view" style={{ overflowX: 'auto' }}>
-          <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
-            <thead>
-              <tr>
-                <th style={{ textAlign: 'left', padding: '12px' }}>àº¥àº°àº«àº±àº” / àº­àº¸àº›àº°àºàº­àº™</th>
-                <th style={{ textAlign: 'left', padding: '12px' }}>à»àº§àº”à»àº¹à»ˆ</th>
-                <th style={{ textAlign: 'right', padding: '12px' }}>àº•àº»à»‰àº™àº—àº¶àº™/à»œà»ˆàº§àº</th>
-                <th style={{ textAlign: 'center', padding: '12px' }}>àºàº­àº”àº„àº»àº‡à»€àº«àº¼àº·àº­</th>
-                <th style={{ textAlign: 'center', padding: '12px' }}>àº‚àº±à»‰àº™àº•à»ˆàº³</th>
-                <th style={{ textAlign: 'right', padding: '12px' }}>àº¡àº¹àº™àº„à»ˆàº²àºªàº²àº‡</th>
-                <th style={{ textAlign: 'center', padding: '12px' }}>àº—àº¸àº¥àº°àºàº³</th>
-                <th style={{ textAlign: 'right', padding: '12px' }}>àºˆàº±àº”àºàº²àº™</th>
-              </tr>
-            </thead>
+      {/* TABLE */}
+      <div className="glass-card" style={{padding:'20px'}}>
+        <div className="desktop-table-view" style={{overflowX:'auto'}}>
+          <table className="table-premium" style={{width:'100%',marginTop:0}}>
+            <thead><tr>
+              <th style={{textAlign:'left',padding:'12px'}}>ລະຫັດ / ອຸປະກອນ</th>
+              <th style={{textAlign:'left',padding:'12px'}}>ໝວດໝູ່</th>
+              <th style={{textAlign:'right',padding:'12px'}}>ຕົ້ນທຶນ/ໜ່ວຍ</th>
+              <th style={{textAlign:'center',padding:'12px'}}>ຍອດຄົງເຫຼືອ</th>
+              <th style={{textAlign:'center',padding:'12px'}}>ຂັ້ນຕ່ຳ</th>
+              <th style={{textAlign:'right',padding:'12px'}}>ມູນຄ່າສາງ</th>
+              <th style={{textAlign:'center',padding:'12px'}}>ທຸລະກຳ</th>
+              <th style={{textAlign:'right',padding:'12px'}}>ຈັດການ</th>
+            </tr></thead>
             <tbody>
-              {filteredConsumables.length === 0 ? (
-                <tr><td colSpan="8" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-secondary)' }}>àºšà»à»ˆàº¡àºµàº¥àº²àºàºàº²àº™àº—àºµà»ˆàºàº»àº‡àºàº±àºšà»€àº‡àº·à»ˆàº­àº™à»„àº‚</td></tr>
-              ) : filteredConsumables.map(item => {
-                const totalVal = (item.stock || 0) * (item.costPerUnit || 0);
-                const isLow = (item.stock || 0) <= (item.minStock || 0);
-                return (
-                  <tr key={item.id} style={{ borderBottom: '1px solid var(--border-color)', background: isLow ? 'rgba(231,76,60,0.04)' : 'none' }}>
-                    <td style={{ padding: '12px' }}>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{item.id}</div>
-                      <div style={{ fontWeight: 'bold', fontSize: '0.9rem', marginTop: '2px' }}>{item.name}</div>
-                      {isLow && <span style={{ fontSize: '0.65rem', color: '#e74c3c', background: 'rgba(231,76,60,0.1)', padding: '2px 6px', borderRadius: '4px', marginTop: '3px', display: 'inline-block' }}>âš ï¸ à»ƒàºà»‰àºˆàº°à»àº»àº”</span>}
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <span style={{ fontSize: '0.78rem', color: 'white', background: 'rgba(255,255,255,0.05)', padding: '3px 8px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                        {getCategoryInfo(item.category)}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'right' }}>{(item.costPerUnit || 0).toLocaleString()} â‚­</td>
-                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: isLow ? '#e74c3c' : 'white' }}>{(item.stock || 0).toLocaleString()} {item.unit || 'àº­àº±àº™'}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: 'var(--text-secondary)' }}>{(item.minStock || 0).toLocaleString()} {item.unit || 'àº­àº±àº™'}</td>
-                    <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold', color: 'var(--gold-primary)' }}>{totalVal.toLocaleString()} â‚­</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                        <button type="button" className="btn btn-secondary" style={{ padding: '3px 7px', fontSize: '0.72rem', borderColor: '#2ecc71', color: '#2ecc71', background: 'rgba(46,204,113,0.05)' }} onClick={() => { setActiveItem(item); setShowRestockModal(true); }}>ðŸ“¥ àº®àº±àºš</button>
-                        <button type="button" className="btn btn-secondary" style={{ padding: '3px 7px', fontSize: '0.72rem', borderColor: '#e74c3c', color: '#e74c3c', background: 'rgba(231,76,60,0.05)' }} onClick={() => { setActiveItem(item); setShowDisburseModal(true); }}>ðŸ“¤ à»€àºšàºµàº</button>
-                      </div>
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'right' }}>
-                      <div style={{ display: 'flex', gap: '5px', justifyContent: 'flex-end' }}>
-                        <button type="button" className="btn btn-primary" style={{ padding: '3px 8px', fontSize: '0.75rem' }}
-                          onClick={() => { setEditForm({ id: item.id, name: item.name, costPerUnit: item.costPerUnit || 0, minStock: item.minStock || 0, unit: item.unit || 'àº­àº±àº™', category: item.category || 'other' }); setShowEditModal(true); }}>ðŸ“</button>
-                        <button type="button" className="btn" style={{ padding: '3px 8px', fontSize: '0.75rem', background: '#c0392b', color: 'white', border: 'none' }} onClick={() => handleDeleteConsumable(item)}>ðŸ—‘ï¸</button>
-                      </div>
-                    </td>
-                  </tr>
-                );
+              {filteredConsumables.length===0?(
+                <tr><td colSpan="8" style={{textAlign:'center',padding:'30px',color:'var(--text-secondary)'}}>ບໍ່ມີລາຍການ</td></tr>
+              ):filteredConsumables.map(item=>{
+                const totalVal=(item.stock||0)*(item.costPerUnit||0);
+                const isLow=(item.stock||0)<=(item.minStock||0);
+                return(<tr key={item.id} style={{borderBottom:'1px solid var(--border-color)',background:isLow?'rgba(231,76,60,0.04)':'none'}}>
+                  <td style={{padding:'12px'}}>
+                    <div style={{fontSize:'0.72rem',color:'var(--text-secondary)',fontFamily:'monospace'}}>{item.id}</div>
+                    <div style={{fontWeight:'bold',fontSize:'0.9rem',marginTop:'2px'}}>{item.name}</div>
+                    {isLow&&<span style={{fontSize:'0.65rem',color:'#e74c3c',background:'rgba(231,76,60,0.1)',padding:'2px 6px',borderRadius:'4px',marginTop:'3px',display:'inline-block'}}>⚠️ ໃກ້ຈະໝົດ</span>}
+                  </td>
+                  <td style={{padding:'12px'}}><span style={{fontSize:'0.78rem',color:'white',background:'rgba(255,255,255,0.05)',padding:'3px 8px',borderRadius:'12px',border:'1px solid var(--border-color)'}}>{getCategoryInfo(item.category)}</span></td>
+                  <td style={{padding:'12px',textAlign:'right'}}>{(item.costPerUnit||0).toLocaleString()} ₭</td>
+                  <td style={{padding:'12px',textAlign:'center',fontWeight:'bold',color:isLow?'#e74c3c':'white'}}>{(item.stock||0).toLocaleString()} {item.unit||'ອັນ'}</td>
+                  <td style={{padding:'12px',textAlign:'center',color:'var(--text-secondary)'}}>{(item.minStock||0).toLocaleString()} {item.unit||'ອັນ'}</td>
+                  <td style={{padding:'12px',textAlign:'right',fontWeight:'bold',color:'var(--gold-primary)'}}>{totalVal.toLocaleString()} ₭</td>
+                  <td style={{padding:'12px',textAlign:'center'}}>
+                    <div style={{display:'flex',gap:'5px',justifyContent:'center'}}>
+                      <button type="button" className="btn btn-secondary" style={{padding:'3px 7px',fontSize:'0.72rem',borderColor:'#2ecc71',color:'#2ecc71',background:'rgba(46,204,113,0.05)'}} onClick={()=>{setActiveItem(item);setShowRestockModal(true);}}>📥 ຮັບ</button>
+                      <button type="button" className="btn btn-secondary" style={{padding:'3px 7px',fontSize:'0.72rem',borderColor:'#e74c3c',color:'#e74c3c',background:'rgba(231,76,60,0.05)'}} onClick={()=>{setActiveItem(item);setShowDisburseModal(true);}}>📤 ເບີກ</button>
+                    </div>
+                  </td>
+                  <td style={{padding:'12px',textAlign:'right'}}>
+                    <div style={{display:'flex',gap:'5px',justifyContent:'flex-end'}}>
+                      <button type="button" className="btn btn-primary" style={{padding:'3px 8px',fontSize:'0.75rem'}} onClick={()=>{setEditForm({id:item.id,name:item.name,costPerUnit:item.costPerUnit||0,minStock:item.minStock||0,unit:item.unit||'ອັນ',category:item.category||'other'});setShowEditModal(true);}}>📝</button>
+                      <button type="button" className="btn" style={{padding:'3px 8px',fontSize:'0.75rem',background:'#c0392b',color:'white',border:'none'}} onClick={()=>handleDeleteConsumable(item)}>🗑️</button>
+                    </div>
+                  </td>
+                </tr>);
               })}
             </tbody>
           </table>
         </div>
-
-        <div className="mobile-cards-view" style={{ display: 'none', flexDirection: 'column', gap: '12px' }}>
-          {filteredConsumables.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>àºšà»à»ˆàº¡àºµàº¥àº²àºàºàº²àº™àº—àºµà»ˆàºàº»àº‡àºàº±àºšà»€àº‡àº·à»ˆàº­àº™à»„àº‚</div>
-          ) : filteredConsumables.map(item => {
-            const totalVal = (item.stock || 0) * (item.costPerUnit || 0);
-            const isLow = (item.stock || 0) <= (item.minStock || 0);
-            return (
-              <div key={item.id} className="glass-card animate-fade-in" style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px', borderLeft: `4px solid ${isLow ? '#e74c3c' : '#2ecc71'}` }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <div style={{ fontWeight: 'bold', fontSize: '0.95rem' }}>{item.name}</div>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                      {item.id} | {getCategoryInfo(item.category)}
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: '5px' }}>
-                    <button type="button" className="btn btn-primary" style={{ padding: '3px 8px', fontSize: '0.72rem' }}
-                      onClick={() => { setEditForm({ id: item.id, name: item.name, costPerUnit: item.costPerUnit || 0, minStock: item.minStock || 0, unit: item.unit || 'àº­àº±àº™', category: item.category || 'other' }); setShowEditModal(true); }}>ðŸ“</button>
-                    <button type="button" className="btn" style={{ padding: '3px 8px', fontSize: '0.72rem', background: '#c0392b', color: 'white', border: 'none' }} onClick={() => handleDeleteConsumable(item)}>ðŸ—‘ï¸</button>
-                  </div>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', background: 'rgba(255,255,255,0.02)', padding: '8px', borderRadius: '6px', fontSize: '0.78rem' }}>
-                  <div><span style={{ color: 'var(--text-secondary)' }}>àºàº­àº”:</span> <strong style={{ color: isLow ? '#e74c3c' : 'white' }}>{(item.stock || 0).toLocaleString()} {item.unit || 'àº­àº±àº™'}</strong></div>
-                  <div><span style={{ color: 'var(--text-secondary)' }}>àº‚àº±à»‰àº™àº•à»ˆàº³:</span> <span>{(item.minStock || 0).toLocaleString()}</span></div>
-                  <div><span style={{ color: 'var(--text-secondary)' }}>àº•àº»à»‰àº™àº—àº¶àº™:</span> <span>{(item.costPerUnit || 0).toLocaleString()} â‚­</span></div>
-                  <div><span style={{ color: 'var(--text-secondary)' }}>àº¡àº¹àº™àº„à»ˆàº²:</span> <strong style={{ color: 'var(--gold-primary)' }}>{totalVal.toLocaleString()} â‚­</strong></div>
-                </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button type="button" className="btn btn-secondary" style={{ flex: 1, padding: '6px', fontSize: '0.8rem', borderColor: '#2ecc71', color: '#2ecc71' }} onClick={() => { setActiveItem(item); setShowRestockModal(true); }}>ðŸ“¥ àº®àº±àºšà»€àº‚àº»à»‰àº²</button>
-                  <button type="button" className="btn btn-secondary" style={{ flex: 1, padding: '6px', fontSize: '0.8rem', borderColor: '#e74c3c', color: '#e74c3c' }} onClick={() => { setActiveItem(item); setShowDisburseModal(true); }}>ðŸ“¤ à»€àºšàºµàºàº­àº­àº</button>
+        <div className="mobile-cards-view" style={{display:'none',flexDirection:'column',gap:'12px'}}>
+          {filteredConsumables.length===0?(<div style={{textAlign:'center',padding:'24px',color:'var(--text-secondary)'}}>ບໍ່ມີລາຍການ</div>):filteredConsumables.map(item=>{
+            const totalVal=(item.stock||0)*(item.costPerUnit||0);const isLow=(item.stock||0)<=(item.minStock||0);
+            return(<div key={item.id} className="glass-card animate-fade-in" style={{padding:'14px',display:'flex',flexDirection:'column',gap:'10px',borderLeft:`4px solid ${isLow?'#e74c3c':'#2ecc71'}`}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+                <div><div style={{fontWeight:'bold',fontSize:'0.95rem'}}>{item.name}</div><div style={{fontSize:'0.72rem',color:'var(--text-secondary)',marginTop:'2px'}}>{item.id} | {getCategoryInfo(item.category)}</div></div>
+                <div style={{display:'flex',gap:'5px'}}>
+                  <button type="button" className="btn btn-primary" style={{padding:'3px 8px',fontSize:'0.72rem'}} onClick={()=>{setEditForm({id:item.id,name:item.name,costPerUnit:item.costPerUnit||0,minStock:item.minStock||0,unit:item.unit||'ອັນ',category:item.category||'other'});setShowEditModal(true);}}>📝</button>
+                  <button type="button" className="btn" style={{padding:'3px 8px',fontSize:'0.72rem',background:'#c0392b',color:'white',border:'none'}} onClick={()=>handleDeleteConsumable(item)}>🗑️</button>
                 </div>
               </div>
-            );
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'6px',background:'rgba(255,255,255,0.02)',padding:'8px',borderRadius:'6px',fontSize:'0.78rem'}}>
+                <div><span style={{color:'var(--text-secondary)'}}>ຍອດ:</span> <strong style={{color:isLow?'#e74c3c':'white'}}>{(item.stock||0).toLocaleString()} {item.unit||'ອັນ'}</strong></div>
+                <div><span style={{color:'var(--text-secondary)'}}>ຂັ້ນຕ່ຳ:</span> <span>{(item.minStock||0).toLocaleString()}</span></div>
+                <div><span style={{color:'var(--text-secondary)'}}>ຕົ້ນທຶນ:</span> <span>{(item.costPerUnit||0).toLocaleString()} ₭</span></div>
+                <div><span style={{color:'var(--text-secondary)'}}>ມູນຄ່າ:</span> <strong style={{color:'var(--gold-primary)'}}>{totalVal.toLocaleString()} ₭</strong></div>
+              </div>
+              <div style={{display:'flex',gap:'8px'}}>
+                <button type="button" className="btn btn-secondary" style={{flex:1,padding:'6px',fontSize:'0.8rem',borderColor:'#2ecc71',color:'#2ecc71'}} onClick={()=>{setActiveItem(item);setShowRestockModal(true);}}>📥 ຮັບເຂົ້າ</button>
+                <button type="button" className="btn btn-secondary" style={{flex:1,padding:'6px',fontSize:'0.8rem',borderColor:'#e74c3c',color:'#e74c3c'}} onClick={()=>{setActiveItem(item);setShowDisburseModal(true);}}>📤 ເບີກອອກ</button>
+              </div>
+            </div>);
           })}
         </div>
       </div>
 
-      {/* â”€â”€â”€ MODAL: ADD CONSUMABLE â”€â”€â”€ */}
-      {showAddModal && (
-        <Portal>
-          <div className="modal-overlay" style={{ zIndex: 1200 }}>
-            <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
-              <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>âž• à»€àºžàºµà»ˆàº¡àº¥àº²àºàºàº²àº™àº­àº¸àº›àº°àºàº­àº™</h3>
-                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowAddModal(false)}>âœ•</button>
-              </div>
-              <form onSubmit={handleAddConsumable} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div>
-                  <label className="form-label">àºŠàº·à»ˆàº­àº¸àº›àº°àºàº­àº™ *</label>
-                  <input type="text" className="form-control" placeholder="àº•àº»àº§àº¢à»ˆàº²àº‡: à»€àºˆà»‰àºàº«à»‰àº­àº‡àº™à»‰àº³, àºªàº°àºšàº¹..." value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })} required />
-                </div>
-                <div>
-                  <label className="form-label">à»àº§àº”à»àº¹à»ˆ *</label>
-                  <select className="form-control" value={addForm.category} onChange={(e) => setAddForm({ ...addForm, category: e.target.value })}>
-                    {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>)}
-                  </select>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <div>
-                    <label className="form-label">àº•àº»à»‰àº™àº—àº¶àº™/à»œà»ˆàº§àº (LAK)</label>
-                    <input type="number" className="form-control" placeholder="0" value={addForm.costPerUnit} onChange={(e) => setAddForm({ ...addForm, costPerUnit: e.target.value })} />
-                  </div>
-                  <div>
-                    <label className="form-label">àº«àº»àº§à»œà»ˆàº§àº</label>
-                    <input type="text" className="form-control" placeholder="àº­àº±àº™, àº¡à»‰àº§àº™..." value={addForm.unit} onChange={(e) => setAddForm({ ...addForm, unit: e.target.value })} />
-                  </div>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <div>
-                    <label className="form-label">àºàº­àº”à»€àº¥àºµà»ˆàº¡àº•àº»à»‰àº™</label>
-                    <input type="number" className="form-control" placeholder="0" value={addForm.stock} onChange={(e) => setAddForm({ ...addForm, stock: e.target.value })} />
-                  </div>
-                  <div>
-                    <label className="form-label">àº¥àº°àº”àº±àºšàº‚àº±à»‰àº™àº•à»ˆàº³</label>
-                    <input type="number" className="form-control" placeholder="5" value={addForm.minStock} onChange={(e) => setAddForm({ ...addForm, minStock: e.target.value })} />
-                  </div>
-                </div>
-                <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '8px' }}>
-                  <button type="button" className="btn btn-secondary" onClick={() => setShowAddModal(false)}>àºàº»àºà»€àº¥àºµàº</button>
-                  <button type="submit" className="btn btn-primary" style={{ background: 'var(--gold-primary)', color: 'black', borderColor: 'var(--gold-primary)' }}>àºšàº±àº™àº—àº¶àº</button>
-                </div>
-              </form>
-            </div>
+      {/* MODAL: ADD */}
+      {showAddModal&&(<Portal><div className="modal-overlay" style={{zIndex:1200}}><div className="modal-content modal-sm glass-card" style={{padding:'24px'}}>
+        <div className="modal-header" style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'16px'}}>
+          <h3 style={{color:'var(--gold-primary)',margin:0}}>➕ ເພີ່ມລາຍການອຸປະກອນ</h3>
+          <button type="button" className="close-btn" style={{background:'none',border:'none',color:'var(--text-secondary)',fontSize:'1.25rem',cursor:'pointer'}} onClick={()=>setShowAddModal(false)}>✕</button>
+        </div>
+        <form onSubmit={handleAddConsumable} style={{display:'flex',flexDirection:'column',gap:'12px'}}>
+          <div><label className="form-label">ຊື່ອຸປະກອນ *</label><input type="text" className="form-control" placeholder="ເຈ້ຍຫ້ອງນ້ຳ, ສະບູ..." value={addForm.name} onChange={e=>setAddForm({...addForm,name:e.target.value})} required/></div>
+          <div><label className="form-label">ໝວດໝູ່ *</label><select className="form-control" value={addForm.category} onChange={e=>setAddForm({...addForm,category:e.target.value})}>{categories.map(cat=><option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>)}</select></div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+            <div><label className="form-label">ຕົ້ນທຶນ/ໜ່ວຍ</label><input type="number" className="form-control" placeholder="0" value={addForm.costPerUnit} onChange={e=>setAddForm({...addForm,costPerUnit:e.target.value})}/></div>
+            <div><label className="form-label">ຫົວໜ່ວຍ</label><input type="text" className="form-control" placeholder="ອັນ, ມ້ວນ..." value={addForm.unit} onChange={e=>setAddForm({...addForm,unit:e.target.value})}/></div>
           </div>
-        </Portal>
-      )}
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+            <div><label className="form-label">ຍອດເລີ່ມຕົ້ນ</label><input type="number" className="form-control" placeholder="0" value={addForm.stock} onChange={e=>setAddForm({...addForm,stock:e.target.value})}/></div>
+            <div><label className="form-label">ລະດັບຂັ້ນຕ່ຳ</label><input type="number" className="form-control" placeholder="5" value={addForm.minStock} onChange={e=>setAddForm({...addForm,minStock:e.target.value})}/></div>
+          </div>
+          <div className="modal-footer" style={{display:'flex',justifyContent:'flex-end',gap:'10px',marginTop:'8px'}}>
+            <button type="button" className="btn btn-secondary" onClick={()=>setShowAddModal(false)}>ຍົກເລີກ</button>
+            <button type="submit" className="btn btn-primary" style={{background:'var(--gold-primary)',color:'black',borderColor:'var(--gold-primary)'}}>ບັນທຶກ</button>
+          </div>
+        </form>
+      </div></div></Portal>)}
 
-      {/* â”€â”€â”€ MODAL: EDIT CONSUMABLE â”€â”€â”€ */}
-      {showEditModal && (
-        <Portal>
-          <div className="modal-overlay" style={{ zIndex: 1200 }}>
-            <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
-              <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>ðŸ“ à»àºà»‰à»„àº‚àº¥àº²àºàºàº²àº™</h3>
-                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowEditModal(false)}>âœ•</button>
-              </div>
-              <form onSubmit={handleEditConsumable} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div>
-                  <label className="form-label">àºŠàº·à»ˆàº­àº¸àº›àº°àºàº­àº™ *</label>
-                  <input type="text" className="form-control" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} required />
+      {/* MODAL: EDIT */}
+      {showEditModal&&(<Portal><div className="modal-overlay" style={{zIndex:1200}}><div className="modal-content modal-sm glass-card" style={{padding:'24px'}}>
+        <div className="modal-header" style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'16px'}}>
+          <h3 style={{color:'var(--gold-primary)',margin:0}}>📝 ແກ້ໄຂລາຍການ</h3>
+          <button type="button" className="close-btn" style={{background:'none',border:'none',color:'var(--text-secondary)',fontSize:'1.25rem',cursor:'pointer'}} onClick={()=>setShowEditModal(false)}>✕</button>
+        </div>
+        <form onSubmit={handleEditConsumable} style={{display:'flex',flexDirection:'column',gap:'12px'}}>
+          <div><label className="form-label">ຊື່ *</label><input type="text" className="form-control" value={editForm.name} onChange={e=>setEditForm({...editForm,name:e.target.value})} required/></div>
+          <div><label className="form-label">ໝວດໝູ່ *</label><select className="form-control" value={editForm.category} onChange={e=>setEditForm({...editForm,category:e.target.value})}>{categories.map(cat=><option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>)}</select></div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+            <div><label className="form-label">ຕົ້ນທຶນ/ໜ່ວຍ</label><input type="number" className="form-control" value={editForm.costPerUnit} onChange={e=>setEditForm({...editForm,costPerUnit:e.target.value})}/></div>
+            <div><label className="form-label">ຫົວໜ່ວຍ</label><input type="text" className="form-control" value={editForm.unit} onChange={e=>setEditForm({...editForm,unit:e.target.value})}/></div>
+          </div>
+          <div><label className="form-label">ລະດັບຂັ້ນຕ່ຳ</label><input type="number" className="form-control" value={editForm.minStock} onChange={e=>setEditForm({...editForm,minStock:e.target.value})}/></div>
+          <div className="modal-footer" style={{display:'flex',justifyContent:'flex-end',gap:'10px',marginTop:'8px'}}>
+            <button type="button" className="btn btn-secondary" onClick={()=>setShowEditModal(false)}>ຍົກເລີກ</button>
+            <button type="submit" className="btn btn-primary" style={{background:'var(--gold-primary)',color:'black',borderColor:'var(--gold-primary)'}}>ບັນທຶກ</button>
+          </div>
+        </form>
+      </div></div></Portal>)}
+
+      {/* MODAL: RESTOCK */}
+      {showRestockModal&&activeItem&&(<Portal><div className="modal-overlay" style={{zIndex:1200}}><div className="modal-content modal-sm glass-card" style={{padding:'24px'}}>
+        <div className="modal-header" style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'16px'}}>
+          <h3 style={{color:'#2ecc71',margin:0}}>📥 ຮັບເຂົ້າອຸປະກອນ</h3>
+          <button type="button" className="close-btn" style={{background:'none',border:'none',color:'var(--text-secondary)',fontSize:'1.25rem',cursor:'pointer'}} onClick={()=>setShowRestockModal(false)}>✕</button>
+        </div>
+        <div style={{fontSize:'0.85rem',color:'var(--text-secondary)',marginBottom:'14px'}}><b>{activeItem.name}</b> | ຍອດ: {activeItem.stock} {activeItem.unit}</div>
+        <form onSubmit={handleRestock} style={{display:'flex',flexDirection:'column',gap:'12px'}}>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+            <div><label className="form-label">ຈຳນວນຮັບ *</label><input type="number" className="form-control" placeholder="10" value={restockForm.qty} onChange={e=>setRestockForm({...restockForm,qty:e.target.value})} required/></div>
+            <div><label className="form-label">ຕົ້ນທຶນ/ໜ່ວຍ</label><input type="number" className="form-control" placeholder={activeItem.costPerUnit} value={restockForm.costPerUnit} onChange={e=>setRestockForm({...restockForm,costPerUnit:e.target.value})}/></div>
+          </div>
+          <div><label className="form-label">ວິທີຊຳລະ</label>
+            <select className="form-control" value={restockForm.paymentMethod} onChange={e=>setRestockForm({...restockForm,paymentMethod:e.target.value})}>
+              <option value="cash">💵 ເງິນສົດ</option><option value="transfer">📱 ໂອນ BCEL One</option>
+            </select>
+          </div>
+          <div><label className="form-label">ໝາຍເຫດ</label><input type="text" className="form-control" placeholder="ຊື້ຢູ່ຮ້ານ..." value={restockForm.notes} onChange={e=>setRestockForm({...restockForm,notes:e.target.value})}/></div>
+          <div style={{background:'rgba(212,175,55,0.08)',border:'1px solid rgba(212,175,55,0.25)',padding:'10px',borderRadius:'6px',fontSize:'0.75rem',color:'var(--gold-primary)'}}>
+            ⚠️ ຈະບັນທຶກລາຍຈ່າຍ <b>{((parseFloat(restockForm.qty)||0)*(parseFloat(restockForm.costPerUnit)||activeItem.costPerUnit||0)).toLocaleString()} ₭</b> ອັດຕະໂນມັດ
+          </div>
+          <div className="modal-footer" style={{display:'flex',justifyContent:'flex-end',gap:'10px',marginTop:'8px'}}>
+            <button type="button" className="btn btn-secondary" onClick={()=>setShowRestockModal(false)}>ຍົກເລີກ</button>
+            <button type="submit" className="btn btn-primary" style={{background:'#2ecc71',color:'black',borderColor:'#2ecc71',fontWeight:'bold'}}>📥 ຢືນຢັນ</button>
+          </div>
+        </form>
+      </div></div></Portal>)}
+
+      {/* MODAL: DISBURSE */}
+      {showDisburseModal&&activeItem&&(<Portal><div className="modal-overlay" style={{zIndex:1200}}><div className="modal-content modal-sm glass-card" style={{padding:'24px'}}>
+        <div className="modal-header" style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'16px'}}>
+          <h3 style={{color:'#e74c3c',margin:0}}>📤 ເບີກອອກອຸປະກອນ</h3>
+          <button type="button" className="close-btn" style={{background:'none',border:'none',color:'var(--text-secondary)',fontSize:'1.25rem',cursor:'pointer'}} onClick={()=>setShowDisburseModal(false)}>✕</button>
+        </div>
+        <div style={{fontSize:'0.85rem',color:'var(--text-secondary)',marginBottom:'14px'}}><b>{activeItem.name}</b> | ຍອດ: {activeItem.stock} {activeItem.unit}</div>
+        <form onSubmit={handleDisburse} style={{display:'flex',flexDirection:'column',gap:'12px'}}>
+          <div><label className="form-label">ຈຳນວນເບີກ *</label><input type="number" className="form-control" placeholder="5" value={disburseForm.qty} onChange={e=>setDisburseForm({...disburseForm,qty:e.target.value})} required/></div>
+          <div><label className="form-label">ໝາຍເຫດ</label><input type="text" className="form-control" placeholder="ເບີກໄປໃຊ້..." value={disburseForm.notes} onChange={e=>setDisburseForm({...disburseForm,notes:e.target.value})}/></div>
+          <div style={{background:'rgba(231,76,60,0.06)',border:'1px solid rgba(231,76,60,0.2)',padding:'10px',borderRadius:'6px',fontSize:'0.75rem',color:'#FAB1A0'}}>
+            ℹ️ ການເບີກອອກຈະບໍ່ສ້າງລາຍຈ່າຍໃໝ່
+          </div>
+          <div className="modal-footer" style={{display:'flex',justifyContent:'flex-end',gap:'10px',marginTop:'8px'}}>
+            <button type="button" className="btn btn-secondary" onClick={()=>setShowDisburseModal(false)}>ຍົກເລີກ</button>
+            <button type="submit" className="btn btn-primary" style={{background:'#e74c3c',color:'white',borderColor:'#e74c3c',fontWeight:'bold'}}>📤 ຢືນຢັນ</button>
+          </div>
+        </form>
+      </div></div></Portal>)}
+
+      {/* MODAL: CATEGORY MANAGER */}
+      {showCategoryModal&&(<Portal><div className="modal-overlay" style={{zIndex:1200}}><div className="modal-content modal-sm glass-card" style={{padding:'24px',maxHeight:'85vh',overflowY:'auto'}}>
+        <div className="modal-header" style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'16px'}}>
+          <h3 style={{color:'var(--gold-primary)',margin:0}}>🗂️ ຈັດການໝວດໝູ່ອຸປະກອນ</h3>
+          <button type="button" className="close-btn" style={{background:'none',border:'none',color:'var(--text-secondary)',fontSize:'1.25rem',cursor:'pointer'}} onClick={()=>{setShowCategoryModal(false);setEditingCategory(null);setCategoryError('');}}>✕</button>
+        </div>
+        <div style={{background:'rgba(212,175,55,0.05)',border:'1px solid rgba(212,175,55,0.2)',borderRadius:'8px',padding:'14px',marginBottom:'16px'}}>
+          <div style={{fontSize:'0.8rem',fontWeight:'bold',color:'var(--gold-primary)',marginBottom:'10px'}}>➕ ເພີ່ມໝວດໝູ່ໃໝ່</div>
+          <div style={{display:'flex',gap:'8px',flexWrap:'wrap'}}>
+            <input type="text" className="form-control" style={{width:'60px',textAlign:'center',fontSize:'1.2rem'}} placeholder="🔧" value={newCatIcon} onChange={e=>setNewCatIcon(e.target.value)}/>
+            <input type="text" className="form-control" style={{flex:1}} placeholder="ຊື່ໝວດໝູ່..." value={newCatName} onChange={e=>{setNewCatName(e.target.value);setCategoryError('');}}/>
+            <button type="button" className="btn btn-primary" style={{background:'var(--gold-primary)',color:'black',borderColor:'var(--gold-primary)',fontWeight:'bold'}} onClick={handleAddCategory}>ເພີ່ມ</button>
+          </div>
+          {categoryError&&<div style={{color:'#e74c3c',fontSize:'0.78rem',marginTop:'6px'}}>{categoryError}</div>}
+        </div>
+        <div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
+          {categories.map(cat=>{
+            const usageCount=consumables.filter(c=>c.category===cat.id).length;
+            const isEditing=editingCategory&&editingCategory.id===cat.id;
+            return(<div key={cat.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid var(--border-color)',borderRadius:'8px',padding:'10px 12px'}}>
+              {isEditing?(
+                <div style={{display:'flex',gap:'8px',alignItems:'center',flexWrap:'wrap'}}>
+                  <input type="text" className="form-control" style={{width:'60px',textAlign:'center',fontSize:'1.1rem'}} value={editingCategory.icon} onChange={e=>setEditingCategory({...editingCategory,icon:e.target.value})}/>
+                  <input type="text" className="form-control" style={{flex:1}} value={editingCategory.name} onChange={e=>setEditingCategory({...editingCategory,name:e.target.value})}/>
+                  <button type="button" className="btn btn-primary" style={{padding:'4px 10px',fontSize:'0.78rem',background:'var(--gold-primary)',color:'black',borderColor:'var(--gold-primary)'}} onClick={handleUpdateCategory}>ບັນທຶກ</button>
+                  <button type="button" className="btn btn-secondary" style={{padding:'4px 10px',fontSize:'0.78rem'}} onClick={()=>setEditingCategory(null)}>ຍົກເລີກ</button>
                 </div>
-                <div>
-                  <label className="form-label">à»àº§àº”à»àº¹à»ˆ *</label>
-                  <select className="form-control" value={editForm.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}>
-                    {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>)}
-                  </select>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <div>
-                    <label className="form-label">àº•àº»à»‰àº™àº—àº¶àº™/à»œà»ˆàº§àº (LAK)</label>
-                    <input type="number" className="form-control" value={editForm.costPerUnit} onChange={(e) => setEditForm({ ...editForm, costPerUnit: e.target.value })} />
+              ):(
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+                    <span style={{fontSize:'1.4rem'}}>{cat.icon}</span>
+                    <div><div style={{fontWeight:'bold',color:'white',fontSize:'0.9rem'}}>{cat.name}</div><div style={{fontSize:'0.72rem',color:'var(--text-secondary)'}}>{usageCount} ລາຍການ</div></div>
                   </div>
-                  <div>
-                    <label className="form-label">àº«àº»àº§à»œà»ˆàº§àº</label>
-                    <input type="text" className="form-control" value={editForm.unit} onChange={(e) => setEditForm({ ...editForm, unit: e.target.value })} />
+                  <div style={{display:'flex',gap:'6px'}}>
+                    <button type="button" className="btn btn-secondary" style={{padding:'3px 8px',fontSize:'0.75rem'}} onClick={()=>{setEditingCategory({...cat});setCategoryError('');}}>📝</button>
+                    <button type="button" className="btn" style={{padding:'3px 8px',fontSize:'0.75rem',background:'#c0392b',color:'white',border:'none'}} onClick={()=>handleDeleteCategory(cat)}>🗑️</button>
                   </div>
                 </div>
-                <div>
-                  <label className="form-label">àº¥àº°àº”àº±àºšàº‚àº±à»‰àº™àº•à»ˆàº³</label>
-                  <input type="number" className="form-control" value={editForm.minStock} onChange={(e) => setEditForm({ ...editForm, minStock: e.target.value })} />
-                </div>
-                <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '8px' }}>
-                  <button type="button" className="btn btn-secondary" onClick={() => setShowEditModal(false)}>àºàº»àºà»€àº¥àºµàº</button>
-                  <button type="submit" className="btn btn-primary" style={{ background: 'var(--gold-primary)', color: 'black', borderColor: 'var(--gold-primary)' }}>àºšàº±àº™àº—àº¶àºàºàº²àº™à»àºà»‰à»„àº‚</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </Portal>
-      )}
+              )}
+            </div>);
+          })}
+        </div>
+      </div></div></Portal>)}
 
-      {/* â”€â”€â”€ MODAL: RESTOCK â”€â”€â”€ */}
-      {showRestockModal && activeItem && (
-        <Portal>
-          <div className="modal-overlay" style={{ zIndex: 1200 }}>
-            <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
-              <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ color: '#2ecc71', margin: 0 }}>ðŸ“¥ àº®àº±àºšà»€àº‚àº»à»‰àº²àº­àº¸àº›àº°àºàº­àº™</h3>
-                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowRestockModal(false)}>âœ•</button>
-              </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '14px' }}>
-                <b>{activeItem.name}</b> | àºàº­àº”àº„àº»àº‡: {activeItem.stock} {activeItem.unit}
-              </div>
-              <form onSubmit={handleRestock} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <div>
-                    <label className="form-label">àºˆàº³àº™àº§àº™àº®àº±àºšà»€àº‚àº»à»‰àº² *</label>
-                    <input type="number" className="form-control" placeholder="10" value={restockForm.qty} onChange={(e) => setRestockForm({ ...restockForm, qty: e.target.value })} required />
+      {/* MODAL: HISTORY */}
+      {showHistoryModal&&(<Portal><div className="modal-overlay" style={{zIndex:1200}}><div className="modal-content modal-md glass-card" style={{padding:'24px',maxHeight:'80%',overflowY:'auto'}}>
+        <div className="modal-header" style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'16px'}}>
+          <h3 style={{color:'var(--gold-primary)',margin:0}}>📋 ປະຫວັດຮັບ-ເບີກ</h3>
+          <button type="button" className="close-btn" style={{background:'none',border:'none',color:'var(--text-secondary)',fontSize:'1.25rem',cursor:'pointer'}} onClick={()=>setShowHistoryModal(false)}>✕</button>
+        </div>
+        <table className="table-premium" style={{width:'100%',marginTop:0}}>
+          <thead><tr>
+            <th style={{textAlign:'left',padding:'10px'}}>ວັນທີ</th><th style={{textAlign:'left',padding:'10px'}}>ລາຍການ</th>
+            <th style={{textAlign:'center',padding:'10px'}}>ປະເພດ</th><th style={{textAlign:'center',padding:'10px'}}>ຈຳນວນ</th>
+            <th style={{textAlign:'right',padding:'10px'}}>ມູນຄ່າ</th><th style={{textAlign:'left',padding:'10px'}}>ໝາຍເຫດ</th>
+          </tr></thead>
+          <tbody>
+            {allHistory.length===0?(<tr><td colSpan="6" style={{textAlign:'center',padding:'20px',color:'var(--text-secondary)'}}>ບໍ່ມີປະຫວັດ</td></tr>):allHistory.map(tx=>(
+              <tr key={tx.id} style={{borderBottom:'1px solid var(--border-color)',fontSize:'0.8rem'}}>
+                <td style={{padding:'10px'}}>{new Date(tx.date).toLocaleString('lo-LA')}</td>
+                <td style={{padding:'10px',fontWeight:'bold'}}>{tx.itemName}</td>
+                <td style={{padding:'10px',textAlign:'center'}}><span style={{padding:'2px 6px',borderRadius:'4px',fontSize:'0.65rem',fontWeight:'bold',background:tx.type==='restock'?'rgba(46,204,113,0.15)':'rgba(231,76,60,0.15)',color:tx.type==='restock'?'#2ecc71':'#e74c3c',border:`1px solid ${tx.type==='restock'?'#2ecc71':'#e74c3c'}`}}>{tx.type==='restock'?'ຮັບເຂົ້າ':'ເບີກອອກ'}</span></td>
+                <td style={{padding:'10px',textAlign:'center',fontWeight:'bold'}}>{tx.qty} {tx.unit}</td>
+                <td style={{padding:'10px',textAlign:'right',color:'var(--gold-primary)'}}>{tx.type==='restock'?`${(tx.totalCost||0).toLocaleString()} ₭`:'-'}</td>
+                <td style={{padding:'10px'}}><div style={{color:'white'}}>{tx.notes||'-'}</div><div style={{fontSize:'0.65rem',color:'var(--text-secondary)'}}>ໂດຍ: {tx.createdByName}</div></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div></div></Portal>)}
+
+      {/* MODAL: REPORT */}
+      {showReportModal&&(<Portal><div className="modal-overlay" style={{zIndex:1200}}><div className="modal-content modal-md glass-card" style={{padding:'24px',maxHeight:'80%',overflowY:'auto'}}>
+        <div className="modal-header" style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'16px'}}>
+          <h3 style={{color:'var(--gold-primary)',margin:0}}>📊 ລາຍງານສະຫຼຸບລາຍຈ່າຍ</h3>
+          <button type="button" className="close-btn" style={{background:'none',border:'none',color:'var(--text-secondary)',fontSize:'1.25rem',cursor:'pointer'}} onClick={()=>setShowReportModal(false)}>✕</button>
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:'10px',marginBottom:'20px',background:'rgba(255,255,255,0.03)',padding:'12px',borderRadius:'8px',border:'1px solid var(--border-color)'}}>
+          <label style={{fontSize:'0.85rem',color:'var(--text-secondary)'}}>ເລືອກເດືອນ:</label>
+          <input type="month" className="form-control" style={{width:'160px',background:'#1c1915'}} value={selectedMonth} onChange={e=>setSelectedMonth(e.target.value)}/>
+        </div>
+        <div style={{background:'rgba(231,76,60,0.06)',border:'1px solid rgba(231,76,60,0.22)',padding:'16px',borderRadius:'12px',display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'20px'}}>
+          <div><div style={{fontSize:'0.75rem',color:'var(--text-secondary)'}}>💵 ລວມລາຍຈ່າຍ:</div><div style={{fontSize:'1.6rem',fontWeight:'bold',color:'#FAB1A0',marginTop:'4px'}}>{totalMonthExpenseVal.toLocaleString()} ₭</div></div>
+          <div style={{fontSize:'0.8rem',color:'var(--text-secondary)',textAlign:'right'}}>ຈຳນວນ: <b>{monthExpenses.length} ລາຍການ</b></div>
+        </div>
+        <h4 style={{color:'white',fontSize:'0.9rem',marginBottom:'10px'}}>📁 ແຍກຕາມໝວດໝູ່:</h4>
+        <table className="table-premium" style={{width:'100%',marginBottom:'20px'}}>
+          <thead><tr><th style={{textAlign:'left',padding:'10px'}}>ໝວດໝູ່</th><th style={{textAlign:'center',padding:'10px'}}>ຈຳນວນ</th><th style={{textAlign:'right',padding:'10px'}}>ຍອດ</th><th style={{textAlign:'right',padding:'10px'}}>%</th></tr></thead>
+          <tbody>
+            {sortedGroupedExpenses.length===0?(<tr><td colSpan="4" style={{textAlign:'center',padding:'20px',color:'var(--text-secondary)'}}>ບໍ່ມີ</td></tr>):sortedGroupedExpenses.map(row=>{
+              const pct=totalMonthExpenseVal>0?Math.round((row.total/totalMonthExpenseVal)*100):0;
+              return(<tr key={row.name} style={{borderBottom:'1px solid var(--border-color)',fontSize:'0.85rem'}}>
+                <td style={{padding:'10px',fontWeight:'bold',color:'white'}}>{row.name}</td>
+                <td style={{padding:'10px',textAlign:'center'}}>{row.count}</td>
+                <td style={{padding:'10px',textAlign:'right',fontWeight:'bold',color:'#FAB1A0'}}>{row.total.toLocaleString()} ₭</td>
+                <td style={{padding:'10px',textAlign:'right'}}>
+                  <div style={{display:'flex',alignItems:'center',justifyContent:'flex-end',gap:'8px'}}>
+                    <span>{pct}%</span>
+                    <div style={{width:'50px',height:'6px',background:'rgba(255,255,255,0.08)',borderRadius:'3px',overflow:'hidden'}}><div style={{width:`${pct}%`,height:'100%',background:'#E17055'}}/></div>
                   </div>
-                  <div>
-                    <label className="form-label">àº•àº»à»‰àº™àº—àº¶àº™/à»œà»ˆàº§àº (LAK)</label>
-                    <input type="number" className="form-control" placeholder={activeItem.costPerUnit} value={restockForm.costPerUnit} onChange={(e) => setRestockForm({ ...restockForm, costPerUnit: e.target.value })} />
-                  </div>
-                </div>
-                <div>
-                  <label className="form-label">àº§àº´àº—àºµàºŠàº³àº¥àº°</label>
-                  <select className="form-control" value={restockForm.paymentMethod} onChange={(e) => setRestockForm({ ...restockForm, paymentMethod: e.target.value })}>
-                    <option value="cash">ðŸ’µ à»€àº‡àº´àº™àºªàº»àº”</option>
-                    <option value="transfer">ðŸ“± à»‚àº­àº™ BCEL One</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="form-label">à»àº²àºà»€àº«àº” / Supplier</label>
-                  <input type="text" className="form-control" placeholder="àºŠàº·à»‰àº¢àº¹à»ˆàº®à»‰àº²àº™..." value={restockForm.notes} onChange={(e) => setRestockForm({ ...restockForm, notes: e.target.value })} />
-                </div>
-                <div style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)', padding: '10px', borderRadius: '6px', fontSize: '0.75rem', color: 'var(--gold-primary)' }}>
-                  âš ï¸ àºˆàº°àºšàº±àº™àº—àº¶àºàº¥àº²àºàºˆà»ˆàº²àº <b>{((parseFloat(restockForm.qty) || 0) * (parseFloat(restockForm.costPerUnit) || activeItem.costPerUnit || 0)).toLocaleString()} â‚­</b> àº­àº±àº”àº•àº°à»‚àº™àº¡àº±àº”
-                </div>
-                <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '8px' }}>
-                  <button type="button" className="btn btn-secondary" onClick={() => setShowRestockModal(false)}>àºàº»àºà»€àº¥àºµàº</button>
-                  <button type="submit" className="btn btn-primary" style={{ background: '#2ecc71', color: 'black', borderColor: '#2ecc71', fontWeight: 'bold' }}>ðŸ“¥ àº¢àº·àº™àº¢àº±àº™àº®àº±àºšà»€àº‚àº»à»‰àº²</button>
-                </div>
-              </form>
+                </td>
+              </tr>);
+            })}
+          </tbody>
+        </table>
+        <h4 style={{color:'white',fontSize:'0.9rem',marginBottom:'10px'}}>📋 ລາຍການ:</h4>
+        <div style={{maxHeight:'250px',overflowY:'auto',display:'flex',flexDirection:'column',gap:'8px'}}>
+          {monthExpenses.length===0?(<div style={{textAlign:'center',padding:'20px',color:'var(--text-secondary)',fontSize:'0.8rem'}}>ບໍ່ມີ</div>):monthExpenses.map(ex=>(
+            <div key={ex.id} style={{background:'rgba(255,255,255,0.02)',border:'1px solid var(--border-color)',borderRadius:'8px',padding:'10px 14px',display:'flex',justifyContent:'space-between',alignItems:'center',fontSize:'0.8rem'}}>
+              <div><div style={{fontWeight:'bold',color:'white'}}>{ex.categoryName||ex.category}</div><div style={{fontSize:'0.7rem',color:'var(--text-secondary)',marginTop:'2px'}}>{new Date(ex.date).toLocaleDateString('lo-LA')}{ex.notes?` • ${ex.notes}`:''}</div></div>
+              <div style={{fontWeight:'bold',color:'#FAB1A0'}}>{(ex.convertedAmount||ex.amount).toLocaleString()} ₭</div>
             </div>
-          </div>
-        </Portal>
-      )}
-
-      {/* â”€â”€â”€ MODAL: DISBURSE â”€â”€â”€ */}
-      {showDisburseModal && activeItem && (
-        <Portal>
-          <div className="modal-overlay" style={{ zIndex: 1200 }}>
-            <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
-              <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ color: '#e74c3c', margin: 0 }}>ðŸ“¤ à»€àºšàºµàºàº­àº­àºàº­àº¸àº›àº°àºàº­àº™</h3>
-                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowDisburseModal(false)}>âœ•</button>
-              </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '14px' }}>
-                <b>{activeItem.name}</b> | àºàº­àº”àº„àº»àº‡: {activeItem.stock} {activeItem.unit}
-              </div>
-              <form onSubmit={handleDisburse} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div>
-                  <label className="form-label">àºˆàº³àº™àº§àº™à»€àºšàºµàºàº­àº­àº *</label>
-                  <input type="number" className="form-control" placeholder="5" value={disburseForm.qty} onChange={(e) => setDisburseForm({ ...disburseForm, qty: e.target.value })} required />
-                </div>
-                <div>
-                  <label className="form-label">àºˆàº¸àº”àº›àº°àºªàº»àº‡ / à»àº²àºà»€àº«àº”</label>
-                  <input type="text" className="form-control" placeholder="à»€àºšàºµàºà»„àº›à»ƒàºŠà»‰..." value={disburseForm.notes} onChange={(e) => setDisburseForm({ ...disburseForm, notes: e.target.value })} />
-                </div>
-                <div style={{ background: 'rgba(231,76,60,0.06)', border: '1px solid rgba(231,76,60,0.2)', padding: '10px', borderRadius: '6px', fontSize: '0.75rem', color: '#FAB1A0' }}>
-                  â„¹ï¸ àºàº²àº™à»€àºšàºµàºàº­àº­àºàºˆàº°àºšà»à»ˆàºªà»‰àº²àº‡àº¥àº²àºàºˆà»ˆàº²àºà»ƒà»à»ˆ (àº¥àº²àºàºˆà»ˆàº²àºàº–àº·àºàºšàº±àº™àº—àº¶àºàº•àº­àº™àº®àº±àºšà»€àº‚àº»à»‰àº²à»àº¥à»‰àº§)
-                </div>
-                <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '8px' }}>
-                  <button type="button" className="btn btn-secondary" onClick={() => setShowDisburseModal(false)}>àºàº»àºà»€àº¥àºµàº</button>
-                  <button type="submit" className="btn btn-primary" style={{ background: '#e74c3c', color: 'white', borderColor: '#e74c3c', fontWeight: 'bold' }}>ðŸ“¤ àº¢àº·àº™àº¢àº±àº™à»€àºšàºµàºàº­àº­àº</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </Portal>
-      )}
-
-      {/* â”€â”€â”€ MODAL: CATEGORY MANAGER â”€â”€â”€ */}
-      {showCategoryModal && (
-        <Portal>
-          <div className="modal-overlay" style={{ zIndex: 1200 }}>
-            <div className="modal-content modal-sm glass-card" style={{ padding: '24px', maxHeight: '85vh', overflowY: 'auto' }}>
-              <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>ðŸ—‚ï¸ àºˆàº±àº”àºàº²àº™à»àº§àº”à»àº¹à»ˆàº­àº¸àº›àº°àºàº­àº™</h3>
-                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => { setShowCategoryModal(false); setEditingCategory(null); setCategoryError(''); }}>âœ•</button>
-              </div>
-
-              {/* Add new category */}
-              <div style={{ background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: '8px', padding: '14px', marginBottom: '16px' }}>
-                <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--gold-primary)', marginBottom: '10px' }}>âž• à»€àºžàºµà»ˆàº¡à»àº§àº”à»àº¹à»ˆà»ƒà»à»ˆ</div>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  <input type="text" className="form-control" style={{ width: '60px', textAlign: 'center', fontSize: '1.2rem' }}
-                    placeholder="ðŸ”§" value={newCatIcon} onChange={e => setNewCatIcon(e.target.value)} />
-                  <input type="text" className="form-control" style={{ flex: 1 }} placeholder="àºŠàº·à»ˆà»àº§àº”à»àº¹à»ˆ..."
-                    value={newCatName} onChange={e => { setNewCatName(e.target.value); setCategoryError(''); }} />
-                  <button type="button" className="btn btn-primary" style={{ background: 'var(--gold-primary)', color: 'black', borderColor: 'var(--gold-primary)', whiteSpace: 'nowrap', fontWeight: 'bold' }} onClick={handleAddCategory}>à»€àºžàºµà»ˆàº¡</button>
-                </div>
-                {categoryError && <div style={{ color: '#e74c3c', fontSize: '0.78rem', marginTop: '6px' }}>{categoryError}</div>}
-              </div>
-
-              {/* List existing categories */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {categories.map(cat => {
-                  const usageCount = consumables.filter(c => c.category === cat.id).length;
-                  const isEditing = editingCategory && editingCategory.id === cat.id;
-                  return (
-                    <div key={cat.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px 12px' }}>
-                      {isEditing ? (
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                          <input type="text" className="form-control" style={{ width: '60px', textAlign: 'center', fontSize: '1.1rem' }}
-                            value={editingCategory.icon} onChange={e => setEditingCategory({ ...editingCategory, icon: e.target.value })} />
-                          <input type="text" className="form-control" style={{ flex: 1 }}
-                            value={editingCategory.name} onChange={e => setEditingCategory({ ...editingCategory, name: e.target.value })} />
-                          <button type="button" className="btn btn-primary" style={{ padding: '4px 10px', fontSize: '0.78rem', background: 'var(--gold-primary)', color: 'black', borderColor: 'var(--gold-primary)' }} onClick={handleUpdateCategory}>àºšàº±àº™àº—àº¶àº</button>
-                          <button type="button" className="btn btn-secondary" style={{ padding: '4px 10px', fontSize: '0.78rem' }} onClick={() => setEditingCategory(null)}>àºàº»àºà»€àº¥àºµàº</button>
-                        </div>
-                      ) : (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span style={{ fontSize: '1.4rem' }}>{cat.icon}</span>
-                            <div>
-                              <div style={{ fontWeight: 'bold', color: 'white', fontSize: '0.9rem' }}>{cat.name}</div>
-                              <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{usageCount} àº¥àº²àºàºàº²àº™ â€¢ ID: {cat.id}</div>
-                            </div>
-                          </div>
-                          <div style={{ display: 'flex', gap: '6px' }}>
-                            <button type="button" className="btn btn-secondary" style={{ padding: '3px 8px', fontSize: '0.75rem' }} onClick={() => { setEditingCategory({ ...cat }); setCategoryError(''); }}>ðŸ“</button>
-                            <button type="button" className="btn" style={{ padding: '3px 8px', fontSize: '0.75rem', background: '#c0392b', color: 'white', border: 'none' }} onClick={() => handleDeleteCategory(cat)}>ðŸ—‘ï¸</button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </Portal>
-      )}
-
-      {/* â”€â”€â”€ MODAL: HISTORY â”€â”€â”€ */}
-      {showHistoryModal && (
-        <Portal>
-          <div className="modal-overlay" style={{ zIndex: 1200 }}>
-            <div className="modal-content modal-md glass-card" style={{ padding: '24px', maxHeight: '80%', overflowY: 'auto' }}>
-              <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>ðŸ“‹ àº›àº°àº«àº§àº±àº”àº®àº±àºš-à»€àºšàºµàº</h3>
-                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowHistoryModal(false)}>âœ•</button>
-              </div>
-              <div className="desktop-table-view">
-                <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
-                  <thead>
-                    <tr>
-                      <th style={{ textAlign: 'left', padding: '10px' }}>àº§àº±àº™àº—àºµ</th>
-                      <th style={{ textAlign: 'left', padding: '10px' }}>àº¥àº²àºàºàº²àº™</th>
-                      <th style={{ textAlign: 'center', padding: '10px' }}>àº›àº°à»€àºžàº”</th>
-                      <th style={{ textAlign: 'center', padding: '10px' }}>àºˆàº³àº™àº§àº™</th>
-                      <th style={{ textAlign: 'right', padding: '10px' }}>àº¡àº¹àº™àº„à»ˆàº²</th>
-                      <th style={{ textAlign: 'left', padding: '10px' }}>à»àº²àºà»€àº«àº”</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {allHistory.length === 0 ? (
-                      <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>àºšà»à»ˆàº¡àºµàº›àº°àº«àº§àº±àº”</td></tr>
-                    ) : allHistory.map(tx => (
-                      <tr key={tx.id} style={{ borderBottom: '1px solid var(--border-color)', fontSize: '0.8rem' }}>
-                        <td style={{ padding: '10px' }}>{new Date(tx.date).toLocaleString('lo-LA')}</td>
-                        <td style={{ padding: '10px', fontWeight: 'bold' }}>{tx.itemName}</td>
-                        <td style={{ padding: '10px', textAlign: 'center' }}>
-                          <span style={{ padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 'bold', background: tx.type === 'restock' ? 'rgba(46,204,113,0.15)' : 'rgba(231,76,60,0.15)', color: tx.type === 'restock' ? '#2ecc71' : '#e74c3c', border: `1px solid ${tx.type === 'restock' ? '#2ecc71' : '#e74c3c'}` }}>
-                            {tx.type === 'restock' ? 'àº®àº±àºšà»€àº‚àº»à»‰àº²' : 'à»€àºšàºµàºàº­àº­àº'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold' }}>{tx.qty} {tx.unit}</td>
-                        <td style={{ padding: '10px', textAlign: 'right', color: 'var(--gold-primary)' }}>{tx.type === 'restock' ? `${(tx.totalCost || 0).toLocaleString()} â‚­` : '-'}</td>
-                        <td style={{ padding: '10px' }}>
-                          <div style={{ color: 'white' }}>{tx.notes || '-'}</div>
-                          <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>à»‚àº”àº: {tx.createdByName}</div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </Portal>
-      )}
-
-      {/* â”€â”€â”€ MODAL: MONTHLY EXPENSE REPORT â”€â”€â”€ */}
-      {showReportModal && (
-        <Portal>
-          <div className="modal-overlay" style={{ zIndex: 1200 }}>
-            <div className="modal-content modal-md glass-card" style={{ padding: '24px', maxHeight: '80%', overflowY: 'auto' }}>
-              <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>ðŸ“Š àº¥àº²àºàº‡àº²àº™àºªàº°àº«àº¼àº¸àºšàº¥àº²àºàºˆà»ˆàº²àºàº®à»‰àº²àº™</h3>
-                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowReportModal(false)}>âœ•</button>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>à»€àº¥àº·àº­àºà»€àº”àº·àº­àº™:</label>
-                <input type="month" className="form-control" style={{ width: '160px', background: '#1c1915' }} value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} />
-              </div>
-              <div style={{ background: 'rgba(231,76,60,0.06)', border: '1px solid rgba(231,76,60,0.22)', padding: '16px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ðŸ’µ àº¥àº§àº¡àº¥àº²àºàºˆà»ˆàº²àºàº—àº±àº‡à»àº»àº”:</div>
-                  <div style={{ fontSize: '1.6rem', fontWeight: 'bold', color: '#FAB1A0', marginTop: '4px' }}>{totalMonthExpenseVal.toLocaleString()} â‚­</div>
-                </div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'right' }}>àºˆàº³àº™àº§àº™: <b>{monthExpenses.length} àº¥àº²àºàºàº²àº™</b></div>
-              </div>
-              <h4 style={{ color: 'white', fontSize: '0.9rem', marginBottom: '10px' }}>ðŸ“ à»àºàºàº•àº²àº¡à»àº§àº”à»àº¹à»ˆ (Category Summary):</h4>
-              <div className="desktop-table-view" style={{ marginBottom: '20px' }}>
-                <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
-                  <thead>
-                    <tr>
-                      <th style={{ textAlign: 'left', padding: '10px' }}>à»àº§àº”à»àº¹à»ˆ</th>
-                      <th style={{ textAlign: 'center', padding: '10px' }}>àºˆàº³àº™àº§àº™</th>
-                      <th style={{ textAlign: 'right', padding: '10px' }}>àºàº­àº”àº¥àº§àº¡</th>
-                      <th style={{ textAlign: 'right', padding: '10px' }}>%</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sortedGroupedExpenses.length === 0 ? (
-                      <tr><td colSpan="4" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>àºšà»à»ˆàº¡àºµàº¥àº²àºàºˆà»ˆàº²àº</td></tr>
-                    ) : sortedGroupedExpenses.map(row => {
-                      const pct = totalMonthExpenseVal > 0 ? Math.round((row.total / totalMonthExpenseVal) * 100) : 0;
-                      return (
-                        <tr key={row.name} style={{ borderBottom: '1px solid var(--border-color)', fontSize: '0.85rem' }}>
-                          <td style={{ padding: '10px', fontWeight: 'bold', color: 'white' }}>{row.name}</td>
-                          <td style={{ padding: '10px', textAlign: 'center' }}>{row.count}</td>
-                          <td style={{ padding: '10px', textAlign: 'right', fontWeight: 'bold', color: '#FAB1A0' }}>{row.total.toLocaleString()} â‚­</td>
-                          <td style={{ padding: '10px', textAlign: 'right' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
-                              <span>{pct}%</span>
-                              <div style={{ width: '50px', height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
-                                <div style={{ width: `${pct}%`, height: '100%', background: '#E17055' }} />
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-              <h4 style={{ color: 'white', fontSize: '0.9rem', marginBottom: '10px' }}>ðŸ“‹ àº¥àº²àºàºàº²àº™àº¥àº²àºàºˆà»ˆàº²àº:</h4>
-              <div style={{ maxHeight: '250px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {monthExpenses.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>àºšà»à»ˆàº¡àºµàº¥àº²àºàºàº²àº™</div>
-                ) : monthExpenses.map(ex => (
-                  <div key={ex.id} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem' }}>
-                    <div>
-                      <div style={{ fontWeight: 'bold', color: 'white' }}>{ex.categoryName || ex.category}</div>
-                      <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '2px' }}>{new Date(ex.date).toLocaleDateString('lo-LA')}{ex.notes ? ` â€¢ ${ex.notes}` : ''}</div>
-                    </div>
-                    <div style={{ fontWeight: 'bold', color: '#FAB1A0' }}>{(ex.convertedAmount || ex.amount).toLocaleString()} â‚­</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </Portal>
-      )}
+          ))}
+        </div>
+      </div></div></Portal>)}
     </div>
   );
 }
 
-// ==========================================
-// ðŸ’Ž RAW MATERIALS SUB-VIEW
+// 💎 RAW MATERIALS SUB-VIEW
 // ==========================================
 function RawMaterialsSubView({ isMobile, activeUser }) {
   const hasInventoryPermission = (subKey) => {
@@ -1327,8 +1050,8 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState({
     name: '',
-    category: 'àº­àº²àº„àº£àºµàº¥àº´àº (Acrylic)',
-    unit: 'à»àºœà»ˆàº™',
+    category: 'ອາຄຣີລິກ (Acrylic)',
+    unit: 'ແຜ່ນ',
     stock_qty: '',
     min_stock: '',
     cost_price: '',
@@ -1353,8 +1076,8 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
     setEditMaterial(null);
     setFormData({
       name: '',
-      category: 'àº­àº²àº„àº£àºµàº¥àº´àº (Acrylic)',
-      unit: 'à»àºœà»ˆàº™',
+      category: 'ອາຄຣີລິກ (Acrylic)',
+      unit: 'ແຜ່ນ',
       stock_qty: '',
       min_stock: '',
       cost_price: '',
@@ -1371,8 +1094,8 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
     setEditMaterial(m);
     setFormData({
       name: m.name || '',
-      category: m.category || 'àº­àº²àº„àº£àºµàº¥àº´àº (Acrylic)',
-      unit: m.unit || 'à»àºœà»ˆàº™',
+      category: m.category || 'ອາຄຣີລິກ (Acrylic)',
+      unit: m.unit || 'ແຜ່ນ',
       stock_qty: m.stock_qty ?? '',
       min_stock: m.min_stock ?? '',
       cost_price: m.cost_price ?? '',
@@ -1386,7 +1109,7 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('àº•à»‰àº­àº‡àºàº²àº™àº¥àº¶àºšàº§àº±àº”àº–àº¸àº”àº´àºšàº™àºµà»‰à»àº¡à»ˆàº™àºšà»à»ˆ?')) {
+    if (window.confirm('ຕ້ອງການລຶບວັດຖຸດິບນີ້ແມ່ນບໍ່?')) {
       db.deleteRawMaterial(id);
       loadMaterials();
     }
@@ -1438,7 +1161,7 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
           db.addRawMaterial({
             name: cols[1],
             category: cols[2] || 'acrylic',
-            unit: cols[3] || 'àº­àº±àº™',
+            unit: cols[3] || 'ອັນ',
             stock_qty: Number(cols[4] || 0),
             min_stock: Number(cols[5] || 0),
             cost_price: Number(cols[6] || 0),
@@ -1447,12 +1170,12 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
           importedCount++;
         }
       }
-      alert('âœ“ àº™àº³à»€àº‚àº»à»‰àº²àº§àº±àº”àº–àº¸àº”àº´àºšàºªàº³à»€àº¥àº±àº” ' + importedCount + ' àº¥àº²àºàºàº²àº™!');
+      alert('✓ ນຳເຂົ້າວັດຖຸດິບສຳເລັດ ' + importedCount + ' ລາຍການ!');
       setShowCsvModal(false);
       setCsvText('');
       loadMaterials();
     } catch (err) {
-      alert('âš  àº‚à»à»‰àºœàº´àº”àºžàº²àº”à»ƒàº™àºàº²àº™àº™àº³à»€àº‚àº»à»‰àº² CSV: ' + err.message);
+      alert('⚠ ຂໍ້ຜິດພາດໃນການນຳເຂົ້າ CSV: ' + err.message);
     }
   };
 
@@ -1462,7 +1185,7 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
   );
 
   const existingRawCategories = Array.from(new Set(materials.map(m => m.category).filter(Boolean)));
-  const defaultRawCategories = ['àº­àº²àº„àº£àºµàº¥àº´àº (Acrylic)', 'à»„àº¡à»‰/àº‚àº­àºšà»„àº¡à»‰ (Wood)', 'à»àºà»‰àº§/à»€àº¥àº™ (Glass)', 'àºàº²àº§/àº­àº¸àº›àº°àºàº­àº™ (Glue/Chemicals)', 'àº­àº·à»ˆàº™à»† (Other)'];
+  const defaultRawCategories = ['ອາຄຣີລິກ (Acrylic)', 'ໄມ້/ຂອບໄມ້ (Wood)', 'ແກ້ວ/ເລນ (Glass)', 'ກາວ/ອຸປະກອນ (Glue/Chemicals)', 'ອື່ນໆ (Other)'];
   const rawCategoriesToSuggest = Array.from(new Set([...defaultRawCategories, ...existingRawCategories]));
 
   return (
@@ -1472,7 +1195,7 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
           <input
             type="text"
             className="form-control"
-            placeholder="ðŸ” àº„àº»à»‰àº™àº«àº²àº§àº±àº”àº–àº¸àº”àº´àºš..."
+            placeholder="🔍 ຄົ້ນຫາວັດຖຸດິບ..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -1484,7 +1207,7 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
             style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
             onClick={handleExportCsv}
           >
-            ðŸ“¤ àºªàº»à»ˆàº‡àº­àº­àº CSV
+            📤 ສົ່ງອອກ CSV
           </button>
 )}
 {hasInventoryPermission('inventoryAddProduct') && (
@@ -1493,7 +1216,7 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
             style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
             onClick={() => setShowCsvModal(true)}
           >
-            ðŸ“¥ àº™àº³à»€àº‚àº»à»‰àº² CSV
+            📥 ນຳເຂົ້າ CSV
           </button>
 )}
 {hasInventoryPermission('inventoryAddProduct') && (
@@ -1502,7 +1225,7 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
             style={isMobile ? { flex: '1 1 100%', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
             onClick={handleOpenAdd}
           >
-            âž• à»€àºžàºµà»ˆàº¡àº§àº±àº”àº–àº¸àº”àº´àºšà»ƒà»à»ˆ
+            ➕ ເພີ່ມວັດຖຸດິບໃໝ່
           </button>
 )}
         </div>
@@ -1512,14 +1235,14 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
         <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
           <thead>
             <tr>
-              <th style={{ textAlign: 'left', padding: '12px' }}>àºŠàº·à»ˆàº§àº±àº”àº–àº¸àº”àº´àºš</th>
-              <th style={{ textAlign: 'left', padding: '12px' }}>à»àº§àº”à»àº¹à»ˆ</th>
-              <th style={{ textAlign: 'center', padding: '12px' }}>àº«àº»àº§à»œà»ˆàº§àº</th>
-              <th style={{ textAlign: 'right', padding: '12px' }}>àºˆàº³àº™àº§àº™àºªàº°àº•àº±àº­àº</th>
-              <th style={{ textAlign: 'right', padding: '12px' }}>àºˆàº³àº™àº§àº™àº•à»à»ˆàº²àºªàº¸àº”</th>
-              <th style={{ textAlign: 'right', padding: '12px' }}>àº•àº»à»‰àº™àº—àº¶àº™ (LAK)</th>
-              <th style={{ textAlign: 'left', padding: '12px' }}>àºœàº¹à»‰àºªàº°à»œàº­àº‡</th>
-              <th style={{ textAlign: 'center', padding: '12px' }}>àºˆàº±àº”àºàº²àº™</th>
+              <th style={{ textAlign: 'left', padding: '12px' }}>ຊື່ວັດຖຸດິບ</th>
+              <th style={{ textAlign: 'left', padding: '12px' }}>ໝວດໝູ່</th>
+              <th style={{ textAlign: 'center', padding: '12px' }}>ຫົວໜ່ວຍ</th>
+              <th style={{ textAlign: 'right', padding: '12px' }}>ຈຳນວນສະຕັອກ</th>
+              <th style={{ textAlign: 'right', padding: '12px' }}>ຈຳນວນຕໍ່າສຸດ</th>
+              <th style={{ textAlign: 'right', padding: '12px' }}>ຕົ້ນທຶນ (LAK)</th>
+              <th style={{ textAlign: 'left', padding: '12px' }}>ຜູ້ສະໜອງ</th>
+              <th style={{ textAlign: 'center', padding: '12px' }}>ຈັດການ</th>
             </tr>
           </thead>
           <tbody>
@@ -1532,15 +1255,15 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
                   {m.stock_qty.toLocaleString()}
                 </td>
                 <td style={{ padding: '12px', textAlign: 'right', color: 'var(--text-secondary)' }}>{m.min_stock}</td>
-                <td style={{ padding: '12px', textAlign: 'right' }}>{hasInventoryPermission('inventoryViewCost') ? `${m.cost_price.toLocaleString()} â‚­` : '*** â‚­'}</td>
+                <td style={{ padding: '12px', textAlign: 'right' }}>{hasInventoryPermission('inventoryViewCost') ? `${m.cost_price.toLocaleString()} ₭` : '*** ₭'}</td>
                 <td style={{ padding: '12px', color: 'var(--text-secondary)' }}>{m.supplier || '-'}</td>
                 <td style={{ padding: '12px', textAlign: 'center' }}>
                   <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
 {hasInventoryPermission('inventoryEditProduct') && (
-                    <button className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '0.75rem', height: '30px' }} onClick={() => handleOpenEdit(m)}>âœï¸ à»àºà»‰à»„àº‚</button>
+                    <button className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '0.75rem', height: '30px' }} onClick={() => handleOpenEdit(m)}>✏️ ແກ້ໄຂ</button>
 )}
 {hasInventoryPermission('inventoryDeleteProduct') && (
-                    <button className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '0.75rem', height: '30px', color: 'var(--alert-red)', borderColor: 'rgba(231,76,60,0.1)' }} onClick={() => handleDelete(m.id)}>ðŸ—‘ï¸ àº¥àº¶àºš</button>
+                    <button className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '0.75rem', height: '30px', color: 'var(--alert-red)', borderColor: 'rgba(231,76,60,0.1)' }} onClick={() => handleDelete(m.id)}>🗑️ ລຶບ</button>
 )}
                   </div>
                 </td>
@@ -1559,28 +1282,28 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.85rem' }}>
               <div>
-                <span style={{ color: 'var(--text-secondary)' }}>àºˆàº³àº™àº§àº™: </span>
+                <span style={{ color: 'var(--text-secondary)' }}>ຈຳນວນ: </span>
                 <span style={{ fontWeight: 'bold', color: m.stock_qty <= m.min_stock ? 'var(--alert-red)' : 'white' }}>{m.stock_qty.toLocaleString()} {m.unit}</span>
               </div>
               <div>
-                <span style={{ color: 'var(--text-secondary)' }}>àº‚àº±à»‰àº™àº•à»ˆàº³: </span>
+                <span style={{ color: 'var(--text-secondary)' }}>ຂັ້ນຕ່ຳ: </span>
                 <span>{m.min_stock} {m.unit}</span>
               </div>
               <div>
-                <span style={{ color: 'var(--text-secondary)' }}>àº•àº»à»‰àº™àº—àº¶àº™: </span>
-                <span>{hasInventoryPermission('inventoryViewCost') ? `${m.cost_price.toLocaleString()} â‚­` : '*** â‚­'}</span>
+                <span style={{ color: 'var(--text-secondary)' }}>ຕົ້ນທຶນ: </span>
+                <span>{hasInventoryPermission('inventoryViewCost') ? `${m.cost_price.toLocaleString()} ₭` : '*** ₭'}</span>
               </div>
               <div>
-                <span style={{ color: 'var(--text-secondary)' }}>àºœàº¹à»‰àºªàº°à»œàº­àº‡: </span>
+                <span style={{ color: 'var(--text-secondary)' }}>ຜູ້ສະໜອງ: </span>
                 <span>{m.supplier || '-'}</span>
               </div>
             </div>
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
 {hasInventoryPermission('inventoryEditProduct') && (
-              <button className="btn btn-secondary btn-sm" onClick={() => handleOpenEdit(m)}>âœï¸ à»àºà»‰à»„àº‚</button>
+              <button className="btn btn-secondary btn-sm" onClick={() => handleOpenEdit(m)}>✏️ ແກ້ໄຂ</button>
 )}
 {hasInventoryPermission('inventoryDeleteProduct') && (
-              <button className="btn btn-secondary btn-sm" style={{ color: 'var(--alert-red)', borderColor: 'rgba(231,76,60,0.1)' }} onClick={() => handleDelete(m.id)}>ðŸ—‘ï¸ àº¥àº¶àºš</button>
+              <button className="btn btn-secondary btn-sm" style={{ color: 'var(--alert-red)', borderColor: 'rgba(231,76,60,0.1)' }} onClick={() => handleDelete(m.id)}>🗑️ ລຶບ</button>
 )}
             </div>
           </div>
@@ -1593,8 +1316,8 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
         <div className="modal-overlay" style={{ zIndex: 1100 }}>
           <div className="modal-content modal-md glass-card" style={{ padding: '24px' }}>
             <div className="modal-header">
-              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>{editMaterial ? 'âœï¸ à»àºà»‰à»„àº‚àº‚à»à»‰àº¡àº¹àº™àº§àº±àº”àº–àº¸àº”àº´àºš' : 'âž• à»€àºžàºµà»ˆàº¡àº§àº±àº”àº–àº¸àº”àº´àºšà»ƒà»à»ˆ'}</h3>
-              <button className="close-btn" onClick={() => setShowModal(false)}>âœ•</button>
+              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>{editMaterial ? '✏️ ແກ້ໄຂຂໍ້ມູນວັດຖຸດິບ' : '➕ ເພີ່ມວັດຖຸດິບໃໝ່'}</h3>
+              <button className="close-btn" onClick={() => setShowModal(false)}>✕</button>
             </div>
             <form onSubmit={handleSubmit}>
               <div className="modal-body" style={{ padding: '10px 0' }}>
@@ -1602,12 +1325,12 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
                   {/* Left Column */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div className="form-group">
-                      <label className="form-label">àºŠàº·à»ˆàº§àº±àº”àº–àº¸àº”àº´àºš (Ingredient Name) *</label>
+                      <label className="form-label">ຊື່ວັດຖຸດິບ (Ingredient Name) *</label>
                       <input type="text" className="form-control" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">à»àº§àº”à»àº¹à»ˆ (Category) *</label>
+                      <label className="form-label">ໝວດໝູ່ (Category) *</label>
                       <input
                         type="text"
                         className="form-control"
@@ -1625,22 +1348,22 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                       <div className="form-group">
-                        <label className="form-label">àº«àº»àº§à»œà»ˆàº§àº (Unit) *</label>
-                        <input type="text" className="form-control" placeholder="à»àºœà»ˆàº™, àº­àº±àº™,..." required value={formData.unit} onChange={(e) => setFormData({ ...formData, unit: e.target.value })} />
+                        <label className="form-label">ຫົວໜ່ວຍ (Unit) *</label>
+                        <input type="text" className="form-control" placeholder="ແຜ່ນ, ອັນ,..." required value={formData.unit} onChange={(e) => setFormData({ ...formData, unit: e.target.value })} />
                       </div>
                       <div className="form-group">
-                        <label className="form-label">àºšàº²à»‚àº„à»‰àº” (Barcode)</label>
+                        <label className="form-label">ບາໂຄ້ດ (Barcode)</label>
                         <input type="text" className="form-control" placeholder="Barcode..." value={formData.barcode} onChange={(e) => setFormData({ ...formData, barcode: e.target.value })} />
                       </div>
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">àºœàº¹à»‰àºªàº°à»œàº­àº‡ (Supplier)</label>
+                      <label className="form-label">ຜູ້ສະໜອງ (Supplier)</label>
                       <input type="text" className="form-control" placeholder="Supplier name..." value={formData.supplier} onChange={(e) => setFormData({ ...formData, supplier: e.target.value })} />
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">àº„àº³àº­àº°àº—àº´àºšàº²àº (Description)</label>
+                      <label className="form-label">ຄຳອະທິບາຍ (Description)</label>
                       <input type="text" className="form-control" placeholder="Description..." value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
                     </div>
                   </div>
@@ -1649,24 +1372,24 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                       <div className="form-group">
-                        <label className="form-label">àºªàº°àº•àº±àº­àºàº›àº±àº”àºˆàº¸àºšàº±àº™ *</label>
+                        <label className="form-label">ສະຕັອກປັດຈຸບັນ *</label>
                         <input type="number" className="form-control" required value={formData.stock_qty} onChange={(e) => setFormData({ ...formData, stock_qty: e.target.value })} />
                       </div>
                       <div className="form-group">
-                        <label className="form-label">à»àºˆà»‰àº‡à»€àº•àº·àº­àº™àº•à»à»ˆàº²àºªàº¸àº” *</label>
+                        <label className="form-label">ແຈ້ງເຕືອນຕໍ່າສຸດ *</label>
                         <input type="number" className="form-control" required value={formData.min_stock} onChange={(e) => setFormData({ ...formData, min_stock: e.target.value })} />
                       </div>
                     </div>
 
 {hasInventoryPermission('inventoryViewCost') && (
                     <div className="form-group">
-                      <label className="form-label">àº¥àº²àº„àº²àºŠàº·à»‰ / àº•àº»à»‰àº™àº—àº¶àº™ (LAK) *</label>
+                      <label className="form-label">ລາຄາຊື້ / ຕົ້ນທຶນ (LAK) *</label>
                       <input type="number" className="form-control" required value={formData.cost_price} onChange={(e) => setFormData({ ...formData, cost_price: e.target.value })} />
                     </div>
 )}
 
                     <div className="form-group">
-                      <label className="form-label">àº®àº¹àºšàºžàº²àºšàº§àº±àº”àº–àº¸àº”àº´àºš (Ingredient Photo)</label>
+                      <label className="form-label">ຮູບພາບວັດຖຸດິບ (Ingredient Photo)</label>
                       <input
                         type="file"
                         accept="image/*"
@@ -1690,13 +1413,13 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
                       {formData.image && (
                         <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                           <img src={formData.image} alt="Raw Material Preview" style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-color)' }} />
-                          <button type="button" className="btn btn-secondary" style={{ padding: '0 8px', height: '30px', fontSize: '0.75rem', color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }} onClick={() => setFormData(prev => ({ ...prev, image: '' }))}>àº¥àº¶àºšàº®àº¹àºš</button>
+                          <button type="button" className="btn btn-secondary" style={{ padding: '0 8px', height: '30px', fontSize: '0.75rem', color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }} onClick={() => setFormData(prev => ({ ...prev, image: '' }))}>ລຶບຮູບ</button>
                         </div>
                       )}
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">à»àº²àºà»€àº«àº” (Notes)</label>
+                      <label className="form-label">ໝາຍເຫດ (Notes)</label>
                       <textarea className="form-control" style={{ minHeight: '80px', resize: 'vertical' }} placeholder="Notes..." value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} />
                     </div>
                   </div>
@@ -1708,8 +1431,8 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
                   setEditMaterial(null);
                   setFormData({
                     name: '',
-                    category: 'àº­àº²àº„àº£àºµàº¥àº´àº (Acrylic)',
-                    unit: 'à»àºœà»ˆàº™',
+                    category: 'ອາຄຣີລິກ (Acrylic)',
+                    unit: 'ແຜ່ນ',
                     stock_qty: '',
                     min_stock: '',
                     cost_price: '',
@@ -1719,8 +1442,8 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
                     description: '',
                     notes: ''
                   });
-                }}>àºàº»àºà»€àº¥àºµàº</button>
-                <button type="submit" className="btn btn-primary">ðŸ’¾ àº¢àº·àº™àº¢àº±àº™</button>
+                }}>ຍົກເລີກ</button>
+                <button type="submit" className="btn btn-primary">💾 ຢືນຢັນ</button>
               </div>
             </form>
           </div>
@@ -1733,12 +1456,12 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
         <div className="modal-overlay" style={{ zIndex: 1100 }}>
           <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
             <div className="modal-header">
-              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>ðŸ“¥ àº™àº³à»€àº‚àº»à»‰àº²àº§àº±àº”àº–àº¸àº”àº´àºšàºœà»ˆàº²àº™ CSV</h3>
-              <button className="close-btn" onClick={() => setShowCsvModal(false)}>âœ•</button>
+              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>📥 ນຳເຂົ້າວັດຖຸດິບຜ່ານ CSV</h3>
+              <button className="close-btn" onClick={() => setShowCsvModal(false)}>✕</button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                àº§àº²àº‡à»€àº™àº·à»‰àº­àº«àº²à»„àºŸàº¥à»Œ CSV àº‚àº­àº‡àº§àº±àº”àº–àº¸àº”àº´àºšàº•àº²àº¡àº®àº¹àºšà»àºšàºšàº”à»‰àº²àº™àº¥àº¸à»ˆàº¡àº™àºµà»‰ (àº«à»‰àº²àº¡àº¥àº»àºšà»àº–àº§àº«àº»àº§àº‚à»à»‰àº—àº³àº­àº´àº”):
+                ວາງເນື້ອຫາໄຟລ໌ CSV ຂອງວັດຖຸດິບຕາມຮູບແບບດ້ານລຸ່ມນີ້ (ຫ້າມລົບແຖວຫົວຂໍ້ທຳອິດ):
               </p>
               <textarea
                 className="form-control"
@@ -1751,8 +1474,8 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
                 <button type="button" className="btn btn-secondary" onClick={() => {
                   setShowCsvModal(false);
                   setCsvText('');
-                }}>àºàº»àºà»€àº¥àºµàº</button>
-                <button type="button" className="btn btn-primary" onClick={handleImportCsv} disabled={!csvText.trim()}>ðŸ’¾ àº¢àº·àº™àº¢àº±àº™àºàº²àº™àº™àº³à»€àº‚àº»à»‰àº²</button>
+                }}>ຍົກເລີກ</button>
+                <button type="button" className="btn btn-primary" onClick={handleImportCsv} disabled={!csvText.trim()}>💾 ຢືນຢັນການນຳເຂົ້າ</button>
               </div>
             </div>
           </div>
@@ -1765,9 +1488,9 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
         type="button" 
         className="fab-btn" 
         onClick={handleOpenAdd} 
-        title="à»€àºžàºµà»ˆàº¡àº§àº±àº”àº–àº¸àº”àº´àºšà»ƒà»à»ˆ (Add Raw Material)"
+        title="ເພີ່ມວັດຖຸດິບໃໝ່ (Add Raw Material)"
       >
-        âž•
+        ➕
       </button>
 
     </div>
@@ -1775,7 +1498,7 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
 }
 
 // ==========================================
-// ðŸ­ BOM FORMULA & MANUFACTURING SUB-VIEW
+// 🏭 BOM FORMULA & MANUFACTURING SUB-VIEW
 // ==========================================
 function ManufacturingSubView({ isMobile, activeUser }) {
   const hasInventoryPermission = (subKey) => {
@@ -1810,14 +1533,14 @@ function ManufacturingSubView({ isMobile, activeUser }) {
   const [prodCost, setProdCost] = useState('');
   const [prodStock, setProdStock] = useState('10');
   const [prodMinStock, setProdMinStock] = useState('2');
-  const [prodUnit, setProdUnit] = useState('àº­àº±àº™');
+  const [prodUnit, setProdUnit] = useState('ອັນ');
   const [prodBarcode, setProdBarcode] = useState('');
   const [prodImage, setProdImage] = useState('');
 
   const [showAddMaterialModal, setShowAddMaterialModal] = useState(false);
   const [matName, setMatName] = useState('');
-  const [matCategory, setMatCategory] = useState('àº­àº²àº„àº£àºµàº¥àº´àº (Acrylic)');
-  const [matUnit, setMatUnit] = useState('à»àºœà»ˆàº™');
+  const [matCategory, setMatCategory] = useState('ອາຄຣີລິກ (Acrylic)');
+  const [matUnit, setMatUnit] = useState('ແຜ່ນ');
   const [matStockQty, setMatStockQty] = useState('0');
   const [matMinStock, setMatMinStock] = useState('0');
   const [matCostPrice, setMatCostPrice] = useState('0');
@@ -1838,7 +1561,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
     setProdCost('');
     setProdStock('10');
     setProdMinStock('2');
-    setProdUnit('àº­àº±àº™');
+    setProdUnit('ອັນ');
     setProdBarcode(String(Math.floor(100000 + Math.random() * 900000)));
     setProdImage('https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=200&auto=format&fit=crop&q=60');
     setShowAddProductModal(true);
@@ -1852,7 +1575,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
     if (existingCat) {
       catId = existingCat.id;
     } else {
-      const newCat = db.addCategory({ name: prodCategory.trim(), icon: 'ðŸ“¦', type: 'physical' });
+      const newCat = db.addCategory({ name: prodCategory.trim(), icon: '📦', type: 'physical' });
       catId = newCat.id;
     }
 
@@ -1864,7 +1587,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
       cost: Number(prodCost),
       stock: isService ? 0 : Number(prodStock),
       minStock: isService ? 0 : Number(prodMinStock),
-      unit: prodUnit || (isService ? 'àº„àº±à»‰àº‡' : 'àº­àº±àº™'),
+      unit: prodUnit || (isService ? 'ຄັ້ງ' : 'ອັນ'),
       barcode: prodBarcode,
       image: prodImage
     };
@@ -1876,7 +1599,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
     setProdCost('');
     setProdStock('10');
     setProdMinStock('2');
-    setProdUnit('àº­àº±àº™');
+    setProdUnit('ອັນ');
     setProdBarcode('');
     setProdImage('');
     loadData();
@@ -1885,8 +1608,8 @@ function ManufacturingSubView({ isMobile, activeUser }) {
 
   const handleOpenAddMaterial = () => {
     setMatName('');
-    setMatCategory('àº­àº²àº„àº£àºµàº¥àº´àº (Acrylic)');
-    setMatUnit('à»àºœà»ˆàº™');
+    setMatCategory('ອາຄຣີລິກ (Acrylic)');
+    setMatUnit('ແຜ່ນ');
     setMatStockQty('0');
     setMatMinStock('0');
     setMatCostPrice('0');
@@ -1908,8 +1631,8 @@ function ManufacturingSubView({ isMobile, activeUser }) {
     const newMat = db.addRawMaterial(payload);
     setShowAddMaterialModal(false);
     setMatName('');
-    setMatCategory('àº­àº²àº„àº£àºµàº¥àº´àº (Acrylic)');
-    setMatUnit('à»àºœà»ˆàº™');
+    setMatCategory('ອາຄຣີລິກ (Acrylic)');
+    setMatUnit('ແຜ່ນ');
     setMatStockQty('0');
     setMatMinStock('0');
     setMatCostPrice('0');
@@ -1937,7 +1660,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
   const handleAddRecipeMaterial = (e) => {
     e.preventDefault();
     if (!selectedMatId || !matQty || isNaN(matQty) || Number(matQty) <= 0) {
-      alert('àºàº°àº¥àº¸àº™àº²à»€àº¥àº·àº­àºàº§àº±àº”àº–àº¸àº”àº´àºš à»àº¥àº° àº›à»‰àº­àº™àºˆàº³àº™àº§àº™àº—àºµà»ˆàº–àº·àºàº•à»‰àº­àº‡');
+      alert('ກະລຸນາເລືອກວັດຖຸດິບ ແລະ ປ້ອນຈຳນວນທີ່ຖືກຕ້ອງ');
       return;
     }
     const mat = rawMaterials.find(m => m.id === selectedMatId);
@@ -1970,7 +1693,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
       bom: bomList
     };
     db.updateProduct(updatedProduct);
-    alert('âœ“ àºšàº±àº™àº—àº¶àºàºªàº¹àº”àºàº²àº™àºœàº°àº¥àº´àº”àºªàº³à»€àº¥àº±àº”!');
+    alert('✓ ບັນທຶກສູດການຜະລິດສຳເລັດ!');
     loadData();
     setSelectedProduct(updatedProduct);
   };
@@ -2023,18 +1746,18 @@ function ManufacturingSubView({ isMobile, activeUser }) {
     if (!selectedProduct) return;
     const qty = parseInt(produceQty);
     if (isNaN(qty) || qty <= 0) {
-      alert('àºàº°àº¥àº¸àº™àº²àº›à»‰àº­àº™àºˆàº³àº™àº§àº™àº—àºµà»ˆàº•à»‰àº­àº‡àºàº²àº™àºœàº°àº¥àº´àº”');
+      alert('ກະລຸນາປ້ອນຈຳນວນທີ່ຕ້ອງການຜະລິດ');
       return;
     }
 
     try {
       db.addProductionJob(selectedProduct.id, qty);
-      alert('âœ“ àºœàº°àº¥àº´àº”àºªàº´àº™àº„à»‰àº² ' + selectedProduct.name + ' àºˆàº³àº™àº§àº™ ' + qty + ' àº­àº±àº™ àºªàº³à»€àº¥àº±àº”!');
+      alert('✓ ຜະລິດສິນຄ້າ ' + selectedProduct.name + ' ຈຳນວນ ' + qty + ' ອັນ ສຳເລັດ!');
       loadData();
       const updatedProd = db.getProducts().find(p => p.id === selectedProduct.id);
       setSelectedProduct(updatedProd);
     } catch (err) {
-      alert('âš  àº‚à»à»‰àºœàº´àº”àºžàº²àº”à»ƒàº™àºàº²àº™àºœàº°àº¥àº´àº”: ' + err.message);
+      alert('⚠ ຂໍ້ຜິດພາດໃນການຜະລິດ: ' + err.message);
     }
   };
 
@@ -2043,7 +1766,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
       
       <div className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ color: 'var(--gold-primary)', fontSize: '0.95rem', margin: 0 }}>ðŸ“¦ à»€àº¥àº·àº­àºàºªàº´àº™àº„à»‰àº²à»€àºžàº·à»ˆàº­àºˆàº±àº”àºàº²àº™</h3>
+          <h3 style={{ color: 'var(--gold-primary)', fontSize: '0.95rem', margin: 0 }}>📦 ເລືອກສິນຄ້າເພື່ອຈັດການ</h3>
 {hasInventoryPermission('inventoryAddProduct') && (
           <button
             type="button"
@@ -2051,7 +1774,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
             style={{ padding: '4px 10px', fontSize: '0.75rem', fontWeight: 'bold' }}
             onClick={handleOpenAddProduct}
           >
-            âž• à»€àºžàºµà»ˆàº¡àºªàº´àº™àº„à»‰àº²à»ƒà»à»ˆ
+            ➕ ເພີ່ມສິນຄ້າໃໝ່
           </button>
 )}
         </div>
@@ -2078,7 +1801,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
               >
                 <span style={{ fontWeight: 'bold' }}>{p.name}</span>
                 <span style={{ fontSize: '0.7rem', color: hasBOM ? 'var(--success-green)' : 'var(--text-secondary)' }}>
-                  {hasBOM ? 'âœ“ àº¡àºµàºªàº¹àº”' : 'âš  àºšà»à»ˆàº¡àºµàºªàº¹àº”'}
+                  {hasBOM ? '✓ ມີສູດ' : '⚠ ບໍ່ມີສູດ'}
                 </span>
               </button>
             );
@@ -2092,7 +1815,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
             <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '16px' } : { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
               <div className="glass-card" style={{ padding: '20px' }}>
                 <h3 style={{ color: 'var(--gold-primary)', fontSize: '0.95rem', margin: '0 0 12px' }}>
-                  ðŸ§ª àºªàº¹àº”àºàº²àº™àºœàº°àº¥àº´àº” (BOM Formula Recipe) - {selectedProduct.name}
+                  🧪 ສູດການຜະລິດ (BOM Formula Recipe) - {selectedProduct.name}
                 </h3>
                 <form onSubmit={handleAddRecipeMaterial} style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
                   <select
@@ -2102,7 +1825,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                     value={selectedMatId}
                     onChange={(e) => setSelectedMatId(e.target.value)}
                   >
-                    <option value="">-- à»€àº¥àº·àº­àºàº§àº±àº”àº–àº¸àº”àº´àºš --</option>
+                    <option value="">-- ເລືອກວັດຖຸດິບ --</option>
                     {rawMaterials.map(m => (
                       <option key={m.id} value={m.id}>{m.name} ({m.stock_qty} {m.unit})</option>
                     ))}
@@ -2112,9 +1835,9 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                     className="btn btn-secondary"
                     style={{ padding: '0 10px', fontSize: '0.85rem' }}
                     onClick={handleOpenAddMaterial}
-                    title="à»€àºžàºµà»ˆàº¡àº§àº±àº”àº–àº¸àº”àº´àºšà»ƒà»à»ˆ"
+                    title="ເພີ່ມວັດຖຸດິບໃໝ່"
                   >
-                    âž•
+                    ➕
                   </button>
                   <input
                     type="number"
@@ -2122,17 +1845,17 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                     required
                     className="form-control"
                     style={{ width: '90px' }}
-                    placeholder="àºˆàº³àº™àº§àº™"
+                    placeholder="ຈຳນວນ"
                     value={matQty}
                     onChange={(e) => setMatQty(e.target.value)}
                   />
-                  <button type="submit" className="btn btn-primary" style={{ padding: '0 16px' }}>à»€àºžàºµà»ˆàº¡</button>
+                  <button type="submit" className="btn btn-primary" style={{ padding: '0 16px' }}>ເພີ່ມ</button>
                 </form>
 
                 <div style={{ minHeight: '120px', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px', background: 'rgba(0,0,0,0.1)' }}>
                   {bomList.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
-                      àºàº±àº‡àºšà»à»ˆàº—àº±àº™àº¡àºµàº§àº±àº”àº–àº¸àº”àº´àºšà»ƒàº™àºªàº¹àº”àºàº²àº™àºœàº°àº¥àº´àº”.
+                      ຍັງບໍ່ທັນມີວັດຖຸດິບໃນສູດການຜະລິດ.
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -2146,7 +1869,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                               style={{ background: 'none', border: 'none', color: 'var(--alert-red)', cursor: 'pointer', fontSize: '1rem' }}
                               onClick={() => handleRemoveRecipeMaterial(item.materialId)}
                             >
-                              âœ•
+                              ✕
                             </button>
                           </div>
                         </div>
@@ -2156,28 +1879,28 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                 </div>
 
                 <button type="button" className="btn btn-primary" style={{ width: '100%', marginTop: '14px' }} onClick={handleSaveRecipe}>
-                  ðŸ’¾ àºšàº±àº™àº—àº¶àºàºªàº¹àº”àºàº²àº™àºœàº°àº¥àº´àº” (Save BOM)
+                  💾 ບັນທຶກສູດການຜະລິດ (Save BOM)
                 </button>
               </div>
 
               <div className="glass-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <div>
                   <h3 style={{ color: 'var(--gold-primary)', fontSize: '0.95rem', margin: '0 0 12px' }}>
-                    ðŸ­ àºœàº°àº¥àº´àº”àºªàº´àº™àº„à»‰àº² (Execute Manufacturing)
+                    🏭 ຜະລິດສິນຄ້າ (Execute Manufacturing)
                   </h3>
                   
                   <div style={{ background: 'rgba(212,175,55,0.05)', border: '1px dashed var(--gold-primary)', borderRadius: '8px', padding: '14px', marginBottom: '20px' }}>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>àºàº³àº¥àº±àº‡àºàº²àº™àºœàº°àº¥àº´àº”àºªàº¹àº‡àºªàº¸àº” (Max Yield Capacity):</div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>ກຳລັງການຜະລິດສູງສຸດ (Max Yield Capacity):</div>
                     <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: 'white', marginTop: '4px' }}>
-                      {calculateCapacity(selectedProduct)} <span style={{ fontSize: '1rem', color: 'var(--text-secondary)', fontWeight: 'normal' }}>àº­àº±àº™</span>
+                      {calculateCapacity(selectedProduct)} <span style={{ fontSize: '1rem', color: 'var(--text-secondary)', fontWeight: 'normal' }}>ອັນ</span>
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
-                      * àº„àº³àº™àº§àº™àºˆàº²àºàº§àº±àº”àº–àº¸àº”àº´àºšàº„àº»àº‡à»€àº«àº¼àº·àº­à»ƒàº™àºªàº°àº•àº±àº­àº
+                      * ຄຳນວນຈາກວັດຖຸດິບຄົງເຫຼືອໃນສະຕັອກ
                     </div>
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">àºˆàº³àº™àº§àº™àº—àºµà»ˆàº•à»‰àº­àº‡àºàº²àº™àºœàº°àº¥àº´àº”</label>
+                    <label className="form-label">ຈຳນວນທີ່ຕ້ອງການຜະລິດ</label>
                     <input
                       type="number"
                       className="form-control"
@@ -2194,76 +1917,76 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                   onClick={handleExecuteProduction}
                   disabled={calculateCapacity(selectedProduct) <= 0}
                 >
-                  ðŸš€ àºªàº±à»ˆàº‡àºœàº°àº¥àº´àº”àºªàº´àº™àº„à»‰àº² (Manufacture)
+                  🚀 ສັ່ງຜະລິດສິນຄ້າ (Manufacture)
                 </button>
               </div>
             </div>
 
             <div className="glass-card" style={{ padding: '20px' }}>
               <h3 style={{ color: 'var(--gold-primary)', fontSize: '0.95rem', margin: '0 0 14px' }}>
-                ðŸ“ à»€àº„àº·à»ˆàº­àº‡àº„àº´àº”à»„àº¥à»ˆà»àºœà»ˆàº™àº­àº²àº„àº£àºµàº¥àº´àº (Acrylic Sheet Cutting Solver)
+                📐 ເຄື່ອງຄິດໄລ່ແຜ່ນອາຄຣີລິກ (Acrylic Sheet Cutting Solver)
               </h3>
               
               <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '16px' } : { display: 'grid', gridTemplateColumns: '320px 1fr', gap: '20px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label" style={{ fontSize: '0.75rem' }}>àºàº§à»‰àº²àº‡à»àºœà»ˆàº™ (Sheet W - cm)</label>
+                      <label className="form-label" style={{ fontSize: '0.75rem' }}>ກວ້າງແຜ່ນ (Sheet W - cm)</label>
                       <input type="number" className="form-control" value={sheetW} onChange={(e) => setSheetW(e.target.value)} />
                     </div>
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label" style={{ fontSize: '0.75rem' }}>àºªàº¹àº‡à»àºœà»ˆàº™ (Sheet H - cm)</label>
+                      <label className="form-label" style={{ fontSize: '0.75rem' }}>ສູງແຜ່ນ (Sheet H - cm)</label>
                       <input type="number" className="form-control" value={sheetH} onChange={(e) => setSheetH(e.target.value)} />
                     </div>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label" style={{ fontSize: '0.75rem' }}>àºàº§à»‰àº²àº‡àºŠàº´à»‰àº™àº‡àº²àº™ (Piece W - cm)</label>
+                      <label className="form-label" style={{ fontSize: '0.75rem' }}>ກວ້າງຊິ້ນງານ (Piece W - cm)</label>
                       <input type="number" className="form-control" value={pieceW} onChange={(e) => setPieceW(e.target.value)} />
                     </div>
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label" style={{ fontSize: '0.75rem' }}>àºªàº¹àº‡àºŠàº´à»‰àº™àº‡àº²àº™ (Piece H - cm)</label>
+                      <label className="form-label" style={{ fontSize: '0.75rem' }}>ສູງຊິ້ນງານ (Piece H - cm)</label>
                       <input type="number" className="form-control" value={pieceH} onChange={(e) => setPieceH(e.target.value)} />
                     </div>
                   </div>
 
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label" style={{ fontSize: '0.75rem' }}>à»„àº¥àºàº°àº«à»ˆàº²àº‡/àº„àº§àº²àº¡à»œàº²à»ƒà¸šàº•àº±àº” (Waste margin - cm)</label>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>ໄລຍະຫ່າງ/ຄວາມໜາໃบຕັດ (Waste margin - cm)</label>
                     <input type="number" step="0.1" className="form-control" value={margin} onChange={(e) => setMargin(e.target.value)} />
                   </div>
 
 {hasInventoryPermission('inventoryViewCost') && (
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label" style={{ fontSize: '0.75rem' }}>àº•àº»à»‰àº™àº—àº¶àº™à»àºœà»ˆàº™àº­àº²àº„àº£àºµàº¥àº´àº (Sheet Cost - LAK)</label>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>ຕົ້ນທຶນແຜ່ນອາຄຣີລິກ (Sheet Cost - LAK)</label>
                     <input type="number" className="form-control" value={sheetCost} onChange={(e) => setSheetCost(e.target.value)} />
                   </div>
 )}
 
                   <div style={{ background: 'rgba(0,0,0,0.15)', borderRadius: '6px', padding: '12px', marginTop: '10px', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>àºˆàº³àº™àº§àº™àºŠàº´à»‰àº™àº‡àº²àº™àº—àºµà»ˆà»„àº”à»‰:</span>
-                      <b style={{ color: 'var(--gold-primary)' }}>{solverResult.yieldCount} àºŠàº´à»‰àº™</b>
+                      <span>ຈຳນວນຊິ້ນງານທີ່ໄດ້:</span>
+                      <b style={{ color: 'var(--gold-primary)' }}>{solverResult.yieldCount} ຊິ້ນ</b>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>àº­àº±àº”àº•àº²à»ƒàºŠà»‰àº‡àº²àº™ (Yield):</span>
+                      <span>ອັດຕາໃຊ້ງານ (Yield):</span>
                       <b style={{ color: 'var(--success-green)' }}>{solverResult.efficiency}%</b>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>àº­àº±àº”àº•àº²à»€àºªàºà»€àºªàº” (Waste):</span>
+                      <span>ອັດຕາເສຍເສດ (Waste):</span>
                       <b style={{ color: 'var(--alert-red)' }}>{solverResult.waste}%</b>
                     </div>
 {hasInventoryPermission('inventoryViewCost') && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', borderTop: '1px solid var(--border-color)', paddingTop: '6px', marginTop: '4px' }}>
-                      <span>àº•àº»à»‰àº™àº—àº¶àº™àºªàº°à»€àº¥à»ˆàº:</span>
-                      <b style={{ color: 'white' }}>{solverResult.costPerUnit.toLocaleString()} â‚­ / àºŠàº´à»‰àº™</b>
+                      <span>ຕົ້ນທຶນສະເລ່ຍ:</span>
+                      <b style={{ color: 'white' }}>{solverResult.costPerUnit.toLocaleString()} ₭ / ຊິ້ນ</b>
                     </div>
 )}
                   </div>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ðŸ“º àº•àº»àº§àº¢à»ˆàº²àº‡àºàº²àº™àºˆàº±àº”àº§àº²àº‡à»àºœà»ˆàº™àº•àº±àº” (Simulated Cutting Layout Grid):</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📺 ຕົວຢ່າງການຈັດວາງແຜ່ນຕັດ (Simulated Cutting Layout Grid):</span>
                   <div style={{
                     width: '100%',
                     height: '240px',
@@ -2308,7 +2031,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                         ))}
                       </div>
                     ) : (
-                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>àº‚àº°à»œàº²àº”àºŠàº´à»‰àº™àº‡àº²àº™à»ƒàº«àºà»ˆà»€àºàºµàº™à»àºœà»ˆàº™àº­àº²àº„àº£àºµàº¥àº´àº!</div>
+                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>ຂະໜາດຊິ້ນງານໃຫຍ່ເກີນແຜ່ນອາຄຣີລິກ!</div>
                     )}
                   </div>
                 </div>
@@ -2317,18 +2040,18 @@ function ManufacturingSubView({ isMobile, activeUser }) {
 
             <div className="glass-card" style={{ padding: '20px' }}>
               <h3 style={{ color: 'var(--gold-primary)', fontSize: '0.95rem', margin: '0 0 12px' }}>
-                ðŸ“œ àº›àº°àº«àº§àº±àº”àºàº²àº™àºœàº°àº¥àº´àº”àºªàº´àº™àº„à»‰àº² (Production History)
+                📜 ປະຫວັດການຜະລິດສິນຄ້າ (Production History)
               </h3>
               <div style={{ overflowX: 'auto', maxHeight: '200px' }}>
                 <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
                   <thead>
                     <tr>
-                      <th style={{ textAlign: 'left', padding: '8px' }}>àº§àº±àº™àº—àºµ</th>
-                      <th style={{ textAlign: 'left', padding: '8px' }}>àºŠàº·à»ˆàºªàº´àº™àº„à»‰àº²</th>
-                      <th style={{ textAlign: 'right', padding: '8px' }}>àºˆàº³àº™àº§àº™</th>
-                      <th style={{ textAlign: 'right', padding: '8px' }}>àº•àº»à»‰àº™àº—àº¶àº™àºªàº°à»€àº¥à»ˆàº</th>
-                      <th style={{ textAlign: 'right', padding: '8px' }}>àº•àº»à»‰àº™àº—àº¶àº™àº¥àº§àº¡</th>
-                      <th style={{ textAlign: 'left', padding: '8px' }}>àºœàº¹à»‰àºªàº±à»ˆàº‡àºœàº°àº¥àº´àº”</th>
+                      <th style={{ textAlign: 'left', padding: '8px' }}>ວັນທີ</th>
+                      <th style={{ textAlign: 'left', padding: '8px' }}>ຊື່ສິນຄ້າ</th>
+                      <th style={{ textAlign: 'right', padding: '8px' }}>ຈຳນວນ</th>
+                      <th style={{ textAlign: 'right', padding: '8px' }}>ຕົ້ນທຶນສະເລ່ຍ</th>
+                      <th style={{ textAlign: 'right', padding: '8px' }}>ຕົ້ນທຶນລວມ</th>
+                      <th style={{ textAlign: 'left', padding: '8px' }}>ຜູ້ສັ່ງຜະລິດ</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -2337,8 +2060,8 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                         <td style={{ padding: '8px' }}>{new Date(h.createdAt).toLocaleDateString('lo-LA')}</td>
                         <td style={{ padding: '8px', fontWeight: 'bold' }}>{h.productName}</td>
                         <td style={{ padding: '8px', textAlign: 'right', color: 'var(--success-green)', fontWeight: 'bold' }}>+{h.qty}</td>
-                        <td style={{ padding: '8px', textAlign: 'right' }}>{hasInventoryPermission('inventoryViewCost') ? `${h.costPerUnit.toLocaleString()} â‚­` : '*** â‚­'}</td>
-                        <td style={{ padding: '8px', textAlign: 'right' }}>{hasInventoryPermission('inventoryViewCost') ? `${h.totalCost.toLocaleString()} â‚­` : '*** â‚­'}</td>
+                        <td style={{ padding: '8px', textAlign: 'right' }}>{hasInventoryPermission('inventoryViewCost') ? `${h.costPerUnit.toLocaleString()} ₭` : '*** ₭'}</td>
+                        <td style={{ padding: '8px', textAlign: 'right' }}>{hasInventoryPermission('inventoryViewCost') ? `${h.totalCost.toLocaleString()} ₭` : '*** ₭'}</td>
                         <td style={{ padding: '8px', color: 'var(--text-secondary)' }}>{h.createdByName}</td>
                       </tr>
                     ))}
@@ -2349,7 +2072,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
           </>
         ) : (
           <div className="glass-card" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-            ðŸ‘ˆ àºàº°àº¥àº¸àº™àº²à»€àº¥àº·àº­àºàºªàº´àº™àº„à»‰àº²àºˆàº²àºàº¥àº²àºàºàº²àº™àº”à»‰àº²àº™àºŠà»‰àº²àºàº¡àº·à»€àºžàº·à»ˆàº­àºˆàº±àº”àºàº²àº™àºªàº¹àº”àºàº²àº™àºœàº°àº¥àº´àº” àº«àº¼àº· àºªàº±à»ˆàº‡àºœàº°àº¥àº´àº”.
+            👈 ກະລຸນາເລືອກສິນຄ້າຈາກລາຍການດ້ານຊ້າຍມືເພື່ອຈັດການສູດການຜະລິດ ຫຼື ສັ່ງຜະລິດ.
           </div>
         )}
       </div>
@@ -2360,17 +2083,17 @@ function ManufacturingSubView({ isMobile, activeUser }) {
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
             <div className="modal-header">
-              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>âž• à»€àºžàºµà»ˆàº¡àºªàº´àº™àº„à»‰àº²à»ƒà»à»ˆ (Add Product)</h3>
-              <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowAddProductModal(false)}>âœ•</button>
+              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>➕ ເພີ່ມສິນຄ້າໃໝ່ (Add Product)</h3>
+              <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowAddProductModal(false)}>✕</button>
             </div>
             <form onSubmit={handleSaveProduct} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div className="form-group">
-                <label className="form-label">àºŠàº·à»ˆàºªàº´àº™àº„à»‰àº² (Product Name)</label>
+                <label className="form-label">ຊື່ສິນຄ້າ (Product Name)</label>
                 <input type="text" className="form-control" required value={prodName} onChange={(e) => setProdName(e.target.value)} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div className="form-group">
-                  <label className="form-label">à»àº§àº”à»àº¹à»ˆ (Category)</label>
+                  <label className="form-label">ໝວດໝູ່ (Category)</label>
                   <input
                     type="text"
                     className="form-control"
@@ -2386,32 +2109,32 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                   </datalist>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">àº«àº»àº§à»œà»ˆàº§àº (Unit)</label>
+                  <label className="form-label">ຫົວໜ່ວຍ (Unit)</label>
                   <input type="text" className="form-control" required value={prodUnit} onChange={(e) => setProdUnit(e.target.value)} />
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div className="form-group">
-                  <label className="form-label">àº¥àº²àº„àº²àº‚àº²àº (Price LAK)</label>
+                  <label className="form-label">ລາຄາຂາຍ (Price LAK)</label>
                   <input type="number" className="form-control" required value={prodPrice} onChange={(e) => setProdPrice(e.target.value)} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">àº•àº»à»‰àº™àº—àº¶àº™ (Cost LAK)</label>
+                  <label className="form-label">ຕົ້ນທຶນ (Cost LAK)</label>
                   <input type="number" className="form-control" required value={prodCost} onChange={(e) => setProdCost(e.target.value)} />
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div className="form-group">
-                  <label className="form-label">àºˆàº³àº™àº§àº™àºªàº°àº•àº±àº­àº</label>
+                  <label className="form-label">ຈຳນວນສະຕັອກ</label>
                   <input type="number" className="form-control" required value={prodStock} onChange={(e) => setProdStock(e.target.value)} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">à»€àº•àº·àº­àº™àº•à»à»ˆàº²àºªàº¸àº”</label>
+                  <label className="form-label">ເຕືອນຕໍ່າສຸດ</label>
                   <input type="number" className="form-control" required value={prodMinStock} onChange={(e) => setProdMinStock(e.target.value)} />
                 </div>
               </div>
               <div className="form-group">
-                <label className="form-label">àº¥àº°àº«àº±àº”àºšàº²à»‚àº„à»‰àº” (Barcode)</label>
+                <label className="form-label">ລະຫັດບາໂຄ້ດ (Barcode)</label>
                 <input type="text" className="form-control" required value={prodBarcode} onChange={(e) => setProdBarcode(e.target.value)} />
               </div>
               <div className="modal-footer" style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
@@ -2423,11 +2146,11 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                   setProdCost('');
                   setProdStock('10');
                   setProdMinStock('2');
-                  setProdUnit('àº­àº±àº™');
+                  setProdUnit('ອັນ');
                   setProdBarcode('');
                   setProdImage('');
-                }}>àºàº»àºà»€àº¥àºµàº</button>
-                <button type="submit" className="btn btn-primary">ðŸ’¾ àº¢àº·àº™àº¢àº±àº™</button>
+                }}>ຍົກເລີກ</button>
+                <button type="submit" className="btn btn-primary">💾 ຢືນຢັນ</button>
               </div>
             </form>
           </div>
@@ -2440,17 +2163,17 @@ function ManufacturingSubView({ isMobile, activeUser }) {
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content glass-card" style={{ maxWidth: '450px', padding: '24px' }}>
             <div className="modal-header">
-              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>âž• à»€àºžàºµà»ˆàº¡àº§àº±àº”àº–àº¸àº”àº´àºšà»ƒà»à»ˆ (Add Raw Material)</h3>
-              <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowAddMaterialModal(false)}>âœ•</button>
+              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>➕ ເພີ່ມວັດຖຸດິບໃໝ່ (Add Raw Material)</h3>
+              <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowAddMaterialModal(false)}>✕</button>
             </div>
             <form onSubmit={handleSaveMaterial} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div className="form-group">
-                <label className="form-label">àºŠàº·à»ˆàº§àº±àº”àº–àº¸àº”àº´àºš (Material Name)</label>
+                <label className="form-label">ຊື່ວັດຖຸດິບ (Material Name)</label>
                 <input type="text" className="form-control" required value={matName} onChange={(e) => setMatName(e.target.value)} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div className="form-group">
-                  <label className="form-label">à»àº§àº”à»àº¹à»ˆ (Category)</label>
+                  <label className="form-label">ໝວດໝູ່ (Category)</label>
                   <input
                     type="text"
                     className="form-control"
@@ -2461,7 +2184,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                   />
                   <datalist id="raw-material-categories-datalist-bom">
                     {Array.from(new Set([
-                      'àº­àº²àº„àº£àºµàº¥àº´àº (Acrylic)', 'à»„àº¡à»‰/àº‚àº­àºšà»„àº¡à»‰ (Wood)', 'à»àºà»‰àº§/à»€àº¥àº™ (Glass)', 'àºàº²àº§/àº­àº¸àº›àº°àºàº­àº™ (Glue/Chemicals)', 'àº­àº·à»ˆàº™à»† (Other)',
+                      'ອາຄຣີລິກ (Acrylic)', 'ໄມ້/ຂອບໄມ້ (Wood)', 'ແກ້ວ/ເລນ (Glass)', 'ກາວ/ອຸປະກອນ (Glue/Chemicals)', 'ອື່ນໆ (Other)',
                       ...rawMaterials.map(m => m.category).filter(Boolean)
                     ])).map(cat => (
                       <option key={cat} value={cat} />
@@ -2469,40 +2192,40 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                   </datalist>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">àº«àº»àº§à»œà»ˆàº§àº (Unit)</label>
-                  <input type="text" className="form-control" placeholder="à»àºœà»ˆàº™, àº­àº±àº™, àºà»ˆàº­àº‡,..." required value={matUnit} onChange={(e) => setMatUnit(e.target.value)} />
+                  <label className="form-label">ຫົວໜ່ວຍ (Unit)</label>
+                  <input type="text" className="form-control" placeholder="ແຜ່ນ, ອັນ, ກ່ອງ,..." required value={matUnit} onChange={(e) => setMatUnit(e.target.value)} />
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div className="form-group">
-                  <label className="form-label">àºˆàº³àº™àº§àº™àºªàº°àº•àº±àº­àº</label>
+                  <label className="form-label">ຈຳນວນສະຕັອກ</label>
                   <input type="number" className="form-control" required value={matStockQty} onChange={(e) => setMatStockQty(e.target.value)} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">àºˆàº³àº™àº§àº™à»€àº•àº·àº­àº™àº•à»à»ˆàº²àºªàº¸àº”</label>
+                  <label className="form-label">ຈຳນວນເຕືອນຕໍ່າສຸດ</label>
                   <input type="number" className="form-control" required value={matMinStock} onChange={(e) => setMatMinStock(e.target.value)} />
                 </div>
               </div>
               <div className="form-group">
-                <label className="form-label">àº•àº»à»‰àº™àº—àº¶àº™àº•à»à»ˆà»œà»ˆàº§àº (Cost LAK)</label>
+                <label className="form-label">ຕົ້ນທຶນຕໍ່ໜ່ວຍ (Cost LAK)</label>
                 <input type="number" className="form-control" required value={matCostPrice} onChange={(e) => setMatCostPrice(e.target.value)} />
               </div>
               <div className="form-group">
-                <label className="form-label">àºœàº¹à»‰àºªàº°à»œàº­àº‡ (Supplier)</label>
+                <label className="form-label">ຜູ້ສະໜອງ (Supplier)</label>
                 <input type="text" className="form-control" value={matSupplier} onChange={(e) => setMatSupplier(e.target.value)} />
               </div>
               <div className="modal-footer" style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => {
                   setShowAddMaterialModal(false);
                   setMatName('');
-                  setMatCategory('àº­àº²àº„àº£àºµàº¥àº´àº (Acrylic)');
-                  setMatUnit('à»àºœà»ˆàº™');
+                  setMatCategory('ອາຄຣີລິກ (Acrylic)');
+                  setMatUnit('ແຜ່ນ');
                   setMatStockQty('0');
                   setMatMinStock('0');
                   setMatCostPrice('0');
                   setMatSupplier('');
-                }}>àºàº»àºà»€àº¥àºµàº</button>
-                <button type="submit" className="btn btn-primary">ðŸ’¾ àº¢àº·àº™àº¢àº±àº™</button>
+                }}>ຍົກເລີກ</button>
+                <button type="submit" className="btn btn-primary">💾 ຢືນຢັນ</button>
               </div>
             </form>
           </div>
@@ -2596,7 +2319,7 @@ function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
     if (onUpdate) onUpdate();
   };
 
-  // â”€â”€ Suppliers â”€â”€
+  // ── Suppliers ──
   const openAddSupplier = () => {
     setEditSupplier(null);
     setSupplierForm({ name: '', phone: '', contact: '', address: '', note: '' });
@@ -2619,13 +2342,13 @@ function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
     refresh();
   };
   const handleDeleteSupplier = (s) => {
-    if (window.confirm(`àº¥àº¶àºšàºœàº¹à»‰àºªàº°à»œàº­àº‡ "${s.name}"?`)) {
+    if (window.confirm(`ລຶບຜູ້ສະໜອງ "${s.name}"?`)) {
       db.deleteSupplier(s.id);
       refresh();
     }
   };
 
-  // â”€â”€ Purchase Orders â”€â”€
+  // ── Purchase Orders ──
   const openCreatePo = () => {
     setPoSupplierId('');
     setPoNote('');
@@ -2655,7 +2378,7 @@ function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
       .map(l => ({ productId: l.productId, name: l.name, qty: Number(l.qty) || 0, cost: Number(l.cost) || 0 }))
       .filter(l => l.qty > 0);
     if (items.length === 0) {
-      setPoError('àºàº°àº¥àº¸àº™àº²à»€àºžàºµà»ˆàº¡àºªàº´àº™àº„à»‰àº² à»àº¥àº° à»ƒàºªà»ˆàºˆàº³àº™àº§àº™');
+      setPoError('ກະລຸນາເພີ່ມສິນຄ້າ ແລະ ໃສ່ຈຳນວນ');
       return;
     }
     const supplier = suppliers.find(s => s.id === poSupplierId);
@@ -2670,13 +2393,13 @@ function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
     refresh();
   };
   const handleReceivePo = (po) => {
-    if (window.confirm(`àº®àº±àºšàºªàº´àº™àº„à»‰àº²àº‚àº­àº‡à»ƒàºšàºªàº±à»ˆàº‡àºŠàº·à»‰ ${po.id} à»€àº‚àº»à»‰àº²àºªàº°àº•àº±àº­àº? àºˆàº³àº™àº§àº™àºªàº°àº•àº±àº­àºàºˆàº°àº–àº·àºà»€àºžàºµà»ˆàº¡àº­àº±àº”àº•àº°à»‚àº™àº¡àº±àº”.`)) {
+    if (window.confirm(`ຮັບສິນຄ້າຂອງໃບສັ່ງຊື້ ${po.id} ເຂົ້າສະຕັອກ? ຈຳນວນສະຕັອກຈະຖືກເພີ່ມອັດຕະໂນມັດ.`)) {
       db.receivePurchaseOrder(po.id);
       refresh();
     }
   };
   const handleDeletePo = (po) => {
-    if (window.confirm(`àº¥àº¶àºšà»ƒàºšàºªàº±à»ˆàº‡àºŠàº·à»‰ ${po.id}?`)) {
+    if (window.confirm(`ລຶບໃບສັ່ງຊື້ ${po.id}?`)) {
       db.deletePurchaseOrder(po.id);
       refresh();
     }
@@ -2684,9 +2407,9 @@ function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
 
   const statusBadge = (status) => {
     const map = {
-      pending: { label: 'â³ àº¥à»àº–à»‰àº²àº®àº±àºš', color: '#f39c12', bg: 'rgba(243,156,18,0.12)' },
-      received: { label: 'âœ… àº®àº±àºšà»àº¥à»‰àº§', color: '#2ecc71', bg: 'rgba(46,204,113,0.12)' },
-      cancelled: { label: 'âŒ àºàº»àºà»€àº¥àºµàº', color: '#e74c3c', bg: 'rgba(231,76,60,0.12)' }
+      pending: { label: '⏳ ລໍຖ້າຮັບ', color: '#f39c12', bg: 'rgba(243,156,18,0.12)' },
+      received: { label: '✅ ຮັບແລ້ວ', color: '#2ecc71', bg: 'rgba(46,204,113,0.12)' },
+      cancelled: { label: '❌ ຍົກເລີກ', color: '#e74c3c', bg: 'rgba(231,76,60,0.12)' }
     };
     const s = map[status] || map.pending;
     return <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 'bold', color: s.color, background: s.bg, whiteSpace: 'nowrap' }}>{s.label}</span>;
@@ -2695,29 +2418,29 @@ function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-        <button type="button" className={`nav-tab ${section === 'orders' ? 'active' : ''}`} onClick={() => setSection('orders')}>ðŸ§¾ à»ƒàºšàºªàº±à»ˆàº‡àºŠàº·à»‰ (Purchase Orders)</button>
-        <button type="button" className={`nav-tab ${section === 'suppliers' ? 'active' : ''}`} onClick={() => setSection('suppliers')}>ðŸ¢ àºœàº¹à»‰àºªàº°à»œàº­àº‡ (Suppliers)</button>
+        <button type="button" className={`nav-tab ${section === 'orders' ? 'active' : ''}`} onClick={() => setSection('orders')}>🧾 ໃບສັ່ງຊື້ (Purchase Orders)</button>
+        <button type="button" className={`nav-tab ${section === 'suppliers' ? 'active' : ''}`} onClick={() => setSection('suppliers')}>🏢 ຜູ້ສະໜອງ (Suppliers)</button>
       </div>
 
       {section === 'suppliers' && (
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-            <h2 style={{ color: 'var(--gold-primary)', fontSize: isMobile ? '1.2rem' : '1.4rem', margin: 0 }}>ðŸ¢ àºœàº¹à»‰àºªàº°à»œàº­àº‡ (Suppliers)</h2>
-            <button type="button" className="btn btn-primary" onClick={openAddSupplier}>âž• à»€àºžàºµà»ˆàº¡àºœàº¹à»‰àºªàº°à»œàº­àº‡</button>
+            <h2 style={{ color: 'var(--gold-primary)', fontSize: isMobile ? '1.2rem' : '1.4rem', margin: 0 }}>🏢 ຜູ້ສະໜອງ (Suppliers)</h2>
+            <button type="button" className="btn btn-primary" onClick={openAddSupplier}>➕ ເພີ່ມຜູ້ສະໜອງ</button>
           </div>
           {suppliers.length === 0 ? (
-            <p style={{ color: 'var(--text-secondary)', margin: 0 }}>àºàº±àº‡àºšà»à»ˆàº¡àºµàºœàº¹à»‰àºªàº°à»œàº­àº‡ â€” àºàº»àº” "à»€àºžàºµà»ˆàº¡àºœàº¹à»‰àºªàº°à»œàº­àº‡" à»€àºžàº·à»ˆàº­à»€àº¥àºµà»ˆàº¡</p>
+            <p style={{ color: 'var(--text-secondary)', margin: 0 }}>ຍັງບໍ່ມີຜູ້ສະໜອງ — ກົດ "ເພີ່ມຜູ້ສະໜອງ" ເພື່ອເລີ່ມ</p>
           ) : (
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                 <thead>
                   <tr style={{ color: 'var(--text-secondary)', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
-                    <th style={{ padding: '10px 8px' }}>àº¥àº°àº«àº±àº”</th>
-                    <th style={{ padding: '10px 8px' }}>àºŠàº·à»ˆ</th>
-                    <th style={{ padding: '10px 8px' }}>à»€àºšàºµà»‚àº—</th>
-                    <th style={{ padding: '10px 8px' }}>àºœàº¹à»‰àº•àº´àº”àº•à»à»ˆ</th>
-                    <th style={{ padding: '10px 8px' }}>àº—àºµà»ˆàº¢àº¹à»ˆ</th>
-                    <th style={{ padding: '10px 8px', textAlign: 'center' }}>àºˆàº±àº”àºàº²àº™</th>
+                    <th style={{ padding: '10px 8px' }}>ລະຫັດ</th>
+                    <th style={{ padding: '10px 8px' }}>ຊື່</th>
+                    <th style={{ padding: '10px 8px' }}>ເບີໂທ</th>
+                    <th style={{ padding: '10px 8px' }}>ຜູ້ຕິດຕໍ່</th>
+                    <th style={{ padding: '10px 8px' }}>ທີ່ຢູ່</th>
+                    <th style={{ padding: '10px 8px', textAlign: 'center' }}>ຈັດການ</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -2729,8 +2452,8 @@ function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
                       <td style={{ padding: '10px 8px' }}>{s.contact || '-'}</td>
                       <td style={{ padding: '10px 8px', color: 'var(--text-secondary)' }}>{s.address || '-'}</td>
                       <td style={{ padding: '10px 8px', textAlign: 'center', whiteSpace: 'nowrap' }}>
-                        <button type="button" className="btn btn-sm btn-secondary" style={{ marginRight: '6px' }} onClick={() => openEditSupplier(s)}>âœï¸</button>
-                        <button type="button" className="btn btn-sm btn-danger" onClick={() => handleDeleteSupplier(s)}>ðŸ—‘ï¸</button>
+                        <button type="button" className="btn btn-sm btn-secondary" style={{ marginRight: '6px' }} onClick={() => openEditSupplier(s)}>✏️</button>
+                        <button type="button" className="btn btn-sm btn-danger" onClick={() => handleDeleteSupplier(s)}>🗑️</button>
                       </td>
                     </tr>
                   ))}
@@ -2744,23 +2467,23 @@ function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
       {section === 'orders' && (
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-            <h2 style={{ color: 'var(--gold-primary)', fontSize: isMobile ? '1.2rem' : '1.4rem', margin: 0 }}>ðŸ§¾ à»ƒàºšàºªàº±à»ˆàº‡àºŠàº·à»‰ (Purchase Orders)</h2>
-            <button type="button" className="btn btn-primary" onClick={openCreatePo}>âž• àºªà»‰àº²àº‡à»ƒàºšàºªàº±à»ˆàº‡àºŠàº·à»‰</button>
+            <h2 style={{ color: 'var(--gold-primary)', fontSize: isMobile ? '1.2rem' : '1.4rem', margin: 0 }}>🧾 ໃບສັ່ງຊື້ (Purchase Orders)</h2>
+            <button type="button" className="btn btn-primary" onClick={openCreatePo}>➕ ສ້າງໃບສັ່ງຊື້</button>
           </div>
           {purchaseOrders.length === 0 ? (
-            <p style={{ color: 'var(--text-secondary)', margin: 0 }}>àºàº±àº‡àºšà»à»ˆàº¡àºµà»ƒàºšàºªàº±à»ˆàº‡àºŠàº·à»‰ â€” àºªà»‰àº²àº‡à»ƒàºšàºªàº±à»ˆàº‡àºŠàº·à»‰à»€àºžàº·à»ˆàº­àºªàº±à»ˆàº‡à»€àº•àºµàº¡àºªàº°àº•àº±àº­àº, à»€àº¡àº·à»ˆàº­àº®àº±àºšàº‚àº­àº‡à»àº¥à»‰àº§àºàº»àº” "àº®àº±àºšà»€àº‚àº»à»‰àº²àºªàº°àº•àº±àº­àº"</p>
+            <p style={{ color: 'var(--text-secondary)', margin: 0 }}>ຍັງບໍ່ມີໃບສັ່ງຊື້ — ສ້າງໃບສັ່ງຊື້ເພື່ອສັ່ງເຕີມສະຕັອກ, ເມື່ອຮັບຂອງແລ້ວກົດ "ຮັບເຂົ້າສະຕັອກ"</p>
           ) : (
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.83rem' }}>
                 <thead>
                   <tr style={{ color: 'var(--text-secondary)', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
-                    <th style={{ padding: '10px 8px' }}>àº¥àº°àº«àº±àº”</th>
-                    <th style={{ padding: '10px 8px' }}>àº§àº±àº™àº—àºµ</th>
-                    <th style={{ padding: '10px 8px' }}>àºœàº¹à»‰àºªàº°à»œàº­àº‡</th>
-                    <th style={{ padding: '10px 8px' }}>àº¥àº²àºàºàº²àº™</th>
-                    <th style={{ padding: '10px 8px', textAlign: 'right' }}>àº¡àº¹àº™àº„à»ˆàº² (â‚­)</th>
-                    <th style={{ padding: '10px 8px', textAlign: 'center' }}>àºªàº°àº–àº²àº™àº°</th>
-                    <th style={{ padding: '10px 8px', textAlign: 'center' }}>àºˆàº±àº”àºàº²àº™</th>
+                    <th style={{ padding: '10px 8px' }}>ລະຫັດ</th>
+                    <th style={{ padding: '10px 8px' }}>ວັນທີ</th>
+                    <th style={{ padding: '10px 8px' }}>ຜູ້ສະໜອງ</th>
+                    <th style={{ padding: '10px 8px' }}>ລາຍການ</th>
+                    <th style={{ padding: '10px 8px', textAlign: 'right' }}>ມູນຄ່າ (₭)</th>
+                    <th style={{ padding: '10px 8px', textAlign: 'center' }}>ສະຖານະ</th>
+                    <th style={{ padding: '10px 8px', textAlign: 'center' }}>ຈັດການ</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -2769,14 +2492,14 @@ function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
                       <td style={{ padding: '10px 8px', color: 'var(--gold-primary)' }}>{po.id}</td>
                       <td style={{ padding: '10px 8px' }}>{new Date(po.date).toLocaleDateString('lo-LA')}</td>
                       <td style={{ padding: '10px 8px' }}>{po.supplierName || '-'}</td>
-                      <td style={{ padding: '10px 8px' }}>{(po.items || []).map(it => `${it.name} Ã—${it.qty}`).join(', ')}</td>
+                      <td style={{ padding: '10px 8px' }}>{(po.items || []).map(it => `${it.name} ×${it.qty}`).join(', ')}</td>
                       <td style={{ padding: '10px 8px', textAlign: 'right', color: hasInventoryPermission('inventoryViewCost') ? 'white' : 'var(--text-secondary)' }}>{hasInventoryPermission('inventoryViewCost') ? (po.total || 0).toLocaleString() : '***'}</td>
                       <td style={{ padding: '10px 8px', textAlign: 'center' }}>{statusBadge(po.status)}</td>
                       <td style={{ padding: '10px 8px', textAlign: 'center', whiteSpace: 'nowrap' }}>
                         {po.status === 'pending' && (
-                          <button type="button" className="btn btn-sm btn-primary" style={{ marginRight: '6px' }} onClick={() => handleReceivePo(po)}>ðŸ“¥ àº®àº±àºšà»€àº‚àº»à»‰àº²àºªàº°àº•àº±àº­àº</button>
+                          <button type="button" className="btn btn-sm btn-primary" style={{ marginRight: '6px' }} onClick={() => handleReceivePo(po)}>📥 ຮັບເຂົ້າສະຕັອກ</button>
                         )}
-                        <button type="button" className="btn btn-sm btn-danger" onClick={() => handleDeletePo(po)}>ðŸ—‘ï¸</button>
+                        <button type="button" className="btn btn-sm btn-danger" onClick={() => handleDeletePo(po)}>🗑️</button>
                       </td>
                     </tr>
                   ))}
@@ -2793,35 +2516,35 @@ function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
           <div className="modal-overlay" style={{ zIndex: 1200 }}>
             <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
               <div className="modal-header">
-                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>{editSupplier ? 'âœï¸ à»àºà»‰à»„àº‚àºœàº¹à»‰àºªàº°à»œàº­àº‡' : 'âž• à»€àºžàºµà»ˆàº¡àºœàº¹à»‰àºªàº°à»œàº­àº‡'}</h3>
-                <button className="close-btn" onClick={() => setShowSupplierModal(false)}>âœ•</button>
+                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>{editSupplier ? '✏️ ແກ້ໄຂຜູ້ສະໜອງ' : '➕ ເພີ່ມຜູ້ສະໜອງ'}</h3>
+                <button className="close-btn" onClick={() => setShowSupplierModal(false)}>✕</button>
               </div>
               <form onSubmit={handleSaveSupplier}>
                 <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '10px 0' }}>
                   <div className="form-group">
-                    <label className="form-label">àºŠàº·à»ˆàºœàº¹à»‰àºªàº°à»œàº­àº‡ *</label>
+                    <label className="form-label">ຊື່ຜູ້ສະໜອງ *</label>
                     <input type="text" className="form-control" required value={supplierForm.name} onChange={(e) => setSupplierForm({ ...supplierForm, name: e.target.value })} />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">à»€àºšàºµà»‚àº—</label>
+                    <label className="form-label">ເບີໂທ</label>
                     <input type="text" className="form-control" value={supplierForm.phone} onChange={(e) => setSupplierForm({ ...supplierForm, phone: e.target.value })} />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">àºœàº¹à»‰àº•àº´àº”àº•à»à»ˆ</label>
+                    <label className="form-label">ຜູ້ຕິດຕໍ່</label>
                     <input type="text" className="form-control" value={supplierForm.contact} onChange={(e) => setSupplierForm({ ...supplierForm, contact: e.target.value })} />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">àº—àºµà»ˆàº¢àº¹à»ˆ</label>
+                    <label className="form-label">ທີ່ຢູ່</label>
                     <input type="text" className="form-control" value={supplierForm.address} onChange={(e) => setSupplierForm({ ...supplierForm, address: e.target.value })} />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">à»àº²àºà»€àº«àº”</label>
+                    <label className="form-label">ໝາຍເຫດ</label>
                     <input type="text" className="form-control" value={supplierForm.note} onChange={(e) => setSupplierForm({ ...supplierForm, note: e.target.value })} />
                   </div>
                 </div>
                 <div className="modal-footer">
-                  <button type="button" className="btn btn-secondary" onClick={() => setShowSupplierModal(false)}>àºàº»àºà»€àº¥àºµàº</button>
-                  <button type="submit" className="btn btn-primary">àºšàº±àº™àº—àº¶àº âœ“</button>
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowSupplierModal(false)}>ຍົກເລີກ</button>
+                  <button type="submit" className="btn btn-primary">ບັນທຶກ ✓</button>
                 </div>
               </form>
             </div>
@@ -2835,32 +2558,32 @@ function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
           <div className="modal-overlay" style={{ zIndex: 1200 }}>
             <div className="modal-content glass-card" style={{ padding: '24px', maxWidth: '620px', width: '100%', maxHeight: '92dvh', display: 'flex', flexDirection: 'column' }}>
               <div className="modal-header">
-                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>âž• àºªà»‰àº²àº‡à»ƒàºšàºªàº±à»ˆàº‡àºŠàº·à»‰ (Purchase Order)</h3>
-                <button className="close-btn" onClick={() => setShowPoModal(false)}>âœ•</button>
+                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>➕ ສ້າງໃບສັ່ງຊື້ (Purchase Order)</h3>
+                <button className="close-btn" onClick={() => setShowPoModal(false)}>✕</button>
               </div>
               <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '10px 0', overflowY: 'auto' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px' }}>
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label">àºœàº¹à»‰àºªàº°à»œàº­àº‡ (Supplier)</label>
+                    <label className="form-label">ຜູ້ສະໜອງ (Supplier)</label>
                     <select className="form-control" value={poSupplierId} onChange={(e) => setPoSupplierId(e.target.value)}>
-                      <option value="">â€” àºšà»à»ˆàº¥àº°àºšàº¸ â€”</option>
+                      <option value="">— ບໍ່ລະບຸ —</option>
                       {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
                   </div>
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label">à»àº²àºà»€àº«àº”</label>
+                    <label className="form-label">ໝາຍເຫດ</label>
                     <input type="text" className="form-control" value={poNote} onChange={(e) => setPoNote(e.target.value)} />
                   </div>
                 </div>
 
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">à»€àºžàºµà»ˆàº¡àºªàº´àº™àº„à»‰àº²</label>
+                  <label className="form-label">ເພີ່ມສິນຄ້າ</label>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <select className="form-control" value={poProductId} onChange={(e) => setPoProductId(e.target.value)}>
-                      <option value="">â€” à»€àº¥àº·àº­àºàºªàº´àº™àº„à»‰àº² â€”</option>
+                      <option value="">— ເລືອກສິນຄ້າ —</option>
                       {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                     </select>
-                    <button type="button" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }} onClick={addPoLine}>âž• à»€àºžàºµà»ˆàº¡</button>
+                    <button type="button" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }} onClick={addPoLine}>➕ ເພີ່ມ</button>
                   </div>
                 </div>
 
@@ -2870,29 +2593,29 @@ function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
                       <div key={l.productId} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', borderRadius: '8px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
                         <div style={{ flex: 1, minWidth: 0, fontSize: '0.85rem', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l.name}</div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>àºˆàº³àº™àº§àº™</span>
+                          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ຈຳນວນ</span>
                           <input type="number" min="1" className="form-control" value={l.qty} onChange={(e) => updatePoLine(l.productId, 'qty', e.target.value)} style={{ width: '72px', textAlign: 'center' }} />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>àº•àº»à»‰àº™àº—àº¶àº™/à»œà»ˆàº§àº</span>
+                          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ຕົ້ນທຶນ/ໜ່ວຍ</span>
                           <input type="number" min="0" className="form-control" value={l.cost} onChange={(e) => updatePoLine(l.productId, 'cost', e.target.value)} style={{ width: '100px', textAlign: 'right' }} />
                         </div>
-                        <button type="button" className="btn btn-sm btn-danger" onClick={() => removePoLine(l.productId)}>âœ•</button>
+                        <button type="button" className="btn btn-sm btn-danger" onClick={() => removePoLine(l.productId)}>✕</button>
                       </div>
                     ))}
                   </div>
                 )}
 
-                {poError && <p style={{ color: 'var(--alert-red)', fontSize: '0.85rem', margin: 0 }}>âš ï¸ {poError}</p>}
+                {poError && <p style={{ color: 'var(--alert-red)', fontSize: '0.85rem', margin: 0 }}>⚠️ {poError}</p>}
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', borderRadius: '8px', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>àº¡àº¹àº™àº„à»ˆàº²àº¥àº§àº¡</span>
-                  <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>{poTotal.toLocaleString()} â‚­</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>ມູນຄ່າລວມ</span>
+                  <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>{poTotal.toLocaleString()} ₭</span>
                 </div>
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowPoModal(false)}>àºàº»àºà»€àº¥àºµàº</button>
-                <button type="button" className="btn btn-primary" disabled={poLines.length === 0} onClick={handleCreatePo}>àºšàº±àº™àº—àº¶àºà»ƒàºšàºªàº±à»ˆàº‡àºŠàº·à»‰ âœ“</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setShowPoModal(false)}>ຍົກເລີກ</button>
+                <button type="button" className="btn btn-primary" disabled={poLines.length === 0} onClick={handleCreatePo}>ບັນທຶກໃບສັ່ງຊື້ ✓</button>
               </div>
             </div>
           </div>
@@ -2927,7 +2650,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [categoryError, setCategoryError] = useState('');
   const [newCatName, setNewCatName] = useState('');
-  const [newCatIcon, setNewCatIcon] = useState('ðŸ“¦');
+  const [newCatIcon, setNewCatIcon] = useState('📦');
   const [newCatType, setNewCatType] = useState('physical');
   const [editingCategory, setEditingCategory] = useState(null);
 
@@ -2979,7 +2702,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
     cost: '',
     stock: '',
     minStock: '',
-    unit: 'àº­àº±àº™',
+    unit: 'ອັນ',
     barcode: '',
     image: '',
     showOnline: true,
@@ -3019,20 +2742,20 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
   }, [showBarcodeModal, selectedBarcodeProd, customBarcodeText, barcodeFormat]);
 
   const handleDeleteProduct = (p) => {
-    const pass = prompt('àºàº°àº¥àº¸àº™àº²àº›à»‰àº­àº™àº¥àº°àº«àº±àº”àºœà»ˆàº²àº™àºœàº¹à»‰àº”àº¹à»àº¥àº¥àº°àºšàº»àºš (Admin Passcode) à»€àºžàº·à»ˆàº­àº¥àº»àºšàºªàº´àº™àº„à»‰àº²:');
+    const pass = prompt('ກະລຸນາປ້ອນລະຫັດຜ່ານຜູ້ດູແລລະບົບ (Admin Passcode) ເພື່ອລົບສິນຄ້າ:');
     if (!pass) return;
     
     const users = db.getUsers();
     const isAdmin = users.some(u => u.passcode === pass && (u.permissions?.admin || u.role === 'owner'));
     if (!isAdmin) {
-      alert('àº¥àº°àº«àº±àº”àºœà»ˆàº²àº™àºšà»à»ˆàº–àº·àºàº•à»‰àº­àº‡!');
+      alert('ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ!');
       return;
     }
     
-    if (confirm(`àº—à»ˆàº²àº™àº•à»‰àº­àº‡àºàº²àº™àº¥àº»àºšàºªàº´àº™àº„à»‰àº² "${p.name}" à»àº—à»‰àº«àº¼àº·àºšà»à»ˆ?`)) {
+    if (confirm(`ທ່ານຕ້ອງການລົບສິນຄ້າ "${p.name}" ແທ້ຫຼືບໍ່?`)) {
       db.deleteProduct(p.id);
       setProducts(db.getProducts());
-      alert('âœ“ àº¥àº»àºšàºªàº´àº™àº„à»‰àº²àºªàº³à»€àº¥àº±àº”!');
+      alert('✓ ລົບສິນຄ້າສຳເລັດ!');
     }
   };
 
@@ -3060,7 +2783,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       cost: '',
       stock: isService ? '0' : '10',
       minStock: isService ? '0' : '2',
-      unit: isService ? 'àº„àº±à»‰àº‡' : 'àº­àº±àº™',
+      unit: isService ? 'ຄັ້ງ' : 'ອັນ',
       barcode: String(Math.floor(100000 + Math.random() * 900000)),
       image: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=200&auto=format&fit=crop&q=60',
       images: [],
@@ -3103,7 +2826,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
     if (existingCat) {
       catId = existingCat.id;
     } else {
-      const newCat = db.addCategory({ name: formData.category.trim(), icon: 'ðŸ“¦', type: 'physical' });
+      const newCat = db.addCategory({ name: formData.category.trim(), icon: '📦', type: 'physical' });
       catId = newCat.id;
     }
 
@@ -3118,7 +2841,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       priceOnline: Number(formData.priceOnline || formData.price),
       priceVip: Number(formData.priceVip || formData.price),
       showOnline: !!formData.showOnline,
-      unit: formData.unit || (isService ? 'àº„àº±à»‰àº‡' : 'àº­àº±àº™')
+      unit: formData.unit || (isService ? 'ຄັ້ງ' : 'ອັນ')
     };
     if (editProduct) {
       db.updateProduct({
@@ -3137,7 +2860,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
     setCategoryError('');
     setEditingCategory(null);
     setNewCatName('');
-    setNewCatIcon('ðŸ“¦');
+    setNewCatIcon('📦');
     setNewCatType('physical');
     setShowCategoryModal(true);
   };
@@ -3146,7 +2869,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
     setCategoryError('');
     setEditingCategory(cat);
     setNewCatName(cat.name);
-    setNewCatIcon(cat.icon || 'ðŸ“¦');
+    setNewCatIcon(cat.icon || '📦');
     setNewCatType(cat.type || (db.isServiceCategory(cat.id) ? 'service' : 'physical'));
     setShowCategoryModal(true);
   };
@@ -3166,7 +2889,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         db.addCategory({ name: newCatName.trim(), icon: newCatIcon, type: newCatType });
       }
       setNewCatName('');
-      setNewCatIcon('ðŸ“¦');
+      setNewCatIcon('📦');
       setNewCatType('physical');
       setEditingCategory(null);
       setCategoryError('');
@@ -3177,29 +2900,29 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
   };
 
   const verifyAdminPin = () => {
-    const pin = prompt('ðŸ”’ àº•à»‰àº­àº‡àºàº²àº™àº­àº°àº™àº¸àº¡àº±àº”: àºàº°àº¥àº¸àº™àº²à»ƒàºªà»ˆàº¥àº°àº«àº±àº” PIN àº‚àº­àº‡ Admin/à»€àºˆàº»à»‰àº²àº‚àº­àº‡àº®à»‰àº²àº™:');
+    const pin = prompt('🔒 ຕ້ອງການອະນຸມັດ: ກະລຸນາໃສ່ລະຫັດ PIN ຂອງ Admin/ເຈົ້າຂອງຮ້ານ:');
     if (!pin) return false;
     const users = db.getUsers();
     const settings = db.getSettings();
     const matchedOwner = users.find(u => u.role === 'owner' && u.passcode === pin);
     const isMasterPin = pin === settings.masterAdminPin;
     if (matchedOwner || isMasterPin) return true;
-    alert('âŒ àº¥àº°àº«àº±àº” PIN àºšà»à»ˆàº–àº·àºàº•à»‰àº­àº‡!');
+    alert('❌ ລະຫັດ PIN ບໍ່ຖືກຕ້ອງ!');
     return false;
   };
 
   const handleWarehouseRestockSubmit = (e) => {
     e.preventDefault();
     const qty = Number(warehouseRestockQty);
-    if (!qty || qty <= 0) return alert('àºàº°àº¥àº¸àº™àº²àº›à»‰àº­àº™àºˆàº³àº™àº§àº™à»ƒàº«à»‰àº–àº·àºàº•à»‰àº­àº‡');
+    if (!qty || qty <= 0) return alert('ກະລຸນາປ້ອນຈຳນວນໃຫ້ຖືກຕ້ອງ');
     
     const prodList = db.getProducts();
     const idx = prodList.findIndex(p => p.id === warehouseActiveProduct.id);
     if (idx !== -1) {
       prodList[idx].warehouseStock = (prodList[idx].warehouseStock || 0) + qty;
       db.saveProducts(prodList);
-      db.addAuditLog('warehouse_restock', `àº®àº±àºšà»€àº‚àº»à»‰àº²àºªàº²àº‡à»ƒàº«àºà»ˆ: ${warehouseActiveProduct.name} +${qty} ${warehouseActiveProduct.unit || 'àº­àº±àº™'} (${warehouseRestockNotes || ''})`);
-      alert('âœ“ àº®àº±àºšà»€àº‚àº»à»‰àº²àºªàº²àº‡à»ƒàº«àºà»ˆàºªàº³à»€àº¥àº±àº”!');
+      db.addAuditLog('warehouse_restock', `ຮັບເຂົ້າສາງໃຫຍ່: ${warehouseActiveProduct.name} +${qty} ${warehouseActiveProduct.unit || 'ອັນ'} (${warehouseRestockNotes || ''})`);
+      alert('✓ ຮັບເຂົ້າສາງໃຫຍ່ສຳເລັດ!');
       setShowWarehouseRestockModal(false);
       setWarehouseRestockQty('');
       setWarehouseRestockNotes('');
@@ -3213,11 +2936,11 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
   const handleWarehouseTransferSubmit = (e) => {
     e.preventDefault();
     const qty = Number(warehouseTransferQty);
-    if (!qty || qty <= 0) return alert('àºàº°àº¥àº¸àº™àº²àº›à»‰àº­àº™àºˆàº³àº™àº§àº™à»ƒàº«à»‰àº–àº·àºàº•à»‰àº­àº‡');
+    if (!qty || qty <= 0) return alert('ກະລຸນາປ້ອນຈຳນວນໃຫ້ຖືກຕ້ອງ');
     
     const currentWarehouseStock = warehouseActiveProduct.warehouseStock || 0;
     if (qty > currentWarehouseStock) {
-      if (!window.confirm(`âš ï¸ àºˆàº³àº™àº§àº™àº—àºµà»ˆà»‚àº­àº™ (${qty}) àº«àº¼àº²àºàºàº§à»ˆàº²àºªàº°àº•àº±àº­àºàºªàº²àº‡à»ƒàº«àºà»ˆàº—àºµà»ˆàº¡àºµ (${currentWarehouseStock}). àº¢àº·àº™àº¢à¸±à¸™àº—àºµà»ˆàºˆàº°à»‚àº­àº™àºšà»à»ˆ?`)) {
+      if (!window.confirm(`⚠️ ຈຳນວນທີ່ໂອນ (${qty}) ຫຼາຍກວ່າສະຕັອກສາງໃຫຍ່ທີ່ມີ (${currentWarehouseStock}). ຢືນຢันທີ່ຈະໂອນບໍ່?`)) {
         return;
       }
     }
@@ -3228,8 +2951,8 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       prodList[idx].warehouseStock = Math.max(0, (prodList[idx].warehouseStock || 0) - qty);
       prodList[idx].stock = (prodList[idx].stock || 0) + qty;
       db.saveProducts(prodList);
-      db.addAuditLog('warehouse_transfer', `à»‚àº­àº™àºªàº´àº™àº„à»‰àº²à»„àº›à»œà»‰àº²àº®à»‰àº²àº™: ${warehouseActiveProduct.name} à»‚àº­àº™ ${qty} ${warehouseActiveProduct.unit || 'àº­àº±àº™'} (àºªàº²àº‡à»ƒàº«àºà»ˆ -${qty} -> à»œà»‰àº²àº®à»‰àº²àº™ +${qty}) (${warehouseTransferNotes || ''})`);
-      alert('âœ“ à»‚à¸­à¸™àºà»‰àº²àºàºªàº´àº™àº„à»‰àº²à»„àº›à»œà»‰àº²àº®à»‰àº²àº™àºªàº³à»€àº¥àº±àº”!');
+      db.addAuditLog('warehouse_transfer', `ໂອນສິນຄ້າໄປໜ້າຮ້ານ: ${warehouseActiveProduct.name} ໂອນ ${qty} ${warehouseActiveProduct.unit || 'ອັນ'} (ສາງໃຫຍ່ -${qty} -> ໜ້າຮ້ານ +${qty}) (${warehouseTransferNotes || ''})`);
+      alert('✓ ໂอนຍ້າຍສິນຄ້າໄປໜ້າຮ້ານສຳເລັດ!');
       setShowWarehouseTransferModal(false);
       setWarehouseTransferQty('');
       setWarehouseTransferNotes('');
@@ -3351,7 +3074,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       ctx.fillStyle = '#FF0000';
       ctx.font = '10px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('âŒ àº‚à»à»‰àº¡àº¹àº™àºšà»à»ˆàº–àº·àºàº•à»‰àº­àº‡àºªàº³àº¥àº±àºš ' + format, canvas.width / 2, canvas.height / 2 - 10);
+      ctx.fillText('❌ ຂໍ້ມູນບໍ່ຖືກຕ້ອງສຳລັບ ' + format, canvas.width / 2, canvas.height / 2 - 10);
       ctx.fillText('(' + text + ')', canvas.width / 2, canvas.height / 2 + 10);
     }
   };
@@ -3393,7 +3116,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       if (textAlign === 'left') drawX = 10;
       if (textAlign === 'right') drawX = width - 10;
       
-      let name = productName || 'àºªàº´àº™àº„à»‰àº²àº—àº»à»ˆàº§à»„àº›';
+      let name = productName || 'ສິນຄ້າທົ່ວໄປ';
       while (ctx.measureText(name).width > (width - 20) && nameFontSize > 8) {
         nameFontSize--;
         ctx.font = `${fontStyleModifier}${nameFontSize}px Arial, "Phetsarath OT", sans-serif`;
@@ -3465,7 +3188,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       ctx.fillStyle = '#FF0000';
       ctx.font = '10px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText('âŒ Error: ' + barcodeFormat, width / 2, currentY + 15);
+      ctx.fillText('❌ Error: ' + barcodeFormat, width / 2, currentY + 15);
       currentY += 20;
     }
 
@@ -3493,8 +3216,8 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
   const handlePrintBarcode = async () => {
     const settings = db.getSettings();
     const format = barcodeFormat || settings.barcodeFormat || 'CODE128';
-    const name = selectedBarcodeProd ? selectedBarcodeProd.name : 'àºªàº´àº™àº„à»‰àº²àº—àº»à»ˆàº§à»„àº›';
-    const priceVal = selectedBarcodeProd ? selectedBarcodeProd.price.toLocaleString() + ' àºàºµàºš' : '';
+    const name = selectedBarcodeProd ? selectedBarcodeProd.name : 'ສິນຄ້າທົ່ວໄປ';
+    const priceVal = selectedBarcodeProd ? selectedBarcodeProd.price.toLocaleString() + ' ກີບ' : '';
     const text = customBarcodeText;
 
     if (settings.barcodeDirectPrint) {
@@ -3516,19 +3239,19 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         });
         const result = await response.json();
         if (!result.success) {
-          alert('àºœàº´àº”àºžàº²àº”à»ƒàº™àºàº²àº™àº›àº£àº´àº™: ' + result.error);
+          alert('ຜິດພາດໃນການປຣິນ: ' + result.error);
         } else {
           setShowBarcodeModal(false);
         }
       } catch (e) {
-        alert('àºœàº´àº”àºžàº²àº”à»ƒàº™àºàº²àº™à»€àºŠàº·à»ˆàº­àº¡àº•à»à»ˆ: ' + e.message);
+        alert('ຜິດພາດໃນການເຊື່ອມຕໍ່: ' + e.message);
       }
       return;
     }
 
     const canvas = barcodeCanvasRef.current;
     if (!canvas) {
-      alert("àºœàº´àº”àºžàº²àº”: àºšà»à»ˆàºžàº»àºšàºžàº·à»‰àº™àº—àºµà»ˆàº§àº²àº”àºšàº²à»‚àº„à»‰àº” / Error: Barcode canvas not found.");
+      alert("ຜິດພາດ: ບໍ່ພົບພື້ນທີ່ວາດບາໂຄ້ດ / Error: Barcode canvas not found.");
       return;
     }
     const dataUrl = canvas.toDataURL();
@@ -3579,7 +3302,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
     frameDoc.write(`
       <html>
         <head>
-          <title>àº›àº£àº´àº™àºšàº²à»‚àº„à»‰àº” - àº‚àº­àºšàºžàº£àº°àº£àº±àº—à»€àºàºŠ</title>
+          <title>ປຣິນບາໂຄ້ດ - ຂອບພຣະຣັທເກຊ</title>
           <link href="https://fonts.googleapis.com/css2?family=Phetsarath&display=swap" rel="stylesheet">
           <style>
             @page {
@@ -3676,7 +3399,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
   const handlePrintBulkBarcodes = async () => {
     const itemsToPrint = products.filter(p => !db.isServiceCategory(p.category) && (bulkPrintQtys[p.id] || 0) > 0);
     if (itemsToPrint.length === 0) {
-      alert('àºàº°àº¥àº¸àº™àº²à»€àº¥àº·àº­àºàºˆàº³àº™àº§àº™àº›àº£àº´àº™àºšàº²à»‚àº„à»‰àº”àº¢à»ˆàº²àº‡à»œà»‰àº­àº 1 àº¥àº²àºàºàº²àº™');
+      alert('ກະລຸນາເລືອກຈຳນວນປຣິນບາໂຄ້ດຢ່າງໜ້ອຍ 1 ລາຍການ');
       return;
     }
 
@@ -3688,7 +3411,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         for (const p of itemsToPrint) {
           const qty = bulkPrintQtys[p.id] || 0;
           const name = p.name;
-          const priceVal = p.price.toLocaleString() + ' àºàºµàºš';
+          const priceVal = p.price.toLocaleString() + ' ກີບ';
           const text = p.barcode;
           const dataUrl = await renderStickerToCanvas(name, priceVal, text, format, settings);
 
@@ -3708,14 +3431,14 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
           });
           const result = await response.json();
           if (!result.success) {
-            alert(`àºœàº´àº”àºžàº²àº”à»ƒàº™àºàº²àº™àº›àº£àº´àº™ ${p.name}: ${result.error}`);
+            alert(`ຜິດພາດໃນການປຣິນ ${p.name}: ${result.error}`);
             return;
           }
         }
         setShowBulkBarcodeModal(false);
         setBulkPrintQtys({});
       } catch (e) {
-        alert('àºœàº´àº”àºžàº²àº”à»ƒàº™àºàº²àº™à»€àºŠàº·à»ˆàº­àº¡àº•à»à»ˆ: ' + e.message);
+        alert('ຜິດພາດໃນການເຊື່ອມຕໍ່: ' + e.message);
       }
       return;
     }
@@ -3747,7 +3470,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       const qty = bulkPrintQtys[p.id] || 0;
       const dataUrl = await generateBarcodeDataUrl(p.barcode, format);
       const name = p.name;
-      const priceVal = p.price.toLocaleString() + ' àºàºµàºš';
+      const priceVal = p.price.toLocaleString() + ' ກີບ';
       for (let i = 0; i < qty; i++) {
         stickersHtml += `
           <div class="sticker">
@@ -3772,7 +3495,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
     frameDoc.write(`
       <html>
         <head>
-          <title>àº›àº£àº´àº™àºšàº²à»‚àº„à»‰àº”àº«àº¼àº²àºàº¥àº²àºàºàº²àº™ - àº‚àº­àºšàºžàº£àº°àº£àº±àº—à»€àºàºŠ</title>
+          <title>ປຣິນບາໂຄ້ດຫຼາຍລາຍການ - ຂອບພຣະຣັທເກຊ</title>
           <link href="https://fonts.googleapis.com/css2?family=Phetsarath&display=swap" rel="stylesheet">
           <style>
             @page {
@@ -3919,35 +3642,35 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
           className={`nav-tab ${activeSubTab === 'products' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('products')}
         >
-          {db.getLabel('inv_tab_products', 'ðŸ“¦ àºªàº°àº•àº±àº­àºàºªàº´àº™àº„à»‰àº² (Products)')}
+          {db.getLabel('inv_tab_products', '📦 ສະຕັອກສິນຄ້າ (Products)')}
         </button>
         <button
           type="button"
           className={`nav-tab ${activeSubTab === 'raw_materials' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('raw_materials')}
         >
-          {db.getLabel('inv_tab_raw_materials', 'ðŸ’Ž àº§àº±àº”àº–àº¸àº”àº´àºš (Raw Materials)')}
+          {db.getLabel('inv_tab_raw_materials', '💎 ວັດຖຸດິບ (Raw Materials)')}
         </button>
         <button
           type="button"
           className={`nav-tab ${activeSubTab === 'manufacturing' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('manufacturing')}
         >
-          {db.getLabel('inv_tab_manufacturing', 'ðŸ­ àºªàº¹àº”àºàº²àº™àºœàº°àº¥àº´àº” & BOM')}
+          {db.getLabel('inv_tab_manufacturing', '🏭 ສູດການຜະລິດ & BOM')}
         </button>
         <button
           type="button"
           className={`nav-tab ${activeSubTab === 'purchasing' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('purchasing')}
         >
-          {db.getLabel('inv_tab_purchasing', 'ðŸ§¾ àºªàº±à»ˆàº‡àºŠàº·à»‰ & àºœàº¹à»‰àºªàº°à»œàº­àº‡')}
+          {db.getLabel('inv_tab_purchasing', '🧾 ສັ່ງຊື້ & ຜູ້ສະໜອງ')}
         </button>
         <button
           type="button"
           className={`nav-tab ${activeSubTab === 'consumables' ? 'active' : ''}`}
           onClick={() => setActiveSubTab('consumables')}
         >
-          ðŸ”§ àºªàº²àº‡àº­àº¸àº›àº°àºàº­àº™àºªàº´à»‰àº™à»€àº›àº·àº­àº‡ (Consumables)
+          🔧 ສາງອຸປະກອນສິ້ນເປືອງ (Consumables)
         </button>
       </div>
 
@@ -3973,11 +3696,11 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '8px' } : { display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h2 style={{ color: 'var(--gold-primary)', fontSize: isMobile ? '1.2rem' : '1.5rem', margin: 0 }}>
-            {db.getLabel('title_inventory', 'ðŸ“¦ àºˆàº±àº”àºàº²àº™àº„àº±àº‡àºªàº´àº™àº„à»‰àº² & àºªàº°àº•àº±àº­àº (Inventory)')}
+            {db.getLabel('title_inventory', '📦 ຈັດການຄັງສິນຄ້າ & ສະຕັອກ (Inventory)')}
           </h2>
           {!isMobile && (
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0' }}>
-              àºˆàº±àº”àºàº²àº™àº¥àº²àºàºàº²àº™àºªàº´àº™àº„à»‰àº², àº‚àº­àºšàºžàº£à¸°, àºªà»‰àº­àºàº„à», à»àº¥àº° àº›àº±àºšàºªàº°àº•àº±àº­àºà»„àº”à»‰à»‚àº”àºàºàº»àº‡
+              ຈັດການລາຍການສິນຄ້າ, ຂອບພຣะ, ສ້ອຍຄໍ, ແລະ ປັບສະຕັອກໄດ້ໂດຍກົງ
             </p>
           )}
         </div>
@@ -3987,21 +3710,21 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
             style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
             onClick={() => { setSelectedBarcodeProd(null); setBarcodePrintQty(1); setShowBarcodeModal(true); }}
           >
-            ðŸ·ï¸ àºªà»‰àº²àº‡àºšàº²à»‚àº„à»‰àº”à»€àº›àº»à»ˆàº²
+            🏷️ ສ້າງບາໂຄ້ດເປົ່າ
           </button>
           <button 
             className="btn btn-secondary" 
             style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
             onClick={() => { setBulkPrintQtys({}); setBulkSearch(''); setBulkCatFilter('all'); setShowBulkBarcodeModal(true); }}
           >
-            ðŸ·ï¸ àº›àº£àº´àº™àºšàº²à»‚àº„à»‰àº”àº«àº¼àº²àº
+            🏷️ ປຣິນບາໂຄ້ດຫຼາຍ
           </button>
           <button 
             className="btn btn-secondary" 
             style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
             onClick={openCategoryAdd}
           >
-            ðŸ—‚ï¸ àºˆàº±àº”àºàº²àº™à»àº§àº”à»àº¹à»ˆ
+            🗂️ ຈັດການໝວດໝູ່
           </button>
 {hasInventoryPermission('inventoryAddProduct') && (
           <button 
@@ -4009,7 +3732,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
             style={isMobile ? { flex: '1 1 calc(50% - 4px)', padding: '8px 10px', fontSize: '0.78rem', margin: 0, whiteSpace: 'nowrap' } : {}}
             onClick={handleOpenAdd}
           >
-            âž• à»€àºžàºµà»ˆàº¡àºªàº´àº™àº„à»‰àº²à»ƒà»à»ˆ
+            ➕ ເພີ່ມສິນຄ້າໃໝ່
           </button>
 )}
         </div>
@@ -4018,27 +3741,27 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       {/* Stock Valuation KPI Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
         <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--gold-primary)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>ðŸ“¦ àºˆàº³àº™àº§àº™àºªàº´àº™àº„à»‰àº²àº„àº»àº‡à»€àº«àº¼àº·àº­àº—àº±àº‡à»àº»àº”</span>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>📦 ຈຳນວນສິນຄ້າຄົງເຫຼືອທັງໝົດ</span>
           <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'white' }}>
-            {totalStockCount.toLocaleString()} <span style={{ fontSize: '0.85rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>àºŠàº´à»‰àº™/àº­àº±àº™ (àºˆàº²àº {physicalProducts.length} àº¥àº²àºàºàº²àº™)</span>
+            {totalStockCount.toLocaleString()} <span style={{ fontSize: '0.85rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>ຊິ້ນ/ອັນ (ຈາກ {physicalProducts.length} ລາຍການ)</span>
           </span>
         </div>
         <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--accent-amber, #e67e22)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>ðŸ’° àº¡àº¹àº™àº„à»ˆàº²àº•àº»à»‰àº™àº—àº¶àº™àºªàº°àº•àº±àº­àºàº¥àº§àº¡</span>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>💰 ມູນຄ່າຕົ້ນທຶນສະຕັອກລວມ</span>
           <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'white' }}>
-            {hasInventoryPermission('inventoryViewCost') ? `${totalCostValue.toLocaleString()} àºàºµàºš` : '*** àºàºµàºš'}
+            {hasInventoryPermission('inventoryViewCost') ? `${totalCostValue.toLocaleString()} ກີບ` : '*** ກີບ'}
           </span>
         </div>
         <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--success-green, #27ae60)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>ðŸ“ˆ àº¡àº¹àº™àº„à»ˆàº²àº¥àº²àº„àº²àº‚àº²àºàºªàº°àº•àº±àº­àºàº¥àº§àº¡</span>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>📈 ມູນຄ່າລາຄາຂາຍສະຕັອກລວມ</span>
           <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'white' }}>
-            {totalRetailValue.toLocaleString()} <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>àºàºµàºš</span>
+            {totalRetailValue.toLocaleString()} <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>ກີບ</span>
           </span>
         </div>
         <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--blue-primary, #3498db)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>âœ¨ àºàº³à»„àº¥àº„àº²àº”àº„àº°à»€àº™àº—àº±àº‡à»àº»àº”</span>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>✨ ກຳໄລຄາດຄະເນທັງໝົດ</span>
           <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
-            {hasInventoryPermission('inventoryViewCost') ? `${totalPotentialProfit.toLocaleString()} àºàºµàºš` : '*** àºàºµàºš'}
+            {hasInventoryPermission('inventoryViewCost') ? `${totalPotentialProfit.toLocaleString()} ກີບ` : '*** ກີບ'}
           </span>
         </div>
       </div>
@@ -4046,7 +3769,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       {/* Category Summary Card */}
       <div className="glass-card" style={{ padding: '20px', borderLeft: '4px solid var(--gold-primary)', marginTop: '4px' }}>
         <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.92rem', marginBottom: '14px', marginTop: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-          ðŸ“Š àºªàº°àº«àº¼àº¸àºšàºªàº´àº™àº„à»‰àº²àº•àº²àº¡àº«àº¡àº§àº”àº«àº¡àº¹à»ˆ (Category Summary)
+          📊 ສະຫຼຸບສິນຄ້າຕາມຫມວດຫມູ່ (Category Summary)
         </h4>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '10px' }}>
           {categories.map(cat => {
@@ -4076,41 +3799,41 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   {cat.icon && (cat.icon.startsWith('data:image/') || cat.icon.startsWith('http')) ? (
                     <img src={cat.icon} style={{ width: '20px', height: '20px', objectFit: 'contain', borderRadius: '3px' }} alt="" />
                   ) : (
-                    <span style={{ fontSize: '1rem' }}>{cat.icon || 'ðŸ“¦'}</span>
+                    <span style={{ fontSize: '1rem' }}>{cat.icon || '📦'}</span>
                   )}
                   <span style={{ fontSize: '0.82rem', fontWeight: '600', color: 'var(--text-primary)', lineHeight: 1.3 }}>{cat.name}</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                   <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                    ðŸ“‹ àº¥àº²àºàºàº²àº™: <b style={{ color: 'white' }}>{catProducts.length}</b> àº¥àº²àºàºàº²àº™
+                    📋 ລາຍການ: <b style={{ color: 'white' }}>{catProducts.length}</b> ລາຍການ
                   </span>
                   {!isService && (
                     <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                      ðŸ“¦ àºªàº°àº•àº±àº­àº: <b style={{ color: stockTotal === 0 ? 'var(--alert-red)' : 'var(--gold-primary)' }}>{stockTotal}</b> àºŠàº´à»‰àº™
+                      📦 ສະຕັອກ: <b style={{ color: stockTotal === 0 ? 'var(--alert-red)' : 'var(--gold-primary)' }}>{stockTotal}</b> ຊິ້ນ
                     </span>
                   )}
                   {isService && (
-                    <span style={{ fontSize: '0.75rem', color: 'var(--accent-amber, #e67e22)' }}>ðŸ› ï¸ àºšà»àº¥àº´àºàº²àº™ (àºšà»à»ˆàº¡àºµàºªàº°àº•àº±àº­àº)</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--accent-amber, #e67e22)' }}>🛠️ ບໍລິການ (ບໍ່ມີສະຕັອກ)</span>
                   )}
                   {!isService && (
                     <>
                       <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', margin: '4px 0' }} />
                       <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
-                        ðŸ’° àº•àº»à»‰àº™àº—àº¶àº™:{' '}
+                        💰 ຕົ້ນທຶນ:{' '}
                         <b style={{ color: 'var(--accent-amber, #e67e22)' }}>
-                          {hasInventoryPermission('inventoryViewCost') ? `${catTotalCost.toLocaleString()} àºàºµàºš` : '***'}
+                          {hasInventoryPermission('inventoryViewCost') ? `${catTotalCost.toLocaleString()} ກີບ` : '***'}
                         </b>
                       </span>
                       <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
-                        ðŸ“ˆ àº‚àº²àº:{' '}
+                        📈 ຂາຍ:{' '}
                         <b style={{ color: 'var(--success-green, #27ae60)' }}>
-                          {catTotalRetail.toLocaleString()} àºàºµàºš
+                          {catTotalRetail.toLocaleString()} ກີບ
                         </b>
                       </span>
                       <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
-                        âœ¨ àºàº³à»„àº¥:{' '}
+                        ✨ ກຳໄລ:{' '}
                         <b style={{ color: catProfit >= 0 ? 'var(--gold-primary)' : 'var(--alert-red)' }}>
-                          {hasInventoryPermission('inventoryViewCost') ? `${catProfit.toLocaleString()} àºàºµàºš` : '***'}
+                          {hasInventoryPermission('inventoryViewCost') ? `${catProfit.toLocaleString()} ກີບ` : '***'}
                         </b>
                       </span>
                     </>
@@ -4126,7 +3849,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       {lowStockProducts.length > 0 && (
         <div style={{ background: 'rgba(231, 76, 60, 0.1)', border: '1.5px solid var(--alert-red)', padding: '16px', borderRadius: 'var(--radius-lg)' }}>
           <h3 style={{ color: 'var(--alert-red)', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            âš ï¸ à»àºˆà»‰àº‡à»€àº•àº·àº­àº™: àºªàº´àº™àº„à»‰àº²à»ƒàºà»‰à»àº»àº”àºªàº°àº•àº±àº­àº ({lowStockProducts.length} àº¥àº²àºàºàº²àº™)
+            ⚠️ ແຈ້ງເຕືອນ: ສິນຄ້າໃກ້ໝົດສະຕັອກ ({lowStockProducts.length} ລາຍການ)
           </h3>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             {lowStockProducts.map(p => (
@@ -4134,14 +3857,14 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                 key={p.id}
                 style={{ background: 'rgba(20, 10, 10, 0.5)', border: '1px solid rgba(231, 76, 60, 0.3)', padding: '8px 12px', borderRadius: '8px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '10px' }}
               >
-                <span>{p.name} (<b>àº„àº»àº‡à»€àº«àº¼àº·àº­: {p.stock} {p.unit}</b>)</span>
+                <span>{p.name} (<b>ຄົງເຫຼືອ: {p.stock} {p.unit}</b>)</span>
 {hasInventoryPermission('inventoryEditProduct') && (
                 <button
                   className="btn btn-primary"
                   style={{ padding: '2px 8px', fontSize: '0.75rem', borderRadius: '4px' }}
                   onClick={() => handleOpenEdit(p)}
                 >
-                  àº•àº·à»ˆàº¡àºªàº°àº•àº±àº­àº
+                  ຕື່ມສະຕັອກ
                 </button>
 )}
               </div>
@@ -4168,11 +3891,11 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       >
         {/* Search Box */}
         <div style={{ flex: '1', minWidth: '250px', display: 'flex', alignItems: 'center', gap: '8px', position: 'relative' }}>
-          <span style={{ position: 'absolute', left: '12px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>ðŸ”</span>
+          <span style={{ position: 'absolute', left: '12px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>🔍</span>
           <input
             type="text"
             className="form-control"
-            placeholder="àº„àº»à»‰àº™àº«àº²àºªàº´àº™àº„à»‰àº² àº”à»‰àº§àºàºŠàº·à»ˆ àº«àº¼àº· àºšàº²à»‚àº„à»‰àº” (Search name/barcode)..."
+            placeholder="ຄົ້ນຫາສິນຄ້າ ດ້ວຍຊື່ ຫຼື ບາໂຄ້ດ (Search name/barcode)..."
             value={prodSearchQuery}
             onChange={(e) => setProdSearchQuery(e.target.value)}
             style={{ 
@@ -4198,14 +3921,14 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                 fontSize: '0.9rem'
               }}
             >
-              âœ•
+              ✕
             </button>
           )}
         </div>
 
         {/* Sorting Dropdown */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>àºˆàº±àº”àº¥àº½àº‡ / Sort:</span>
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>ຈັດລຽງ / Sort:</span>
           <select
             value={prodSortMode}
             onChange={(e) => setProdSortMode(e.target.value)}
@@ -4219,25 +3942,25 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
               cursor: 'pointer'
             }}
           >
-            <option value="none">à»€àº¥àº·àº­àºàºàº²àº™àºˆàº±àº”àº¥àº½àº‡ (None)</option>
-            <option value="name-asc">ðŸ”  àºŠàº·à»ˆ: àº - àº® (A-Z)</option>
-            <option value="name-desc">ðŸ”  àºŠàº·à»ˆ: àº® - àº (Z-A)</option>
-            <option value="stock-asc">ðŸ“‰ àºªàº°àº•àº±àº­àº: àº•à»ˆàº³ &rarr; àºªàº¹àº‡ (Low to High)</option>
-            <option value="stock-desc">ðŸ“ˆ àºªàº°àº•àº±àº­àº: àºªàº¹àº‡ &rarr; àº•à»ˆàº³ (High to Low)</option>
+            <option value="none">ເລືອກການຈັດລຽງ (None)</option>
+            <option value="name-asc">🔠 ຊື່: ກ - ຮ (A-Z)</option>
+            <option value="name-desc">🔠 ຊື່: ຮ - ກ (Z-A)</option>
+            <option value="stock-asc">📉 ສະຕັອກ: ຕ່ຳ &rarr; ສູງ (Low to High)</option>
+            <option value="stock-desc">📈 ສະຕັອກ: ສູງ &rarr; ຕ່ຳ (High to Low)</option>
           </select>
         </div>
       </div>
 
-      {/* Category Tabs for easier visualization (à¹à¸¢à¸à¸«à¸¡à¸§à¸”à¸«à¸¡à¸¹à¹ˆà¹ƒà¸«à¹‰à¸”à¸¹à¸‡à¹ˆà¸²à¸¢) */}
+      {/* Category Tabs for easier visualization (แยกหมวดหมู่ให้ดูง่าย) */}
       <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
         {[
-          { id: 'all', icon: 'ðŸ“¦', name: 'àº—àº±àº‡à»àº»àº”', count: products.length },
-          { id: 'low_stock', icon: 'âš ï¸', name: 'àºªàº°àº•àº±àº­àºà»ƒàºà»‰à»àº»àº”', count: lowStockProducts.length },
-          { id: 'physical', icon: 'ðŸ“¦', name: 'àºªàº´àº™àº„à»‰àº²', count: physicalProducts.length },
-          { id: 'service', icon: 'ðŸ› ï¸', name: 'àºšà»àº¥àº´àºàº²àº™', count: products.length - physicalProducts.length },
+          { id: 'all', icon: '📦', name: 'ທັງໝົດ', count: products.length },
+          { id: 'low_stock', icon: '⚠️', name: 'ສະຕັອກໃກ້ໝົດ', count: lowStockProducts.length },
+          { id: 'physical', icon: '📦', name: 'ສິນຄ້າ', count: physicalProducts.length },
+          { id: 'service', icon: '🛠️', name: 'ບໍລິການ', count: products.length - physicalProducts.length },
           ...categories.map(cat => ({
             id: cat.id,
-            icon: cat.icon || 'ðŸ“¦',
+            icon: cat.icon || '📦',
             name: cat.name,
             count: products.filter(p => p.category === cat.id).length
           }))
@@ -4266,14 +3989,14 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         <table className="table-premium" style={{ minWidth: '1000px', marginTop: 0 }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--gold-primary)', fontSize: '0.9rem' }}>
-              <th style={{ padding: '16px' }}>àº®àº¹àºšàºžàº²àºš</th>
-              <th style={{ padding: '16px' }}>àº¥àº°àº«àº±àº”àºšàº²à»‚àº„à»‰à¸”</th>
-              <th style={{ padding: '16px' }}>àºŠàº·à»ˆàºªàº´àº™àº„à»‰àº²</th>
-              <th style={{ padding: '16px', textAlign: 'right' }}>àº•àº»à»‰àº™àº—àº¶àº™</th>
-              <th style={{ padding: '16px', textAlign: 'right' }}>àº¥àº²àº„àº²àº‚àº²àº</th>
-              <th style={{ padding: '16px', textAlign: 'center', width: '160px' }}>àºªàº°àº•àº±àº­àºà»œà»‰àº²àº®à»‰àº²àº™</th>
-              <th style={{ padding: '16px', textAlign: 'center', width: '240px' }}>àºªàº°àº•àº±àº­àºàºªàº²àº‡à»ƒàº«àºà»ˆ</th>
-              <th style={{ padding: '16px', textAlign: 'right' }}>àºˆàº±àº”àºàº²àº™</th>
+              <th style={{ padding: '16px' }}>ຮູບພາບ</th>
+              <th style={{ padding: '16px' }}>ລະຫັດບາໂຄ້ด</th>
+              <th style={{ padding: '16px' }}>ຊື່ສິນຄ້າ</th>
+              <th style={{ padding: '16px', textAlign: 'right' }}>ຕົ້ນທຶນ</th>
+              <th style={{ padding: '16px', textAlign: 'right' }}>ລາຄາຂາຍ</th>
+              <th style={{ padding: '16px', textAlign: 'center', width: '160px' }}>ສະຕັອກໜ້າຮ້ານ</th>
+              <th style={{ padding: '16px', textAlign: 'center', width: '240px' }}>ສະຕັອກສາງໃຫຍ່</th>
+              <th style={{ padding: '16px', textAlign: 'right' }}>ຈັດການ</th>
             </tr>
           </thead>
           <tbody>
@@ -4298,21 +4021,21 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                         {(() => {
                           const cat = categories.find(c => c.id === p.category || c.name === p.category);
                           const catName = cat ? db.getLabel('cat_' + cat.id, cat.name) : p.category;
-                          return isService ? `ðŸ› ï¸ ${catName || 'àºšà»àº¥àº´àºàº²àº™'}` : `ðŸ“¦ ${catName || 'àºªàº´àº™àº„à»‰àº²'}`;
+                          return isService ? `🛠️ ${catName || 'ບໍລິການ'}` : `📦 ${catName || 'ສິນຄ້າ'}`;
                         })()}
                       </span>
                     </div>
                   </td>
                   <td style={{ padding: '12px 16px', textAlign: 'right' }}>
-                    {hasInventoryPermission('inventoryViewCost') ? `${p.cost.toLocaleString()} àºàºµàºš` : '*** àºàºµàºš'}
+                    {hasInventoryPermission('inventoryViewCost') ? `${p.cost.toLocaleString()} ກີບ` : '*** ກີບ'}
                   </td>
                   <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 'bold', color: 'var(--gold-primary)' }}>
-                    {p.price.toLocaleString()} àºàºµàºš
+                    {p.price.toLocaleString()} ກີບ
                   </td>
                   
                   <td style={{ padding: '12px 16px', textAlign: 'center' }}>
                     {isService ? (
-                      <span style={{ color: 'var(--text-secondary)' }}>àºšà»àº¥àº´àºàº²àº™ (àºšà»à»ˆàº¡àºµàºªàº°àº•àº±àº­àº)</span>
+                      <span style={{ color: 'var(--text-secondary)' }}>ບໍລິການ (ບໍ່ມີສະຕັອກ)</span>
                     ) : (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                         <button
@@ -4352,7 +4075,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
                   <td style={{ padding: '12px 16px', textAlign: 'center' }}>
                     {isService ? (
-                      <span style={{ color: 'var(--text-secondary)' }}>â€”</span>
+                      <span style={{ color: 'var(--text-secondary)' }}>—</span>
                     ) : (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                         <span style={{ fontWeight: 'bold', minWidth: '40px', textAlign: 'right', color: 'var(--accent-amber)' }}>
@@ -4368,7 +4091,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                             setShowWarehouseRestockModal(true);
                           }}
                         >
-                          ðŸ“¥ àº®àº±àºšà»€àº‚àº»à»‰àº²
+                          📥 ຮັບເຂົ້າ
                         </button>
                         <button
                           type="button"
@@ -4379,7 +4102,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                             setShowWarehouseTransferModal(true);
                           }}
                         >
-                          ðŸšš à»‚àº­àº™àºà»‰àº²àº
+                          🚚 ໂອນຍ້າຍ
                         </button>
                       </div>
                     )}
@@ -4392,7 +4115,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                         style={{ padding: '4px 8px', fontSize: '0.8rem' }}
                         onClick={() => handleOpenBarcodeGen(p)}
                       >
-                        ðŸ·ï¸ àºšàº²à»‚àº„à»‰àº”
+                        🏷️ ບາໂຄ້ດ
                       </button>
 {hasInventoryPermission('inventoryEditProduct') && (
                       <button
@@ -4400,7 +4123,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                         style={{ padding: '4px 8px', fontSize: '0.8rem' }}
                         onClick={() => handleOpenEdit(p)}
                       >
-                        ðŸ“ à»àºà»‰à»„àº‚
+                        📝 ແກ້ໄຂ
                       </button>
 )}
 {hasInventoryPermission('inventoryDeleteProduct') && (
@@ -4409,7 +4132,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                         style={{ padding: '4px 8px', fontSize: '0.8rem', background: '#c0392b', color: 'white', border: 'none' }}
                         onClick={() => handleDeleteProduct(p)}
                       >
-                        ðŸ—‘ï¸ àº¥àº»àºš
+                        🗑️ ລົບ
                       </button>
 )}
                     </div>
@@ -4431,39 +4154,39 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                 {p.image ? (
                   <img src={p.image} style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }} alt="" />
                 ) : (
-                  <div style={{ width: '60px', height: '60px', borderRadius: '8px', background: 'rgba(255,255,255,0.02)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border-color)', fontSize: '1.2rem' }}>ðŸ“¦</div>
+                  <div style={{ width: '60px', height: '60px', borderRadius: '8px', background: 'rgba(255,255,255,0.02)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border-color)', fontSize: '1.2rem' }}>📦</div>
                 )}
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 'bold', fontSize: '1.05rem' }}>{p.name}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>àºšàº²à»‚àº„à»‰àº”: {p.barcode || '-'} â€¢ SKU: {p.sku || '-'}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>ບາໂຄ້ດ: {p.barcode || '-'} • SKU: {p.sku || '-'}</div>
                 </div>
               </div>
               
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.85rem' }}>
                 <div>
-                  <span style={{ color: 'var(--text-secondary)' }}>àº•àº»à»‰àº™àº—àº¶à¸™: </span>
-                  <span>{hasInventoryPermission('inventoryViewCost') ? `${p.cost.toLocaleString()} â‚­` : '*** â‚­'}</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>ຕົ້ນທຶน: </span>
+                  <span>{hasInventoryPermission('inventoryViewCost') ? `${p.cost.toLocaleString()} ₭` : '*** ₭'}</span>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--text-secondary)' }}>àº¥àº²àº„àº²àº‚àº²àº: </span>
-                  <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{p.price.toLocaleString()} â‚­</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>ລາຄາຂາຍ: </span>
+                  <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{p.price.toLocaleString()} ₭</span>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--text-secondary)' }}>à»àº§àº”à»àº¹à»ˆ: </span>
+                  <span style={{ color: 'var(--text-secondary)' }}>ໝວດໝູ່: </span>
                   <span style={{ textTransform: 'capitalize' }}>{p.category}</span>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--text-secondary)' }}>àºªàº°àº•àº±àº­àºà»œà»‰àº²àº®à»‰àº²àº™: </span>
+                  <span style={{ color: 'var(--text-secondary)' }}>ສະຕັອກໜ້າຮ້ານ: </span>
                   {isService ? (
-                    <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>àºšà»àº¥àº´àºàº²àº™ (No Stock)</span>
+                    <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>ບໍລິການ (No Stock)</span>
                   ) : (
                     <span style={{ fontWeight: 'bold', color: isLow ? 'var(--alert-red)' : 'white' }}>{p.stock} / {p.minStock} {p.unit}</span>
                   )}
                 </div>
                 <div>
-                  <span style={{ color: 'var(--text-secondary)' }}>àºªàº°àº•àº±àº­àºàºªàº²àº‡à»ƒàº«àºà»ˆ: </span>
+                  <span style={{ color: 'var(--text-secondary)' }}>ສະຕັອກສາງໃຫຍ່: </span>
                   {isService ? (
-                    <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>â€”</span>
+                    <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>—</span>
                   ) : (
                     <span style={{ fontWeight: 'bold', color: 'var(--accent-amber)' }}>{p.warehouseStock || 0} {p.unit}</span>
                   )}
@@ -4473,7 +4196,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
               {!isService && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>àº›àº±àºšàºªàº°àº•àº±àº­àºà»œà»‰àº²àº®à»‰àº²àº™:</span>
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>ປັບສະຕັອກໜ້າຮ້ານ:</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
                       <button type="button" className="qty-btn" style={{ width: '32px', height: '32px', fontSize: '1rem' }} onClick={() => adjustStock(p, -1)}>-</button>
                       <input 
@@ -4495,7 +4218,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                         setShowWarehouseRestockModal(true);
                       }}
                     >
-                      ðŸ“¥ àº®àº±àºšà»€àº‚àº»à»‰àº²àºªàº²àº‡à»ƒàº«àºà»ˆ
+                      📥 ຮັບເຂົ້າສາງໃຫຍ່
                     </button>
                     <button
                       type="button"
@@ -4506,19 +4229,19 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                         setShowWarehouseTransferModal(true);
                       }}
                     >
-                      ðŸšš à»‚àº­àº™àºà»‰àº²àºà»œà»‰àº²àº®à»‰àº²àº™
+                      🚚 ໂອນຍ້າຍໜ້າຮ້ານ
                     </button>
                   </div>
                 </div>
               )}
 
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
-                <button type="button" className="btn btn-secondary btn-sm" onClick={() => handleOpenBarcodeGen(p)}>ðŸ·ï¸ àºšàº²à»‚àº„à»‰àº”</button>
+                <button type="button" className="btn btn-secondary btn-sm" onClick={() => handleOpenBarcodeGen(p)}>🏷️ ບາໂຄ້ດ</button>
 {hasInventoryPermission('inventoryEditProduct') && (
-                <button type="button" className="btn btn-primary btn-sm" onClick={() => handleOpenEdit(p)}>ðŸ“ à»àºà»‰à»„àº‚</button>
+                <button type="button" className="btn btn-primary btn-sm" onClick={() => handleOpenEdit(p)}>📝 ແກ້ໄຂ</button>
 )}
 {hasInventoryPermission('inventoryDeleteProduct') && (
-                <button type="button" className="btn btn-sm" style={{ background: '#c0392b', color: 'white', border: 'none' }} onClick={() => handleDeleteProduct(p)}>ðŸ—‘ï¸ àº¥àº»àºš</button>
+                <button type="button" className="btn btn-sm" style={{ background: '#c0392b', color: 'white', border: 'none' }} onClick={() => handleDeleteProduct(p)}>🗑️ ລົບ</button>
 )}
               </div>
             </div>
@@ -4533,14 +4256,14 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         <div className="modal-overlay">
           <div className="modal-content modal-sm animate-fade-in">
             <div className="modal-header">
-              <span className="modal-title">{editProduct ? 'ðŸ“ à»àºà»‰à»„àº‚àº¥àº²àºàº¥àº°àº­àº½àº”àºªàº´àº™àº„à»‰àº²' : 'âž• à»€àºžàºµà»ˆàº¡àºªàº´àº™àº„à»‰àº²à»ƒà»à»ˆ'}</span>
-              <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowModal(false)}>âœ•</button>
+              <span className="modal-title">{editProduct ? '📝 ແກ້ໄຂລາຍລະອຽດສິນຄ້າ' : '➕ ເພີ່ມສິນຄ້າໃໝ່'}</span>
+              <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowModal(false)}>✕</button>
             </div>
             
             <form onSubmit={handleSave}>
               <div className="modal-body">
                 <div className="form-group">
-                  <label className="form-label">àºŠàº·à»ˆàºªàº´àº™àº„à»‰àº² (àºžàº²àºªàº²àº¥àº²àº§/à»„àº—)</label>
+                  <label className="form-label">ຊື່ສິນຄ້າ (ພາສາລາວ/ໄທ)</label>
                   <input
                     type="text"
                     className="form-control"
@@ -4552,7 +4275,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                 </div>
 
                 <div className="form-group" style={{ position: 'relative' }}>
-                  <label className="form-label">à»àº§àº”à»àº¹à»ˆ (Category)</label>
+                  <label className="form-label">ໝວດໝູ່ (Category)</label>
                   <div 
                     onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
                     style={{
@@ -4576,15 +4299,15 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                             {selectedCat.icon && (selectedCat.icon.startsWith('data:image/') || selectedCat.icon.startsWith('http')) ? (
                               <img src={selectedCat.icon} style={{ width: '18px', height: '18px', objectFit: 'contain', borderRadius: '2px' }} alt="" />
                             ) : (
-                              <span>{selectedCat.icon || 'ðŸ“¦'}</span>
+                              <span>{selectedCat.icon || '📦'}</span>
                             )}
                             <span>{selectedCat.name}</span>
                           </div>
                         );
                       }
-                      return <span style={{ color: 'var(--text-secondary)' }}>à»€àº¥àº·àº­àºà»àº§àº”à»àº¹à»ˆ...</span>;
+                      return <span style={{ color: 'var(--text-secondary)' }}>ເລືອກໝວດໝູ່...</span>;
                     })()}
-                    <span style={{ transition: 'transform 0.2s', transform: showCategoryDropdown ? 'rotate(180deg)' : 'rotate(0deg)' }}>â–¼</span>
+                    <span style={{ transition: 'transform 0.2s', transform: showCategoryDropdown ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
                   </div>
 
                   {showCategoryDropdown && (
@@ -4614,7 +4337,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                               category: cat.id,
                               stock: isService ? '0' : (formData.stock || '10'),
                               minStock: isService ? '0' : (formData.minStock || '2'),
-                              unit: isService ? 'àº„àº±à»‰àº‡' : (formData.unit || 'àº­àº±àº™')
+                              unit: isService ? 'ຄັ້ງ' : (formData.unit || 'ອັນ')
                             });
                             setShowCategoryDropdown(false);
                           }}
@@ -4631,7 +4354,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                           {cat.icon && (cat.icon.startsWith('data:image/') || cat.icon.startsWith('http')) ? (
                             <img src={cat.icon} style={{ width: '18px', height: '18px', objectFit: 'contain', borderRadius: '2px' }} alt="" />
                           ) : (
-                            <span>{cat.icon || 'ðŸ“¦'}</span>
+                            <span>{cat.icon || '📦'}</span>
                           )}
                           <span>{cat.name}</span>
                         </div>
@@ -4643,7 +4366,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
                   <div className="form-group">
-                    <label className="form-label">àº¥àº²àº„àº²àº‚àº²àº (àºàºµàºš)</label>
+                    <label className="form-label">ລາຄາຂາຍ (ກີບ)</label>
                     <input
                       type="number"
                       className="form-control"
@@ -4655,7 +4378,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   </div>
 {hasInventoryPermission('inventoryViewCost') && (
                   <div className="form-group">
-                    <label className="form-label">àº¥àº²àº„à¸²àº•àº»à»‰àº™àº—àº¶àº™ (àºàºµàºš)</label>
+                    <label className="form-label">ລາຄาຕົ້ນທຶນ (ກີບ)</label>
                     <input
                       type="number"
                       className="form-control"
@@ -4672,7 +4395,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                 {!db.isServiceCategory(formData.category) ? (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div className="form-group">
-                      <label className="form-label">àºˆàº³àº™àº§àº™à»ƒàº™àºªàº°àº•àº±àº­àº</label>
+                      <label className="form-label">ຈຳນວນໃນສະຕັອກ</label>
                       <input
                         type="number"
                         className="form-control"
@@ -4683,7 +4406,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       />
                     </div>
                     <div className="form-group">
-                      <label className="form-label">à»àºˆà»‰àº‡à»€àº•àº·àº­àº™à»€àº¡àº·à»ˆàº­àº•à»à»ˆàº²àºàº§à»ˆàº²</label>
+                      <label className="form-label">ແຈ້ງເຕືອນເມື່ອຕໍ່າກວ່າ</label>
                       <input
                         type="number"
                         className="form-control"
@@ -4696,24 +4419,24 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   </div>
                 ) : (
                   <div style={{ padding: '10px 12px', border: '1px dashed var(--gold-primary)', borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                    àº„à»àº²à»àº™àº°àº™àº³: à»àº§àº”àºšà»àº¥àº´àºàº²àº™àºˆàº°àºšà»à»ˆà»ƒàºŠà»‰àºªàº°àº•àº±àº­àº. àº¥àº°àºšàº»àºšàºˆàº°àºšàº±àº‡àº„àº±àºš stock/min stock à»€àº›àº±àº™ 0 à»ƒàº«à»‰àº­àº±àº”àº•àº°à»‚àº™àº¡àº±àº”.
+                    ຄໍາແນະນຳ: ໝວດບໍລິການຈະບໍ່ໃຊ້ສະຕັອກ. ລະບົບຈະບັງຄັບ stock/min stock ເປັນ 0 ໃຫ້ອັດຕະໂນມັດ.
                   </div>
                 )}
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div className="form-group">
-                    <label className="form-label">àº«àº»àº§à»œà»ˆàº§à¸¢</label>
+                    <label className="form-label">ຫົວໜ່ວย</label>
                     <input
                       type="text"
                       className="form-control"
                       value={formData.unit}
                       onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                      placeholder="àº­àº±àº™, à»€àºªàº±à»‰àº™, àº­àº»àº‡"
+                      placeholder="ອັນ, ເສັ້ນ, ອົງ"
                       autoComplete="off"
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">àº¥àº°àº«àº±àº”àºšàº²à»‚àº„à»‰àº” (Barcode)</label>
+                    <label className="form-label">ລະຫັດບາໂຄ້ດ (Barcode)</label>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <input
                         type="text"
@@ -4727,7 +4450,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                           }
                         }}
                         style={{ flex: 1, margin: 0 }}
-                        placeholder="àº¥àº°àº«àº±àº”àºšàº²à»‚àº„à»‰àº”..."
+                        placeholder="ລະຫັດບາໂຄ້ດ..."
                         autoComplete="off"
                       />
                       <button
@@ -4739,7 +4462,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                           setShowScanHelperModal(true);
                         }}
                       >
-                        ðŸ”Œ àºªàº°à»àºàº™
+                        🔌 ສະແກນ
                       </button>
                     </div>
                   </div>
@@ -4754,11 +4477,11 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                         onChange={(e) => setFormData({ ...formData, showOnline: e.target.checked })}
                         style={{ width: '18px', height: '18px', cursor: 'pointer', margin: 0 }}
                       />
-                      <span>àºªàº°à»àº”àº‡à»ƒàº™ Online Shop</span>
+                      <span>ສະແດງໃນ Online Shop</span>
                     </label>
                   </div>
                   <div className="form-group">
-                    <label className="form-label">àº¥àº²àº„àº²àº­àº­àº™àº¥àº²àº (àºàºµàºš)</label>
+                    <label className="form-label">ລາຄາອອນລາຍ (ກີບ)</label>
                     <input
                       type="number"
                       className="form-control"
@@ -4771,19 +4494,19 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">àº¥àº²àºàº¥àº°àº­àº½àº”àºªàº´àº™àº„à»‰àº² (Product Description)</label>
+                  <label className="form-label">ລາຍລະອຽດສິນຄ້າ (Product Description)</label>
                   <textarea
                     className="form-control"
                     rows="3"
                     style={{ background: '#1c1916', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
-                    placeholder="àº›à»‰àº­àº™àº¥àº²àºàº¥àº°àº­àº½àº”àºªàº´àº™àº„à»‰àº²..."
+                    placeholder="ປ້ອນລາຍລະອຽດສິນຄ້າ..."
                     value={formData.description || ''}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">àº®àº¹àºšàºžàº²àºšàºªàº´àº™àº„à»‰àº² (Product Photos - àº­àº±àºšà»‚àº«àº¼àº”à»„àº”à»‰àº«àº¼àº²àºàº®àº¹àºš)</label>
+                  <label className="form-label">ຮູບພາບສິນຄ້າ (Product Photos - ອັບໂຫຼດໄດ້ຫຼາຍຮູບ)</label>
                   <input
                     type="file"
                     accept="image/*"
@@ -4845,9 +4568,9 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                               zIndex: 5,
                               boxShadow: '0 1px 4px rgba(0,0,0,0.5)'
                             }}
-                            title="à»àº•à»ˆàº‡àº®àº¹àºšàº”à»‰àº§àº AI"
+                            title="ແຕ່ງຮູບດ້ວຍ AI"
                           >
-                            ðŸŽ¨
+                            🎨
                           </button>
                           <button
                             type="button"
@@ -4877,7 +4600,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                               lineHeight: 1
                             }}
                           >
-                            âœ•
+                            ✕
                           </button>
                           {idx === 0 && (
                             <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(212,175,55,0.85)', color: 'black', fontSize: '8px', textAlign: 'center', fontWeight: 'bold' }}>
@@ -4902,15 +4625,15 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                     cost: '',
                     stock: '',
                     minStock: '',
-                    unit: 'àº­àº±àº™',
+                    unit: 'ອັນ',
                     barcode: '',
                     image: '',
                     showOnline: true,
                     priceOnline: '',
                     priceVip: ''
                   });
-                }}>àºàº»àºà»€àº¥àºµàº</button>
-                <button type="submit" className="btn btn-primary">ðŸ’¾ àºšàº±àº™àº—àº¶àºàºªàº´àº™àº„à»‰àº²</button>
+                }}>ຍົກເລີກ</button>
+                <button type="submit" className="btn btn-primary">💾 ບັນທຶກສິນຄ້າ</button>
               </div>
             </form>
           </div>
@@ -4924,7 +4647,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
           <div className="modal-overlay">
             <div className="modal-content modal-sm animate-fade-in" style={{ maxWidth: '400px' }}>
               <div className="modal-header">
-                <span className="modal-title">ðŸ“¥ àº®àº±àºšàºªàº´àº™àº„à»‰àº²à»€àº‚àº»à»‰àº²àºªàº²àº‡à»ƒàº«àºà»ˆ</span>
+                <span className="modal-title">📥 ຮັບສິນຄ້າເຂົ້າສາງໃຫຍ່</span>
                 <button 
                   type="button" 
                   className="btn-secondary" 
@@ -4933,37 +4656,37 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                     setShowWarehouseRestockModal(false);
                     setWarehouseActiveProduct(null);
                   }}
-                >âœ•</button>
+                >✕</button>
               </div>
               <form onSubmit={handleWarehouseRestockSubmit}>
                 <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                     <div style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{warehouseActiveProduct.name}</div>
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                      àºšàº²à»‚àº„à»‰àº”: {warehouseActiveProduct.barcode || '-'} | àºªàº°àº•àº±àº­àºàºªàº²àº‡à»ƒàº«àºà»ˆàº›àº±àº”àºˆàº¸àºšàº±àº™: {warehouseActiveProduct.warehouseStock || 0} {warehouseActiveProduct.unit}
+                      ບາໂຄ້ດ: {warehouseActiveProduct.barcode || '-'} | ສະຕັອກສາງໃຫຍ່ປັດຈຸບັນ: {warehouseActiveProduct.warehouseStock || 0} {warehouseActiveProduct.unit}
                     </div>
                   </div>
                   
                   <div className="form-group">
-                    <label className="form-label">àºˆàº³àº™àº§àº™àº®àº±àºšà»€àº‚àº»à»‰àº²àºªàº²àº‡à»ƒàº«àºà»ˆ ({warehouseActiveProduct.unit}) <span style={{ color: 'var(--alert-red)' }}>*</span></label>
+                    <label className="form-label">ຈຳນວນຮັບເຂົ້າສາງໃຫຍ່ ({warehouseActiveProduct.unit}) <span style={{ color: 'var(--alert-red)' }}>*</span></label>
                     <input 
                       type="number" 
                       className="form-control" 
                       required 
                       min="0.001"
                       step="any"
-                      placeholder="àº›à»‰àº­àº™àºˆàº³àº™àº§àº™..." 
+                      placeholder="ປ້ອນຈຳນວນ..." 
                       value={warehouseRestockQty} 
                       onChange={(e) => setWarehouseRestockQty(e.target.value)} 
                     />
                   </div>
                   
                   <div className="form-group">
-                    <label className="form-label">à»àº²àºà»€àº«àº” (à»€àºŠàº±à»ˆàº™: àºŠàº·à»ˆàºœàº¹à»‰àºªàº°à»œàº­àº‡, à»€àº¥àºàº—àºµàºšàº´àº™...)</label>
+                    <label className="form-label">ໝາຍເຫດ (ເຊັ່ນ: ຊື່ຜູ້ສະໜອງ, ເລກທີບິນ...)</label>
                     <textarea 
                       className="form-control" 
                       rows="2"
-                      placeholder="àº›à»‰àº­àº™à»àº²àºà»€àº«àº”..."
+                      placeholder="ປ້ອນໝາຍເຫດ..."
                       value={warehouseRestockNotes} 
                       onChange={(e) => setWarehouseRestockNotes(e.target.value)} 
                     />
@@ -4977,8 +4700,8 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       setShowWarehouseRestockModal(false);
                       setWarehouseActiveProduct(null);
                     }}
-                  >àºàº»àºà»€àº¥àºµàº</button>
-                  <button type="submit" className="btn btn-primary">ðŸ“¥ àº¢àº·àº™àº¢àº±àº™àº®àº±àºšà»€àº‚àº»à»‰àº²</button>
+                  >ຍົກເລີກ</button>
+                  <button type="submit" className="btn btn-primary">📥 ຢືນຢັນຮັບເຂົ້າ</button>
                 </div>
               </form>
             </div>
@@ -4992,7 +4715,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
           <div className="modal-overlay">
             <div className="modal-content modal-sm animate-fade-in" style={{ maxWidth: '400px' }}>
               <div className="modal-header">
-                <span className="modal-title">ðŸšš à»‚àº­àº™àºà»‰àº²àºàºªàº´àº™àº„à»‰àº²à»„àº›à»œà»‰àº²àº®à»‰àº²àº™</span>
+                <span className="modal-title">🚚 ໂອນຍ້າຍສິນຄ້າໄປໜ້າຮ້ານ</span>
                 <button 
                   type="button" 
                   className="btn-secondary" 
@@ -5001,38 +4724,38 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                     setShowWarehouseTransferModal(false);
                     setWarehouseActiveProduct(null);
                   }}
-                >âœ•</button>
+                >✕</button>
               </div>
               <form onSubmit={handleWarehouseTransferSubmit}>
                 <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                     <div style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{warehouseActiveProduct.name}</div>
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      <span>ðŸ“¦ àºªàº°àº•àº±àº­àºà»œà»‰àº²àº®à»‰àº²àº™àº›àº±àº”àºˆàº¸àºšàº±àº™: {warehouseActiveProduct.stock || 0} {warehouseActiveProduct.unit}</span>
-                      <span>ðŸ  àºªàº°àº•àº±àº­àºàºªàº²àº‡à»ƒàº«àºà»ˆàº›àº±àº”àºˆàº¸àºšàº±àº™: {warehouseActiveProduct.warehouseStock || 0} {warehouseActiveProduct.unit}</span>
+                      <span>📦 ສະຕັອກໜ້າຮ້ານປັດຈຸບັນ: {warehouseActiveProduct.stock || 0} {warehouseActiveProduct.unit}</span>
+                      <span>🏠 ສະຕັອກສາງໃຫຍ່ປັດຈຸບັນ: {warehouseActiveProduct.warehouseStock || 0} {warehouseActiveProduct.unit}</span>
                     </div>
                   </div>
                   
                   <div className="form-group">
-                    <label className="form-label">àºˆàº³àº™àº§àº™àº—àºµà»ˆàº•à»‰àº­àº‡àºàº²àº™à»‚àº­àº™àºà»‰àº²àº ({warehouseActiveProduct.unit}) <span style={{ color: 'var(--alert-red)' }}>*</span></label>
+                    <label className="form-label">ຈຳນວນທີ່ຕ້ອງການໂອນຍ້າຍ ({warehouseActiveProduct.unit}) <span style={{ color: 'var(--alert-red)' }}>*</span></label>
                     <input 
                       type="number" 
                       className="form-control" 
                       required 
                       min="0.001"
                       step="any"
-                      placeholder="àº›à»‰àº­àº™àºˆàº³àº™àº§àº™à»‚àº­àº™àºà»‰àº²àº..." 
+                      placeholder="ປ້ອນຈຳນວນໂອນຍ້າຍ..." 
                       value={warehouseTransferQty} 
                       onChange={(e) => setWarehouseTransferQty(e.target.value)} 
                     />
                   </div>
                   
                   <div className="form-group">
-                    <label className="form-label">à»àº²àºà»€àº«àº” (à»€àºŠàº±à»ˆàº™: à»‚àº­àº™à»„àº›à»€àºžàºµà»ˆàº¡à»œà»‰àº²àº®à»‰àº²àº™...)</label>
+                    <label className="form-label">ໝາຍເຫດ (ເຊັ່ນ: ໂອນໄປເພີ່ມໜ້າຮ້ານ...)</label>
                     <textarea 
                       className="form-control" 
                       rows="2"
-                      placeholder="àº›à»‰àº­àº™à»àº²àºà»€àº«àº”..."
+                      placeholder="ປ້ອນໝາຍເຫດ..."
                       value={warehouseTransferNotes} 
                       onChange={(e) => setWarehouseTransferNotes(e.target.value)} 
                     />
@@ -5046,8 +4769,8 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       setShowWarehouseTransferModal(false);
                       setWarehouseActiveProduct(null);
                     }}
-                  >àºàº»àºà»€àº¥àºµàº</button>
-                  <button type="submit" className="btn btn-primary">ðŸšš àº¢àº·àº™àº¢àº±àº™àºàº²àº™à»‚àº­àº™</button>
+                  >ຍົກເລີກ</button>
+                  <button type="submit" className="btn btn-primary">🚚 ຢືນຢັນການໂອນ</button>
                 </div>
               </form>
             </div>
@@ -5061,28 +4784,28 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         <div className="modal-overlay">
           <div className="modal-content modal-sm animate-fade-in">
             <div className="modal-header">
-              <span className="modal-title">ðŸ·ï¸ àº¥àº°àºšàº»àºšàºªà»‰àº²àº‡ & àº›àº£àº´àº™àºšàº²à»‚àº„à»‰àº”</span>
-              <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowBarcodeModal(false)}>âœ•</button>
+              <span className="modal-title">🏷️ ລະບົບສ້າງ & ປຣິນບາໂຄ້ດ</span>
+              <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowBarcodeModal(false)}>✕</button>
             </div>
             
             <div className="modal-body" style={{ textAlign: 'center' }}>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
                 {selectedBarcodeProd 
-                  ? `àºªàº´àº™àº„à»‰àº²: ${selectedBarcodeProd.name}`
-                  : 'àº›à»‰àº­àº™àº¥àº°àº«àº±àº”à»€àºžàº·à»ˆàº­àºªà»‰àº²àº‡àºšàº²à»‚àº„à»‰àº”àºªàº°à»€àºžàº²àº°àºàº´àº”'}
+                  ? `ສິນຄ້າ: ${selectedBarcodeProd.name}`
+                  : 'ປ້ອນລະຫັດເພື່ອສ້າງບາໂຄ້ດສະເພາະກິດ'}
               </p>
 
               <div className="form-group" style={{ textAlign: 'left', marginBottom: '12px' }}>
-                <label className="form-label" style={{ fontSize: '0.8rem' }}>àº„àº»à»‰àº™àº«àº²àº›àº°à»€àºžàº”àºšàº²à»‚àº„à»‰àº” (Search Barcode Format)</label>
+                <label className="form-label" style={{ fontSize: '0.8rem' }}>ຄົ້ນຫາປະເພດບາໂຄ້ດ (Search Barcode Format)</label>
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="ðŸ” àºžàº´àº¡à»€àºžàº·à»ˆàº­àº„àº»à»‰àº™àº«àº²àº›àº°à»€àºžàº”àºšàº²à»‚àº„à»‰àº”..."
+                  placeholder="🔍 ພິມເພື່ອຄົ້ນຫາປະເພດບາໂຄ້ດ..."
                   value={barcodeFormatSearch}
                   onChange={(e) => setBarcodeFormatSearch(e.target.value)}
                   style={{ marginBottom: '8px' }}
                 />
-                <label className="form-label">àº›àº°à»€àºžàº”àºšàº²à»‚àº„à»‰àº” (Barcode Type / Format)</label>
+                <label className="form-label">ປະເພດບາໂຄ້ດ (Barcode Type / Format)</label>
                 <select
                   className="form-control"
                   value={barcodeFormat}
@@ -5100,7 +4823,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
               {!selectedBarcodeProd && (
                 <div className="form-group" style={{ textAlign: 'left' }}>
-                  <label className="form-label">àº¥àº°àº«àº±àº”àºšàº²à»‚àº„à»‰àº” (àºªàº°à»€àºžàº²àº°àº•àº»àº§à»€àº¥àº à»àº¥àº° àº•àº»àº§àº­àº±àºàºªàº­àº™ A-Z)</label>
+                  <label className="form-label">ລະຫັດບາໂຄ້ດ (ສະເພາະຕົວເລກ ແລະ ຕົວອັກສອນ A-Z)</label>
                   <input
                     type="text"
                     className="form-control"
@@ -5111,7 +4834,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
               )}
 
               <div className="form-group" style={{ textAlign: 'left', marginTop: '12px' }}>
-                <label className="form-label">àºˆàº³àº™àº§àº™àºªàº°àº•àº´àºà»€àºàºµàº—àºµà»ˆàº•à»‰àº­àº‡àºàº²àº™àº›àº£àº´àº™ (Print Quantity)</label>
+                <label className="form-label">ຈຳນວນສະຕິກເກີທີ່ຕ້ອງການປຣິນ (Print Quantity)</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <button
                     type="button"
@@ -5144,7 +4867,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       style={{ height: '36px', fontSize: '0.8rem', padding: '0 12px' }}
                       onClick={() => setBarcodePrintQty(Math.max(1, selectedBarcodeProd.stock))}
                     >
-                      à»€àº—àº»à»ˆàº²àºªàº°àº•àº±àº­àº ({selectedBarcodeProd.stock})
+                      ເທົ່າສະຕັອກ ({selectedBarcodeProd.stock})
                     </button>
                   )}
                 </div>
@@ -5161,13 +4884,13 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
               </div>
 
               <div style={{ marginTop: '16px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                *àºªàº²àº¡àº²àº”àº™àº³àºšàº²à»‚àº„à»‰àº”àº™àºµà»‰à»„àº›àº›àº£àº´àº™àº•àº´àº”àºàº±àºšàº–àº»àº‡àºžàº£àº° àº«àº¼àº· àº‚àº­àºšàºžàº£àº° à»€àºžàº·à»ˆàº­à»ƒàºŠà»‰à»€àº„àº·à»ˆàº­àº‡àºªàº°à»àºàº™àºàº´àº‡àº‚àº²àºà»„àº”à»‰àº—àº±àº™àº—àºµ
+                *ສາມາດນຳບາໂຄ້ດນີ້ໄປປຣິນຕິດກັບຖົງພຣະ ຫຼື ຂອບພຣະ ເພື່ອໃຊ້ເຄື່ອງສະແກນຍິງຂາຍໄດ້ທັນທີ
               </div>
             </div>
 
             <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowBarcodeModal(false)}>àº›àº´àº”</button>
-              <button className="btn btn-primary" onClick={handlePrintBarcode}>ðŸ–¨ï¸ àº›àº£àº´àº™àºªàº°àº•àº´àºà»€àºàºµàºšàº²à»‚àº„à»‰àº”</button>
+              <button className="btn btn-secondary" onClick={() => setShowBarcodeModal(false)}>ປິດ</button>
+              <button className="btn btn-primary" onClick={handlePrintBarcode}>🖨️ ປຣິນສະຕິກເກີບາໂຄ້ດ</button>
             </div>
           </div>
         </div>
@@ -5180,25 +4903,25 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         <div className="modal-overlay">
           <div className="modal-content modal-sm animate-fade-in">
             <div className="modal-header">
-              <span className="modal-title">ðŸ·ï¸ àº›àº£àº´àº™àºšàº²à»‚àº„à»‰àº”àº«àº¼àº²àºàº¥àº²àºàºàº²àº™ (Bulk Printer)</span>
-              <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowBulkBarcodeModal(false)}>âœ•</button>
+              <span className="modal-title">🏷️ ປຣິນບາໂຄ້ດຫຼາຍລາຍການ (Bulk Printer)</span>
+              <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowBulkBarcodeModal(false)}>✕</button>
             </div>
             
             <div className="modal-body">
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '12px' }}>
-                à»€àº¥àº·àº­àºàºˆàº³àº™àº§àº™àº›àº£àº´àº™àºšàº²à»‚àº„à»‰àº”à»ƒàº«à»‰à»àº•à»ˆàº¥àº°àºªàº´àº™àº„à»‰àº². àº¥àº°àºšàº»àºšàºˆàº°àº¥àº§àº¡à»€àº›àº±àº™à»œà»‰àº²àº”àº½àº§à»€àºžàº·à»ˆàº­à»ƒàº«à»‰àº›àº£àº´àº™àº­àº­àºà»€àº„àº·à»ˆàº­àº‡àºªàº°àº•àº´àºà»€àºàºµà»„àº”à»‰àº‡à»ˆàº²àº.
+                ເລືອກຈຳນວນປຣິນບາໂຄ້ດໃຫ້ແຕ່ລະສິນຄ້າ. ລະບົບຈະລວມເປັນໜ້າດຽວເພື່ອໃຫ້ປຣິນອອກເຄື່ອງສະຕິກເກີໄດ້ງ່າຍ.
               </p>
               <div className="form-group" style={{ textAlign: 'left', marginBottom: '12px' }}>
-                <label className="form-label" style={{ fontSize: '0.8rem' }}>àº„àº»à»‰àº™àº«àº²àº›àº°à»€àºžàº”àºšàº²à»‚àº„à»‰àº” (Search Barcode Format)</label>
+                <label className="form-label" style={{ fontSize: '0.8rem' }}>ຄົ້ນຫາປະເພດບາໂຄ້ດ (Search Barcode Format)</label>
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="ðŸ” àºžàº´àº¡à»€àºžàº·à»ˆàº­àº„àº»à»‰àº™àº«àº²àº›àº°à»€àºžàº”àºšàº²à»‚àº„à»‰àº”..."
+                  placeholder="🔍 ພິມເພື່ອຄົ້ນຫາປະເພດບາໂຄ້ດ..."
                   value={bulkBarcodeFormatSearch}
                   onChange={(e) => setBulkBarcodeFormatSearch(e.target.value)}
                   style={{ marginBottom: '8px', padding: '6px 10px', height: '34px', fontSize: '0.85rem' }}
                 />
-                <label className="form-label" style={{ fontSize: '0.8rem' }}>àº›àº°à»€àºžàº”àºšàº²à»‚àº„à»‰àº” (Barcode Type / Format)</label>
+                <label className="form-label" style={{ fontSize: '0.8rem' }}>ປະເພດບາໂຄ້ດ (Barcode Type / Format)</label>
                 <select
                   className="form-control"
                   value={barcodeFormat}
@@ -5218,7 +4941,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
               <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', marginBottom: '10px' }}>
                 <input
                   type="text"
-                  placeholder="ðŸ” àº„àº»à»‰àº™àº«àº²àºŠàº·à»ˆ àº«àº¼àº· àºšàº²à»‚àº„à»‰àº”..."
+                  placeholder="🔍 ຄົ້ນຫາຊື່ ຫຼື ບາໂຄ້ດ..."
                   className="form-control"
                   value={bulkSearch}
                   onChange={(e) => setBulkSearch(e.target.value)}
@@ -5227,7 +4950,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
               <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', marginBottom: '12px', paddingBottom: '6px' }}>
                 {[
-                  { id: 'all', name: 'àº—àº±àº‡à»àº»àº”' },
+                  { id: 'all', name: 'ທັງໝົດ' },
                   ...categories.filter(cat => cat.type !== 'service').map(cat => ({
                     id: cat.id,
                     name: cat.name
@@ -5263,7 +4986,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                     setBulkPrintQtys(updated);
                   }}
                 >
-                  ðŸ“‹ àº•àº±à»‰àº‡àº—àº±àº‡à»àº»àº”à»€àº—àº»à»ˆàº²àºàº±àºšàºªàº°àº•àº±àº­àº
+                  📋 ຕັ້ງທັງໝົດເທົ່າກັບສະຕັອກ
                 </button>
                 <button
                   type="button"
@@ -5281,7 +5004,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                     setBulkPrintQtys(updated);
                   }}
                 >
-                  ðŸ—‘ï¸ àº¥à»‰àº²àº‡àº—àº±àº‡à»àº»àº”
+                  🗑️ ລ້າງທັງໝົດ
                 </button>
               </div>
 
@@ -5293,7 +5016,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   return matchesCat && matchesSearch;
                 }).length === 0 ? (
                   <div style={{ padding: '30px', color: 'var(--text-secondary)', textAlign: 'center' }}>
-                    àºšà»à»ˆàºžàº»àºšàºªàº´àº™àº„à»‰àº²àº—àºµà»ˆàº„àº»à»‰àº™àº«àº²
+                    ບໍ່ພົບສິນຄ້າທີ່ຄົ້ນຫາ
                   </div>
                 ) : (
                   products.filter(p => {
@@ -5326,7 +5049,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                               {p.name}
                             </div>
                             <div style={{ fontSize: '0.75rem', color: isLow ? 'var(--alert-red)' : 'var(--text-secondary)' }}>
-                              àºšàº²à»‚àº„à»‰àº”: <span style={{ fontFamily: 'monospace' }}>{p.barcode}</span> | àºªàº°àº•àº±àº­àº: {db.isServiceCategory(p.category) ? 'àºšà»àº¥àº´àºàº²àº™' : `${p.stock} ${p.unit}`}
+                              ບາໂຄ້ດ: <span style={{ fontFamily: 'monospace' }}>{p.barcode}</span> | ສະຕັອກ: {db.isServiceCategory(p.category) ? 'ບໍລິການ' : `${p.stock} ${p.unit}`}
                             </div>
                           </div>
                         </div>
@@ -5372,11 +5095,11 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                               style={{ padding: '2px 6px', fontSize: '0.75rem', marginLeft: '4px' }}
                               onClick={() => setBulkPrintQtys({ ...bulkPrintQtys, [p.id]: Math.max(0, p.stock) })}
                             >
-                              à»€àº—àº»à»ˆàº²àºªàº°àº•àº±àº­àº
+                              ເທົ່າສະຕັອກ
                             </button>
                           </div>
                         ) : (
-                          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', flexShrink: 0 }}>àºšà»à»ˆàº¡àºµàºªàº°àº•àº±àº­àº</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', flexShrink: 0 }}>ບໍ່ມີສະຕັອກ</span>
                         )}
                       </div>
                     );
@@ -5386,13 +5109,13 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
               {/* Total labels selected counter */}
               <div style={{ marginTop: '14px', textAlign: 'right', fontSize: '0.9rem', color: 'var(--gold-primary)', fontWeight: 'bold' }}>
-                àº¥àº§àº¡àºªàº°àº•àº´àºà»€àºàºµàº—àºµà»ˆàºˆàº°àº›àº£àº´àº™àº—àº±àº‡à»àº»àº”: {Object.values(bulkPrintQtys).reduce((a, b) => a + b, 0)} à»ƒàºš
+                ລວມສະຕິກເກີທີ່ຈະປຣິນທັງໝົດ: {Object.values(bulkPrintQtys).reduce((a, b) => a + b, 0)} ໃບ
               </div>
             </div>
 
             <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowBulkBarcodeModal(false)}>àºàº»àºà»€àº¥àºµàº</button>
-              <button className="btn btn-primary" onClick={handlePrintBulkBarcodes}>ðŸ–¨ï¸ àº›àº£àº´àº™àºšàº²à»‚àº„à»‰àº”àº—àº±àº‡à»àº»àº”àº—àºµà»ˆà»€àº¥àº·àº­àº</button>
+              <button className="btn btn-secondary" onClick={() => setShowBulkBarcodeModal(false)}>ຍົກເລີກ</button>
+              <button className="btn btn-primary" onClick={handlePrintBulkBarcodes}>🖨️ ປຣິນບາໂຄ້ດທັງໝົດທີ່ເລືອກ</button>
             </div>
           </div>
         </div>
@@ -5403,9 +5126,9 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
             type="button" 
             className="fab-btn" 
             onClick={handleOpenAdd} 
-            title="à»€àºžàºµà»ˆàº¡àºªàº´àº™àº„à»‰àº²à»ƒà»à»ˆ (Add Product)"
+            title="ເພີ່ມສິນຄ້າໃໝ່ (Add Product)"
           >
-            âž•
+            ➕
           </button>
         </div>
       )}
@@ -5416,7 +5139,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         <div className="modal-overlay">
           <div className="modal-content modal-sm animate-fade-in">
             <div className="modal-header">
-              <span className="modal-title">ðŸ—‚ï¸ {editingCategory ? 'à»àºà»‰à»„àº‚à»àº§àº”à»àº¹à»ˆàºªàº´àº™àº„à»‰àº²' : 'àºˆàº±àº”àºàº²àº™à»àº§àº”à»àº¹à»ˆàºªàº´àº™àº„à»‰àº²'}</span>
+              <span className="modal-title">🗂️ {editingCategory ? 'ແກ້ໄຂໝວດໝູ່ສິນຄ້າ' : 'ຈັດການໝວດໝູ່ສິນຄ້າ'}</span>
               <button
                 className="btn-secondary"
                 style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }}
@@ -5424,12 +5147,12 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   setShowCategoryModal(false);
                   setEditingCategory(null);
                   setNewCatName('');
-                  setNewCatIcon('ðŸ“¦');
+                  setNewCatIcon('📦');
                   setNewCatType('physical');
                   setCategoryError('');
                 }}
               >
-                âœ•
+                ✕
               </button>
             </div>
             
@@ -5439,10 +5162,10 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                 onSubmit={handleCategorySubmit}
                 style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', marginBottom: '20px' }}
               >
-                <h4 style={{ color: 'var(--gold-primary)', marginTop: 0, marginBottom: '12px', fontSize: '0.95rem' }}>{editingCategory ? 'âœï¸ à»àºà»‰à»„àº‚à»àº§àº”à»àº¹à»ˆ' : 'âž• à»€àºžàºµà»ˆàº¡à»àº§àº”à»àº¹à»ˆà»ƒà»à»ˆ'}</h4>
+                <h4 style={{ color: 'var(--gold-primary)', marginTop: 0, marginBottom: '12px', fontSize: '0.95rem' }}>{editingCategory ? '✏️ ແກ້ໄຂໝວດໝູ່' : '➕ ເພີ່ມໝວດໝູ່ໃໝ່'}</h4>
                 {categoryError && (
                   <div style={{ color: 'var(--alert-red)', fontSize: '0.8rem', marginBottom: '10px', padding: '8px', background: 'rgba(231,76,60,0.1)', borderRadius: '4px', border: '1px solid var(--alert-red)' }}>
-                    âš ï¸ {categoryError}
+                    ⚠️ {categoryError}
                   </div>
                 )}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', marginBottom: '15px' }}>
@@ -5463,13 +5186,13 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       {newCatIcon && (newCatIcon.startsWith('data:image/') || newCatIcon.startsWith('http')) ? (
                         <img src={newCatIcon} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="Icon preview" />
                       ) : (
-                        <span style={{ fontSize: '2rem' }}>{newCatIcon || 'ðŸ“¦'}</span>
+                        <span style={{ fontSize: '2rem' }}>{newCatIcon || '📦'}</span>
                       )}
                     </div>
                     
                     {/* Icon source selection */}
                     <div style={{ flex: 1 }}>
-                      <label className="form-label" style={{ marginBottom: '4px' }}>àº­àº±àºšà»‚àº«àº¼àº”à»„àº­àº„àº­àº™àºªà»ˆàº§àº™àº•àº»àº§ (Upload Custom Icon)</label>
+                      <label className="form-label" style={{ marginBottom: '4px' }}>ອັບໂຫຼດໄອຄອນສ່ວນຕົວ (Upload Custom Icon)</label>
                       <input
                         type="file"
                         accept="image/*"
@@ -5492,16 +5215,16 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                         }}
                       />
                       <label htmlFor="cat-icon-uploader" className="btn btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', padding: '6px 12px', fontSize: '0.8rem', borderRadius: '6px' }}>
-                        ðŸ“¤ à»€àº¥àº·àº­àºàº®àº¹àºšàºžàº²àºš
+                        📤 ເລືອກຮູບພາບ
                       </label>
                       {newCatIcon && (newCatIcon.startsWith('data:image/') || newCatIcon.startsWith('http')) && (
                         <button
                           type="button"
                           className="btn"
                           style={{ marginLeft: '8px', padding: '4px 8px', fontSize: '0.75rem', color: 'var(--alert-red)', background: 'none', border: 'none', cursor: 'pointer' }}
-                          onClick={() => setNewCatIcon('ðŸ“¦')}
+                          onClick={() => setNewCatIcon('📦')}
                         >
-                          àº¥à»‰àº²àº‡àº®àº¹àºš
+                          ລ້າງຮູບ
                         </button>
                       )}
                     </div>
@@ -5509,7 +5232,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
                   {/* Scrollable emoji selection list */}
                   <div>
-                    <label className="form-label" style={{ marginBottom: '6px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>àº«àº¼àº· à»€àº¥àº·àº­àºàºˆàº²àºàº­àºµà»‚àº¡àºˆàº´ (Choose Emoji):</label>
+                    <label className="form-label" style={{ marginBottom: '6px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>ຫຼື ເລືອກຈາກອີໂມຈິ (Choose Emoji):</label>
                     <div style={{
                       display: 'flex',
                       flexWrap: 'wrap',
@@ -5522,11 +5245,11 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       border: '1px solid rgba(255,255,255,0.05)'
                     }}>
                       {[
-                        'ðŸ“¦', 'ðŸ–¼ï¸', 'ðŸ“¿', 'â›“ï¸', 'ðŸ› ï¸', 'ðŸ’Ž', 'ðŸº', 'ðŸ“œ', 'ðŸ”±', 'ðŸŽ’', 'ðŸŽ', 'ðŸ”‘',
-                        'ðŸ‘‘', 'ðŸ†', 'ðŸ”®', 'ðŸ›¡ï¸', 'âš”ï¸', 'ðŸªž', 'ðŸª”', 'ðŸ””', 'ðŸ®', 'ðŸ’®', 'âšœï¸', 'ðŸµï¸',
-                        'ðŸ’ ', 'â™»ï¸', 'ðŸŽ', 'ðŸ§§', 'âœ‰ï¸', 'ðŸ·ï¸', 'ðŸ›ï¸', 'ðŸ›’', 'ðŸ”—', 'ðŸª›', 'ðŸ”§', 'ðŸ”¨',
-                        'ðŸªµ', 'ðŸª¨', 'ðŸ€', 'ðŸŒ¸', 'ðŸ‰', 'ðŸ…', 'ðŸ¦…', 'ðŸ˜', 'ðŸ¦', 'ðŸ', 'ðŸ¢', 'â˜¯ï¸',
-                        'ðŸ•‰ï¸', 'â˜¸ï¸', 'ðŸŒŸ', 'âœ¨', 'ðŸ’«', 'ðŸª™', 'ðŸ’µ'
+                        '📦', '🖼️', '📿', '⛓️', '🛠️', '💎', '🏺', '📜', '🔱', '🎒', '🎁', '🔑',
+                        '👑', '🏆', '🔮', '🛡️', '⚔️', '🪞', '🪔', '🔔', '🏮', '💮', '⚜️', '🏵️',
+                        '💠', '♻️', '🎐', '🧧', '✉️', '🏷️', '🛍️', '🛒', '🔗', '🪛', '🔧', '🔨',
+                        '🪵', '🪨', '🍀', '🌸', '🐉', '🐅', '🦅', '🐘', '🦁', '🐍', '🐢', '☯️',
+                        '🕉️', '☸️', '🌟', '✨', '💫', '🪙', '💵'
                       ].map(emoji => (
                         <button
                           key={emoji}
@@ -5555,37 +5278,37 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
                 <div style={{ display: 'flex', gap: '12px' }}>
                   <div style={{ flex: 1 }}>
-                    <label className="form-label">àºŠàº·à»ˆà»àº§àº”à»àº¹à»ˆ</label>
+                    <label className="form-label">ຊື່ໝວດໝູ່</label>
                     <input
                       type="text"
                       className="form-control"
                       required
-                      placeholder="àº•àº»àº§àº¢à»ˆàº²àº‡: àºžàº£àº°àºœàº»àº‡, àº‚àº­àº‡àº‚àº§àº±àº™..."
+                      placeholder="ຕົວຢ່າງ: ພຣະຜົງ, ຂອງຂວັນ..."
                       value={newCatName}
                       onChange={(e) => setNewCatName(e.target.value)}
                     />
                   </div>
                   <div style={{ width: '160px' }}>
-                    <label className="form-label">àº›àº°à»€àºžàº”à»àº§àº”à»àº¹à»ˆ</label>
+                    <label className="form-label">ປະເພດໝວດໝູ່</label>
                     <select
                       className="form-control"
                       value={newCatType}
                       onChange={(e) => setNewCatType(e.target.value)}
                     >
-                      <option value="physical">ðŸ“¦ àºªàº´àº™àº„à»‰àº² (àº¡àºµàºªàº°àº•àº±àº­àº)</option>
-                      <option value="service">ðŸ› ï¸ àºšà»àº¥àº´àºàº²àº™ (àºšà»à»ˆàº¡àºµàºªàº°àº•àº±àº­àº)</option>
+                      <option value="physical">📦 ສິນຄ້າ (ມີສະຕັອກ)</option>
+                      <option value="service">🛠️ ບໍລິການ (ບໍ່ມີສະຕັອກ)</option>
                     </select>
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
                   <button type="submit" className="btn btn-primary" style={{ padding: '6px 16px', fontSize: '0.85rem' }}>
-                    ðŸ’¾ {editingCategory ? 'àºšàº±àº™àº—àº¶àºàºàº²àº™à»àºà»‰à»„àº‚' : 'àºšàº±àº™àº—àº¶àºà»àº§àº”à»àº¹à»ˆ'}
+                    💾 {editingCategory ? 'ບັນທຶກການແກ້ໄຂ' : 'ບັນທຶກໝວດໝູ່'}
                   </button>
                 </div>
               </form>
 
               {/* List of Categories */}
-              <h4 style={{ color: 'var(--gold-primary)', marginBottom: '10px', fontSize: '0.95rem' }}>ðŸ“‹ àº¥àº²àºàºàº²àº™à»àº§àº”à»àº¹à»ˆàº—àº±àº‡à»àº»àº”</h4>
+              <h4 style={{ color: 'var(--gold-primary)', marginBottom: '10px', fontSize: '0.95rem' }}>📋 ລາຍການໝວດໝູ່ທັງໝົດ</h4>
               <div style={{ maxHeight: '250px', overflowY: 'auto', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', background: 'rgba(0,0,0,0.2)' }}>
                 {categories.map(cat => {
                   const hasProducts = products.some(p => p.category === cat.id);
@@ -5606,7 +5329,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                         {cat.icon && (cat.icon.startsWith('data:image/') || cat.icon.startsWith('http')) ? (
                           <img src={cat.icon} style={{ width: '28px', height: '28px', objectFit: 'contain', borderRadius: '4px' }} alt="" />
                         ) : (
-                          <span style={{ fontSize: '1.3rem' }}>{cat.icon || 'ðŸ“¦'}</span>
+                          <span style={{ fontSize: '1.3rem' }}>{cat.icon || '📦'}</span>
                         )}
                         <div>
                           <span style={{ fontWeight: '500', color: 'white' }}>{db.getLabel('cat_' + cat.id, cat.name)}</span>
@@ -5620,7 +5343,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                             marginLeft: '8px',
                             display: 'inline-block'
                           }}>
-                            {catType === 'service' ? 'ðŸ› ï¸ àºšà»àº¥àº´àºàº²àº™' : 'ðŸ“¦ àºªàº´àº™àº„à»‰àº²'}
+                            {catType === 'service' ? '🛠️ ບໍລິການ' : '📦 ສິນຄ້າ'}
                           </span>
                         </div>
                       </div>
@@ -5642,11 +5365,11 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                           }}
                           onClick={() => openCategoryEdit(cat)}
                         >
-                          âœï¸ à»àºà»‰à»„àº‚
+                          ✏️ ແກ້ໄຂ
                         </button>
                         {hasProducts ? (
                           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                            àº¡àºµ {products.filter(p => p.category === cat.id).length} àºªàº´àº™àº„à»‰àº²
+                            ມີ {products.filter(p => p.category === cat.id).length} ສິນຄ້າ
                           </span>
                         ) : (
                           <button
@@ -5663,7 +5386,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                               cursor: 'pointer'
                             }}
                             onClick={() => {
-                              if (confirm(`àº•à»‰àº­àº‡àºàº²àº™àº¥àº¶àºšà»àº§àº”à»àº¹à»ˆ "${cat.name}" à»àº¡à»ˆàº™àºšà»à»ˆ?`)) {
+                              if (confirm(`ຕ້ອງການລຶບໝວດໝູ່ "${cat.name}" ແມ່ນບໍ່?`)) {
                                 try {
                                   db.deleteCategory(cat.id);
                                   setCategories(db.getCategories());
@@ -5674,7 +5397,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                               }
                             }}
                           >
-                            ðŸ—‘ï¸ àº¥àº¶àºš
+                            🗑️ ລຶບ
                           </button>
                         )}
                       </div>
@@ -5684,7 +5407,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
               </div>
             </div>
             <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => { setShowCategoryModal(false); setEditingCategory(null); }}>àº›àº´àº”</button>
+              <button className="btn btn-secondary" onClick={() => { setShowCategoryModal(false); setEditingCategory(null); }}>ປິດ</button>
             </div>
           </div>
         </div>
@@ -5697,30 +5420,30 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         <div className="modal-overlay" style={{ zIndex: 2000 }}>
           <div className="modal-content modal-sm animate-fade-in">
             <div className="modal-header">
-              <span className="modal-title">ðŸ”Œ àºªàº°à»àºàº™àºšàº²à»‚àº„à»‰àº”àºªàº´àº™àº„à»‰àº² (Scan Barcode)</span>
+              <span className="modal-title">🔌 ສະແກນບາໂຄ້ດສິນຄ້າ (Scan Barcode)</span>
               <button
                 className="btn-secondary"
                 style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }}
                 onClick={() => setShowScanHelperModal(false)}
               >
-                âœ•
+                ✕
               </button>
             </div>
             
             <div className="modal-body" style={{ textAlign: 'center', padding: '24px' }}>
-              <div style={{ fontSize: '3rem', marginBottom: '16px' }}>ðŸ”Œ</div>
+              <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🔌</div>
               <p style={{ fontSize: '1rem', color: 'white', marginBottom: '8px', fontWeight: 'bold' }}>
-                àºàº°àº¥àº¸àº™àº²àºªàº°à»àºàº™àºšàº²à»‚àº„à»‰àº”àºªàº´àº™àº„à»‰àº²àº‚àº­àº‡àº—à»ˆàº²àº™
+                ກະລຸນາສະແກນບາໂຄ້ດສິນຄ້າຂອງທ່ານ
               </p>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
-                àº¥àº°àºšàº»àºšàºˆàº°àºàº§àº”àºˆàº±àºšàºàº²àº™àºªàº°à»àºàº™ à»àº¥àº° àº›à»‰àº­àº™àº‚à»à»‰àº¡àº¹àº™à»€àº‚àº»à»‰àº²àºŸàº­àº¡à»‚àº”àºàº­àº±àº”àº•àº°à»‚àº™àº¡àº±àº”.
+                ລະບົບຈະກວດຈັບການສະແກນ ແລະ ປ້ອນຂໍ້ມູນເຂົ້າຟອມໂດຍອັດຕະໂນມັດ.
               </p>
               
               <input
                 ref={scanInputRef}
                 type="text"
                 className="form-control"
-                placeholder="àº¥à»àº–à»‰àº²àºàº²àº™àºªàº°à»àºàº™..."
+                placeholder="ລໍຖ້າການສະແກນ..."
                 value={scanHelperInput}
                 onChange={(e) => setScanHelperInput(e.target.value)}
                 onKeyDown={(e) => {
@@ -5768,7 +5491,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
               />
               
               <div style={{ marginTop: '16px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                * àºªàº²àº¡àº²àº”àº›à»‰àº­àº™àº”à»‰àº§àºàº„àºµàºšàº­àº” à»àº¥à»‰àº§àºàº»àº” Enter à»„àº”à»‰à»€àºŠàº±à»ˆàº™àºàº±àº™
+                * ສາມາດປ້ອນດ້ວຍຄີບອດ ແລ້ວກົດ Enter ໄດ້ເຊັ່ນກັນ
               </div>
             </div>
             
@@ -5777,7 +5500,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                 className="btn btn-secondary"
                 onClick={() => setShowScanHelperModal(false)}
               >
-                àºàº»àºà»€àº¥àºµàº
+                ຍົກເລີກ
               </button>
               <button
                 className="btn btn-primary"
@@ -5810,7 +5533,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                 }}
                 disabled={!scanHelperInput.trim()}
               >
-                àº•àº»àºàº¥àº»àº‡
+                ຕົກລົງ
               </button>
             </div>
           </div>
@@ -5833,7 +5556,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
               };
             });
             setShowImageEditorModal(false);
-            alert('âœ“ àºšàº±àº™àº—àº¶àºàº®àº¹àºšàºžàº²àºšà»àº•à»ˆàº‡à»àº¥à»‰àº§àº®àº½àºšàº®à»‰àº­àº! (Edited image saved successfully!)');
+            alert('✓ ບັນທຶກຮູບພາບແຕ່ງແລ້ວຮຽບຮ້ອຍ! (Edited image saved successfully!)');
           }}
         />
       )}
