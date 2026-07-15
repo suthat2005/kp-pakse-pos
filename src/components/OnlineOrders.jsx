@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../utils/db';
 import Portal from './Portal';
 
@@ -21,6 +21,24 @@ export default function OnlineOrders({ activeUser, isMobile }) {
   const [chatReply, setChatReply] = useState('');
   const [adminAttachments, setAdminAttachments] = useState([]);
 
+  const prevUnreadCountRef = useRef(null);
+
+  const playSound = (type) => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      if (type === 'beep') {
+        oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.15);
+      }
+    } catch (e) {}
+  };
+
   useEffect(() => {
     loadOrders();
     const handleUpdate = () => loadOrders();
@@ -29,7 +47,21 @@ export default function OnlineOrders({ activeUser, isMobile }) {
   }, []);
 
   function loadOrders() {
-    setOrders(db.getOnlineOrders());
+    const freshOrders = db.getOnlineOrders();
+    setOrders(freshOrders);
+
+    // Count unread customer messages
+    const currentUnread = freshOrders.reduce((sum, o) => {
+      if (o.messages) {
+        return sum + o.messages.filter(m => m.sender === 'customer' && !m.read).length;
+      }
+      return sum;
+    }, 0);
+
+    if (prevUnreadCountRef.current !== null && currentUnread > prevUnreadCountRef.current) {
+      playSound('beep');
+    }
+    prevUnreadCountRef.current = currentUnread;
   }
 
   useEffect(() => {

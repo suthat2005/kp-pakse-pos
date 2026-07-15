@@ -5062,6 +5062,26 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
         attachments: attachments || []
       });
       this.saveOnlineOrders(orders);
+
+      // Send Telegram alert on subsequent customer replies / images
+      if (sender === 'customer') {
+        const settings = this.getSettings();
+        if (settings.notifyOnlineOrder !== false) {
+          let msgText = text || '';
+          if (attachments && attachments.length > 0) {
+            msgText = msgText 
+              ? `${msgText} (🖼️ ສົ່ງຮູບພາບ / File Attached)` 
+              : `🖼️ ສົ່ງຮູບພາບ / File Attached`;
+          }
+          this.sendNotification(
+            `💬 *ຂໍ້ຄວາມແຊັດໃໝ່!*\n` +
+            `🧾 *ລະຫັດ:* ${orderId}\n` +
+            `👤 *ລູກຄ້າ:* ${senderName}\n` +
+            `💬 *ຂໍ້ຄວາມ:* ${msgText}`
+          );
+        }
+      }
+
       window.dispatchEvent(new Event('db-updated'));
       return orders[idx];
     }
