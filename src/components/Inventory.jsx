@@ -521,13 +521,18 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
   });
   
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [showRestockModal, setShowRestockModal] = useState(false);
   const [showDisburseModal, setShowDisburseModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [activeItem, setActiveItem] = useState(null);
   
-  const [addForm, setAddForm] = useState({ name: '', costPerUnit: '', stock: '', minStock: '', unit: 'ອັນ' });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState('all'); // 'all' | 'low' | 'packaging' | 'cleaning' | 'office' | 'other'
+  
+  const [addForm, setAddForm] = useState({ name: '', costPerUnit: '', stock: '', minStock: '', unit: 'ອັນ', category: 'other' });
+  const [editForm, setEditForm] = useState({ id: '', name: '', costPerUnit: '', minStock: '', unit: 'ອັນ', category: 'other' });
   const [restockForm, setRestockForm] = useState({ qty: '', costPerUnit: '', paymentMethod: 'cash', notes: '' });
   const [disburseForm, setDisburseForm] = useState({ qty: '', notes: '' });
   
@@ -536,7 +541,7 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
   }, []);
   
   const loadConsumables = () => {
-    setConsumables(db.getConsumables());
+    setConsumables(db.getConsumables() || []);
   };
   
   const handleAddConsumable = (e) => {
@@ -547,13 +552,39 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
       costPerUnit: parseFloat(addForm.costPerUnit) || 0,
       stock: parseFloat(addForm.stock) || 0,
       minStock: parseFloat(addForm.minStock) || 0,
-      unit: addForm.unit || 'ອັນ'
+      unit: addForm.unit || 'ອັນ',
+      category: addForm.category || 'other'
     });
     alert('✓ ເພີ່ມລາຍການອຸປະກອນສຳເລັດ!');
-    setAddForm({ name: '', costPerUnit: '', stock: '', minStock: '', unit: 'ອັນ' });
+    setAddForm({ name: '', costPerUnit: '', stock: '', minStock: '', unit: 'ອັນ', category: 'other' });
     setShowAddModal(false);
     loadConsumables();
     if (onUpdate) onUpdate();
+  };
+
+  const handleEditConsumable = (e) => {
+    e.preventDefault();
+    if (!editForm.name.trim()) return alert('ກະລຸນາປ້ອນຊື່ອຸປະກອນ');
+    db.updateConsumable(editForm.id, {
+      name: editForm.name,
+      costPerUnit: parseFloat(editForm.costPerUnit) || 0,
+      minStock: parseFloat(editForm.minStock) || 0,
+      unit: editForm.unit || 'ອັນ',
+      category: editForm.category || 'other'
+    });
+    alert('✓ ແກ້ໄຂລາຍການອຸປະກອນສຳເລັດ!');
+    setShowEditModal(false);
+    loadConsumables();
+    if (onUpdate) onUpdate();
+  };
+
+  const handleDeleteConsumable = (item) => {
+    if (window.confirm(`⚠️ ທ່ານຕ້ອງການລຶບອຸປະກອນ: ${item.name} ແທ້ບໍ່?`)) {
+      db.deleteConsumable(item.id);
+      alert('✓ ລຶບລາຍການອຸປະກອນສຳເລັດ!');
+      loadConsumables();
+      if (onUpdate) onUpdate();
+    }
   };
   
   const handleRestock = (e) => {
@@ -588,6 +619,33 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
     if (onUpdate) onUpdate();
   };
   
+  const filteredConsumables = React.useMemo(() => {
+    return consumables.filter(c => {
+      if (!c) return false;
+      
+      const q = searchQuery.toLowerCase().trim();
+      const matchesSearch = q === '' || 
+        c.name.toLowerCase().includes(q) || 
+        (c.id && c.id.toLowerCase().includes(q));
+      
+      if (!matchesSearch) return false;
+      
+      if (activeFilter === 'all') return true;
+      if (activeFilter === 'low') return (c.stock || 0) <= (c.minStock || 0);
+      return c.category === activeFilter;
+    });
+  }, [consumables, searchQuery, activeFilter]);
+
+  const getCategoryLabel = (cat) => {
+    switch(cat) {
+      case 'packaging': return '📦 ອຸປະກອນແພັກເຄື່ອງ';
+      case 'cleaning': return '🧼 ອຸປະກອນທຳຄວາມສະອາດ';
+      case 'office': return '📝 ເຄື່ອງຂຽນ & ສຳນັກງານ';
+      case 'other': return '📁 ອື່ນໆ';
+      default: return '📁 ອື່ນໆ';
+    }
+  };
+
   const allHistory = [];
   consumables.forEach(c => {
     (c.history || []).forEach(h => {
@@ -632,34 +690,119 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
         </div>
       </div>
       
+      {/* Search and Category Filter Tabs */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(255,255,255,0.01)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ position: 'relative', width: isMobile ? '100%' : '350px' }}>
+            <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>🔍</span>
+            <input
+              type="text"
+              className="form-control"
+              style={{ paddingLeft: '36px', height: '40px', fontSize: '0.85rem' }}
+              placeholder="ຄົ້ນຫາອຸປະກອນ ດ້ວຍຊື່ ຫຼື ລະຫັດ..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.9rem' }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="no-scrollbar" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', marginTop: '6px' }}>
+          {[
+            { id: 'all', label: 'ທັງໝົດ' },
+            { id: 'low', label: '⚠️ ສະຕັອກໃກ້ໝົດ' },
+            { id: 'packaging', label: '📦 ອຸປະກອນແພັກເຄື່ອງ' },
+            { id: 'cleaning', label: '🧼 ອຸປະກອນທຳຄວາມສະອາດ' },
+            { id: 'office', label: '📝 ເຄື່ອງຂຽນ & ສຳນັກງານ' },
+            { id: 'other', label: '📁 ອື່ນໆ' }
+          ].map(tab => {
+            const count = tab.id === 'all' 
+              ? consumables.length 
+              : tab.id === 'low' 
+                ? consumables.filter(c => (c.stock || 0) <= (c.minStock || 0)).length 
+                : consumables.filter(c => c.category === tab.id).length;
+            
+            const isActive = activeFilter === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: '20px',
+                  fontSize: '0.8rem',
+                  fontWeight: '600',
+                  whiteSpace: 'nowrap',
+                  cursor: 'pointer',
+                  border: '1px solid',
+                  borderColor: isActive ? 'var(--gold-primary)' : 'var(--border-color)',
+                  background: isActive ? 'var(--gold-primary)' : 'rgba(255,255,255,0.02)',
+                  color: isActive ? 'black' : 'var(--text-secondary)',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+                onClick={() => setActiveFilter(tab.id)}
+              >
+                <span>{tab.label}</span>
+                <span style={{
+                  fontSize: '0.7rem',
+                  padding: '2px 6px',
+                  borderRadius: '10px',
+                  background: isActive ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.08)',
+                  color: isActive ? 'black' : 'var(--text-secondary)'
+                }}>{count}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="glass-card" style={{ padding: '20px' }}>
         <div className="desktop-table-view" style={{ overflowX: 'auto' }}>
           <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
             <thead>
               <tr>
-                <th style={{ textAlign: 'left', padding: '12px' }}>ລາຍການອຸປະກອນ</th>
+                <th style={{ textAlign: 'left', padding: '12px' }}>ລະຫັດ / ອຸປະກອນ</th>
+                <th style={{ textAlign: 'left', padding: '12px' }}>ໝວດໝູ່</th>
                 <th style={{ textAlign: 'right', padding: '12px' }}>ຕົ້ນທຶນ/ໜ່ວຍ</th>
                 <th style={{ textAlign: 'center', padding: '12px' }}>ຍອດຄົງເຫຼືອ</th>
-                <th style={{ textAlign: 'center', padding: '12px' }}>ขັ້ນຕ່ຳ</th>
+                <th style={{ textAlign: 'center', padding: '12px' }}>ຂັ້ນຕ່ຳ</th>
                 <th style={{ textAlign: 'right', padding: '12px' }}>ມູນຄ່າສາງ</th>
                 <th style={{ textAlign: 'center', padding: '12px' }}>ທຸລະກຳສາງ</th>
+                <th style={{ textAlign: 'right', padding: '12px' }}>ຈັດການ</th>
               </tr>
             </thead>
             <tbody>
-              {consumables.length === 0 ? (
+              {filteredConsumables.length === 0 ? (
                 <tr>
-                  <td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-secondary)' }}>
-                    ບໍ່ມີລາຍການອຸປະກອນສິ້ນເປືອງ
+                  <td colSpan="8" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-secondary)' }}>
+                    ບໍ່ມີລາຍການອຸປະກອນສິ້ນເປືອງທີ່ກົງກັບເງື່ອນໄຂ
                   </td>
                 </tr>
-              ) : consumables.map(item => {
+              ) : filteredConsumables.map(item => {
                 const totalVal = (item.stock || 0) * (item.costPerUnit || 0);
                 const isLow = (item.stock || 0) <= (item.minStock || 0);
                 return (
                   <tr key={item.id} style={{ borderBottom: '1px solid var(--border-color)', background: isLow ? 'rgba(231,76,60,0.04)' : 'none' }}>
                     <td style={{ padding: '12px' }}>
-                      <div style={{ fontWeight: 'bold' }}>{item.name}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{item.id}</div>
+                      <div style={{ fontWeight: 'bold', fontSize: '0.9rem', marginTop: '2px' }}>{item.name}</div>
                       {isLow && <span style={{ fontSize: '0.65rem', color: '#e74c3c', background: 'rgba(231,76,60,0.1)', padding: '2px 6px', borderRadius: '4px', marginTop: '4px', display: 'inline-block' }}>⚠️ ໃກ້ຈະໝົດສາງ</span>}
+                    </td>
+                    <td style={{ padding: '12px' }}>
+                      <span style={{ fontSize: '0.8rem', color: 'white', background: 'rgba(255,255,255,0.04)', padding: '4px 8px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                        {getCategoryLabel(item.category)}
+                      </span>
                     </td>
                     <td style={{ padding: '12px', textAlign: 'right' }}>{(item.costPerUnit || 0).toLocaleString()} ₭</td>
                     <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: isLow ? '#e74c3c' : 'white' }}>
@@ -681,11 +824,143 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
                         </button>
                       </div>
                     </td>
+                    <td style={{ padding: '12px', textAlign: 'right' }}>
+                      <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          style={{ padding: '4px 8px', fontSize: '0.78rem' }}
+                          onClick={() => {
+                            setEditForm({
+                              id: item.id,
+                              name: item.name,
+                              costPerUnit: item.costPerUnit || 0,
+                              minStock: item.minStock || 0,
+                              unit: item.unit || 'ອັນ',
+                              category: item.category || 'other'
+                            });
+                            setShowEditModal(true);
+                          }}
+                        >
+                          📝 ແກ້ໄຂ
+                        </button>
+                        <button
+                          type="button"
+                          className="btn"
+                          style={{ padding: '4px 8px', fontSize: '0.78rem', background: '#c0392b', color: 'white', border: 'none' }}
+                          onClick={() => handleDeleteConsumable(item)}
+                        >
+                          🗑️ ລຶບ
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile View for Consumables */}
+        <div className="mobile-cards-view" style={{ display: 'none', flexDirection: 'column', gap: '12px' }}>
+          {filteredConsumables.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>
+              ບໍ່ມີລາຍການອຸປະກອນສິ້ນເປືອງທີ່ກົງກັບເງື່ອນໄຂ
+            </div>
+          ) : filteredConsumables.map(item => {
+            const totalVal = (item.stock || 0) * (item.costPerUnit || 0);
+            const isLow = (item.stock || 0) <= (item.minStock || 0);
+            return (
+              <div 
+                key={item.id} 
+                className="glass-card animate-fade-in" 
+                style={{ 
+                  padding: '16px', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '10px', 
+                  borderLeft: `4px solid ${isLow ? 'var(--alert-red)' : 'var(--success-green)'}` 
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div>
+                    <div style={{ fontWeight: 'bold', fontSize: '0.95rem' }}>{item.name}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                      ລະຫັດ: {item.id} | {getCategoryLabel(item.category)}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <button 
+                      type="button" 
+                      className="btn btn-primary" 
+                      style={{ padding: '3px 8px', fontSize: '0.75rem' }} 
+                      onClick={() => {
+                        setEditForm({
+                          id: item.id,
+                          name: item.name,
+                          costPerUnit: item.costPerUnit || 0,
+                          minStock: item.minStock || 0,
+                          unit: item.unit || 'ອັນ',
+                          category: item.category || 'other'
+                        });
+                        setShowEditModal(true);
+                      }}
+                    >
+                      📝 ແກ້ໄຂ
+                    </button>
+                    <button 
+                      type="button" 
+                      className="btn" 
+                      style={{ padding: '3px 8px', fontSize: '0.75rem', background: '#c0392b', color: 'white', border: 'none' }} 
+                      onClick={() => handleDeleteConsumable(item)}
+                    >
+                      🗑️ ລຶບ
+                    </button>
+                  </div>
+                </div>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '6px', fontSize: '0.8rem' }}>
+                  <div>
+                    <span style={{ color: 'var(--text-secondary)' }}>ຍອດຄົງເຫຼືອ:</span>{' '}
+                    <strong style={{ color: isLow ? '#e74c3c' : 'white' }}>
+                      {(item.stock || 0).toLocaleString()} {item.unit || 'ອັນ'}
+                    </strong>
+                  </div>
+                  <div>
+                    <span style={{ color: 'var(--text-secondary)' }}>ຂັ້ນຕ່ຳ:</span>{' '}
+                    <span>{(item.minStock || 0).toLocaleString()} {item.unit || 'ອັນ'}</span>
+                  </div>
+                  <div>
+                    <span style={{ color: 'var(--text-secondary)' }}>ຕົ້ນທຶນ/ໜ່ວຍ:</span>{' '}
+                    <span>{(item.costPerUnit || 0).toLocaleString()} ₭</span>
+                  </div>
+                  <div>
+                    <span style={{ color: 'var(--text-secondary)' }}>ມູນຄ່າສາງ:</span>{' '}
+                    <strong style={{ color: 'var(--gold-primary)' }}>{totalVal.toLocaleString()} ₭</strong>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    style={{ flex: 1, padding: '6px', fontSize: '0.8rem', borderColor: '#2ecc71', color: '#2ecc71', background: 'rgba(46,204,113,0.05)' }} 
+                    onClick={() => { setActiveItem(item); setShowRestockModal(true); }}
+                  >
+                    📥 ຮັບເຂົ້າ
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    style={{ flex: 1, padding: '6px', fontSize: '0.8rem', borderColor: '#e74c3c', color: '#e74c3c', background: 'rgba(231,76,60,0.05)' }} 
+                    onClick={() => { setActiveItem(item); setShowDisburseModal(true); }}
+                  >
+                    📤 ເບີກອອກ
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -701,6 +976,19 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
                 <div>
                   <label className="form-label">ຊື່ອຸປະກອນ *</label>
                   <input type="text" className="form-control" placeholder="ຕົວຢ່າງ: ເຈ້ຍຫ້ອງນ້ຳ, ສະບູ, ສະກັອດເທບ..." value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="form-label">ໝວດໝູ່ອຸປະກອນ *</label>
+                  <select 
+                    className="form-control" 
+                    value={addForm.category} 
+                    onChange={(e) => setAddForm({ ...addForm, category: e.target.value })}
+                  >
+                    <option value="packaging">📦 ອຸປະກອນແພັກເຄື່ອງ</option>
+                    <option value="cleaning">🧼 ອຸປະກອນທຳຄວາມສະອາດ</option>
+                    <option value="office">📝 ເຄື່ອງຂຽນ & ສຳນັກງານ</option>
+                    <option value="other">📁 ອື່ນໆ</option>
+                  </select>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                   <div>
@@ -725,6 +1013,56 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
                 <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
                   <button type="button" className="btn btn-secondary" onClick={() => setShowAddModal(false)}>ຍົກເລີກ</button>
                   <button type="submit" className="btn btn-primary" style={{ background: 'var(--gold-primary)', color: 'black', borderColor: 'var(--gold-primary)' }}>ບັນທຶກ</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </Portal>
+      )}
+
+      {showEditModal && (
+        <Portal>
+          <div className="modal-overlay" style={{ zIndex: 1200 }}>
+            <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
+              <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>📝 ແກ້ໄຂລາຍການອຸປະກອນ</h3>
+                <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowEditModal(false)}>✕</button>
+              </div>
+              <form onSubmit={handleEditConsumable} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div>
+                  <label className="form-label">ຊື່ອຸປະກອນ *</label>
+                  <input type="text" className="form-control" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="form-label">ໝວດໝູ່ອຸປະກອນ *</label>
+                  <select 
+                    className="form-control" 
+                    value={editForm.category} 
+                    onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                  >
+                    <option value="packaging">📦 ອຸປະກອນແພັກເຄື່ອງ</option>
+                    <option value="cleaning">🧼 ອຸປະກອນທຳຄວາມສະອາດ</option>
+                    <option value="office">📝 ເຄື່ອງຂຽນ & ສຳນັກງານ</option>
+                    <option value="other">📁 ອື່ນໆ</option>
+                  </select>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div>
+                    <label className="form-label">ຕົ້ນທຶນຕໍ່ໜ່ວຍ (LAK)</label>
+                    <input type="number" className="form-control" value={editForm.costPerUnit} onChange={(e) => setEditForm({ ...editForm, costPerUnit: e.target.value })} />
+                  </div>
+                  <div>
+                    <label className="form-label">ຫົວໜ່ວຍ (Unit)</label>
+                    <input type="text" className="form-control" value={editForm.unit} onChange={(e) => setEditForm({ ...editForm, unit: e.target.value })} />
+                  </div>
+                </div>
+                <div>
+                  <label className="form-label">ລະດັບຂັ້ນຕ່ຳ</label>
+                  <input type="number" className="form-control" value={editForm.minStock} onChange={(e) => setEditForm({ ...editForm, minStock: e.target.value })} />
+                </div>
+                <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowEditModal(false)}>ຍົກເລີກ</button>
+                  <button type="submit" className="btn btn-primary" style={{ background: 'var(--gold-primary)', color: 'black', borderColor: 'var(--gold-primary)' }}>บันທຶກການແກ້ໄຂ</button>
                 </div>
               </form>
             </div>

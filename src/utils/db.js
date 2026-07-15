@@ -2056,7 +2056,9 @@ function sha256(ascii) {
 function getStorage(key, defaultValue) {
 try {
 const val = localStorage.getItem('amulet_pos_' + key);
-return val ? JSON.parse(val) : defaultValue;
+if (!val) return defaultValue;
+const parsed = JSON.parse(val);
+return (parsed !== null && parsed !== undefined) ? parsed : defaultValue;
 } catch (e) {
 console.error(e);
 return defaultValue;
@@ -2091,7 +2093,8 @@ const syncKeys = [
   'shifts', 'leaves', 'payrolls', 'users', 'promotions', 'cameras', 'cctv_alerts',
   'online_orders', 'customers',
   'returns', 'suppliers', 'purchase_orders',
-  'deposits', 'deposit_transactions', 'payment_logs', 'payment_qr', 'payment_history', 'payment_audit', 'payment_events'
+  'deposits', 'deposit_transactions', 'payment_logs', 'payment_qr', 'payment_history', 'payment_audit', 'payment_events',
+  'consumables'
 ];
 if (!skipSync && syncKeys.includes(key)) {
 const baseUrl = window.location.protocol + '//' + window.location.host;
@@ -5323,7 +5326,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       stock: Number(itemData.stock) || 0,
       minStock: Number(itemData.minStock) || 0,
       unit: itemData.unit || 'ອັນ',
-      category: 'consumables',
+      category: itemData.category || 'other',
       history: []
     };
     list.push(newItem);
@@ -5400,5 +5403,27 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       return item;
     }
     return null;
+  },
+  updateConsumable(id, itemData) {
+    const list = this.getConsumables();
+    const idx = list.findIndex(c => c.id === id);
+    if (idx !== -1) {
+      list[idx] = {
+        ...list[idx],
+        name: itemData.name,
+        costPerUnit: Number(itemData.costPerUnit) || 0,
+        minStock: Number(itemData.minStock) || 0,
+        unit: itemData.unit || 'ອັນ',
+        category: itemData.category || 'other'
+      };
+      this.saveConsumables(list);
+      return list[idx];
+    }
+    return null;
+  },
+  deleteConsumable(id) {
+    const list = this.getConsumables();
+    const filtered = list.filter(c => c.id !== id);
+    this.saveConsumables(filtered);
   }
 };
