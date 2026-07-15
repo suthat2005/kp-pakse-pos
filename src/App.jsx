@@ -99,6 +99,124 @@ export default function App() {
   const [todayAttendance, setTodayAttendance] = useState(null);
   const [inventoryFilter, setInventoryFilter] = useState('all');
   
+  // Global online chat notifications state
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
+  const [toasts, setToasts] = useState([]); // Array of { id, title, body, orderId }
+  const appLoadTimeRef = useRef(new Date().toISOString());
+  const lastNotifiedMsgTimeRef = useRef(localStorage.getItem('last_notified_msg_time') || '');
+
+  const playPremiumNotificationChime = () => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const now = audioCtx.currentTime;
+      
+      const osc1 = audioCtx.createOscillator();
+      const gain1 = audioCtx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(659.25, now); 
+      gain1.gain.setValueAtTime(0.08, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      osc1.connect(gain1);
+      gain1.connect(audioCtx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.35);
+      
+      const osc2 = audioCtx.createOscillator();
+      const gain2 = audioCtx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(880.00, now + 0.08); 
+      gain2.gain.setValueAtTime(0.08, now + 0.08);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+      osc2.connect(gain2);
+      gain2.connect(audioCtx.destination);
+      osc2.start(now + 0.08);
+      osc2.stop(now + 0.48);
+    } catch (e) {}
+  };
+
+  const checkNewChatMessages = () => {
+    const orders = db.getOnlineOrders() || [];
+    const totalUnread = orders.reduce((sum, o) => {
+      if (o.messages) {
+        return sum + o.messages.filter(m => m.sender === 'customer' && !m.read).length;
+      }
+      return sum;
+    }, 0);
+    setUnreadChatCount(totalUnread);
+
+    let highestTimestamp = lastNotifiedMsgTimeRef.current;
+    let shouldPlaySound = false;
+    const newToasts = [];
+
+    orders.forEach(order => {
+      if (order.messages) {
+        order.messages.forEach(msg => {
+          if (msg.sender === 'customer') {
+            if (msg.timestamp > appLoadTimeRef.current && msg.timestamp > lastNotifiedMsgTimeRef.current) {
+              shouldPlaySound = true;
+              
+              let body = msg.text || '';
+              if (msg.attachments && msg.attachments.length > 0) {
+                body = body ? `${body} (🖼️ ສົ່ງຮູບພາບ)` : '🖼️ ສົ່ງຮູບພາບ / File Attached';
+              }
+
+              newToasts.push({
+                id: `${order.id}-${msg.timestamp}`,
+                title: `💬 ຂໍ້ຄວາມແຊັດໃໝ່ຈາກ: ${msg.senderName || 'ລູກຄ້າ'}`,
+                body: body,
+                orderId: order.id
+              });
+              
+              if (msg.timestamp > highestTimestamp) {
+                highestTimestamp = msg.timestamp;
+              }
+            }
+          }
+        });
+      }
+    });
+
+    if (newToasts.length > 0) {
+      setToasts(prev => [...prev, ...newToasts]);
+      newToasts.forEach(toast => {
+        setTimeout(() => {
+          setToasts(prev => prev.filter(t => t.id !== toast.id));
+        }, 6000);
+      });
+    }
+
+    if (shouldPlaySound) {
+      playPremiumNotificationChime();
+    }
+
+    if (highestTimestamp !== lastNotifiedMsgTimeRef.current) {
+      lastNotifiedMsgTimeRef.current = highestTimestamp;
+      localStorage.setItem('last_notified_msg_time', highestTimestamp);
+    }
+  };
+
+  useEffect(() => {
+    checkNewChatMessages();
+    const handleUpdate = () => checkNewChatMessages();
+    window.addEventListener('db-updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    const interval = setInterval(checkNewChatMessages, 3000);
+    
+    return () => {
+      window.removeEventListener('db-updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+      clearInterval(interval);
+    };
+  }, []);
+
+  const handleToastClick = (orderId) => {
+    setActiveTab('online_orders');
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('select-online-chat', { detail: { orderId } }));
+    }, 100);
+    setToasts(prev => prev.filter(t => !t.id.startsWith(orderId)));
+  };
+  
   // Expense Logging states
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [expenseFormData, setExpenseFormData] = useState({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '', paymentMethod: 'cash', supplier: '', currency: 'LAK' });
@@ -996,9 +1114,29 @@ export default function App() {
               type="button"
               className={`sidebar-item ${activeTab === 'online_orders' ? 'active' : ''}`}
               onClick={() => { setActiveTab('online_orders'); setMobileSidebarOpen(false); }}
+              style={{ position: 'relative' }}
             >
               <span className="sidebar-icon">🛒</span>
               {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel('🛒 ອໍເດີ້ອອນລາຍ (Online Orders)')}</span>}
+              {unreadChatCount > 0 && (
+                <span 
+                  style={{
+                    position: sidebarCollapsed ? 'absolute' : 'relative',
+                    top: sidebarCollapsed ? '5px' : 'auto',
+                    right: sidebarCollapsed ? '5px' : 'auto',
+                    marginLeft: sidebarCollapsed ? '0' : '8px',
+                    background: 'var(--alert-red)',
+                    color: 'white',
+                    borderRadius: '999px',
+                    padding: '2px 6px',
+                    fontSize: '0.75rem',
+                    fontWeight: 'bold',
+                    boxShadow: '0 0 5px rgba(231,76,60,0.5)'
+                  }}
+                >
+                  {unreadChatCount}
+                </span>
+              )}
             </button>
           )}
 
@@ -2173,9 +2311,28 @@ export default function App() {
               type="button"
               className={`bottom-nav-item ${activeTab === 'online_orders' ? 'active' : ''}`}
               onClick={() => setActiveTab('online_orders')}
+              style={{ position: 'relative' }}
             >
               <span className="bottom-nav-icon">🛒</span>
               <span>Orders</span>
+              {unreadChatCount > 0 && (
+                <span 
+                  style={{
+                    position: 'absolute',
+                    top: '2px',
+                    right: '15px',
+                    background: 'var(--alert-red)',
+                    color: 'white',
+                    borderRadius: '999px',
+                    padding: '1px 5px',
+                    fontSize: '0.65rem',
+                    fontWeight: 'bold',
+                    boxShadow: '0 0 5px rgba(231,76,60,0.5)'
+                  }}
+                >
+                  {unreadChatCount}
+                </span>
+              )}
             </button>
           )}
 
@@ -2202,6 +2359,94 @@ export default function App() {
           )}
         </nav>
       )}
+
+      {/* Toast Notifications Container */}
+      <div 
+        style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          zIndex: 9999,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px',
+          maxWidth: '350px',
+          width: '100%'
+        }}
+      >
+        <style>{`
+          @keyframes toast-progress {
+            from { width: 100%; }
+            to { width: 0%; }
+          }
+          .animate-slide-in {
+            animation: slideInRight 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+          }
+          @keyframes slideInRight {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+          }
+        `}</style>
+        {toasts.map(toast => (
+          <div 
+            key={toast.id}
+            className="glass-card animate-slide-in"
+            style={{
+              padding: '16px',
+              borderLeft: '4px solid var(--gold-primary)',
+              boxShadow: 'var(--shadow-premium)',
+              cursor: 'pointer',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px',
+              position: 'relative',
+              overflow: 'hidden',
+              background: 'rgba(22, 20, 17, 0.95)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '8px'
+            }}
+            onClick={() => handleToastClick(toast.orderId)}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <strong style={{ fontSize: '0.9rem', color: 'var(--gold-primary)' }}>{toast.title}</strong>
+              <button 
+                type="button"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  padding: 0,
+                  marginLeft: '8px'
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setToasts(prev => prev.filter(t => t.id !== toast.id));
+                }}
+              >✕</button>
+            </div>
+            <div style={{ fontSize: '0.82rem', color: 'white', lineHeight: '1.4' }}>
+              {toast.body}
+            </div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '2px', textAlign: 'right' }}>
+              ຄລິກເພື່ອເບິ່ງຂໍ້ຄວາມ 💬
+            </div>
+            <div 
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                height: '3px',
+                background: 'var(--gold-primary)',
+                width: '100%',
+                animation: 'toast-progress 6s linear forwards'
+              }}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
