@@ -2869,6 +2869,9 @@ export default function POS({
       : (currentReceipt.remainingAmount !== undefined ? currentReceipt.remainingAmount : Math.max(0, currentReceipt.total - depVal));
   }
 
+  const printWidths = db.getPaperPrintWidths(settings.receiptPaperWidth || '80mm');
+  const printableWidth = printWidths.printable;
+
   return (
     <div style={{ height: 'calc(100vh - 130px)' }}>
       {/* Dynamic Receipt Print Sizing Styles */}
@@ -2900,8 +2903,8 @@ export default function POS({
               position: static !important;
               display: block !important;
               background: none !important;
-              width: var(--receipt-printable-width, 72mm) !important;
-              max-width: var(--receipt-printable-width, 72mm) !important;
+              width: ${printableWidth} !important;
+              max-width: ${printableWidth} !important;
               margin: 0 !important;
               padding: 0 !important;
               z-index: auto !important;
@@ -2909,8 +2912,8 @@ export default function POS({
             .modal-overlay.print-modal .modal-content {
               position: static !important;
               display: block !important;
-              width: var(--receipt-printable-width, 72mm) !important;
-              max-width: var(--receipt-printable-width, 72mm) !important;
+              width: ${printableWidth} !important;
+              max-width: ${printableWidth} !important;
               background: white !important;
               box-shadow: none !important;
               border: none !important;
@@ -2943,8 +2946,8 @@ export default function POS({
               break-before: avoid !important;
             }
             .print-receipt-container {
-              width: var(--receipt-printable-width, 72mm) !important;
-              max-width: var(--receipt-printable-width, 72mm) !important;
+              width: ${printableWidth} !important;
+              max-width: ${printableWidth} !important;
               box-sizing: border-box !important;
               font-size: ${settings.receiptFontSize || '10pt'} !important;
               font-family: 'Phetsarath OT', 'Noto Sans Lao', Arial, sans-serif !important;
@@ -2993,7 +2996,7 @@ export default function POS({
           }
           /* Screen preview styling */
           .print-receipt-container {
-            width: ${settings.receiptPaperWidth || '80mm'} !important;
+            width: ${printableWidth} !important;
             font-size: ${settings.receiptFontSize || '10pt'} !important;
             padding: ${settings.receiptPadding || '5mm'} !important;
             line-height: ${settings.receiptLineHeight || '1.3'} !important;
