@@ -2574,6 +2574,7 @@ this.saveSettings(settings);
       slots[slotId].discountType = 'percent';
       slots[slotId].discountAmount = 0;
       slots[slotId].depositAmount = 0;
+      slots[slotId].billId = '';
       this.saveSlots(slots);
     }
   },

@@ -115,8 +115,13 @@ export default function FramingBoard({
 
     Object.values(groups).forEach(g => {
       if (g && !g.orderId && Array.isArray(g.jobs)) {
-        const uniqueIds = Array.from(new Set(g.jobs.map(j => j && j.id).filter(Boolean)));
-        g.displayId = uniqueIds.join(', ');
+        const billId = g.jobs[0] && g.jobs[0].billId;
+        if (billId) {
+          g.displayId = billId;
+        } else {
+          const uniqueIds = Array.from(new Set(g.jobs.map(j => j && j.id).filter(Boolean)));
+          g.displayId = uniqueIds.join(', ');
+        }
       }
     });
 

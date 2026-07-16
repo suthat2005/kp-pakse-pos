@@ -1979,8 +1979,19 @@ export default function POS({
       return;
     }
 
+    let billId = activeSlot.billId;
+    if (!billId) {
+      billId = `INV-${selectedSlotId}-${Date.now().toString().slice(-4)}`;
+      const updatedSlots = { ...slots };
+      if (updatedSlots[selectedSlotId]) {
+        updatedSlots[selectedSlotId].billId = billId;
+        db.saveSlots(updatedSlots);
+        setSlots(updatedSlots);
+      }
+    }
+
     setCurrentReceipt({
-      id: `INV-${selectedSlotId}-${Date.now().toString().slice(-4)}`,
+      id: billId,
       slotId: selectedSlotId,
       date: new Date().toISOString(),
       items: adjustedCartItems,
@@ -2456,11 +2467,24 @@ export default function POS({
         setSlots(updatedSlots);
       }
     } else {
+      // Retrieve or generate a persistent billId for this queue slot
+      let billId = targetSlot.billId;
+      if (!billId) {
+        billId = `INV-${targetSlotId}-${Date.now().toString().slice(-4)}`;
+        const updatedSlots = { ...slots };
+        if (updatedSlots[targetSlotId]) {
+          updatedSlots[targetSlotId].billId = billId;
+          db.saveSlots(updatedSlots);
+          setSlots(updatedSlots);
+        }
+      }
+
       // First time: Create a new framing job as normal
       const existingJobInSlot = db.getFramingJobs().find(j => j.slotId === targetSlotId && j.status !== 'picked_up' && (!j.orderId));
       const targetGroupId = existingJobInSlot ? (existingJobInSlot.groupId || existingJobInSlot.id) : null;
 
       const newJob = db.addFramingJob({
+        billId: billId,
         customerName,
         customerPhone,
         deposit: depositAmount,
