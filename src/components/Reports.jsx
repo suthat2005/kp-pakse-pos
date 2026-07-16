@@ -1904,6 +1904,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
   // POS cash/transfer breakdown (re-computed for overview)
   let ovCashLAK = 0, ovCashTHB = 0, ovCashUSD = 0;
   let ovTransferLAK = 0, ovTransferTHB = 0, ovTransferUSD = 0;
+  let ovDebtLAK = 0, ovTreatLAK = 0;
   
   rangePayments.forEach(p => {
     const amt      = p.amount_paid;
@@ -1939,6 +1940,10 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
       } else if (currency === 'USD') {
         ovCashUSD += (p.currencyCashReceived || 0) - (p.change || 0);
       }
+    } else if (p.payment_method === 'Debt') {
+      ovDebtLAK += amt;
+    } else if (p.payment_method === 'Treat') {
+      ovTreatLAK += amt;
     }
   });
   
