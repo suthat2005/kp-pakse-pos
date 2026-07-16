@@ -2053,16 +2053,34 @@ function sha256(ascii) {
   return result;
 }
 
+const memoryCache = {};
+
+window.addEventListener('storage', (e) => {
+  if (e.key && e.key.startsWith('amulet_pos_')) {
+    const k = e.key.replace('amulet_pos_', '');
+    if (k.startsWith('ts_')) return;
+    delete memoryCache[k];
+  }
+});
+
 function getStorage(key, defaultValue) {
-try {
-const val = localStorage.getItem('amulet_pos_' + key);
-if (!val) return defaultValue;
-const parsed = JSON.parse(val);
-return (parsed !== null && parsed !== undefined) ? parsed : defaultValue;
-} catch (e) {
-console.error(e);
-return defaultValue;
-}
+  if (memoryCache[key] !== undefined) {
+    return memoryCache[key];
+  }
+  try {
+    const val = localStorage.getItem('amulet_pos_' + key);
+    if (!val) {
+      memoryCache[key] = defaultValue;
+      return defaultValue;
+    }
+    const parsed = JSON.parse(val);
+    const res = (parsed !== null && parsed !== undefined) ? parsed : defaultValue;
+    memoryCache[key] = res;
+    return res;
+  } catch (e) {
+    console.error(e);
+    return defaultValue;
+  }
 }
 
 function seedStorage(key, value) {
@@ -2075,6 +2093,7 @@ function seedStorage(key, value) {
 }
 
 function setStorage(key, value, skipSync = false, keepTimestamp = false) {
+  memoryCache[key] = value;
 try {
 localStorage.setItem('amulet_pos_' + key, JSON.stringify(value));
 let now = Date.now();
@@ -3625,6 +3644,9 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     localStorage.removeItem('amulet_pos_cameras');
     localStorage.removeItem('amulet_pos_cctv_alerts');
     localStorage.removeItem('amulet_pos_expenses');
+    if (typeof memoryCache !== 'undefined') {
+      Object.keys(memoryCache).forEach(k => delete memoryCache[k]);
+    }
     this.init();
   },
 
@@ -4098,6 +4120,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
             const localTs = Number(localStorage.getItem('amulet_pos_ts_' + k) || '0');
             if (table.updatedAt > localTs) {
               localStorage.setItem('amulet_pos_' + k, JSON.stringify(table.data));
+              memoryCache[k] = table.data;
               localStorage.setItem('amulet_pos_ts_' + k, String(table.updatedAt));
               hasChanges = true;
             }
@@ -4165,6 +4188,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
             } else if (serverTs > localTs) {
               // Server is newer. Pull to client.
               localStorage.setItem('amulet_pos_' + k, JSON.stringify(serverTable.data));
+              memoryCache[k] = serverTable.data;
               localStorage.setItem('amulet_pos_ts_' + k, String(serverTs));
             }
           }
@@ -4240,6 +4264,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
             }
           } else if (serverTs > localTs) {
             localStorage.setItem('amulet_pos_' + k, JSON.stringify(serverTable.data));
+            memoryCache[k] = serverTable.data;
             localStorage.setItem('amulet_pos_ts_' + k, String(serverTs));
           }
         }
