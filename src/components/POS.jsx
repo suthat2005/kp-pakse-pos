@@ -3631,7 +3631,6 @@ export default function POS({
                                 <div key={i} style={{ marginBottom: '1px' }}>
                                   {i + 1}. {a.description || 'ພຣະເຄື່ອງ'}
                                   {a.frameStyle && ` (${a.frameStyle})`}
-                                  {a.acrylicThickness && ` (${a.acrylicThickness})`}
                                   {a.specialNotes && ` - ${a.specialNotes}`}
                                 </div>
                               ))}
@@ -5844,7 +5843,6 @@ export default function POS({
                                   <div key={i} style={{ marginBottom: '1px' }}>
                                     {i + 1}. {a.description || 'ພຣະເຄື່ອງ'}
                                     {a.frameStyle && ` (${a.frameStyle})`}
-                                    {a.acrylicThickness && ` (${a.acrylicThickness})`}
                                     {a.specialNotes && ` - ${a.specialNotes}`}
                                   </div>
                                 ))}
@@ -5974,7 +5972,6 @@ export default function POS({
                                   <div key={i} style={{ marginBottom: '1px' }}>
                                     {i + 1}. {a.description || 'ພຣະເຄື່ອງ'} 
                                     {a.frameStyle && ` (${a.frameStyle})`}
-                                    {a.acrylicThickness && ` (${a.acrylicThickness})`}
                                     {a.specialNotes && ` - ${a.specialNotes}`}
                                   </div>
                                 ))}

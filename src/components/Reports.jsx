@@ -385,7 +385,6 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
         amuletsList.forEach((a, i) => {
           let extra = '';
           if (a.frameStyle) extra += ' (' + a.frameStyle + ')';
-          if (a.acrylicThickness) extra += ' (' + a.acrylicThickness + ')';
           if (a.specialNotes) extra += ' - ' + a.specialNotes;
           amuletsHtml += '<div style="margin-bottom:1px;">' + (i + 1) + '. ' + (a.description || 'ພຣະເຄື່ອງ') + extra + '</div>';
         });
@@ -3366,7 +3365,6 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
                                   <div key={i} style={{ marginBottom: '1px' }}>
                                     {i + 1}. {a.description || 'ພຣະເຄື່ອງ'} 
                                     {a.frameStyle && ` (${a.frameStyle})`}
-                                    {a.acrylicThickness && ` (${a.acrylicThickness})`}
                                     {a.specialNotes && ` - ${a.specialNotes}`}
                                   </div>
                                 ))}
@@ -3570,7 +3568,6 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
                                     <div key={i} style={{ marginBottom: '1px' }}>
                                       {i + 1}. {a.description || 'ພຣະເຄື່ອງ'} 
                                       {a.frameStyle && ` (${a.frameStyle})`}
-                                      {a.acrylicThickness && ` (${a.acrylicThickness})`}
                                       {a.specialNotes && ` - ${a.specialNotes}`}
                                     </div>
                                   ))}
