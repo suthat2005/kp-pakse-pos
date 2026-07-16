@@ -6070,12 +6070,16 @@ export default function POS({
                             <span>{currentReceipt.subtotal.toLocaleString()} ກີບ</span>
                           </div>
                         )}
-                        {settings.receiptShowDiscount !== false && currentReceipt.discount > 0 && (
-                          <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px', color: '#e74c3c' }}>
-                            <span>{db.getLabel('rcpt_discount_label', 'ສ່ວນຫຼຸດ:')}</span>
-                            <span>-{currentReceipt.discount.toLocaleString()} ກີບ</span>
-                          </div>
-                        )}
+                        {settings.receiptShowDiscount !== false && currentReceipt.discount > 0 && (() => {
+                          const sub = currentReceipt.subtotal || (currentReceipt.total + currentReceipt.discount);
+                          const pct = currentReceipt.discountPercent || (sub ? Math.round((currentReceipt.discount / sub) * 100) : 0);
+                          return (
+                            <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px', color: '#e74c3c' }}>
+                              <span>{db.getLabel('rcpt_discount_label', 'ສ່ວນຫຼຸດ')}{pct > 0 ? ` (${pct}%)` : ''}:</span>
+                              <span>-{currentReceipt.discount.toLocaleString()} ກີບ</span>
+                            </div>
+                          );
+                        })()}
                         {currentReceipt.redeemedPoints > 0 && (
                           <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px', color: '#27ae60' }}>
                             <span>💎 ແລກຄະແນນ ({currentReceipt.redeemedPoints} Pts):</span>
@@ -6124,12 +6128,15 @@ export default function POS({
                       )}
 
                       {/* Discount */}
-                      {settings.receiptShowDiscount !== false && discVal > 0 && (
-                        <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px', color: '#e74c3c' }}>
-                          <span>{db.getLabel('rcpt_discount_label', 'ສ່ວນຫຼຸດ:')}</span>
-                          <span>-{discVal.toLocaleString()} ກີບ</span>
-                        </div>
-                      )}
+                      {settings.receiptShowDiscount !== false && discVal > 0 && (() => {
+                        const pct = currentReceipt.discountPercent || (printedSubtotal ? Math.round((discVal / printedSubtotal) * 100) : 0);
+                        return (
+                          <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px', color: '#e74c3c' }}>
+                            <span>{db.getLabel('rcpt_discount_label', 'ສ່ວນຫຼຸດ')}{pct > 0 ? ` (${pct}%)` : ''}:</span>
+                            <span>-{discVal.toLocaleString()} ກີບ</span>
+                          </div>
+                        );
+                      })()}
 
                       {/* Net Total (Subtotal - Discount) */}
                       {settings.receiptShowTotal !== false && (
