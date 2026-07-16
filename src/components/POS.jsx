@@ -2876,8 +2876,8 @@ export default function POS({
               position: static !important;
               display: block !important;
               background: none !important;
-              width: ${settings.receiptPaperWidth || '80mm'} !important;
-              max-width: ${settings.receiptPaperWidth || '80mm'} !important;
+              width: 100% !important;
+              max-width: 100% !important;
               margin: 0 !important;
               padding: 0 !important;
               z-index: auto !important;
@@ -2885,8 +2885,8 @@ export default function POS({
             .modal-overlay.print-modal .modal-content {
               position: static !important;
               display: block !important;
-              width: ${settings.receiptPaperWidth || '80mm'} !important;
-              max-width: ${settings.receiptPaperWidth || '80mm'} !important;
+              width: 100% !important;
+              max-width: 100% !important;
               background: white !important;
               box-shadow: none !important;
               border: none !important;
@@ -2919,8 +2919,9 @@ export default function POS({
               break-before: avoid !important;
             }
             .print-receipt-container {
-              width: ${settings.receiptPaperWidth || '80mm'} !important;
-              max-width: ${settings.receiptPaperWidth || '80mm'} !important;
+              width: 100% !important;
+              max-width: 100% !important;
+              box-sizing: border-box !important;
               font-size: ${settings.receiptFontSize || '10pt'} !important;
               font-family: 'Phetsarath OT', 'Noto Sans Lao', Arial, sans-serif !important;
               color: #000 !important;
