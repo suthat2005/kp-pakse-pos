@@ -63,7 +63,8 @@ export default function FramingBoard({
   const groupJobs = (jobsList) => {
     const groups = {};
     jobsList.forEach(job => {
-      const groupKey = job.orderId || `${job.slotId || '01'}_${job.customerName || 'ລູກຄ້າທົ່ວໄປ'}_${job.pickupDate ? job.pickupDate.slice(0, 10) : ''}`;
+      if (!job) return;
+      const groupKey = job.orderId || `${job.slotId || '01'}_${job.customerName || 'ລູກຄ້າທົ່ວໄປ'}_${job.pickupDate ? String(job.pickupDate).slice(0, 10) : ''}`;
       if (!groups[groupKey]) {
         groups[groupKey] = {
           ...job,
@@ -72,10 +73,10 @@ export default function FramingBoard({
           deposit: Number(job.deposit || 0),
           totalPrice: Number(job.totalPrice || 0),
           balance: Number(job.balance || 0),
-          amulets: [...(job.amulets || [])],
+          amulets: Array.isArray(job.amulets) ? [...job.amulets] : [],
           jobs: [job]
         };
-        if (!job.amulets || job.amulets.length === 0) {
+        if (!Array.isArray(job.amulets) || job.amulets.length === 0) {
           groups[groupKey].amulets.push({
             description: job.amuletDescription || 'ພຣະເຄື່ອງ',
             frameTypeName: job.frameTypeName,
@@ -88,7 +89,7 @@ export default function FramingBoard({
         groups[groupKey].balance += Number(job.balance || 0);
         groups[groupKey].deposit = Math.max(groups[groupKey].deposit, Number(job.deposit || 0));
         
-        if (job.amulets && job.amulets.length > 0) {
+        if (Array.isArray(job.amulets) && job.amulets.length > 0) {
           groups[groupKey].amulets.push(...job.amulets);
         } else {
           groups[groupKey].amulets.push({
@@ -114,8 +115,8 @@ export default function FramingBoard({
     });
 
     Object.values(groups).forEach(g => {
-      if (!g.orderId) {
-        const uniqueIds = Array.from(new Set(g.jobs.map(j => j.id)));
+      if (g && !g.orderId && Array.isArray(g.jobs)) {
+        const uniqueIds = Array.from(new Set(g.jobs.map(j => j && j.id).filter(Boolean)));
         g.displayId = uniqueIds.join(', ');
       }
     });
