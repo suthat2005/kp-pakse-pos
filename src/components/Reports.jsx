@@ -296,7 +296,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
 
   const pendingOnlineOrders = useMemo(() => {
     try {
-      return (db.getOnlineOrders() || []).filter(o => o.status === 'pending').length;
+      return (db.getOnlineOrders() || []).filter(o => o.type !== 'inquiry' && !(o.shippingStatus === 'delivered' || o.shippingStatus === 'cancelled' || o.paymentStatus === 'rejected')).length;
     } catch (e) {
       return 0;
     }

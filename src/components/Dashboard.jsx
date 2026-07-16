@@ -65,7 +65,7 @@ function computeDashboard() {
     try { return !db.isServiceCategory(p.category) && (p.stock || 0) <= (p.minStock || 0); } catch { return (p.stock || 0) <= (p.minStock || 0); }
   }).sort((a, b) => (a.stock || 0) - (b.stock || 0));
 
-  const pendingOnline  = onlineOrders.filter(o => o.status === 'pending').length;
+  const pendingOnline  = onlineOrders.filter(o => o.type !== 'inquiry' && !(o.shippingStatus === 'delivered' || o.shippingStatus === 'cancelled' || o.paymentStatus === 'rejected')).length;
   const pendingPO      = purchaseOrders.filter(p => p.status === 'pending').length;
   const memberCount    = customers.length;
   const jobStats       = {
