@@ -98,6 +98,10 @@ export default function App() {
   const [redirectedCartItem, setRedirectedCartItem] = useState(null);
   const [todayAttendance, setTodayAttendance] = useState(null);
   const [inventoryFilter, setInventoryFilter] = useState('all');
+  const handleViewLowStock = () => {
+    setInventoryFilter('low');
+    setActiveTab('inventory');
+  };
   
   // Global online chat notifications state
   const [unreadChatCount, setUnreadChatCount] = useState(0);
@@ -238,6 +242,16 @@ export default function App() {
   const [expenseFormData, setExpenseFormData] = useState({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '', paymentMethod: 'cash', supplier: '', currency: 'LAK' });
   const [showExpenseHistory, setShowExpenseHistory] = useState(false);
   const [expensePrintId, setExpensePrintId] = useState(null);
+
+  useEffect(() => {
+    const handleTriggerExpense = () => {
+      setShowExpenseModal(true);
+    };
+    window.addEventListener('trigger-expense-modal', handleTriggerExpense);
+    return () => {
+      window.removeEventListener('trigger-expense-modal', handleTriggerExpense);
+    };
+  }, []);
 
   // Shift Report modal states
   const [showShiftReportModal, setShowShiftReportModal] = useState(false);
@@ -1616,7 +1630,7 @@ export default function App() {
               )}
               
               {activeTab === 'reports' && hasPermission(activeUser, 'reports') && (
-                <Reports activeUser={activeUser} isMobile={isMobile} onTabChange={setActiveTab} />
+                <Reports activeUser={activeUser} isMobile={isMobile} onTabChange={setActiveTab} onViewLowStock={handleViewLowStock} />
               )}
               
               {activeTab === 'ai' && hasPermission(activeUser, 'ai') && (

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { db } from '../utils/db';
 import Portal from './Portal';
 
-export default function Reports({ activeUser, isMobile, onTabChange }) {
+export default function Reports({ activeUser, isMobile, onTabChange, onViewLowStock }) {
   const hasReportsPermission = (subKey) => {
     if (!activeUser) return false;
     if (activeUser.role === 'owner') return true;
@@ -3174,13 +3174,19 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
                 <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.9rem' }}>🔔 ແຈ້ງເຕືອນລະບົບ (System Alerts)</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {lowStockCount > 0 && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255, 77, 79, 0.1)', border: '1px solid rgba(255, 77, 79, 0.2)', fontSize: '0.78rem', color: 'var(--alert-red)' }}>
-                      <span>⚠️ ສິນຄ້າໃກ້ໝົດສະຕັອກ: <strong>{lowStockCount}</strong> ລາຍການ</span>
+                    <div 
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255, 77, 79, 0.1)', border: '1px solid rgba(255, 77, 79, 0.2)', fontSize: '0.78rem', color: 'var(--alert-red)', cursor: onViewLowStock ? 'pointer' : 'default' }}
+                      onClick={() => onViewLowStock && onViewLowStock()}
+                    >
+                      <span>⚠️ ສິນຄ້າໃກ້ໝົດສະຕັອກ: <strong>{lowStockCount}</strong> ລາຍການ (ຄລິກເພື່ອເບິ່ງ)</span>
                     </div>
                   )}
                   {pendingOnlineOrders > 0 && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(229, 169, 59, 0.1)', border: '1px solid rgba(229, 169, 59, 0.2)', fontSize: '0.78rem', color: 'var(--accent-amber)' }}>
-                      <span>🛒 ອໍເດີ້ອອນລາຍລໍຖ້າກວດສອບ: <strong>{pendingOnlineOrders}</strong> ບິນ</span>
+                    <div 
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(229, 169, 59, 0.1)', border: '1px solid rgba(229, 169, 59, 0.2)', fontSize: '0.78rem', color: 'var(--accent-amber)', cursor: 'pointer' }}
+                      onClick={() => onTabChange && onTabChange('online_orders')}
+                    >
+                      <span>🛒 ອໍເດີ້ອອນລາຍລໍຖ້າກວດສອບ: <strong>{pendingOnlineOrders}</strong> ບິນ (ຄລິກເພື່ອເບິ່ງ)</span>
                     </div>
                   )}
                   {lowStockCount === 0 && pendingOnlineOrders === 0 && (
