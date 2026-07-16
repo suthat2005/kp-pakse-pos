@@ -173,6 +173,7 @@ export default function FramingBoard({
       // Group amulets by frameTypeName
       const groups = {};
       job.amulets.forEach(a => {
+        if (!a) return;
         const key = a.frameTypeName || 'ອັດກອບ';
         if (!groups[key]) groups[key] = [];
         groups[key].push(a);
@@ -189,25 +190,28 @@ export default function FramingBoard({
                   🛠️ {groupName} ({list.length} ອົງ)
                 </div>
                 {/* List of amulets under this header */}
-                {list.map((a, idx) => (
-                  <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '1px', paddingLeft: '4px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
-                      {a.image ? (
-                        <img src={a.image} style={{ width: '18px', height: '18px', objectFit: 'cover', borderRadius: '3px', border: '1px solid rgba(255,255,255,0.1)', flexShrink: 0 }} alt="" />
-                      ) : (
-                        <span style={{ fontSize: '0.75rem', flexShrink: 0 }}>📿</span>
-                      )}
-                      <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1, color: 'white' }}>
-                        {idx + 1}. {a.description || 'ພຣະເຄື່ອງ'}
-                      </span>
-                    </div>
-                    {a.specialNotes && (
-                      <div style={{ paddingLeft: '24px', fontSize: '0.65rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
-                        📝: {a.specialNotes}
+                {list.map((a, idx) => {
+                  if (!a) return null;
+                  return (
+                    <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '1px', paddingLeft: '4px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+                        {a.image ? (
+                          <img src={a.image} style={{ width: '18px', height: '18px', objectFit: 'cover', borderRadius: '3px', border: '1px solid rgba(255,255,255,0.1)', flexShrink: 0 }} alt="" />
+                        ) : (
+                          <span style={{ fontSize: '0.75rem', flexShrink: 0 }}>📿</span>
+                        )}
+                        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1, color: 'white' }}>
+                          {idx + 1}. {a.description || 'ພຣະເຄື່ອງ'}
+                        </span>
                       </div>
-                    )}
-                  </div>
-                ))}
+                      {a.specialNotes && (
+                        <div style={{ paddingLeft: '24px', fontSize: '0.65rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                          📝: {a.specialNotes}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             );
           })}
@@ -284,7 +288,7 @@ export default function FramingBoard({
                   >
                     {group.displayId}
                   </span>
-                  <span className="job-date">{new Date(group.pickupDate).toLocaleDateString('lo-LA')}</span>
+                  <span className="job-date">{group.pickupDate ? new Date(group.pickupDate).toLocaleDateString('lo-LA') : 'ບໍ່ລະບຸ'}</span>
                 </div>
                 <div className="job-customer" style={{ fontWeight: 'bold' }}>{group.customerName}</div>
                 {renderAmuletsList(group)}
@@ -376,7 +380,7 @@ export default function FramingBoard({
                   >
                     {group.displayId}
                   </span>
-                  <span className="job-date">{new Date(group.pickupDate).toLocaleDateString('lo-LA')}</span>
+                  <span className="job-date">{group.pickupDate ? new Date(group.pickupDate).toLocaleDateString('lo-LA') : 'ບໍ່ລະບຸ'}</span>
                 </div>
                 <div className="job-customer" style={{ fontWeight: 'bold' }}>{group.customerName}</div>
                 {renderAmuletsList(group)}
