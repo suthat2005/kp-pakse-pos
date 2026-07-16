@@ -3630,7 +3630,6 @@ export default function POS({
                               {amuletsList.map((a, i) => (
                                 <div key={i} style={{ marginBottom: '1px' }}>
                                   {i + 1}. {a.description || 'ພຣະເຄື່ອງ'}
-                                  {a.frameStyle && ` (${a.frameStyle})`}
                                   {a.specialNotes && ` - ${a.specialNotes}`}
                                 </div>
                               ))}
@@ -4571,24 +4570,6 @@ export default function POS({
                           />
                         </div>
                       </div>
-
-                      <select
-                          className="form-control"
-                          style={{ width: '100%', padding: '6px', fontSize: '0.85rem', background: '#191613', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px' }}
-                          value={amulet.frameStyle || (settings.frameStyles?.[0] || 'ກອບໃສ')}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            setServiceConfigAmulets(prev => {
-                              const copy = [...prev];
-                              copy[index].frameStyle = val;
-                              return copy;
-                            });
-                          }}
-                        >
-                          {(settings.frameStyles || ['ກອບໃສ', 'ກອບສີ', 'ເລເຊີລາຍ', 'ກັນນ້ຳ 100%']).map(style => (
-                            <option key={style} value={style}>{style}</option>
-                          ))}
-                        </select>
 
                       <div>
                         <input
@@ -5816,7 +5797,6 @@ export default function POS({
                                 {amuletsList.map((a, i) => (
                                   <div key={i} style={{ marginBottom: '1px' }}>
                                     {i + 1}. {a.description || 'ພຣະເຄື່ອງ'}
-                                    {a.frameStyle && ` (${a.frameStyle})`}
                                     {a.specialNotes && ` - ${a.specialNotes}`}
                                   </div>
                                 ))}
@@ -5945,7 +5925,6 @@ export default function POS({
                                 {amuletsList.map((a, i) => (
                                   <div key={i} style={{ marginBottom: '1px' }}>
                                     {i + 1}. {a.description || 'ພຣະເຄື່ອງ'} 
-                                    {a.frameStyle && ` (${a.frameStyle})`}
                                     {a.specialNotes && ` - ${a.specialNotes}`}
                                   </div>
                                 ))}
@@ -6515,23 +6494,6 @@ export default function POS({
                           </div>
                         </div>
 
-                        {/* Specs fields input */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <select
-                            className="form-control"
-                            style={{ padding: '6px', fontSize: '0.8rem' }}
-                            value={amulet.frameStyle || (settings.frameStyles?.[0] || 'ກອບໃສ')}
-                            onChange={(e) => {
-                              const newAmulets = [...framingFormData.amulets];
-                              newAmulets[index].frameStyle = e.target.value;
-                              setFramingFormData({ ...framingFormData, amulets: newAmulets });
-                            }}
-                          >
-                            {(settings.frameStyles || ['ກອບໃສ', 'ກອບສີ', 'ເລເຊີລາຍ', 'ກັນນ້ຳ 100%']).map(style => (
-                              <option key={style} value={style}>{style}</option>
-                            ))}
-                          </select>
-                        </div>
 
                         <div>
                           <input
@@ -6794,23 +6756,6 @@ export default function POS({
                           </div>
                         </div>
 
-                        {/* Specs fields input */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <select
-                            className="form-control"
-                            style={{ padding: '6px', fontSize: '0.8rem' }}
-                            value={amulet.frameStyle || (settings.frameStyles?.[0] || 'ກອບໃສ')}
-                            onChange={(e) => {
-                              const newAmulets = [...framingFormData.amulets];
-                              newAmulets[index].frameStyle = e.target.value;
-                              setFramingFormData({ ...framingFormData, amulets: newAmulets });
-                            }}
-                          >
-                            {(settings.frameStyles || ['ກອບໃສ', 'ກອບສີ', 'ເລເຊີລາຍ', 'ກັນນ້ຳ 100%']).map(style => (
-                              <option key={style} value={style}>{style}</option>
-                            ))}
-                          </select>
-                        </div>
 
                         <div>
                           <input

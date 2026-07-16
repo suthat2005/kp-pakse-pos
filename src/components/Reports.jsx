@@ -384,7 +384,6 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
         amuletsHtml = '<div style="font-size:calc(' + fontSize + ' - 2.5pt);color:#555;padding-left:6px;margin-top:2px;line-height:1.2;">';
         amuletsList.forEach((a, i) => {
           let extra = '';
-          if (a.frameStyle) extra += ' (' + a.frameStyle + ')';
           if (a.specialNotes) extra += ' - ' + a.specialNotes;
           amuletsHtml += '<div style="margin-bottom:1px;">' + (i + 1) + '. ' + (a.description || 'ພຣະເຄື່ອງ') + extra + '</div>';
         });
@@ -3364,7 +3363,6 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
                                 {amuletsList.map((a, i) => (
                                   <div key={i} style={{ marginBottom: '1px' }}>
                                     {i + 1}. {a.description || 'ພຣະເຄື່ອງ'} 
-                                    {a.frameStyle && ` (${a.frameStyle})`}
                                     {a.specialNotes && ` - ${a.specialNotes}`}
                                   </div>
                                 ))}
@@ -3567,7 +3565,6 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
                                   {amuletsList.map((a, i) => (
                                     <div key={i} style={{ marginBottom: '1px' }}>
                                       {i + 1}. {a.description || 'ພຣະເຄື່ອງ'} 
-                                      {a.frameStyle && ` (${a.frameStyle})`}
                                       {a.specialNotes && ` - ${a.specialNotes}`}
                                     </div>
                                   ))}
