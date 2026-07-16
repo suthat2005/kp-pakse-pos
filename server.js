@@ -53,6 +53,8 @@ try {
     
     // Sync data from Firestore to local JSON on startup
     syncFromCloudOnStartup();
+    // Periodically sync from Firestore in the background every 30 seconds
+    setInterval(syncFromCloud, 30000);
   } else {
     console.warn("⚠️ Firebase credentials not found (neither FIREBASE_SERVICE_ACCOUNT env var nor firebase-key.json). Running in Local Offline Mode.");
   }
@@ -234,6 +236,61 @@ async function cleanupDuplicateProducts() {
     }
   } catch (err) {
     console.error("❌ Failed to clean up duplicate products:", err);
+  }
+}
+
+let isSyncing = false;
+async function syncFromCloud() {
+  if (!firestoreDb || isSyncing) return;
+  isSyncing = true;
+  try {
+    let localDb = {};
+    if (fs.existsSync(DB_FILE)) {
+      localDb = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+    }
+    const snapshot = await firestoreDb.collection('pos_db').get();
+    let hasUpdates = false;
+    snapshot.forEach(doc => {
+      const key = doc.id;
+      const cloudVal = doc.data();
+      const localVal = localDb[key];
+      const cloudTs = Number(cloudVal.updatedAt || '0');
+      const localTs = Number(localVal?.updatedAt || '0');
+      if (cloudTs > localTs) {
+        let mergedData;
+        if (Array.isArray(cloudVal.data) && Array.isArray(localVal?.data)) {
+          mergedData = mergeArrays(localVal.data, cloudVal.data);
+        } else if (key === 'slots') {
+          mergedData = mergeObjects(localVal?.data, cloudVal.data, cloudTs);
+        } else if (key === 'settings') {
+          mergedData = { ...localVal?.data, ...cloudVal.data };
+        } else {
+          mergedData = cloudVal.data;
+        }
+        localDb[key] = { data: mergedData, updatedAt: Math.max(cloudTs, localTs) };
+        hasUpdates = true;
+      }
+    });
+
+    if (hasUpdates) {
+      fs.writeFileSync(DB_FILE, JSON.stringify(localDb, null, 2), 'utf8');
+      console.log("☁️ Background Cloud DB sync completed: merged local cache.");
+      // Push merged results back to Firestore to align them
+      for (const doc of snapshot.docs) {
+        const key = doc.id;
+        const val = localDb[key];
+        if (val) {
+          await firestoreDb.collection('pos_db').doc(key).set({
+            data: val.data,
+            updatedAt: val.updatedAt
+          }).catch(err => console.warn(`⚠️ Cloud background realign write failed for [${key}]:`, err.message));
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Background cloud sync warning:", err.message);
+  } finally {
+    isSyncing = false;
   }
 }
 
@@ -490,7 +547,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // API: DB Sync (Loads local cache updates & queries Cloud Firestore updates)
+  // API: DB Sync (Loads local cache updates instantly from cache & uses gzip)
   if (pathname === '/api/db/sync') {
     res.setHeader('Content-Type', 'application/json');
     try {
@@ -506,52 +563,23 @@ const server = http.createServer(async (req, res) => {
           response[key] = val;
         }
       }
-      res.statusCode = 200;
-      res.end(JSON.stringify(response));
-
-      // Background Sync: Pull cloud changes to local file asynchronously
-      if (firestoreDb) {
-        firestoreDb.collection('pos_db').get().then(snapshot => {
-          let hasUpdates = false;
-          snapshot.forEach(doc => {
-            const key = doc.id;
-            const cloudVal = doc.data();
-            const localVal = sharedDb[key];
-            const cloudTs = Number(cloudVal.updatedAt || '0');
-            const localTs = Number(localVal?.updatedAt || '0');
-            if (cloudTs > localTs) {
-              let mergedData;
-              if (Array.isArray(cloudVal.data) && Array.isArray(localVal?.data)) {
-                mergedData = mergeArrays(localVal.data, cloudVal.data);
-              } else if (key === 'slots') {
-                mergedData = mergeObjects(localVal?.data, cloudVal.data, cloudTs);
-              } else if (key === 'settings') {
-                mergedData = { ...localVal?.data, ...cloudVal.data };
-              } else {
-                mergedData = cloudVal.data;
-              }
-
-              sharedDb[key] = { data: mergedData, updatedAt: Math.max(cloudTs, localTs) };
-              hasUpdates = true;
-            }
-          });
-          if (hasUpdates) {
-            fs.writeFileSync(DB_FILE, JSON.stringify(sharedDb, null, 2), 'utf8');
-            console.log("☁️ Background DB sync from cloud completed: merged local cache.");
-            
-            // Push merged results back to Firestore to align them
-            snapshot.forEach(doc => {
-              const key = doc.id;
-              const val = sharedDb[key];
-              if (val) {
-                firestoreDb.collection('pos_db').doc(key).set({
-                  data: val.data,
-                  updatedAt: val.updatedAt
-                }).catch(err => console.warn(`⚠️ Cloud realign write failed for [${key}]:`, err.message));
-              }
-            });
+      
+      const jsonResponse = JSON.stringify(response);
+      const acceptEncoding = req.headers['accept-encoding'] || '';
+      if (acceptEncoding.includes('gzip') && jsonResponse.length > 1024) {
+        zlib.gzip(Buffer.from(jsonResponse, 'utf8'), (err, compressed) => {
+          if (!err) {
+            res.setHeader('Content-Encoding', 'gzip');
+            res.statusCode = 200;
+            res.end(compressed);
+          } else {
+            res.statusCode = 200;
+            res.end(jsonResponse);
           }
-        }).catch(err => console.warn("Cloud background sync warning:", err.message));
+        });
+      } else {
+        res.statusCode = 200;
+        res.end(jsonResponse);
       }
     } catch (err) {
       res.statusCode = 500;
@@ -882,7 +910,20 @@ const server = http.createServer(async (req, res) => {
       } else if (['.js', '.css', '.ttf', '.woff', '.woff2', '.png', '.jpg', '.svg', '.ico'].includes(ext)) {
         res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year cache
       }
-      res.end(content);
+      
+      const acceptEncoding = req.headers['accept-encoding'] || '';
+      if (acceptEncoding.includes('gzip') && content.length > 1024 && ['.js', '.css', '.html', '.json', '.svg'].includes(ext)) {
+        zlib.gzip(content, (zlibErr, compressed) => {
+          if (!zlibErr) {
+            res.setHeader('Content-Encoding', 'gzip');
+            res.end(compressed);
+          } else {
+            res.end(content);
+          }
+        });
+      } else {
+        res.end(content);
+      }
     }
   });
 });
