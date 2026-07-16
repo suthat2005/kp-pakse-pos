@@ -49,7 +49,7 @@ export default function FramingBoard({
   }, []);
 
   const handleClearDelivered = () => {
-    const count = pickedUpJobs.length;
+    const count = groupedPickedUp.length;
     if (count === 0) {
       alert('ບໍ່ມີລາຍການທີ່ສົ່ງມອບແລ້ວ');
       return;
@@ -60,11 +60,73 @@ export default function FramingBoard({
     }
   };
 
-  // Status Filter Lists (Mapping internal status to updated business flow)
-  const pendingJobs = jobs.filter(j => j.status === 'pending');       // Received
-  const framingJobs = jobs.filter(j => j.status === 'framing');       // Processing
-  const doneJobs = jobs.filter(j => j.status === 'done');             // Ready
-  const pickedUpJobs = jobs.filter(j => j.status === 'picked_up');     // Delivered
+  const groupJobs = (jobsList) => {
+    const groups = {};
+    jobsList.forEach(job => {
+      const groupKey = job.orderId || `${job.slotId || '01'}_${job.customerName || 'ລູກຄ້າທົ່ວໄປ'}_${job.pickupDate ? job.pickupDate.slice(0, 10) : ''}`;
+      if (!groups[groupKey]) {
+        groups[groupKey] = {
+          ...job,
+          id: groupKey,
+          displayId: job.orderId || job.id,
+          deposit: Number(job.deposit || 0),
+          totalPrice: Number(job.totalPrice || 0),
+          balance: Number(job.balance || 0),
+          amulets: [...(job.amulets || [])],
+          jobs: [job]
+        };
+        if (!job.amulets || job.amulets.length === 0) {
+          groups[groupKey].amulets.push({
+            description: job.amuletDescription || 'ພຣະເຄື່ອງ',
+            frameTypeName: job.frameTypeName,
+            specialNotes: job.notes,
+            image: job.amuletImage
+          });
+        }
+      } else {
+        groups[groupKey].totalPrice += Number(job.totalPrice || 0);
+        groups[groupKey].balance += Number(job.balance || 0);
+        groups[groupKey].deposit = Math.max(groups[groupKey].deposit, Number(job.deposit || 0));
+        
+        if (job.amulets && job.amulets.length > 0) {
+          groups[groupKey].amulets.push(...job.amulets);
+        } else {
+          groups[groupKey].amulets.push({
+            description: job.amuletDescription || 'ພຣະເຄື່ອງ',
+            frameTypeName: job.frameTypeName,
+            specialNotes: job.notes,
+            image: job.amuletImage
+          });
+        }
+        
+        groups[groupKey].jobs.push(job);
+        
+        if (job.notes && groups[groupKey].notes && !groups[groupKey].notes.includes(job.notes)) {
+          groups[groupKey].notes += ' | ' + job.notes;
+        } else if (job.notes && !groups[groupKey].notes) {
+          groups[groupKey].notes = job.notes;
+        }
+
+        if (job.amuletImage && !groups[groupKey].amuletImage) {
+          groups[groupKey].amuletImage = job.amuletImage;
+        }
+      }
+    });
+
+    Object.values(groups).forEach(g => {
+      if (!g.orderId) {
+        const uniqueIds = Array.from(new Set(g.jobs.map(j => j.id)));
+        g.displayId = uniqueIds.join(', ');
+      }
+    });
+
+    return Object.values(groups);
+  };
+
+  const groupedPending = groupJobs(jobs.filter(j => j.status === 'pending'));
+  const groupedFraming = groupJobs(jobs.filter(j => j.status === 'framing'));
+  const groupedDone = groupJobs(jobs.filter(j => j.status === 'done'));
+  const groupedPickedUp = groupJobs(jobs.filter(j => j.status === 'picked_up'));
 
   // Clean phone number helper
   const cleanPhone = (phone) => {
@@ -108,28 +170,47 @@ export default function FramingBoard({
   // Helper to render multiple amulets list on card with custom specs
   const renderAmuletsList = (job) => {
     if (job.amulets && job.amulets.length > 0) {
+      // Group amulets by frameTypeName
+      const groups = {};
+      job.amulets.forEach(a => {
+        const key = a.frameTypeName || 'ອັດກອບ';
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(a);
+      });
+
       return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', margin: '6px 0', padding: '6px', background: 'rgba(255,255,255,0.03)', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
-          {job.amulets.map((a, idx) => (
-            <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '2px', borderBottom: idx < job.amulets.length - 1 ? '1px dashed rgba(255,255,255,0.03)' : 'none', paddingBottom: idx < job.amulets.length - 1 ? '4px' : 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                {a.image ? (
-                  <img src={a.image} style={{ width: '22px', height: '22px', objectFit: 'cover', borderRadius: '3px', border: '1px solid rgba(255,255,255,0.1)', flexShrink: 0 }} alt="" />
-                ) : (
-                  <span style={{ fontSize: '0.85rem', flexShrink: 0 }}>📿</span>
-                )}
-                <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1, fontWeight: '500', color: 'white' }}>
-                  {idx + 1}. {a.description || 'ພຣະເຄື່ອງ'}
-                </span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', margin: '6px 0', padding: '6px', background: 'rgba(255,255,255,0.03)', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
+          {Object.keys(groups).map((groupName, gIdx) => {
+            const list = groups[groupName];
+            return (
+              <div key={gIdx} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {/* Header for framing type */}
+                <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--gold-primary)', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '2px', marginBottom: '2px' }}>
+                  🛠️ {groupName} ({list.length} ອົງ)
+                </div>
+                {/* List of amulets under this header */}
+                {list.map((a, idx) => (
+                  <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '1px', paddingLeft: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+                      {a.image ? (
+                        <img src={a.image} style={{ width: '18px', height: '18px', objectFit: 'cover', borderRadius: '3px', border: '1px solid rgba(255,255,255,0.1)', flexShrink: 0 }} alt="" />
+                      ) : (
+                        <span style={{ fontSize: '0.75rem', flexShrink: 0 }}>📿</span>
+                      )}
+                      <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1, color: 'white' }}>
+                        {idx + 1}. {a.description || 'ພຣະເຄື່ອງ'}
+                      </span>
+                    </div>
+                    {a.specialNotes && (
+                      <div style={{ paddingLeft: '24px', fontSize: '0.65rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                        📝: {a.specialNotes}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-              
-              {/* Custom specs note output */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', paddingLeft: '28px', fontSize: '0.7rem' }}>
-                <span style={{ color: 'var(--gold-primary)' }}>({a.frameTypeName || 'ອັດກອບ'})</span>
-                {a.specialNotes && <div style={{ width: '100%', color: 'var(--text-secondary)', fontStyle: 'italic', marginTop: '2px' }}>📝: {a.specialNotes}</div>}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       );
     }
@@ -161,9 +242,11 @@ export default function FramingBoard({
           onDrop={(e) => {
             e.preventDefault();
             setDragOverCol(null);
-            const jobId = e.dataTransfer.getData("jobId");
-            if (jobId && onStatusChange) {
-              onStatusChange(jobId, 'pending');
+            const jobIdsStr = e.dataTransfer.getData("jobId");
+            if (jobIdsStr && onStatusChange) {
+              jobIdsStr.split(',').forEach(id => {
+                onStatusChange(id, 'pending');
+              });
             }
           }}
           style={{
@@ -177,17 +260,17 @@ export default function FramingBoard({
           <div className="kanban-col-title">
             <span>{db.getLabel('framing_board_pending', '🔴 ຮັບງານເຂົ້າ (Received)')}</span>
             <span style={{ background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem' }}>
-              {pendingJobs.length}
+              {groupedPending.length}
             </span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '600px' }}>
-            {pendingJobs.map(job => (
+            {groupedPending.map(group => (
               <div 
-                key={job.id} 
+                key={group.id} 
                 className="job-card"
                 draggable={hasFramingPermission('framingUpdateStatus')}
                 onDragStart={(e) => {
-                  e.dataTransfer.setData("jobId", job.id);
+                  e.dataTransfer.setData("jobId", group.jobs.map(j => j.id).join(','));
                   e.dataTransfer.effectAllowed = "move";
                 }}
                 style={{ cursor: hasFramingPermission('framingUpdateStatus') ? 'grab' : 'default' }}
@@ -195,39 +278,39 @@ export default function FramingBoard({
                 <div className="job-card-header">
                   <span 
                     className="job-id" 
-                    onClick={() => onTrackJob && onTrackJob(job.id)}
+                    onClick={() => onTrackJob && onTrackJob(group.jobs[0].id)}
                     style={{ cursor: 'pointer', textDecoration: 'underline' }}
                     title="ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍການ (Click to track order)"
                   >
-                    {job.id}
+                    {group.displayId}
                   </span>
-                  <span className="job-date">{new Date(job.pickupDate).toLocaleDateString('lo-LA')}</span>
+                  <span className="job-date">{new Date(group.pickupDate).toLocaleDateString('lo-LA')}</span>
                 </div>
-                <div className="job-customer" style={{ fontWeight: 'bold' }}>{job.customerName}</div>
-                {renderAmuletsList(job)}
-                {!job.amulets && <div style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>{job.frameTypeName}</div>}
+                <div className="job-customer" style={{ fontWeight: 'bold' }}>{group.customerName}</div>
+                {renderAmuletsList(group)}
+                {!group.amulets && <div style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>{group.frameTypeName}</div>}
                 
-                {job.amuletImage && (
+                {group.amuletImage && (
                   <div style={{ margin: '6px 0', borderRadius: '4px', overflow: 'hidden', height: '90px', display: 'flex', justifyContent: 'center', background: '#0e0d0b', border: '1px solid var(--border-color)' }}>
-                    <img src={job.amuletImage} alt="Amulet Preview" style={{ height: '100%', objectFit: 'contain' }} />
+                    <img src={group.amuletImage} alt="Amulet Preview" style={{ height: '100%', objectFit: 'contain' }} />
                   </div>
                 )}
                 
-                <div className="job-deposit-pill">ມັດຈຳ: {job.deposit.toLocaleString()} ກີບ</div>
+                <div className="job-deposit-pill">ມັດຈຳ: {group.deposit.toLocaleString()} ກີບ</div>
                 
                 <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
                   {hasFramingPermission('framingPrintJob') && (
-                  <button className="btn btn-secondary" style={{ padding: '4px', fontSize: '0.7rem' }} onClick={() => onPrintJobClick(job)}>
+                  <button className="btn btn-secondary" style={{ padding: '4px', fontSize: '0.7rem' }} onClick={() => onPrintJobClick(group)}>
                     🖨️ ບິນ
                   </button>
                   )}
                   {hasFramingPermission('framingEditJob') && (
-                  <button className="btn btn-secondary" style={{ padding: '4px', fontSize: '0.7rem' }} onClick={() => onEditJobClick(job)}>
+                  <button className="btn btn-secondary" style={{ padding: '4px', fontSize: '0.7rem' }} onClick={() => onEditJobClick(group.jobs[0])}>
                     ✏️ ແກ້ໄຂ
                   </button>
                   )}
                   {hasFramingPermission('framingUpdateStatus') && (
-                  <button className="btn btn-primary" style={{ flex: 1, padding: '4px', fontSize: '0.7rem' }} onClick={() => onStatusChange(job.id, 'framing')}>
+                  <button className="btn btn-primary" style={{ flex: 1, padding: '4px', fontSize: '0.7rem' }} onClick={() => group.jobs.forEach(j => onStatusChange(j.id, 'framing'))}>
                     ເລີ່ມເຮັດ ➔
                   </button>
                   )}
@@ -248,9 +331,11 @@ export default function FramingBoard({
           onDrop={(e) => {
             e.preventDefault();
             setDragOverCol(null);
-            const jobId = e.dataTransfer.getData("jobId");
-            if (jobId && onStatusChange) {
-              onStatusChange(jobId, 'framing');
+            const jobIdsStr = e.dataTransfer.getData("jobId");
+            if (jobIdsStr && onStatusChange) {
+              jobIdsStr.split(',').forEach(id => {
+                onStatusChange(id, 'framing');
+              });
             }
           }}
           style={{
@@ -264,13 +349,13 @@ export default function FramingBoard({
           <div className="kanban-col-title">
             <span>{db.getLabel('framing_board_doing', '🟡 ກຳລັງເລເຊີ/ເລ່ຽມ (Processing)')}</span>
             <span style={{ background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem' }}>
-              {framingJobs.length}
+              {groupedFraming.length}
             </span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '600px' }}>
-            {framingJobs.map(job => (
+            {groupedFraming.map(group => (
               <div 
-                key={job.id} 
+                key={group.id} 
                 className="job-card" 
                 style={{ 
                   borderColor: 'var(--accent-amber)',
@@ -278,46 +363,46 @@ export default function FramingBoard({
                 }}
                 draggable={hasFramingPermission('framingUpdateStatus')}
                 onDragStart={(e) => {
-                  e.dataTransfer.setData("jobId", job.id);
+                  e.dataTransfer.setData("jobId", group.jobs.map(j => j.id).join(','));
                   e.dataTransfer.effectAllowed = "move";
                 }}
               >
                 <div className="job-card-header">
                   <span 
                     className="job-id" 
-                    onClick={() => onTrackJob && onTrackJob(job.id)}
+                    onClick={() => onTrackJob && onTrackJob(group.jobs[0].id)}
                     style={{ color: 'var(--accent-amber)', cursor: 'pointer', textDecoration: 'underline' }}
                     title="ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍການ (Click to track order)"
                   >
-                    {job.id}
+                    {group.displayId}
                   </span>
-                  <span className="job-date">{new Date(job.pickupDate).toLocaleDateString('lo-LA')}</span>
+                  <span className="job-date">{new Date(group.pickupDate).toLocaleDateString('lo-LA')}</span>
                 </div>
-                <div className="job-customer" style={{ fontWeight: 'bold' }}>{job.customerName}</div>
-                {renderAmuletsList(job)}
-                {!job.amulets && <div style={{ fontSize: '0.75rem', color: 'var(--accent-amber)' }}>{job.frameTypeName}</div>}
+                <div className="job-customer" style={{ fontWeight: 'bold' }}>{group.customerName}</div>
+                {renderAmuletsList(group)}
+                {!group.amulets && <div style={{ fontSize: '0.75rem', color: 'var(--accent-amber)' }}>{group.frameTypeName}</div>}
                 
-                {job.amuletImage && (
+                {group.amuletImage && (
                   <div style={{ margin: '6px 0', borderRadius: '4px', overflow: 'hidden', height: '90px', display: 'flex', justifyContent: 'center', background: '#0e0d0b', border: '1px solid var(--border-color)' }}>
-                    <img src={job.amuletImage} alt="Amulet Preview" style={{ height: '100%', objectFit: 'contain' }} />
+                    <img src={group.amuletImage} alt="Amulet Preview" style={{ height: '100%', objectFit: 'contain' }} />
                   </div>
                 )}
                 
-                <div style={{ fontSize: '0.7rem', fontStyle: 'italic', color: 'var(--text-secondary)' }}>Note: {job.notes || 'ບໍ່ມີ'}</div>
+                <div style={{ fontSize: '0.7rem', fontStyle: 'italic', color: 'var(--text-secondary)' }}>Note: {group.notes || 'ບໍ່ມີ'}</div>
                 
                 <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
                   {hasFramingPermission('framingUpdateStatus') && (
-                  <button className="btn btn-secondary" style={{ padding: '4px 6px', fontSize: '0.7rem' }} onClick={() => onStatusChange(job.id, 'pending')}>
+                  <button className="btn btn-secondary" style={{ padding: '4px 6px', fontSize: '0.7rem' }} onClick={() => group.jobs.forEach(j => onStatusChange(j.id, 'pending'))}>
                     ↞ ຖອຍ
                   </button>
                   )}
                   {hasFramingPermission('framingEditJob') && (
-                  <button className="btn btn-secondary" style={{ padding: '4px 6px', fontSize: '0.7rem' }} onClick={() => onEditJobClick(job)}>
+                  <button className="btn btn-secondary" style={{ padding: '4px 6px', fontSize: '0.7rem' }} onClick={() => onEditJobClick(group.jobs[0])}>
                     ✏️ ແກ້
                   </button>
                   )}
                   {hasFramingPermission('framingUpdateStatus') && (
-                  <button className="btn btn-primary" style={{ flex: 1, padding: '4px', fontSize: '0.7rem', background: 'var(--success-green)' }} onClick={() => onStatusChange(job.id, 'done')}>
+                  <button className="btn btn-primary" style={{ flex: 1, padding: '4px', fontSize: '0.7rem', background: 'var(--success-green)' }} onClick={() => group.jobs.forEach(j => onStatusChange(j.id, 'done'))}>
                     ສຳເລັດ ➔
                   </button>
                   )}
@@ -338,9 +423,11 @@ export default function FramingBoard({
           onDrop={(e) => {
             e.preventDefault();
             setDragOverCol(null);
-            const jobId = e.dataTransfer.getData("jobId");
-            if (jobId && onStatusChange) {
-              onStatusChange(jobId, 'done');
+            const jobIdsStr = e.dataTransfer.getData("jobId");
+            if (jobIdsStr && onStatusChange) {
+              jobIdsStr.split(',').forEach(id => {
+                onStatusChange(id, 'done');
+              });
             }
           }}
           style={{
@@ -354,13 +441,13 @@ export default function FramingBoard({
           <div className="kanban-col-title">
             <span>{db.getLabel('framing_board_done', '🟢 ງານເສັດຮອມານັບ (Ready)')}</span>
             <span style={{ background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem' }}>
-              {doneJobs.length}
+              {groupedDone.length}
             </span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '600px' }}>
-            {doneJobs.map(job => (
+            {groupedDone.map(group => (
               <div 
-                key={job.id} 
+                key={group.id} 
                 className="job-card" 
                 style={{ 
                   borderColor: 'var(--success-green)',
@@ -368,51 +455,51 @@ export default function FramingBoard({
                 }}
                 draggable={hasFramingPermission('framingUpdateStatus')}
                 onDragStart={(e) => {
-                  e.dataTransfer.setData("jobId", job.id);
+                  e.dataTransfer.setData("jobId", group.jobs.map(j => j.id).join(','));
                   e.dataTransfer.effectAllowed = "move";
                 }}
               >
                 <div className="job-card-header">
                   <span 
                     className="job-id" 
-                    onClick={() => onTrackJob && onTrackJob(job.id)}
+                    onClick={() => onTrackJob && onTrackJob(group.jobs[0].id)}
                     style={{ color: 'var(--success-green)', cursor: 'pointer', textDecoration: 'underline' }}
                     title="ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍການ (Click to track order)"
                   >
-                    {job.id}
+                    {group.displayId}
                   </span>
                   <span className="job-date" style={{ color: 'var(--success-green)' }}>ພ້ອມຮັບພຣະ</span>
                 </div>
-                <div className="job-customer" style={{ fontWeight: 'bold' }}>{job.customerName}</div>
-                {renderAmuletsList(job)}
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ລາຄາລວມ: {job.totalPrice.toLocaleString()} ກີບ</div>
+                <div className="job-customer" style={{ fontWeight: 'bold' }}>{group.customerName}</div>
+                {renderAmuletsList(group)}
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ລາຄາລວມ: {group.totalPrice.toLocaleString()} ກີບ</div>
                 
-                {job.amuletImage && (
+                {group.amuletImage && (
                   <div style={{ margin: '6px 0', borderRadius: '4px', overflow: 'hidden', height: '90px', display: 'flex', justifyContent: 'center', background: '#0e0d0b', border: '1px solid var(--border-color)' }}>
-                    <img src={job.amuletImage} alt="Amulet Preview" style={{ height: '100%', objectFit: 'contain' }} />
+                    <img src={group.amuletImage} alt="Amulet Preview" style={{ height: '100%', objectFit: 'contain' }} />
                   </div>
                 )}
                 
-                <div style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>ຄ້າງຊຳລະ: <span style={{ color: 'var(--gold-primary)' }}>{job.balance.toLocaleString()} ກີບ</span></div>
+                <div style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>ຄ້າງຊຳລະ: <span style={{ color: 'var(--gold-primary)' }}>{group.balance.toLocaleString()} ກີບ</span></div>
                 
                 <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
                   {hasFramingPermission('framingUpdateStatus') && (
-                  <button className="btn btn-secondary" style={{ padding: '4px 6px', fontSize: '0.7rem' }} onClick={() => onStatusChange(job.id, 'framing')}>
+                  <button className="btn btn-secondary" style={{ padding: '4px 6px', fontSize: '0.7rem' }} onClick={() => group.jobs.forEach(j => onStatusChange(j.id, 'framing'))}>
                     ↞ ແກ້
                   </button>
                   )}
                   {hasFramingPermission('framingEditJob') && (
-                  <button className="btn btn-secondary" style={{ padding: '4px 6px', fontSize: '0.7rem' }} onClick={() => onEditJobClick(job)}>
+                  <button className="btn btn-secondary" style={{ padding: '4px 6px', fontSize: '0.7rem' }} onClick={() => onEditJobClick(group.jobs[0])}>
                     ✏️ ແກ້
                   </button>
                   )}
                   {hasFramingPermission('framingNotifyCustomer') && (
-                  <button className="btn btn-secondary" style={{ padding: '4px 6px', fontSize: '0.7rem', borderColor: 'var(--success-green)', color: 'var(--success-green)' }} onClick={() => handleNotifyClick(job)}>
+                  <button className="btn btn-secondary" style={{ padding: '4px 6px', fontSize: '0.7rem', borderColor: 'var(--success-green)', color: 'var(--success-green)' }} onClick={() => handleNotifyClick(group)}>
                     🔔 ແຈ້ງ
                   </button>
                   )}
                   {hasFramingPermission('framingCollectPayment') ? (
-                    <button className="btn btn-primary" style={{ flex: 1, padding: '4px', fontSize: '0.7rem', background: 'var(--gold-primary)', color: 'var(--bg-main)', fontWeight: 'bold' }} onClick={() => onCollectPayment(job)}>
+                    <button className="btn btn-primary" style={{ flex: 1, padding: '4px', fontSize: '0.7rem', background: 'var(--gold-primary)', color: 'var(--bg-main)', fontWeight: 'bold' }} onClick={() => onCollectPayment(group)}>
                       ມອບພຣະ ➔
                     </button>
                   ) : (
@@ -435,14 +522,19 @@ export default function FramingBoard({
           onDrop={(e) => {
             e.preventDefault();
             setDragOverCol(null);
-            const jobId = e.dataTransfer.getData("jobId");
-            if (jobId) {
-              const job = jobs.find(j => j.id === jobId);
-              if (job) {
+            const jobIdsStr = e.dataTransfer.getData("jobId");
+            if (jobIdsStr) {
+              const firstId = jobIdsStr.split(',')[0];
+              const representativeJob = jobs.find(j => j.id === firstId);
+              if (representativeJob) {
                 if (onCollectPayment) {
-                  onCollectPayment(job);
+                  const allGroups = groupJobs(jobs);
+                  const group = allGroups.find(g => g.jobs.some(j => j.id === firstId));
+                  onCollectPayment(group || representativeJob);
                 } else if (onStatusChange) {
-                  onStatusChange(jobId, 'picked_up');
+                  jobIdsStr.split(',').forEach(id => {
+                    onStatusChange(id, 'picked_up');
+                  });
                 }
               }
             }
@@ -459,7 +551,7 @@ export default function FramingBoard({
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span>{db.getLabel('framing_board_delivered', '⚪ ສົ່ງມອບແລ້ວ (Delivered)')}</span>
               <span style={{ background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem' }}>
-                {pickedUpJobs.length}
+                {groupedPickedUp.length}
               </span>
             </div>
             {pickedUpJobs.length > 0 && (
@@ -474,9 +566,9 @@ export default function FramingBoard({
             )}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '600px' }}>
-            {pickedUpJobs.map(job => (
+            {groupedPickedUp.map(group => (
               <div 
-                key={job.id} 
+                key={group.id} 
                 className="job-card" 
                 style={{ 
                   opacity: 0.6, 
@@ -485,31 +577,31 @@ export default function FramingBoard({
                 }}
                 draggable={hasFramingPermission('framingUpdateStatus')}
                 onDragStart={(e) => {
-                  e.dataTransfer.setData("jobId", job.id);
+                  e.dataTransfer.setData("jobId", group.jobs.map(j => j.id).join(','));
                   e.dataTransfer.effectAllowed = "move";
                 }}
               >
                 <div className="job-card-header">
                   <span 
                     className="job-id" 
-                    onClick={() => onTrackJob && onTrackJob(job.id)}
+                    onClick={() => onTrackJob && onTrackJob(group.jobs[0].id)}
                     style={{ color: 'var(--text-secondary)', cursor: 'pointer', textDecoration: 'underline' }}
                     title="ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍການ (Click to track order)"
                   >
-                    {job.id}
+                    {group.displayId}
                   </span>
                   <span className="job-date" style={{ color: 'var(--text-secondary)' }}>ສຳເລັດ</span>
                 </div>
-                <div className="job-customer">{job.customerName}</div>
-                {renderAmuletsList(job)}
+                <div className="job-customer">{group.customerName}</div>
+                {renderAmuletsList(group)}
                 
-                {job.amuletImage && (
+                {group.amuletImage && (
                   <div style={{ margin: '6px 0', borderRadius: '4px', overflow: 'hidden', height: '90px', display: 'flex', justifyContent: 'center', background: '#0e0d0b', border: '1px solid var(--border-color)' }}>
-                    <img src={job.amuletImage} alt="Amulet Preview" style={{ height: '100%', objectFit: 'contain' }} />
+                    <img src={group.amuletImage} alt="Amulet Preview" style={{ height: '100%', objectFit: 'contain' }} />
                   </div>
                 )}
                 
-                <div style={{ fontSize: '0.75rem', textDecoration: 'line-through' }}>ຍອດຊຳລະແລ້ວ: {job.totalPrice.toLocaleString()} ກີບ</div>
+                <div style={{ fontSize: '0.75rem', textDecoration: 'line-through' }}>ຍອດຊຳລະແລ້ວ: {group.totalPrice.toLocaleString()} ກີບ</div>
               </div>
             ))}
           </div>
