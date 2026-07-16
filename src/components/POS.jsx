@@ -1608,6 +1608,17 @@ export default function POS({
       alert('ກະລຸນາເລືອກສິນຄ້າໃສ່ກະຕ່າກ່ອນ!');
       return;
     }
+    // Ensure active slot has a billId
+    let billId = activeSlot.billId;
+    if (!billId) {
+      billId = `INV-${selectedSlotId}-${Date.now().toString().slice(-4)}`;
+      const updatedSlots = { ...slots };
+      if (updatedSlots[selectedSlotId]) {
+        updatedSlots[selectedSlotId].billId = billId;
+        db.saveSlots(updatedSlots);
+        setSlots(updatedSlots);
+      }
+    }
     setCheckoutIsDepositMode(false);
     setCouponCode('');
     setPayCurrency('LAK');
@@ -1825,6 +1836,7 @@ export default function POS({
     });
 
     const orderData = {
+      id: activeSlot.billId || undefined,
       cashierId: activeUser.id,
       cashierName: activeUser.name,
       items: adjustedCartItems,
@@ -2060,6 +2072,7 @@ export default function POS({
 
     // Save to debt list ledger table
     const savedDebt = db.addDebt({
+      id: activeSlot.billId || undefined,
       customerName: debtCustomerName,
       customerPhone: debtCustomerPhone,
       items: adjustedCartItems,
@@ -2100,9 +2113,13 @@ export default function POS({
           item.name && 
           item.name.startsWith('ມັດຈຳ:')
         );
-        if (!isDepositCartItem) {
-          db.updateFramingJobStatus(job.id, 'picked_up');
-        }
+        db.updateFramingJob({
+          ...job,
+          orderId: savedDebt.id,
+          groupId: savedDebt.id,
+          status: isDepositCartItem ? job.status : 'picked_up',
+          pickupStatus: isDepositCartItem ? 'WaitingPickup' : 'Delivered'
+        });
       }
     });
 
@@ -3819,6 +3836,17 @@ export default function POS({
                     if (activeSlot.items.length === 0) {
                       alert('ກະລຸນາເລືອກສິນຄ້າໃສ່ກະຕ່າກ່ອນ!');
                       return;
+                    }
+                    // Ensure active slot has a billId
+                    let billId = activeSlot.billId;
+                    if (!billId) {
+                      billId = `INV-${selectedSlotId}-${Date.now().toString().slice(-4)}`;
+                      const updatedSlots = { ...slots };
+                      if (updatedSlots[selectedSlotId]) {
+                        updatedSlots[selectedSlotId].billId = billId;
+                        db.saveSlots(updatedSlots);
+                        setSlots(updatedSlots);
+                      }
                     }
                     setCheckoutIsDepositMode(true);
                     setCouponCode('');

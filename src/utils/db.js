@@ -2664,7 +2664,7 @@ addDebt(debtData) {
     const newId = 'DBT' + String(nextNum).padStart(5, '0');
     const newDebt = {
       ...debtData,
-      id: newId,
+      id: debtData.id || newId,
       date: new Date().toISOString(),
       status: 'unpaid'
     };
@@ -2964,8 +2964,8 @@ saveOrders(orders) {
     const newId = 'TX' + String(nextNum).padStart(5, '0');
     const newOrder = {
       ...orderData,
-      id: newId,
-      date: new Date().toISOString()
+      id: orderData.id || newId,
+      date: orderData.date || new Date().toISOString()
     };
     orders.push(newOrder);
     this.saveOrders(orders);

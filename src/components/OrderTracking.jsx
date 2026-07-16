@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../utils/db';
 
 export default function OrderTracking({ jobId, onClose, isInline = false, mockJobData = null }) {
-  const job = mockJobData || db.getFramingJobs().find(j => j.id === jobId);
+  const job = mockJobData || db.getFramingJobs().find(j => j.id === jobId || j.orderId === jobId || j.billId === jobId);
   const settings = db.getSettings();
 
   const formatJobDate = (dateStr) => {
