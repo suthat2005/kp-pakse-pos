@@ -1892,7 +1892,15 @@ export default function POS({
       }
     }
 
-    // Update active framing jobs for this slot
+    const savedOrder = db.addOrder(orderData);
+    if (activeSlot.customerId) {
+      db.updateCustomerSpend(activeSlot.customerId, finalLAKAmountToPay);
+      if (redeemedPoints > 0) {
+        db.redeemCustomerPoints(activeSlot.customerId, redeemedPoints, redeemedDiscount);
+      }
+    }
+
+    // Update active framing jobs for this slot and link to orderId
     const allJobs = db.getFramingJobs();
     allJobs.forEach(job => {
       if (job.slotId === selectedSlotId && job.status !== 'picked_up') {
@@ -1906,6 +1914,7 @@ export default function POS({
 
         db.updateFramingJob({
           ...job,
+          orderId: savedOrder.id,
           totalPrice: newTotalPrice,
           totalAmount: newTotalPrice,
           paidAmount: newPaidAmount,
@@ -1927,14 +1936,6 @@ export default function POS({
     const debtItem = activeSlot.items.find(i => i.productId.startsWith('DBT'));
     if (debtItem) {
       db.payDebt(debtItem.productId);
-    }
-
-    const savedOrder = db.addOrder(orderData);
-    if (activeSlot.customerId) {
-      db.updateCustomerSpend(activeSlot.customerId, finalLAKAmountToPay);
-      if (redeemedPoints > 0) {
-        db.redeemCustomerPoints(activeSlot.customerId, redeemedPoints, redeemedDiscount);
-      }
     }
     setTreatRemark('');
     
