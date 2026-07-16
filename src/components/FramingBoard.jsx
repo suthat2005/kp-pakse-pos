@@ -126,8 +126,6 @@ export default function FramingBoard({
               {/* Custom specs note output */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', paddingLeft: '28px', fontSize: '0.7rem' }}>
                 <span style={{ color: 'var(--gold-primary)' }}>({a.frameTypeName || 'ອັດກອບ'})</span>
-                {a.frameStyle && <span style={{ background: 'rgba(52, 152, 219, 0.15)', color: '#3498db', padding: '1px 4px', borderRadius: '4px' }}>{a.frameStyle}</span>}
-                {a.acrylicThickness && <span style={{ background: 'rgba(155, 89, 182, 0.15)', color: '#9b59b6', padding: '1px 4px', borderRadius: '4px' }}>{a.acrylicThickness}</span>}
                 {a.specialNotes && <div style={{ width: '100%', color: 'var(--text-secondary)', fontStyle: 'italic', marginTop: '2px' }}>📝: {a.specialNotes}</div>}
               </div>
             </div>
