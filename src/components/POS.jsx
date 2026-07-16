@@ -2876,7 +2876,7 @@ export default function POS({
         {`
           @media print {
             @page {
-              size: ${settings.receiptPaperWidth || '80mm'} auto;
+              size: auto;
               margin: 0mm !important;
             }
             body > *:not(div[data-portal]) {
@@ -2900,8 +2900,8 @@ export default function POS({
               position: static !important;
               display: block !important;
               background: none !important;
-              width: 100% !important;
-              max-width: 100% !important;
+              width: var(--receipt-printable-width, 72mm) !important;
+              max-width: var(--receipt-printable-width, 72mm) !important;
               margin: 0 !important;
               padding: 0 !important;
               z-index: auto !important;
@@ -2909,8 +2909,8 @@ export default function POS({
             .modal-overlay.print-modal .modal-content {
               position: static !important;
               display: block !important;
-              width: 100% !important;
-              max-width: 100% !important;
+              width: var(--receipt-printable-width, 72mm) !important;
+              max-width: var(--receipt-printable-width, 72mm) !important;
               background: white !important;
               box-shadow: none !important;
               border: none !important;
@@ -2943,8 +2943,8 @@ export default function POS({
               break-before: avoid !important;
             }
             .print-receipt-container {
-              width: 100% !important;
-              max-width: 100% !important;
+              width: var(--receipt-printable-width, 72mm) !important;
+              max-width: var(--receipt-printable-width, 72mm) !important;
               box-sizing: border-box !important;
               font-size: ${settings.receiptFontSize || '10pt'} !important;
               font-family: 'Phetsarath OT', 'Noto Sans Lao', Arial, sans-serif !important;

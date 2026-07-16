@@ -1154,7 +1154,7 @@ textarea.form-control {
 /* Print View Styles (Hide Dashboard UI when printing bill) */
 @media print {
   @page {
-    size: var(--receipt-page-orientation, portrait);
+    size: auto;
     margin: 0mm !important;
   }
   body > *:not(div[data-portal]) {
@@ -1181,8 +1181,8 @@ textarea.form-control {
     position: static !important;
     display: block !important;
     background: none !important;
-    width: 100% !important;
-    max-width: 100% !important;
+    width: var(--receipt-printable-width, 72mm) !important;
+    max-width: var(--receipt-printable-width, 72mm) !important;
     margin: 0 !important;
     padding: 0 !important;
     z-index: auto !important;
@@ -1190,8 +1190,8 @@ textarea.form-control {
   .modal-overlay.print-modal .modal-content {
     position: static !important;
     display: block !important;
-    width: 100% !important;
-    max-width: 100% !important;
+    width: var(--receipt-printable-width, 72mm) !important;
+    max-width: var(--receipt-printable-width, 72mm) !important;
     background: white !important;
     box-shadow: none !important;
     border: none !important;
@@ -1224,8 +1224,8 @@ textarea.form-control {
     break-before: avoid !important;
   }
   .print-receipt-container {
-    width: 100% !important;
-    max-width: 100% !important;
+    width: var(--receipt-printable-width, 72mm) !important;
+    max-width: var(--receipt-printable-width, 72mm) !important;
     box-sizing: border-box !important;
     padding: 0 !important;
     margin: 0 !important;

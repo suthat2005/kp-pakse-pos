@@ -670,7 +670,7 @@ export default function App() {
         }
         @media print {
           @page {
-            size: ${widths.paper.includes('landscape') ? 'A5 landscape' : widths.paper === 'A5' ? 'A5' : widths.paper === 'A4' ? 'A4' : 'portrait'};
+            size: auto;
             margin: 0mm !important;
           }
         }

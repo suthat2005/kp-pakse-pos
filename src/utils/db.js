@@ -2429,12 +2429,12 @@ this.saveSettings(settings);
 },
   getPaperPrintWidths(widthSetting) {
     const mapping = {
-      '58mm': { paper: '58mm', printable: '46mm' },
-      '76mm': { paper: '76mm', printable: '60mm' },
-      '80mm': { paper: '80mm', printable: '66mm' },
-      '82mm': { paper: '82mm', printable: '70mm' },
-      '100mm': { paper: '100mm', printable: '88mm' },
-      '110mm': { paper: '110mm', printable: '94mm' },
+      '58mm': { paper: '58mm', printable: '48mm' },
+      '76mm': { paper: '76mm', printable: '63mm' },
+      '80mm': { paper: '80mm', printable: '72mm' },
+      '82mm': { paper: '82mm', printable: '76mm' },
+      '100mm': { paper: '100mm', printable: '92mm' },
+      '110mm': { paper: '110mm', printable: '100mm' },
       'A5': { paper: 'A5', printable: '140mm' },
       'A5-landscape': { paper: 'A5-landscape', printable: '200mm' },
       'A4': { paper: 'A4', printable: '200mm' }
