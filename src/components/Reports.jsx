@@ -3542,7 +3542,9 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
                           <tr key={idx}>
                             <td style={{ paddingTop: '4px', paddingBottom: '4px', lineHeight: '1.2' }}>
                               <div style={{ fontWeight: 'bold' }}>{item.name}</div>
-
+                              <div style={{ fontSize: '7.5pt', color: '#555', marginTop: '2px' }}>
+                                {(item.price || 0).toLocaleString()} x {item.qty} {db.isServiceCategory(item.category) ? 'ຄັ້ງ' : 'ອັນ'}
+                              </div>
                             </td>
                             <td style={{ textAlign: 'center', paddingTop: '4px' }}>{item.qty}</td>
                             <td style={{ textAlign: 'right', paddingTop: '4px' }}>{(item.total || (item.price * item.qty)).toLocaleString()}</td>

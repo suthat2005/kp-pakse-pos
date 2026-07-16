@@ -2395,74 +2395,114 @@ export default function POS({
     const depositAmount = Number(serviceConfigDeposit || 0);
     const balanceAmount = totalPrice - depositAmount;
 
-    const amuletDescription = serviceConfigAmulets.map((a, idx) => `ອົງທີ ${idx+1}: ${a.description || 'ບໍ່ມີລາຍລະອຽດ'}`).join(', ');
-    const primaryImage = serviceConfigAmulets[0]?.image || '';
+    const serviceName = serviceConfigProduct.name || 'ບໍລິການອັດກອບພຣະ';
+    const serviceCat = db.getCategories().find(c => c.type === 'service') || { id: 'services' };
 
-    // Check if there is already a framing job in the active slot to group with
-    const existingJobInSlot = db.getFramingJobs().find(j => j.slotId === targetSlotId && j.status !== 'picked_up' && (!j.orderId));
-    const targetGroupId = existingJobInSlot ? (existingJobInSlot.groupId || existingJobInSlot.id) : null;
-
-    const newJob = db.addFramingJob({
-      customerName,
-      customerPhone,
-      deposit: depositAmount,
-      notes: '',
-      pickupDate: serviceConfigPickupDate || getLocalDatetimeString(new Date(Date.now() + 86400000)),
-      status: 'pending',
-      slotId: targetSlotId,
-      groupId: targetGroupId,
-      amulets: serviceConfigAmulets.map(a => ({
-        id: a.id,
-        description: a.description,
-        frameTypeId: serviceConfigProduct.id,
-        frameTypeName: serviceConfigProduct.name,
-        price: Number(serviceConfigProduct.price),
-        image: a.image,
-        frameStyle: a.frameStyle || 'ກອບໃສ',
-        acrylicThickness: a.acrylicThickness || '2.0 mm',
-        specialNotes: a.specialNotes || ''
-      })),
-      totalPrice,
-      amuletDescription,
-      amuletImage: primaryImage,
+    const newAmulets = serviceConfigAmulets.map(a => ({
+      id: a.id || (Date.now() + Math.random()),
+      description: a.description,
       frameTypeId: serviceConfigProduct.id,
       frameTypeName: serviceConfigProduct.name,
-      technicianId: activeUser ? activeUser.id : 'technician'
-    });
+      price: Number(serviceConfigProduct.price),
+      image: a.image,
+      frameStyle: a.frameStyle || 'ກອບໃສ',
+      acrylicThickness: a.acrylicThickness || '2.0 mm',
+      specialNotes: a.specialNotes || ''
+    }));
 
-    if (!targetGroupId) {
-      newJob.groupId = newJob.id;
-      db.updateFramingJob(newJob);
-    }
+    const primaryImage = newAmulets[0]?.image || '';
+    const isDeposit = depositAmount > 0;
 
-    // Add to cart of the active slot
     const updatedSlots = { ...slots };
-    if (updatedSlots[targetSlotId]) {
-      const serviceCat = db.getCategories().find(c => c.type === 'service') || { id: 'services' };
-      const serviceName = serviceConfigProduct.name || 'ບໍລິການອັດກອບພຣະ';
+    const existingCartItemIndex = updatedSlots[targetSlotId]
+      ? updatedSlots[targetSlotId].items.findIndex(item => item.name === serviceName && item.productId && item.productId.startsWith('JOB'))
+      : -1;
 
-      const isDeposit = depositAmount > 0;
-      const initialCharge = isDeposit ? depositAmount : totalPrice;
+    if (existingCartItemIndex !== -1 && updatedSlots[targetSlotId]) {
+      // Grouping: Merge into the existing cart item!
+      const existingItem = updatedSlots[targetSlotId].items[existingCartItemIndex];
+      const jobId = existingItem.productId;
 
-      updatedSlots[targetSlotId].items.push({
-        productId: newJob.id,
-        name: serviceName,
-        price: totalPrice / newJob.amulets.length,
-        qty: newJob.amulets.length,
-        total: totalPrice,
-        category: serviceCat.id,
-        amulets: newJob.amulets
+      // Retrieve existing job from database
+      const existingJob = db.getFramingJobs().find(j => j.id === jobId);
+      if (existingJob) {
+        // Merge amulets
+        const mergedAmulets = [...(existingJob.amulets || []), ...newAmulets];
+        
+        // Update existing job object
+        existingJob.amulets = mergedAmulets;
+        existingJob.totalPrice += totalPrice;
+        existingJob.balance = existingJob.totalPrice - existingJob.deposit;
+        existingJob.amuletDescription = mergedAmulets.map((a, idx) => `ອົງທີ ${idx+1}: ${a.description || 'ບໍ່ມີລາຍລະອຽດ'}`).join(', ');
+        if (primaryImage && !existingJob.amuletImage) {
+          existingJob.amuletImage = primaryImage;
+        }
+
+        db.updateFramingJob(existingJob);
+
+        // Update cart item in slot
+        existingItem.qty += serviceConfigQty;
+        existingItem.total += totalPrice;
+        existingItem.amulets = mergedAmulets;
+
+        if (isDeposit) {
+          updatedSlots[targetSlotId].depositAmount = (updatedSlots[targetSlotId].depositAmount || 0) + depositAmount;
+        }
+        if (primaryImage && !updatedSlots[targetSlotId].amuletImage) {
+          updatedSlots[targetSlotId].amuletImage = primaryImage;
+        }
+
+        db.saveSlots(updatedSlots);
+        setSlots(updatedSlots);
+      }
+    } else {
+      // First time: Create a new framing job as normal
+      const existingJobInSlot = db.getFramingJobs().find(j => j.slotId === targetSlotId && j.status !== 'picked_up' && (!j.orderId));
+      const targetGroupId = existingJobInSlot ? (existingJobInSlot.groupId || existingJobInSlot.id) : null;
+
+      const newJob = db.addFramingJob({
+        customerName,
+        customerPhone,
+        deposit: depositAmount,
+        notes: '',
+        pickupDate: serviceConfigPickupDate || getLocalDatetimeString(new Date(Date.now() + 86400000)),
+        status: 'pending',
+        slotId: targetSlotId,
+        groupId: targetGroupId,
+        amulets: newAmulets,
+        totalPrice,
+        amuletDescription: newAmulets.map((a, idx) => `ອົງທີ ${idx+1}: ${a.description || 'ບໍ່ມີລາຍລະອຽດ'}`).join(', '),
+        amuletImage: primaryImage,
+        frameTypeId: serviceConfigProduct.id,
+        frameTypeName: serviceConfigProduct.name,
+        technicianId: activeUser ? activeUser.id : 'technician'
       });
-      if (isDeposit) {
-        updatedSlots[targetSlotId].depositAmount = depositAmount;
+
+      if (!targetGroupId) {
+        newJob.groupId = newJob.id;
+        db.updateFramingJob(newJob);
       }
 
-      if (primaryImage) {
-        updatedSlots[targetSlotId].amuletImage = primaryImage;
-      }
+      if (updatedSlots[targetSlotId]) {
+        updatedSlots[targetSlotId].items.push({
+          productId: newJob.id,
+          name: serviceName,
+          price: totalPrice / newJob.amulets.length,
+          qty: newJob.amulets.length,
+          total: totalPrice,
+          category: serviceCat.id,
+          amulets: newJob.amulets
+        });
+        if (isDeposit) {
+          updatedSlots[targetSlotId].depositAmount = depositAmount;
+        }
+        if (primaryImage) {
+          updatedSlots[targetSlotId].amuletImage = primaryImage;
+        }
 
-      db.saveSlots(updatedSlots);
-      setSlots(updatedSlots);
+        db.saveSlots(updatedSlots);
+        setSlots(updatedSlots);
+      }
     }
 
     setShowServiceConfigModal(false);
@@ -5787,6 +5827,9 @@ export default function POS({
                         <tr key={idx} style={{ borderBottom: '0.5px dotted #ccc' }}>
                           <td style={{ padding: '6px 0', lineHeight: '1.3' }}>
                             <div style={{ fontWeight: 'bold' }}>{item.name}</div>
+                            <div style={{ fontSize: '7.5pt', color: '#555', marginTop: '2px' }}>
+                              {(item.price || 0).toLocaleString()} x {item.qty} {db.isServiceCategory(item.category) ? 'ຄັ້ງ' : 'ອັນ'}
+                            </div>
                             {(() => {
                               const visibleAmulets = amuletsList.filter(a => (a.description && a.description !== 'ພຣະເຄື່ອງ') || a.specialNotes);
                               if (visibleAmulets.length === 0) return null;
@@ -5919,7 +5962,9 @@ export default function POS({
                         <tr key={idx} style={{ borderBottom: '1px dotted rgba(0,0,0,0.05)' }}>
                           <td style={{ paddingTop: '4px', paddingBottom: '6px', lineHeight: '1.2' }}>
                             <div style={{ fontWeight: 'bold' }}>{item.name}</div>
-
+                            <div style={{ fontSize: '7.5pt', color: '#555', marginTop: '2px' }}>
+                              {(item.price || 0).toLocaleString()} x {item.qty} {db.isServiceCategory(item.category) ? 'ຄັ້ງ' : 'ອັນ'}
+                            </div>
                           </td>
                           <td style={{ width: settings.receiptQtyColWidth || '35px', textAlign: 'center', paddingTop: '4px', verticalAlign: 'top' }}>{item.qty}</td>
                           <td style={{ width: settings.receiptPriceColWidth || '95px', textAlign: 'right', paddingTop: '4px', verticalAlign: 'top' }}>{item.total.toLocaleString()} ກີບ</td>
