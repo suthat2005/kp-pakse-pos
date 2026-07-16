@@ -380,16 +380,6 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
         : null;
       const amuletsList = (linkedJob && linkedJob.amulets) || item.amulets || [];
       let amuletsHtml = '';
-      const visibleAmulets = amuletsList.filter(a => (a.description && a.description !== 'ພຣະເຄື່ອງ') || a.specialNotes);
-      if (visibleAmulets.length > 0) {
-        amuletsHtml = '<div style="font-size:calc(' + fontSize + ' - 2.5pt);color:#555;padding-left:6px;margin-top:2px;line-height:1.2;">';
-        visibleAmulets.forEach((a, i) => {
-          let extra = '';
-          if (a.specialNotes) extra += ' - ' + a.specialNotes;
-          amuletsHtml += '<div style="margin-bottom:1px;">' + (i + 1) + '. ' + (a.description || 'ພຣະເຄື່ອງ') + extra + '</div>';
-        });
-        amuletsHtml += '</div>';
-      }
       itemsHtml += '<tr><td style="padding:4px 0;line-height:1.2;"><div style="font-weight:bold;">' + item.name + '</div>' + amuletsHtml + '</td><td style="width:' + (s.receiptQtyColWidth || '35px') + ';text-align:center;padding:4px 0;vertical-align:top;">' + item.qty + '</td><td style="width:' + (s.receiptPriceColWidth || '95px') + ';text-align:right;padding:4px 0;vertical-align:top;">' + (item.total || (item.price * item.qty)).toLocaleString() + ' ກີບ</td></tr>';
     });
 
@@ -3359,20 +3349,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
                         <tr key={idx}>
                           <td style={{ paddingTop: '4px', paddingBottom: '4px', lineHeight: '1.2' }}>
                             <div style={{ fontWeight: 'bold' }}>{item.name}</div>
-                            {(() => {
-                              const visibleAmulets = amuletsList.filter(a => (a.description && a.description !== 'ພຣະເຄື່ອງ') || a.specialNotes);
-                              if (visibleAmulets.length === 0) return null;
-                              return (
-                                <div style={{ fontSize: '7.5pt', color: '#555', paddingLeft: '6px', marginTop: '2px', lineHeight: '1.2' }}>
-                                  {visibleAmulets.map((a, i) => (
-                                    <div key={i} style={{ marginBottom: '1px' }}>
-                                      {i + 1}. {a.description || 'ພຣະເຄື່ອງ'} 
-                                      {a.specialNotes && ` - ${a.specialNotes}`}
-                                    </div>
-                                  ))}
-                                </div>
-                              );
-                            })()}
+
                           </td>
                           <td style={{ textAlign: 'center', paddingTop: '4px' }}>{item.qty}</td>
                           <td style={{ textAlign: 'right', paddingTop: '4px' }}>{item.total.toLocaleString()}</td>
@@ -3565,20 +3542,7 @@ export default function Reports({ activeUser, isMobile, onTabChange }) {
                           <tr key={idx}>
                             <td style={{ paddingTop: '4px', paddingBottom: '4px', lineHeight: '1.2' }}>
                               <div style={{ fontWeight: 'bold' }}>{item.name}</div>
-                            {(() => {
-                              const visibleAmulets = amuletsList.filter(a => (a.description && a.description !== 'ພຣະເຄື່ອງ') || a.specialNotes);
-                              if (visibleAmulets.length === 0) return null;
-                              return (
-                                <div style={{ fontSize: '7.5pt', color: '#555', paddingLeft: '6px', marginTop: '2px', lineHeight: '1.2' }}>
-                                  {visibleAmulets.map((a, i) => (
-                                    <div key={i} style={{ marginBottom: '1px' }}>
-                                      {i + 1}. {a.description || 'ພຣະເຄື່ອງ'} 
-                                      {a.specialNotes && ` - ${a.specialNotes}`}
-                                    </div>
-                                  ))}
-                                </div>
-                              );
-                            })()}
+
                             </td>
                             <td style={{ textAlign: 'center', paddingTop: '4px' }}>{item.qty}</td>
                             <td style={{ textAlign: 'right', paddingTop: '4px' }}>{(item.total || (item.price * item.qty)).toLocaleString()}</td>
