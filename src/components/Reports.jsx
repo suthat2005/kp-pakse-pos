@@ -765,7 +765,32 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
   const end = endDate ? new Date(endDate + 'T23:59:59') : null;
 
   // Filter lists for selected range
-  const allPayments = db.getOrderPayments().filter(p => allOrders.some(o => o.id === p.order_id));
+  const allPayments = [];
+  allOrders.forEach(o => {
+    const paymentStage = o.isBalancePayment ? 'FINAL' : (o.remainingAmount > 0 ? 'DEPOSIT' : 'FINAL');
+    let method = 'Cash';
+    if (o.paymentMethod === 'transfer') method = 'BCEL One';
+    else if (o.paymentMethod === 'treat') method = 'Treat';
+    else if (o.paymentMethod === 'debt') method = 'Debt';
+    else if (o.paymentMethod === 'split') method = 'Split';
+    
+    allPayments.push({
+      payment_id: o.id + '_pay',
+      order_id: o.id,
+      amount_paid: o.paidAmount !== undefined ? o.paidAmount : o.total,
+      payment_stage: paymentStage,
+      payment_method: method,
+      date: o.date,
+      payCurrency: o.payCurrency || 'LAK',
+      cashReceived: o.cashReceived || 0,
+      transferAmount: o.transferAmount || 0,
+      change: o.change || 0,
+      currencyCashReceived: o.currencyCashReceived || 0,
+      currencyChange: o.currencyChange || 0,
+      currencyTransferAmount: o.currencyTransferAmount || 0
+    });
+  });
+
   const rangePayments = allPayments.filter(p => {
     if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) return true;
     const d = new Date(p.date);
