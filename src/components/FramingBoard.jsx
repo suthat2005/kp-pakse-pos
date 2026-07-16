@@ -6,7 +6,6 @@ export default function FramingBoard({
   activeUser, 
   jobs = [], 
   onStatusChange, 
-  onAddJobClick, 
   onEditJobClick, 
   onPrintJobClick, 
   onCollectPayment,
@@ -559,7 +558,7 @@ export default function FramingBoard({
                 {groupedPickedUp.length}
               </span>
             </div>
-            {pickedUpJobs.length > 0 && (
+            {groupedPickedUp.length > 0 && (
               <button
                 className="btn btn-secondary"
                 style={{ padding: '2px 8px', fontSize: '0.7rem', color: 'rgba(231,76,60,0.85)', borderColor: 'rgba(231,76,60,0.4)', background: 'rgba(231,76,60,0.08)' }}
