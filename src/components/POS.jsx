@@ -1915,6 +1915,7 @@ export default function POS({
         db.updateFramingJob({
           ...job,
           orderId: savedOrder.id,
+          groupId: savedOrder.id,
           totalPrice: newTotalPrice,
           totalAmount: newTotalPrice,
           paidAmount: newPaidAmount,
@@ -2397,6 +2398,10 @@ export default function POS({
     const amuletDescription = serviceConfigAmulets.map((a, idx) => `ອົງທີ ${idx+1}: ${a.description || 'ບໍ່ມີລາຍລະອຽດ'}`).join(', ');
     const primaryImage = serviceConfigAmulets[0]?.image || '';
 
+    // Check if there is already a framing job in the active slot to group with
+    const existingJobInSlot = db.getFramingJobs().find(j => j.slotId === targetSlotId && j.status !== 'picked_up' && (!j.orderId));
+    const targetGroupId = existingJobInSlot ? (existingJobInSlot.groupId || existingJobInSlot.id) : null;
+
     const newJob = db.addFramingJob({
       customerName,
       customerPhone,
@@ -2405,6 +2410,7 @@ export default function POS({
       pickupDate: serviceConfigPickupDate || getLocalDatetimeString(new Date(Date.now() + 86400000)),
       status: 'pending',
       slotId: targetSlotId,
+      groupId: targetGroupId,
       amulets: serviceConfigAmulets.map(a => ({
         id: a.id,
         description: a.description,
@@ -2423,6 +2429,11 @@ export default function POS({
       frameTypeName: serviceConfigProduct.name,
       technicianId: activeUser ? activeUser.id : 'technician'
     });
+
+    if (!targetGroupId) {
+      newJob.groupId = newJob.id;
+      db.updateFramingJob(newJob);
+    }
 
     // Add to cart of the active slot
     const updatedSlots = { ...slots };
