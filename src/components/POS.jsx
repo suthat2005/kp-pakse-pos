@@ -3646,33 +3646,39 @@ export default function POS({
 
                     {/* Touch Friendly Qty Control Block */}
                     <div className="cart-item-controls" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: '8px' }}>
-                      <button
-                        type="button"
-                        className="touch-qty-btn"
-                        onClick={() => {
-                          const newQty = item.qty - 1;
-                          if (newQty <= 0) {
-                            handleDeleteCartItemClick(idx);
-                          } else {
-                            const prod = products.find(p => p.id === item.productId);
-                            if (prod) updateCartQty(prod, newQty);
-                          }
-                        }}
-                      >
-                        -
-                      </button>
-                      <span style={{ fontSize: '0.85rem', fontWeight: '600', minWidth: '16px', textAlign: 'center' }}>{item.qty}</span>
-                      <button
-                        type="button"
-                        className="touch-qty-btn"
-                        onClick={() => {
-                          const newQty = item.qty + 1;
-                          const prod = products.find(p => p.id === item.productId);
-                          if (prod) updateCartQty(prod, newQty);
-                        }}
-                      >
-                        +
-                      </button>
+                      {(!item.amulets || item.amulets.length === 0) ? (
+                        <>
+                          <button
+                            type="button"
+                            className="touch-qty-btn"
+                            onClick={() => {
+                              const newQty = item.qty - 1;
+                              if (newQty <= 0) {
+                                handleDeleteCartItemClick(idx);
+                              } else {
+                                const prod = products.find(p => p.id === item.productId);
+                                if (prod) updateCartQty(prod, newQty);
+                              }
+                            }}
+                          >
+                            -
+                          </button>
+                          <span style={{ fontSize: '0.85rem', fontWeight: '600', minWidth: '16px', textAlign: 'center' }}>{item.qty}</span>
+                          <button
+                            type="button"
+                            className="touch-qty-btn"
+                            onClick={() => {
+                              const newQty = item.qty + 1;
+                              const prod = products.find(p => p.id === item.productId);
+                              if (prod) updateCartQty(prod, newQty);
+                            }}
+                          >
+                            +
+                          </button>
+                        </>
+                      ) : (
+                        <span style={{ fontSize: '0.85rem', fontWeight: '600', minWidth: '16px', textAlign: 'center', background: 'rgba(255,255,255,0.05)', padding: '4px 10px', borderRadius: '4px' }}>{item.qty}</span>
+                      )}
                     </div>
                     
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
