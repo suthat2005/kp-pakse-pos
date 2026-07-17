@@ -2300,6 +2300,17 @@ export default function App() {
       {/* Bottom Navigation for Mobile */}
       {activeUser && (
         <nav className="bottom-nav">
+          {hasPermission(activeUser, 'dashboard') && (
+            <button
+              type="button"
+              className={`bottom-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+              onClick={() => setActiveTab('dashboard')}
+            >
+              <span className="bottom-nav-icon">🏠</span>
+              <span>Dashboard</span>
+            </button>
+          )}
+
           {hasPermission(activeUser, 'pos') && (
             <button
               type="button"
@@ -2322,7 +2333,7 @@ export default function App() {
             </button>
           )}
 
-          {activeUser.role === 'owner' && (
+          {hasPermission(activeUser, 'inventory') && (
             <button
               type="button"
               className={`bottom-nav-item ${activeTab === 'inventory' ? 'active' : ''}`}
@@ -2333,7 +2344,7 @@ export default function App() {
             </button>
           )}
 
-          {activeUser.role === 'owner' && (
+          {hasPermission(activeUser, 'reports') && (
             <button
               type="button"
               className={`bottom-nav-item ${activeTab === 'reports' ? 'active' : ''}`}
@@ -2344,7 +2355,7 @@ export default function App() {
             </button>
           )}
 
-          {(activeUser.role === 'owner' || activeUser.role === 'manager') && (
+          {hasPermission(activeUser, 'online_orders') && (
             <button
               type="button"
               className={`bottom-nav-item ${activeTab === 'online_orders' ? 'active' : ''}`}
@@ -2374,7 +2385,7 @@ export default function App() {
             </button>
           )}
 
-          {(activeUser.role === 'owner' || activeUser.role === 'cashier') && (
+          {hasPermission(activeUser, 'debts') && (
             <button
               type="button"
               className={`bottom-nav-item ${activeTab === 'debts' ? 'active' : ''}`}
@@ -2385,7 +2396,40 @@ export default function App() {
             </button>
           )}
 
-          {activeUser.role === 'owner' && (
+          {hasPermission(activeUser, 'customers') && (
+            <button
+              type="button"
+              className={`bottom-nav-item ${activeTab === 'customers' ? 'active' : ''}`}
+              onClick={() => setActiveTab('customers')}
+            >
+              <span className="bottom-nav-icon">👥</span>
+              <span>Members</span>
+            </button>
+          )}
+
+          {hasPermission(activeUser, 'hrm') && (
+            <button
+              type="button"
+              className={`bottom-nav-item ${activeTab === 'hrm' ? 'active' : ''}`}
+              onClick={() => setActiveTab('hrm')}
+            >
+              <span className="bottom-nav-icon">👥</span>
+              <span>HRM</span>
+            </button>
+          )}
+
+          {hasPermission(activeUser, 'ai') && (
+            <button
+              type="button"
+              className={`bottom-nav-item ${activeTab === 'ai' ? 'active' : ''}`}
+              onClick={() => setActiveTab('ai')}
+            >
+              <span className="bottom-nav-icon">🤖</span>
+              <span>AI</span>
+            </button>
+          )}
+
+          {hasPermission(activeUser, 'settings') && (
             <button
               type="button"
               className={`bottom-nav-item ${activeTab === 'settings' ? 'active' : ''}`}

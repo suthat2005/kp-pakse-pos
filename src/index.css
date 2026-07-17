@@ -1649,6 +1649,22 @@ select:-webkit-autofill:focus {
   .app-container {
     padding-bottom: 64px !important; /* Make room for bottom nav */
   }
+  .bottom-nav {
+    justify-content: flex-start !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    gap: 12px;
+    padding: 0 16px !important;
+    scrollbar-width: none; /* Hide scrollbar Firefox */
+  }
+  .bottom-nav::-webkit-scrollbar {
+    display: none; /* Hide scrollbar Chrome/Safari */
+  }
+  .bottom-nav-item {
+    flex: 0 0 72px !important;
+    min-width: 72px !important;
+    padding: 4px 0 !important;
+  }
 }
 
 /* Category Tabs Horizontally Scrollable on Mobile */
