@@ -503,8 +503,14 @@ export default function App() {
         if (newVal !== null) {
           const updatedLabels = { ...labels, [matchedKey]: newVal };
           db.saveLabels(updatedLabels);
-          alert(`✓ ແກ້ໄຂຂໍ້ຄວາມສຳເລັດ! ລະບົບຈະໂຫຼດໜ້າຈໍຄືນໃໝ່ເພື່ອປັບປຸງ.`);
-          window.location.reload();
+          // Clear Service Worker caches so reload gets fresh content from localStorage
+          if ('caches' in window) {
+            caches.keys().then(names => names.forEach(n => caches.delete(n))).finally(() => {
+              window.location.reload(true);
+            });
+          } else {
+            window.location.reload(true);
+          }
         }
       }
     };
