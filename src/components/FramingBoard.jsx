@@ -34,30 +34,84 @@ export default function FramingBoard({
   }, [soundEnabled]);
 
   const prevJobsRef = React.useRef(jobs.map(j => j.id));
+  const [alarmJobIds, setAlarmJobIds] = useState([]);
+  const alarmIntervalRef = React.useRef(null);
 
+  // 1. Detect new pending jobs and add to alarm queue
   useEffect(() => {
     const currentIds = jobs.map(j => j.id);
     const prevIds = prevJobsRef.current;
 
-    // Check for newly added jobs in pending status
     const newJobs = jobs.filter(j => j.status === 'pending' && !prevIds.includes(j.id));
-    if (newJobs.length > 0 && soundEnabledRef.current) {
-      if ('speechSynthesis' in window) {
+    if (newJobs.length > 0) {
+      setAlarmJobIds(prev => {
+        const updated = [...prev];
+        newJobs.forEach(nj => {
+          if (!updated.includes(nj.id)) updated.push(nj.id);
+        });
+        return updated;
+      });
+    }
+
+    prevJobsRef.current = currentIds;
+  }, [jobs]);
+
+  // 2. Remove jobs from alarm queue when they are no longer in pending status
+  useEffect(() => {
+    const stillPending = alarmJobIds.filter(id => 
+      jobs.some(j => j.id === id && j.status === 'pending')
+    );
+    if (stillPending.length !== alarmJobIds.length) {
+      setAlarmJobIds(stillPending);
+    }
+  }, [jobs, alarmJobIds]);
+
+  // 3. Loop sweet female voice alert while alarm queue has items
+  useEffect(() => {
+    const speak = () => {
+      if ('speechSynthesis' in window && soundEnabledRef.current) {
         try {
-          window.speechSynthesis.cancel(); // clear previous speech queue
-          const text = "ช่างอัดกรอบพระ งานเข้าแล้วเด้อ";
+          window.speechSynthesis.cancel(); // clear speech queue
+          const text = "ช่างอัดกรอบพระ งานเข้าแล้วเด้อค่ะ";
           const utterance = new SpeechSynthesisUtterance(text);
-          utterance.lang = 'th-TH'; // standard Thai language code universally supported
-          utterance.rate = 0.95;    // slightly slower for clarity
+          utterance.lang = 'th-TH';
+          utterance.rate = 0.92;   // sweet slow tempo
+          utterance.pitch = 1.08;  // sweet higher pitch female voice
+          
+          const voices = window.speechSynthesis.getVoices();
+          const femaleVoice = voices.find(v => 
+            v.lang.startsWith('th') && 
+            (v.name.includes('Kanya') || v.name.includes('Pattara') || v.name.includes('Narisa') || v.name.includes('female') || v.name.includes('Google'))
+          );
+          if (femaleVoice) {
+            utterance.voice = femaleVoice;
+          }
           window.speechSynthesis.speak(utterance);
         } catch (e) {
           console.error("Speech Synthesis Error:", e);
         }
       }
+    };
+
+    if (alarmJobIds.length > 0 && soundEnabled) {
+      speak();
+      alarmIntervalRef.current = setInterval(speak, 5500); // repeat every 5.5s
+    } else {
+      if (alarmIntervalRef.current) {
+        clearInterval(alarmIntervalRef.current);
+        alarmIntervalRef.current = null;
+      }
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
     }
 
-    prevJobsRef.current = currentIds;
-  }, [jobs]);
+    return () => {
+      if (alarmIntervalRef.current) {
+        clearInterval(alarmIntervalRef.current);
+      }
+    };
+  }, [alarmJobIds, soundEnabled]);
 
   const hasFramingPermission = (subKey) => {
     if (!activeUser) return false;
