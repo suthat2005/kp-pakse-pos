@@ -664,7 +664,7 @@ export default function HRM({ activeUser, onUpdate }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }} className="animate-fade-in">
       {/* HRM Top Bar Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '14px', alignItems: 'stretch' } : { display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h2 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '1.4rem' }}>{db.getLabel('title_hrm', '👥 ລະບົບຈັດການບຸກຄະລາກອນ & ເງິນເດືອນ (HRM)')}</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', margin: '4px 0 0' }}>
@@ -673,7 +673,7 @@ export default function HRM({ activeUser, onUpdate }) {
         </div>
 
         {/* Sub-tab Selectors */}
-        <div className="nav-tabs" style={{ margin: 0, border: 'none' }}>
+        <div className="nav-tabs" style={isMobile ? { margin: 0, border: 'none', width: '100%', overflowX: 'auto', display: 'flex', flexWrap: 'nowrap', paddingBottom: '6px', scrollbarWidth: 'thin' } : { margin: 0, border: 'none' }}>
           {hasHrmPermission('hrmView') && (
           <button
             type="button"
@@ -730,12 +730,12 @@ export default function HRM({ activeUser, onUpdate }) {
       {/* SUB TAB: EMPLOYEES */}
       {activeSubTab === 'employees' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'stretch' } : { display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.1rem', margin: 0 }}>
               👥 ຈັດການບັນຊີ ແລະ ລະຫັດຜ່ານຂອງພະນັກງານ
             </h3>
             {hasHrmPermission('hrmAddUser') && (
-            <button className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => setShowAddUserModal(true)}>
+            <button className="btn btn-primary" style={isMobile ? { padding: '8px 12px', fontSize: '0.85rem', width: '100%' } : { padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => setShowAddUserModal(true)}>
               ➕ ເພີ່ມພະນັກງານໃໝ່
             </button>
             )}
@@ -745,7 +745,25 @@ export default function HRM({ activeUser, onUpdate }) {
             {users.map(u => (
               <div
                 key={u.id}
-                style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', padding: '16px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}
+                style={isMobile ? {
+                  background: 'rgba(255,255,255,0.02)',
+                  border: '1px solid var(--border-color)',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                  alignItems: 'stretch'
+                } : {
+                  background: 'rgba(255,255,255,0.02)',
+                  border: '1px solid var(--border-color)',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: '16px'
+                }}
               >
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                   <div style={{ width: '60px', height: '60px', borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--gold-primary)', flexShrink: 0, background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -761,11 +779,11 @@ export default function HRM({ activeUser, onUpdate }) {
                     </h4>
                     <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '6px', rowGap: '4px' }}>
                       <span>Gmail / Email:</span>
-                      <span style={{ color: 'white' }}>{u.email}</span>
+                      <span style={{ color: 'white', wordBreak: 'break-all' }}>{u.email}</span>
                       <span>{db.getLabel('auto_ລະຫັດ_PIN_4_ຫຼັກ__dghrbv', `ລະຫັດ PIN 4 ຫຼັກ:`)}</span>
                       <span style={{ color: 'var(--accent-amber)', fontWeight: 'bold' }}>{u.passcode}</span>
                       <span>{db.getLabel('auto_ລະຫັດຜ່ານ__Pass___1xi59c', `ລະຫັດຜ່ານ (Pass):`)}</span>
-                      <span style={{ fontFamily: 'monospace' }}>{u.password}</span>
+                      <span style={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>{u.password}</span>
                       <span>{db.getLabel('auto_ຮູບແບບການຈ່າຍ__3hs4qf', `ຮູບແບບການຈ່າຍ:`)}</span>
                       <span style={{ color: 'white' }}>{u.payType === 'monthly' ? 'ເງິນເດືອນລາຍເດືອນ (Monthly)' : 'ຄ່າຈ້າງລາຍວັນ (Daily)'}</span>
                       <span>{db.getLabel('auto_ຄ່າຈ້າງ___ເງິນເດືອນ__v5jf2c', `ຄ່າຈ້າງ / ເງິນເດືອນ:`)}</span>
@@ -775,7 +793,7 @@ export default function HRM({ activeUser, onUpdate }) {
                     </div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={isMobile ? { display: 'flex', gap: '8px', justifyContent: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px' } : { display: 'flex', gap: '8px' }}>
                   {hasHrmPermission('hrmEditUser') && (
                   <button
                     className="btn btn-secondary"
@@ -804,7 +822,7 @@ export default function HRM({ activeUser, onUpdate }) {
 
       {/* SUB TAB: SHIFT SCHEDULER */}
       {activeSubTab === 'shifts' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '20px' }}>
+        <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '20px' } : { display: 'grid', gridTemplateColumns: '320px 1fr', gap: '20px' }}>
           {/* Shift Form */}
           <div className="glass-card" style={{ padding: '20px' }}>
             <h3 style={{ color: 'var(--gold-primary)', fontSize: '1rem', margin: '0 0 16px' }}>{db.getLabel('auto____ກໍານົດກະການເຮັດວຽກ_oerlxl', `⚙️ ກໍານົດກະການເຮັດວຽກ`)}</h3>
@@ -977,19 +995,19 @@ export default function HRM({ activeUser, onUpdate }) {
       {/* SUB TAB: ATTENDANCE (TIMESHEETS) */}
       {activeSubTab === 'attendance' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={isMobile ? { borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'stretch' } : { borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.1rem', margin: 0 }}>
                 🕒 ລະບົບເຂົ້າງານ & ບັນທຶກເວລາພະນັກງານ (Daily Attendance Timesheets)
               </h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: '2px' }}>
-                ຈັດການແລະເພີ່ມເວລາເຂົ້າງານ-ອອກງານ, ຄິດໄລ່ຊົ່ວໂມງ OT ຂອງແຕ່ລະວັນ.
+                ຈັດການແລະເພີ່ມເວລາເຂົ້າງານ-ออกງານ, ຄິດໄລ່ຊົ່ວໂມງ OT ຂອງແຕ່ລະວັນ.
               </p>
             </div>
             <button
               type="button"
               className="btn btn-primary"
-              style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+              style={isMobile ? { padding: '8px 12px', fontSize: '0.85rem', width: '100%' } : { padding: '6px 12px', fontSize: '0.8rem' }}
               onClick={handleOpenManualLogAdd}
             >
               ➕ ເພີ່ມບັນທຶກເຂົ້າງານດ້ວຍມື
@@ -1005,7 +1023,7 @@ export default function HRM({ activeUser, onUpdate }) {
             const workdays = getWorkdaysInMonthToToday();
 
             return (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '16px' } : { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 {/* Today's Summary */}
                 <div className="glass-card" style={{ padding: '16px', background: 'rgba(255,255,255,0.01)' }}>
                   <h4 style={{ color: 'var(--gold-primary)', marginBottom: '12px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -1195,7 +1213,7 @@ export default function HRM({ activeUser, onUpdate }) {
 
       {/* SUB TAB: LEAVES APPROVAL */}
       {activeSubTab === 'leaves' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '20px' }}>
+        <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '20px' } : { display: 'grid', gridTemplateColumns: '320px 1fr', gap: '20px' }}>
           {/* Apply Leave Request Form */}
           <div className="glass-card" style={{ padding: '20px' }}>
             <h3 style={{ color: 'var(--gold-primary)', fontSize: '1rem', margin: '0 0 16px' }}>{db.getLabel('auto____ສົ່ງຄຳຂໍລາພັກ__Manual__f7azmz', `📝 ສົ່ງຄຳຂໍລາພັກ (Manual Request)`)}</h3>
@@ -1410,7 +1428,7 @@ export default function HRM({ activeUser, onUpdate }) {
       {activeSubTab === 'payroll' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* Payroll Filter */}
-          <div className="glass-card" style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+          <div className="glass-card" style={isMobile ? { padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'stretch' } : { padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ປະຈຳເດືອນ__Select_Month___r9epb0', `ປະຈຳເດືອນ (Select Month):`)}</label>
               <input

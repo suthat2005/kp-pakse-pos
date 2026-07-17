@@ -4511,7 +4511,7 @@ export default function POS({
 
                   <div className="form-group" style={{ margin: 0 }}>
                     <label className="form-label">{db.getLabel('auto_ເຫດຜົນ__Reason__wo8yqc', `ເຫດຜົນ (Reason)`)}</label>
-                    <input type="text" className="form-control" placeholder="ເຊັ່ນ: ສິນຄ້າຊຳລຸດ, ລູກຄ້າປ່ຽນໃຈ..." value={returnReason} onChange={(e) => setReturnReason(e.target.value)} />
+                    <input type="text" className="form-control" placeholder={db.getLabel('auto_ເຊັ່ນ__ສິນຄ້າຊຳລຸດ__ລູກຄ້_88zay8', `ເຊັ່ນ: ສິນຄ້າຊຳລຸດ, ລູກຄ້າປ່ຽນໃຈ...`)} value={returnReason} onChange={(e) => setReturnReason(e.target.value)} />
                   </div>
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', borderRadius: '8px', background: 'rgba(231,76,60,0.08)', border: '1px solid rgba(231,76,60,0.2)' }}>

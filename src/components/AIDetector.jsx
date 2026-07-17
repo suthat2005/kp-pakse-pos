@@ -1712,7 +1712,7 @@ export default function AIDetector({ activeUser }) {
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="ຕົວຢ່າງ: ກ້ອງ 05: ໂຊນຫຼັງຮ້ານ..."
+                    placeholder={db.getLabel('auto_ຕົວຢ່າງ__ກ້ອງ_05__ໂຊນຫຼັງ_nq5usl', `ຕົວຢ່າງ: ກ້ອງ 05: ໂຊນຫຼັງຮ້ານ...`)}
                     value={newCamName}
                     onChange={(e) => setNewCamName(e.target.value)}
                     style={{ fontSize: '0.8rem', padding: '8px', margin: 0 }}

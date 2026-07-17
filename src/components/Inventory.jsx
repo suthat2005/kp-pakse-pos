@@ -5116,7 +5116,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="🔍 ພິມເພື່ອຄົ້ນຫາປະເພດບາໂຄ້ດ..."
+                  placeholder={db.getLabel('auto____ພິມເພື່ອຄົ້ນຫາປະເພດບາໂ_pni3jb', `🔍 ພິມເພື່ອຄົ້ນຫາປະເພດບາໂຄ້ດ...`)}
                   value={bulkBarcodeFormatSearch}
                   onChange={(e) => setBulkBarcodeFormatSearch(e.target.value)}
                   style={{ marginBottom: '8px', padding: '6px 10px', height: '34px', fontSize: '0.85rem' }}
