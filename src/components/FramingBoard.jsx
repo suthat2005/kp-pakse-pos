@@ -42,8 +42,18 @@ export default function FramingBoard({
     // Check for newly added jobs in pending status
     const newJobs = jobs.filter(j => j.status === 'pending' && !prevIds.includes(j.id));
     if (newJobs.length > 0 && soundEnabledRef.current) {
-      const audio = new Audio("https://translate.google.com/translate_tts?ie=UTF-8&q=ງານເຂົ້າແລ້ວເດີ&tl=lo&client=tw-ob");
-      audio.play().catch(err => console.error("Error playing job sound alert:", err));
+      if ('speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel(); // clear previous speech queue
+          const text = "ช่างอัดกรอบพระ งานเข้าแล้วเด้อ";
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'th-TH'; // standard Thai language code universally supported
+          utterance.rate = 0.95;    // slightly slower for clarity
+          window.speechSynthesis.speak(utterance);
+        } catch (e) {
+          console.error("Speech Synthesis Error:", e);
+        }
+      }
     }
 
     prevJobsRef.current = currentIds;
