@@ -3167,10 +3167,13 @@ export default function POS({
                           justifyContent: 'center',
                           fontWeight: 'bold',
                           color: statusColor,
-                          fontSize: '1.25rem',
+                          fontSize: slot.label && slot.label.length > 4 ? '0.85rem' : (slot.label && slot.label.length > 3 ? '1rem' : '1.2rem'),
+                          padding: '0 2px',
                           border: `1.5px solid ${statusColor}`,
                           cursor: 'pointer',
-                          flexShrink: 0
+                          flexShrink: 0,
+                          textAlign: 'center',
+                          whiteSpace: 'nowrap'
                         }}
                       >
                         {slot.label === 'Walk-In' ? 'WI' : slot.label}
@@ -7151,17 +7154,7 @@ export default function POS({
         </Portal>
       )}
 
-      {/* Mobile FAB to Add Queue Slot */}
-      {viewMode === 'slots' && (
-        <button 
-          type="button" 
-          className="fab-btn" 
-          onClick={() => setShowAddSlotModal(true)} 
-          title="ເພີ່ມບັດຄິວ (Add Queue)"
-        >
-          ➕
-        </button>
-      )}
+
 
       {/* Deposit Input Dialog Modal - Simplified Amount Entry */}
       {showDepositInputModal && (
