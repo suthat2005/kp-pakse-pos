@@ -2070,7 +2070,17 @@ function getStorage(key, defaultValue) {
       return defaultValue;
     }
     const parsed = JSON.parse(val);
-    const res = (parsed !== null && parsed !== undefined) ? parsed : defaultValue;
+    let res = (parsed !== null && parsed !== undefined) ? parsed : defaultValue;
+    
+    // Enforce type safety to prevent app crashes on corrupted client localStorage
+    if (Array.isArray(defaultValue) && !Array.isArray(res)) {
+      res = defaultValue;
+    } else if (defaultValue !== null && typeof defaultValue === 'object' && !Array.isArray(defaultValue)) {
+      if (res === null || typeof res !== 'object' || Array.isArray(res)) {
+        res = defaultValue;
+      }
+    }
+    
     memoryCache[key] = res;
     return res;
   } catch (e) {

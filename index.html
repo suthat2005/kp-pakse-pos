@@ -2,6 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      window.addEventListener('error', function(e) {
+        if (e.target && (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK')) {
+          var src = e.target.src || e.target.href;
+          if (src && (src.indexOf('index-') !== -1 || src.indexOf('assets/') !== -1)) {
+            console.warn('Failed to load asset, forcing reload:', src);
+            var lastReload = sessionStorage.getItem('last_asset_reload');
+            var now = Date.now();
+            if (!lastReload || now - parseInt(lastReload) > 10000) {
+              sessionStorage.setItem('last_asset_reload', now);
+              window.location.reload(true);
+            }
+          }
+        }
+      }, true);
+    </script>
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/logo.jpg" />
     <link rel="apple-touch-icon-precomposed" href="/logo.jpg" />
