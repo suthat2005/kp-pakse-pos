@@ -451,52 +451,64 @@ export default function App() {
       let matchedKey = null;
       let matchedDefault = '';
 
-      for (const item of DEFAULT_LABEL_KEYS) {
-        const customValue = labels[item.key];
-        const defaultValue = item.defaultValue.trim();
-        
-        const cleanEmoji = (str) => str.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
+      const cleanEmoji = (str) => String(str || '').replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
 
+      // Look up inside renderedLabels map
+      const rendered = window.renderedLabels || {};
+      for (const key of Object.keys(rendered)) {
+        const item = rendered[key];
+        const defaultValue = String(item.defaultValue || '').trim();
+        const customValue = String(item.currentValue || '').trim();
+        
         if (
-          (customValue && customValue.trim() === text) ||
-          defaultValue === text ||
+          text === defaultValue ||
+          text === customValue ||
           cleanEmoji(defaultValue) === text ||
-          (customValue && cleanEmoji(customValue) === text)
+          cleanEmoji(customValue) === text
         ) {
-          matchedKey = item.key;
+          matchedKey = key;
           matchedDefault = item.defaultValue;
           break;
         }
       }
 
-      if (matchedKey) {
-        const currentUser = db.getActiveUser();
-        const settings = db.getSettings();
-        let isAuthorized = currentUser && (currentUser.role === 'owner' || (currentUser.permissions && currentUser.permissions.admin));
-        
-        if (!isAuthorized) {
-          const pin = prompt('🔒 ປ້ອງກັນການແກ້ໄຂ: ກະລຸນາໃສ່ລະຫັດ PIN ຂອງ Admin/ເຈົ້າຂອງຮ້ານ ເພື່ອອະນຸມັດ:');
-          if (!pin) return;
-          const users = db.getUsers();
-          const matchedOwner = users.find(u => u.role === 'owner' && u.passcode === pin);
-          const isMasterPin = pin === settings.masterAdminPin;
-          if (matchedOwner || isMasterPin) {
-            isAuthorized = true;
-          } else {
-            alert('❌ ລະຫັດ PIN ບໍ່ຖືກຕ້ອງ! ທ່ານບໍ່ມີສິດແກ້ໄຂ.');
-            return;
+      // Fallback to DEFAULT_LABEL_KEYS list
+      if (!matchedKey) {
+        for (const item of DEFAULT_LABEL_KEYS) {
+          const customValue = labels[item.key];
+          const defaultValue = item.defaultValue.trim();
+          
+          if (
+            (customValue && customValue.trim() === text) ||
+            defaultValue === text ||
+            cleanEmoji(defaultValue) === text ||
+            (customValue && cleanEmoji(customValue) === text)
+          ) {
+            matchedKey = item.key;
+            matchedDefault = item.defaultValue;
+            break;
           }
         }
+      }
 
-        if (isAuthorized) {
-          const currentVal = labels[matchedKey] || matchedDefault;
-          const newVal = prompt(`ແກ້ໄຂຂໍ້ຄວາມພາສາລາວສຳລັບ [${matchedKey}]:\n\nຄ່າເກົ່າ: "${currentVal}"\n\nປ້ອນຂໍ້ຄວາມໃໝ່ທີ່ຕ້ອງການສະແດງ:`, currentVal);
-          if (newVal !== null) {
-            const updatedLabels = { ...labels, [matchedKey]: newVal };
-            db.saveLabels(updatedLabels);
-            alert(`✓ ແກ້ໄຂຂໍ້ຄວາມສຳເລັດ! ລະບົບຈະໂຫຼດໜ້າຈໍຄືນໃໝ່ເພື່ອປັບປຸງ.`);
-            window.location.reload();
-          }
+      if (matchedKey) {
+        const currentUser = db.getActiveUser();
+        
+        // Strict Authorization: ONLY suthathvs@gmail.com has permission to edit translation texts
+        const isAuthorized = currentUser && currentUser.email && currentUser.email.toLowerCase() === 'suthathvs@gmail.com';
+        
+        if (!isAuthorized) {
+          alert('❌ ທ່ານບໍ່ມີສິດແກ້ໄຂ: ສະເພາະບັນຊີ suthathvs@gmail.com ເທົ່ານັ້ນທີ່ສາມາດແກ້ໄຂຂໍ້ຄວາມພາສາລາວໄດ້.');
+          return;
+        }
+
+        const currentVal = labels[matchedKey] || matchedDefault;
+        const newVal = prompt(`ແກ້ໄຂຂໍ້ຄວາມພາສາລາວສຳລັບ [${matchedKey}]:\n\nຄ່າເກົ່າ: "${currentVal}"\n\nປ້ອນຂໍ້ຄວາມໃໝ່ທີ່ຕ້ອງການສະແດງ:`, currentVal);
+        if (newVal !== null) {
+          const updatedLabels = { ...labels, [matchedKey]: newVal };
+          db.saveLabels(updatedLabels);
+          alert(`✓ ແກ້ໄຂຂໍ້ຄວາມສຳເລັດ! ລະບົບຈະໂຫຼດໜ້າຈໍຄືນໃໝ່ເພື່ອປັບປຸງ.`);
+          window.location.reload();
         }
       }
     };

@@ -2426,9 +2426,15 @@ saveSettings(settings) {
 setStorage('settings', settings);
 },
 getLabel(key, defaultValue) {
-const settings = this.getSettings();
-if (!settings.labels) settings.labels = {};
-const val = settings.labels[key] && settings.labels[key].trim() !== '' ? settings.labels[key] : defaultValue;
+    const settings = this.getSettings();
+    if (!settings.labels) settings.labels = {};
+    const val = settings.labels[key] && settings.labels[key].trim() !== '' ? settings.labels[key] : defaultValue;
+    
+    if (typeof window !== 'undefined') {
+      if (!window.renderedLabels) window.renderedLabels = {};
+      window.renderedLabels[key] = { defaultValue, currentValue: val };
+    }
+
 if (typeof val === 'string') {
   return val.replace(/\\u([0-9a-fA-F]{4})/g, (match, grp) => String.fromCharCode(parseInt(grp, 16)));
 }
