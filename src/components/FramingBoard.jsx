@@ -14,6 +14,40 @@ export default function FramingBoard({
 }) {
   // Notification Modal States
   const [showNotifyModal, setShowNotifyModal] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    try {
+      const saved = localStorage.getItem('framing_sound_enabled');
+      return saved !== 'false';
+    } catch {
+      return true;
+    }
+  });
+
+  const soundEnabledRef = React.useRef(soundEnabled);
+  useEffect(() => {
+    soundEnabledRef.current = soundEnabled;
+    try {
+      localStorage.setItem('framing_sound_enabled', String(soundEnabled));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [soundEnabled]);
+
+  const prevJobsRef = React.useRef(jobs.map(j => j.id));
+
+  useEffect(() => {
+    const currentIds = jobs.map(j => j.id);
+    const prevIds = prevJobsRef.current;
+
+    // Check for newly added jobs in pending status
+    const newJobs = jobs.filter(j => j.status === 'pending' && !prevIds.includes(j.id));
+    if (newJobs.length > 0 && soundEnabledRef.current) {
+      const audio = new Audio("https://translate.google.com/translate_tts?ie=UTF-8&q=ງານເຂົ້າແລ້ວເດີ&tl=lo&client=tw-ob");
+      audio.play().catch(err => console.error("Error playing job sound alert:", err));
+    }
+
+    prevJobsRef.current = currentIds;
+  }, [jobs]);
 
   const hasFramingPermission = (subKey) => {
     if (!activeUser) return false;
@@ -230,10 +264,20 @@ export default function FramingBoard({
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       
       {/* Header */}
-      <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
         <div>
-          <h2 style={{ color: 'var(--gold-primary)' }}>{db.getLabel('framing_board_title', '🛠️ ບອດຈັດການງານອັດກອບ (Framing Dashboard)')}</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>ຕິດຕາມສະຖານະງານເລກບິນ, ເງິນມັດຈຳ, ສື່ສານກັບລູກຄ້າ ແລະ ອັບເດດສະຖານະການເລີຍ</p>
+          <h2 style={{ color: 'var(--gold-primary)', margin: 0 }}>{db.getLabel('framing_board_title', '🛠️ ບອດຈັດການງານອັດກອບ (Framing Dashboard)')}</h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0' }}>ຕິດຕາມສະຖານະງານເລກບິນ, ເງິນມັດຈຳ, ສື່ສານກັບລູກຄ້າ ແລະ ອັບເດດສະຖານະການເລີຍ</p>
+        </div>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', padding: '6px 12px', background: soundEnabled ? 'rgba(46,204,113,0.15)' : 'rgba(231,76,60,0.15)', borderColor: soundEnabled ? '#2ecc71' : '#e74c3c', color: soundEnabled ? '#2ecc71' : '#e74c3c' }}
+          >
+            {soundEnabled ? '🔔 ເປີດສຽງງານເຂົ້າ (Sound ON)' : '🔕 ປິດສຽງງານເຂົ້າ (Sound OFF)'}
+          </button>
         </div>
       </div>
 
