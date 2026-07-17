@@ -1274,16 +1274,18 @@ export default function App() {
             >
               ☰
             </button>
-            <span className="active-route-name" style={isMobile ? { fontSize: '0.85rem', whiteSpace: 'nowrap', maxWidth: '85px', overflow: 'hidden', textOverflow: 'ellipsis' } : {}}>
-              {activeTab === 'dashboard' && (isMobile ? 'ພາບລວມ' : '🏠 ພາບລວມທຸລະກິດ (Dashboard)')}
-              {activeTab === 'pos' && (isMobile ? 'POS' : '💵 ຂາຍໜ້າຮ້ານ (POS)')}
-              {activeTab === 'framing_board' && (isMobile ? 'ງານອັດກອບ' : '🛠️ ບອດງານອັດກອບ (Framing Board)')}
-              {activeTab === 'inventory' && (isMobile ? 'ສະຕັອກ' : '📦 ຈັດການສະຕັອກ & ວັດຖຸດິບ (Inventory)')}
-              {activeTab === 'hrm' && (isMobile ? 'HRM' : '👥 ຈັດການບຸກຄະລາກອນ & ເງິນເດືອນ (HRM)')}
-              {activeTab === 'reports' && (isMobile ? 'ລາຍງານ' : '📊 ບົດລາຍງານຍອດຂາຍ & ລາຍຈ່າຍ (Reports)')}
-              {activeTab === 'debts' && (isMobile ? 'ຕິດໜີ້' : '📒 ບັນຊີລູກຄ້າຕິດໜີ້ (Debts)')}
-              {activeTab === 'ai' && 'CCTV AI'}
-              {activeTab === 'settings' && (isMobile ? 'ຕັ້ງຄ່າ' : '⚙️ ຕັ້ງຄ່າລະບົບ (Settings)')}
+            <span className="active-route-name" style={isMobile ? { fontSize: '0.85rem', whiteSpace: 'nowrap', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis' } : {}}>
+              {activeTab === 'dashboard' && db.getLabel('tab_dashboard', '🏠 ພາບລວມ (Dashboard)')}
+              {activeTab === 'pos' && db.getLabel('tab_pos', '💵 ຂາຍໜ້າຮ້ານ (POS)')}
+              {activeTab === 'framing_board' && db.getLabel('tab_framing', '🛠️ ບອດງານອັດກອບ (Framing Board)')}
+              {activeTab === 'inventory' && db.getLabel('tab_inventory', '📦 ສະຕັອກ (Inventory)')}
+              {activeTab === 'hrm' && db.getLabel('tab_hrm', '👥 ຈັດການບຸກຄະລາກອນ (HRM)')}
+              {activeTab === 'reports' && db.getLabel('tab_reports', '📊 ລາຍງານ (Reports)')}
+              {activeTab === 'debts' && db.getLabel('tab_debts', '📒 ບັນຊີຕິດໜີ້ (Debts)')}
+              {activeTab === 'online_orders' && db.getLabel('tab_online_orders', '🛒 ອໍເດີ້ອອນລາຍ (Online Orders)')}
+              {activeTab === 'customers' && db.getLabel('tab_customers', '💳 ສະມາຊິກ (Members)')}
+              {activeTab === 'ai' && db.getLabel('tab_ai', '🤖 ລະບົບ AI')}
+              {activeTab === 'settings' && db.getLabel('tab_settings', '⚙️ ຕັ້ງຄ່າ (Settings)')}
             </span>
 
             {/* Connection Status Badge */}
