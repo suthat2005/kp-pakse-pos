@@ -1091,7 +1091,7 @@ export default function App() {
             </div>
           )}
                     {/* 0. Dashboard */}
-          {hasPermission(activeUser, 'dashboard') && !isMobile && (
+          {hasPermission(activeUser, 'dashboard') && (
             <button
               type="button"
               className={`sidebar-item ${activeTab === 'dashboard' ? 'active' : ''}`}
@@ -1103,7 +1103,7 @@ export default function App() {
           )}
 
                     {/* 1. Reports */}
-          {hasPermission(activeUser, 'reports') && !isMobile && (
+          {hasPermission(activeUser, 'reports') && (
             <button
               type="button"
               className={`sidebar-item ${activeTab === 'reports' ? 'active' : ''}`}
@@ -1115,7 +1115,7 @@ export default function App() {
           )}
 
           {/* 2. POS */}
-          {hasPermission(activeUser, 'pos') && !isMobile && (
+          {hasPermission(activeUser, 'pos') && (
             <button
               type="button"
               className={`sidebar-item ${activeTab === 'pos' ? 'active' : ''}`}
@@ -1131,7 +1131,7 @@ export default function App() {
           )}
 
           {/* 2b. Framing Board */}
-          {hasPermission(activeUser, 'framing_board') && !isMobile && (
+          {hasPermission(activeUser, 'framing_board') && (
             <button
               type="button"
               className={`sidebar-item ${activeTab === 'framing_board' ? 'active' : ''}`}
@@ -1147,7 +1147,7 @@ export default function App() {
           )}
 
           {/* 3. Online Orders */}
-          {(activeUser.role === 'owner' || activeUser.role === 'manager') && !isMobile && (
+          {(activeUser.role === 'owner' || activeUser.role === 'manager') && (
             <button
               type="button"
               className={`sidebar-item ${activeTab === 'online_orders' ? 'active' : ''}`}
@@ -1179,7 +1179,7 @@ export default function App() {
           )}
 
           {/* 4. Inventory */}
-          {hasPermission(activeUser, 'inventory') && !isMobile && (
+          {hasPermission(activeUser, 'inventory') && (
             <button
               type="button"
               className={`sidebar-item ${activeTab === 'inventory' ? 'active' : ''}`}
@@ -1191,7 +1191,7 @@ export default function App() {
           )}
 
           {/* 5. Debts */}
-          {hasPermission(activeUser, 'debts') && !isMobile && (
+          {hasPermission(activeUser, 'debts') && (
             <button
               type="button"
               className={`sidebar-item ${activeTab === 'debts' ? 'active' : ''}`}
@@ -1239,7 +1239,7 @@ export default function App() {
           )}
 
           {/* 9. Settings */}
-          {hasPermission(activeUser, 'settings') && !isMobile && (
+          {hasPermission(activeUser, 'settings') && (
             <button
               type="button"
               className={`sidebar-item ${activeTab === 'settings' ? 'active' : ''}`}
@@ -2298,149 +2298,7 @@ export default function App() {
       )}
 
       {/* Bottom Navigation for Mobile */}
-      {activeUser && (
-        <nav className="bottom-nav">
-          {hasPermission(activeUser, 'dashboard') && (
-            <button
-              type="button"
-              className={`bottom-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
-              onClick={() => setActiveTab('dashboard')}
-            >
-              <span className="bottom-nav-icon">🏠</span>
-              <span>Dashboard</span>
-            </button>
-          )}
-
-          {hasPermission(activeUser, 'pos') && (
-            <button
-              type="button"
-              className={`bottom-nav-item ${activeTab === 'pos' ? 'active' : ''}`}
-              onClick={() => setActiveTab('pos')}
-            >
-              <span className="bottom-nav-icon">💵</span>
-              <span>POS</span>
-            </button>
-          )}
-
-          {hasPermission(activeUser, 'framing_board') && (
-            <button
-              type="button"
-              className={`bottom-nav-item ${activeTab === 'framing_board' ? 'active' : ''}`}
-              onClick={() => setActiveTab('framing_board')}
-            >
-              <span className="bottom-nav-icon">🛠️</span>
-              <span>Framing</span>
-            </button>
-          )}
-
-          {hasPermission(activeUser, 'inventory') && (
-            <button
-              type="button"
-              className={`bottom-nav-item ${activeTab === 'inventory' ? 'active' : ''}`}
-              onClick={() => setActiveTab('inventory')}
-            >
-              <span className="bottom-nav-icon">📦</span>
-              <span>Stock</span>
-            </button>
-          )}
-
-          {hasPermission(activeUser, 'reports') && (
-            <button
-              type="button"
-              className={`bottom-nav-item ${activeTab === 'reports' ? 'active' : ''}`}
-              onClick={() => setActiveTab('reports')}
-            >
-              <span className="bottom-nav-icon">📊</span>
-              <span>Reports</span>
-            </button>
-          )}
-
-          {hasPermission(activeUser, 'online_orders') && (
-            <button
-              type="button"
-              className={`bottom-nav-item ${activeTab === 'online_orders' ? 'active' : ''}`}
-              onClick={() => setActiveTab('online_orders')}
-              style={{ position: 'relative' }}
-            >
-              <span className="bottom-nav-icon">🛒</span>
-              <span>Orders</span>
-              {unreadChatCount > 0 && (
-                <span 
-                  style={{
-                    position: 'absolute',
-                    top: '2px',
-                    right: '15px',
-                    background: 'var(--alert-red)',
-                    color: 'white',
-                    borderRadius: '999px',
-                    padding: '1px 5px',
-                    fontSize: '0.65rem',
-                    fontWeight: 'bold',
-                    boxShadow: '0 0 5px rgba(231,76,60,0.5)'
-                  }}
-                >
-                  {unreadChatCount}
-                </span>
-              )}
-            </button>
-          )}
-
-          {hasPermission(activeUser, 'debts') && (
-            <button
-              type="button"
-              className={`bottom-nav-item ${activeTab === 'debts' ? 'active' : ''}`}
-              onClick={() => setActiveTab('debts')}
-            >
-              <span className="bottom-nav-icon">📒</span>
-              <span>Debts</span>
-            </button>
-          )}
-
-          {hasPermission(activeUser, 'customers') && (
-            <button
-              type="button"
-              className={`bottom-nav-item ${activeTab === 'customers' ? 'active' : ''}`}
-              onClick={() => setActiveTab('customers')}
-            >
-              <span className="bottom-nav-icon">👥</span>
-              <span>Members</span>
-            </button>
-          )}
-
-          {hasPermission(activeUser, 'hrm') && (
-            <button
-              type="button"
-              className={`bottom-nav-item ${activeTab === 'hrm' ? 'active' : ''}`}
-              onClick={() => setActiveTab('hrm')}
-            >
-              <span className="bottom-nav-icon">👥</span>
-              <span>HRM</span>
-            </button>
-          )}
-
-          {hasPermission(activeUser, 'ai') && (
-            <button
-              type="button"
-              className={`bottom-nav-item ${activeTab === 'ai' ? 'active' : ''}`}
-              onClick={() => setActiveTab('ai')}
-            >
-              <span className="bottom-nav-icon">🤖</span>
-              <span>AI</span>
-            </button>
-          )}
-
-          {hasPermission(activeUser, 'settings') && (
-            <button
-              type="button"
-              className={`bottom-nav-item ${activeTab === 'settings' ? 'active' : ''}`}
-              onClick={() => setActiveTab('settings')}
-            >
-              <span className="bottom-nav-icon">⚙️</span>
-              <span>Settings</span>
-            </button>
-          )}
-        </nav>
-      )}
+      
 
       {/* Toast Notifications Container */}
       <div 
