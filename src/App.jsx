@@ -440,6 +440,12 @@ export default function App() {
   // Global Double Click Translation listener
   useEffect(() => {
     const handleGlobalDoubleClick = (e) => {
+      // Strict Authorization: ONLY suthathvs@gmail.com has permission to edit translation texts.
+      // Other accounts will return silently with absolutely no popup or alert message.
+      const currentUser = db.getActiveUser();
+      const isAuthorized = currentUser && currentUser.email && currentUser.email.toLowerCase() === 'suthathvs@gmail.com';
+      if (!isAuthorized) return;
+
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
       
       const text = e.target.textContent ? e.target.textContent.trim() : '';
@@ -492,16 +498,6 @@ export default function App() {
       }
 
       if (matchedKey) {
-        const currentUser = db.getActiveUser();
-        
-        // Strict Authorization: ONLY suthathvs@gmail.com has permission to edit translation texts
-        const isAuthorized = currentUser && currentUser.email && currentUser.email.toLowerCase() === 'suthathvs@gmail.com';
-        
-        if (!isAuthorized) {
-          alert('❌ ທ່ານບໍ່ມີສິດແກ້ໄຂ: ສະເພາະບັນຊີ suthathvs@gmail.com ເທົ່ານັ້ນທີ່ສາມາດແກ້ໄຂຂໍ້ຄວາມພາສາລາວໄດ້.');
-          return;
-        }
-
         const currentVal = labels[matchedKey] || matchedDefault;
         const newVal = prompt(`ແກ້ໄຂຂໍ້ຄວາມພາສາລາວສຳລັບ [${matchedKey}]:\n\nຄ່າເກົ່າ: "${currentVal}"\n\nປ້ອນຂໍ້ຄວາມໃໝ່ທີ່ຕ້ອງການສະແດງ:`, currentVal);
         if (newVal !== null) {
