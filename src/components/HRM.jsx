@@ -79,6 +79,7 @@ export default function HRM({ activeUser, onUpdate }) {
     if (!activeUser) return false;
     if (activeUser.role === 'owner') return true;
     if (activeUser.permissions?.admin) return true;
+    if (activeUser.permissions?.hrm) return true;
     return !!activeUser.permissions?.[subKey];
   };
   const [activeSubTab, setActiveSubTab] = useState('employees'); // employees | shifts | attendance | leaves | payroll
@@ -455,7 +456,7 @@ export default function HRM({ activeUser, onUpdate }) {
     if (!user) return;
     
     // Get month logs
-    const userLogs = attendanceLogs.filter(l => l.userId === user.id && l.date.startsWith(payrollRecord.month));
+    const userLogs = attendanceLogs.filter(l => l.userId === user.id && l.date && typeof l.date === 'string' && l.date.startsWith(payrollRecord.month));
     const totalDays = userLogs.filter(l => l.status === 'present' || l.status === 'late').length;
     const totalHours = userLogs.reduce((sum, l) => sum + (l.workHours || 0), 0);
     const totalOtHours = userLogs.reduce((sum, l) => sum + (l.otHours || 0), 0);

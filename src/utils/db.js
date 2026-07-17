@@ -4690,7 +4690,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     setStorage('payrolls', payrolls);
   },
   calculatePayrollForUser(userId, month) {
-    const attendance = this.getAttendance().filter(l => l.userId === userId && l.date.startsWith(month));
+    const attendance = this.getAttendance().filter(l => l.userId === userId && l.date && typeof l.date === 'string' && l.date.startsWith(month));
     const users = this.getUsers();
     const user = users.find(u => u.id === userId);
     if (!user) return null;
@@ -4777,7 +4777,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     });
 
     // Leaves calculation
-    const leaves = this.getLeaves().filter(l => l.userId === userId && l.status === 'approved' && l.startDate.startsWith(month));
+    const leaves = this.getLeaves().filter(l => l.userId === userId && l.status === 'approved' && l.startDate && typeof l.startDate === 'string' && l.startDate.startsWith(month));
     
     // Count days for each type of leave
     let vacationDays = 0;

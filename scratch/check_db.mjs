@@ -1,40 +1,42 @@
-import { initializeApp, cert } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
 import fs from 'fs';
 import path from 'path';
 
-const keyPath = path.resolve('./suthat-eb36a-firebase-adminsdk-fbsvc-72a3d762c4.json');
+const dbPath = path.resolve('./db_shared.json');
 
-if (fs.existsSync(keyPath)) {
-  try {
-    const serviceAccount = JSON.parse(fs.readFileSync(keyPath, 'utf8'));
-    initializeApp({
-      credential: cert(serviceAccount)
-    });
-    const db = getFirestore();
-    console.log("Firestore initialized successfully!");
-    
-    // Check db_shared collection
-    db.collection('db_shared').get().then(snapshot => {
-      console.log("db_shared collection documents count:", snapshot.size);
-      snapshot.forEach(doc => {
-        console.log(`Document ID: ${doc.id}`);
-        const data = doc.data();
-        if (data) {
-          console.log(`- Keys in doc ${doc.id}:`, Object.keys(data));
-          // If the document contains database keys
-          for (const [k, v] of Object.entries(data)) {
-            console.log(`  * ${k}: size/length:`, JSON.stringify(v).length);
-          }
-        }
-      });
-    }).catch(err => {
-      console.error("Error reading db_shared collection:", err);
-    });
+if (fs.existsSync(dbPath)) {
+  const db = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+  
+  // Check attendance
+  const attendance = db.attendance ? db.attendance.data || [] : [];
+  console.log(`Total attendance logs: ${attendance.length}`);
+  
+  let corrupted = 0;
+  attendance.forEach((rec, idx) => {
+    if (!rec.date) {
+      console.log(`Corrupted record at index ${idx}: missing date!`, rec);
+      corrupted++;
+    }
+    if (!rec.userId) {
+      console.log(`Corrupted record at index ${idx}: missing userId!`, rec);
+      corrupted++;
+    }
+  });
+  
+  // Check leaves
+  const leaves = db.leaves ? db.leaves.data || [] : [];
+  console.log(`Total leaves logs: ${leaves.length}`);
+  leaves.forEach((rec, idx) => {
+    if (!rec.startDate) {
+      console.log(`Corrupted leave record at index ${idx}: missing startDate!`, rec);
+      corrupted++;
+    }
+    if (!rec.endDate) {
+      console.log(`Corrupted leave record at index ${idx}: missing endDate!`, rec);
+      corrupted++;
+    }
+  });
 
-  } catch (e) {
-    console.error("Initialization error:", e);
-  }
+  console.log(`Inspection completed. Corrupted records found: ${corrupted}`);
 } else {
-  console.log("Firebase key file not found");
+  console.log('db_shared.json not found!');
 }
