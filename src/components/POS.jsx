@@ -3562,39 +3562,41 @@ export default function POS({
           {/* Left Panel: Category selection list + Product cards grid (Image 1 style) */}
           <div className="products-panel" style={{ height: '100%' }}>
             
-            <div className="pos-search-bar" style={{ padding: '12px 16px', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', display: 'flex' }}>
+            <div className="pos-search-bar" style={{ padding: isMobile ? '8px 10px' : '12px 16px', alignItems: 'center', gap: '8px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', display: 'flex' }}>
               
               {/* Back to Queue Grid button */}
               <button
                 type="button"
                 className="btn"
-                style={{ background: 'var(--accent-amber)', color: 'black', padding: '8px 16px', fontSize: '0.85rem', fontWeight: 'bold', border: 'none', borderRadius: 'var(--radius-sm)' }}
+                style={{ background: 'var(--accent-amber)', color: 'black', padding: isMobile ? '8px 10px' : '8px 16px', fontSize: '0.82rem', fontWeight: 'bold', border: 'none', borderRadius: 'var(--radius-sm)', whiteSpace: 'nowrap' }}
                 onClick={() => setViewMode('slots')}
               >
-                ⬅️ ບັດຄິວ (Queue)
+                {isMobile ? '⬅️ ຄິວ' : '⬅️ ບັດຄິວ (Queue)'}
               </button>
 
               <div style={{ position: 'relative', flex: 1 }}>
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="ຄົ້ນຫາສິນຄ້າ ຫຼື ສະແກນບາໂຄດ..."
+                  placeholder={isMobile ? "ຄົ້ນຫາ..." : "ຄົ້ນຫາສິນຄ້າ ຫຼື ສະແກນບາໂຄດ..."}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{ width: '100%', paddingLeft: '38px', height: '40px', background: 'var(--bg-main)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', borderRadius: 'var(--radius-sm)' }}
+                  style={{ width: '100%', paddingLeft: '32px', height: '36px', background: 'var(--bg-main)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem' }}
                 />
-                <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>🔍</span>
+                <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>🔍</span>
               </div>
               
               {/* Barcode scanner status indicator */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '20px', background: 'rgba(46, 204, 113, 0.08)', border: '1px solid rgba(46, 204, 113, 0.2)', fontSize: '0.72rem', color: 'var(--success-green)', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                <span className="pulse-dot-online" style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--success-green)', display: 'inline-block' }} />
-                <span>ສະແກນເນີພ້ອມແລ້ວ (Scanner Connected)</span>
-              </div>
+              {!isMobile && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '20px', background: 'rgba(46, 204, 113, 0.08)', border: '1px solid rgba(46, 204, 113, 0.2)', fontSize: '0.72rem', color: 'var(--success-green)', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                  <span className="pulse-dot-online" style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--success-green)', display: 'inline-block' }} />
+                  <span>ສະແກນເນີພ້ອມແລ້ວ (Scanner Connected)</span>
+                </div>
+              )}
             </div>
 
             {/* Categories selector */}
-            <div className="category-tabs" style={{ marginBottom: '8px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <div className="category-tabs" style={{ marginBottom: '8px' }}>
               {[
                 { id: 'all', name: db.getLabel('cat_all', 'ທັງໝົດ') },
                 ...categories.map(cat => ({
@@ -7144,14 +7146,16 @@ export default function POS({
       )}
 
       {/* Mobile FAB to Add Queue Slot */}
-      <button 
-        type="button" 
-        className="fab-btn" 
-        onClick={() => setShowAddSlotModal(true)} 
-        title="ເພີ່ມບັດຄິວ (Add Queue)"
-      >
-        ➕
-      </button>
+      {viewMode === 'slots' && (
+        <button 
+          type="button" 
+          className="fab-btn" 
+          onClick={() => setShowAddSlotModal(true)} 
+          title="ເພີ່ມບັດຄິວ (Add Queue)"
+        >
+          ➕
+        </button>
+      )}
 
       {/* Deposit Input Dialog Modal - Simplified Amount Entry */}
       {showDepositInputModal && (
