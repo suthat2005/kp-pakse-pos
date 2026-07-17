@@ -2447,6 +2447,20 @@ settings.labels = {
 ...labelsObj
 };
 this.saveSettings(settings);
+// Immediately push updated settings (including labels) to server
+// so that server sync cannot pull back stale labels on next page load
+try {
+  const now = Date.now();
+  localStorage.setItem('amulet_pos_ts_settings', String(now));
+  const baseUrl = window.location.protocol + '//' + window.location.host;
+  fetch(`${baseUrl}/api/db/save`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key: 'settings', data: settings, updatedAt: now })
+  }).catch(err => console.warn('Label sync push failed (offline):', err));
+} catch (e) {
+  console.warn('saveLabels sync push error:', e);
+}
 },
   getPaperPrintWidths(widthSetting) {
     const mapping = {
