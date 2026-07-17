@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const bundlePath = 'file://' + path.resolve(__dirname, '../dist/assets/index-BBXllJrP.js').replace(/\\/g, '/');
+const bundlePath = 'file://' + path.resolve(__dirname, '../dist/assets/index-D9lVHB93.js').replace(/\\/g, '/');
 
 // Mock browser globals
 global.window = {
