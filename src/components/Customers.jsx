@@ -100,12 +100,12 @@ function CustomerModal({ show, editingCust, onClose, onSave }) {
                 <input type="text" className="form-control" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="020XXXXXXXX" style={inputStyle} />
               </div>
               <div className="form-group">
-                <label className="form-label">Email (ອີເມວ)</label>
+                <label className="form-label">{db.getLabel('auto_Email__ອີເມວ__aa0jwx', `Email (ອີເມວ)`)}</label>
                 <input type="email" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="example@gmail.com" style={inputStyle} />
               </div>
               <div className="form-group">
                 <label className="form-label">{db.getLabel('auto_ລະຫັດຜ່ານ__Password____j9g52e', `ລະຫັດຜ່ານ (Password) *`)}</label>
-                <input type="text" className="form-control" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="ປ້ອນລະຫັດຜ່ານ..." style={inputStyle} />
+                <input type="text" className="form-control" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder={db.getLabel('auto_ປ້ອນລະຫັດຜ່ານ____c4estq', `ປ້ອນລະຫັດຜ່ານ...`)} style={inputStyle} />
               </div>
             </div>
 
@@ -137,7 +137,7 @@ function CustomerModal({ show, editingCust, onClose, onSave }) {
             </div>
 
             <div className="form-group">
-              <label className="form-label">💎 ຄະແນນສະສົມ (Loyalty Points)</label>
+              <label className="form-label">{db.getLabel('auto____ຄະແນນສະສົມ__Loyalty_Po_no06u8', `💎 ຄະແນນສະສົມ (Loyalty Points)`)}</label>
               <input type="number" className="form-control" value={points} onChange={(e) => setPoints(e.target.value)} placeholder="0" style={inputStyle} />
               <div style={{ fontSize: '0.68rem', color: '#888', marginTop: '4px' }}>{db.getLabel('auto_ໄດ້ຮັບ_1_ຄະແນນ_ຕໍ່ການຊື້__ud5dse', `ໄດ້ຮັບ 1 ຄະແນນ ຕໍ່ການຊື້ 10,000 ₭ • ແລກ 1 ຄະແນນ = 100 ₭ (ແກ້ໄຂດ້ວຍມືເພື່ອປັບປ່ຽນ)`)}</div>
             </div>
@@ -156,7 +156,7 @@ function CustomerModal({ show, editingCust, onClose, onSave }) {
             </div>
             <div className="form-group">
               <label className="form-label">{db.getLabel('auto_ບ້ານ__Village__2ijkaj', `ບ້ານ (Village)`)}</label>
-              <input type="text" className="form-control" value={village} onChange={(e) => setVillage(e.target.value)} placeholder="ບ້ານ..." style={inputStyle} />
+              <input type="text" className="form-control" value={village} onChange={(e) => setVillage(e.target.value)} placeholder={db.getLabel('auto_ບ້ານ____xxmd3s', `ບ້ານ...`)} style={inputStyle} />
             </div>
             <div className="form-group">
               <label className="form-label">{db.getLabel('auto_ລາຍລະອຽດທີ່ຢູ່ເພີ່ມເຕີມ_85nqhb', `ລາຍລະອຽດທີ່ຢູ່ເພີ່ມເຕີມ`)}</label>
@@ -164,13 +164,13 @@ function CustomerModal({ show, editingCust, onClose, onSave }) {
             </div>
             <div className="form-group">
               <label className="form-label">{db.getLabel('auto_ໝາຍເຫດເຖິງຂົນສົ່ງ_hn885y', `ໝາຍເຫດເຖິງຂົນສົ່ງ`)}</label>
-              <input type="text" className="form-control" value={addrNotes} onChange={(e) => setAddrNotes(e.target.value)} placeholder="ຝາກຂົນສົ່ງອະນຸສິດ, HAL..." style={inputStyle} />
+              <input type="text" className="form-control" value={addrNotes} onChange={(e) => setAddrNotes(e.target.value)} placeholder={db.getLabel('auto_ຝາກຂົນສົ່ງອະນຸສິດ__HAL____24ysbx', `ຝາກຂົນສົ່ງອະນຸສິດ, HAL...`)} style={inputStyle} />
             </div>
 
           </div>
           <div className="modal-footer">
             <button type="button" className="btn btn-secondary" onClick={onClose}>{db.getLabel('auto_ປິດ___Cancel_zeu6ts', `ປິດ / Cancel`)}</button>
-            <button type="submit" className="btn btn-primary">💾 ບັນທຶກຂໍ້ມູນ</button>
+            <button type="submit" className="btn btn-primary">{db.getLabel('auto____ບັນທຶກຂໍ້ມູນ_rlv5ni', `💾 ບັນທຶກຂໍ້ມູນ`)}</button>
           </div>
         </form>
       </div>
@@ -379,7 +379,7 @@ function CustomerDetailModal({ show, customer, onClose }) {
                 <p style={{ textAlign: 'center', color: '#666', fontSize: '0.8rem', padding: '24px' }}>{db.getLabel('auto_ບໍ່ມີຂໍ້ມູນທີ່ຢູ່ຈັດສົ່ງ_couia0', `ບໍ່ມີຂໍ້ມູນທີ່ຢູ່ຈັດສົ່ງ`)}</p>
               ) : customer.addresses.map((addr, idx) => (
                 <div key={idx} style={{ padding: '12px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '8px', fontSize: '0.8rem', lineHeight: '1.6' }}>
-                  {addr.isDefault && <span style={{ background: 'rgba(212,175,55,0.15)', color: 'var(--gold-primary)', padding: '1px 8px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 'bold', marginBottom: '6px', display: 'inline-block' }}>⭐ ທີ່ຢູ່ຫຼັກ</span>}
+                  {addr.isDefault && <span style={{ background: 'rgba(212,175,55,0.15)', color: 'var(--gold-primary)', padding: '1px 8px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 'bold', marginBottom: '6px', display: 'inline-block' }}>{db.getLabel('auto___ທີ່ຢູ່ຫຼັກ_2gkjjs', `⭐ ທີ່ຢູ່ຫຼັກ`)}</span>}
                   {typeof addr === 'object' ? (
                     <div>
                       {addr.recipientName && <div><b>{db.getLabel('auto_ຊື່ຜູ້ຮັບ__lsjnak', `ຊື່ຜູ້ຮັບ:`)}</b> {addr.recipientName}</div>}

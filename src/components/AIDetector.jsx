@@ -824,8 +824,8 @@ export default function AIDetector({ activeUser }) {
       
       {/* Header */}
       <div>
-        <h2 style={{ color: 'var(--gold-primary)' }}>🤖 ລະບົບ AI ອັດສະລິຍະ (AI Assistant & Scanner)</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>AI ວິເຄາະຮູບຊົງພຣະເຄື່ອງ, ຄາດການສະຖິຕິຮ້ານ, ແລະ ກວດສອບຄວາມສ່ຽງຖືກໂກງຂອງພະນັກງານຂາຍ</p>
+        <h2 style={{ color: 'var(--gold-primary)' }}>{db.getLabel('auto____ລະບົບ_AI_ອັດສະລິຍະ__AI_n62zjn', `🤖 ລະບົບ AI ອັດສະລິຍະ (AI Assistant & Scanner)`)}</h2>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{db.getLabel('auto_AI_ວິເຄາະຮູບຊົງພຣະເຄື່ອງ__6lnno', `AI ວິເຄາະຮູບຊົງພຣະເຄື່ອງ, ຄາດການສະຖິຕິຮ້ານ, ແລະ ກວດສອບຄວາມສ່ຽງຖືກໂກງຂອງພະນັກງານຂາຍ`)}</p>
       </div>
 
       {/* Main Tabs */}
@@ -1010,7 +1010,7 @@ export default function AIDetector({ activeUser }) {
             {/* AI Scan Output Result */}
             {scanResult && !scanning && (
               <div className="animate-fade-in" style={{ background: 'rgba(212, 175, 55, 0.05)', border: '1.5px solid var(--gold-primary)', padding: '16px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.95rem', fontWeight: 'bold', margin: 0 }}>✓ ຜົນການວິເຄາະໂດຍ AI (AI Analysis Complete)</h4>
+                <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.95rem', fontWeight: 'bold', margin: 0 }}>{db.getLabel('auto___ຜົນການວິເຄາະໂດຍ_AI__AI__bjxth7', `✓ ຜົນການວິເຄາະໂດຍ AI (AI Analysis Complete)`)}</h4>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', fontSize: '0.85rem', rowGap: '8px' }}>
                   <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຊື່ພຣະເຄື່ອງ__mt0h2z', `ຊື່ພຣະເຄື່ອງ:`)}</span>
@@ -1207,7 +1207,7 @@ export default function AIDetector({ activeUser }) {
               {reAnalyzing ? (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 0' }}>
                   <div className="spinner" style={{ width: '60px', height: '60px', border: '4px solid rgba(255,255,255,0.1)', borderTopColor: 'var(--gold-primary)', borderRadius: '50%', animation: 'spin 1s infinite linear' }}></div>
-                  <p style={{ marginTop: '16px', color: 'var(--gold-primary)', fontWeight: 'bold' }}>AI ກຳລັງກວດສອບບັນທຶກຄວາມຜິດປົກກະຕິ...</p>
+                  <p style={{ marginTop: '16px', color: 'var(--gold-primary)', fontWeight: 'bold' }}>{db.getLabel('auto_AI_ກຳລັງກວດສອບບັນທຶກຄວາມຜ_269m3z', `AI ກຳລັງກວດສອບບັນທຶກຄວາມຜິດປົກກະຕິ...`)}</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '40px', padding: '16px 0', width: '100%', justifyContent: 'space-around' }}>
@@ -1246,21 +1246,21 @@ export default function AIDetector({ activeUser }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', maxHeight: '200px' }}>
                 {stats.pinFails > 0 && (
                   <div style={{ background: 'rgba(231, 76, 60, 0.08)', border: '1px solid rgba(231, 76, 60, 0.2)', borderLeft: '4px solid var(--alert-red)', padding: '10px', borderRadius: '6px', fontSize: '0.8rem' }}>
-                    <div style={{ color: 'var(--alert-red)', fontWeight: 'bold', marginBottom: '2px' }}>⚠️ ພະຍາຍາມລົບສິນຄ້າໂດຍໃສ່ PIN ຜິດ ({stats.pinFails} {db.getLabel('auto_ຄັ້ງ__ccynr6', `ຄັ້ງ)`)}</div>
+                    <div style={{ color: 'var(--alert-red)', fontWeight: 'bold', marginBottom: '2px' }}>{db.getLabel('auto____ພະຍາຍາມລົບສິນຄ້າໂດຍໃສ່_z9dtxv', `⚠️ ພະຍາຍາມລົບສິນຄ້າໂດຍໃສ່ PIN ຜິດ (`)}{stats.pinFails} {db.getLabel('auto_ຄັ້ງ__ccynr6', `ຄັ້ງ)`)}</div>
                     <p style={{ color: 'var(--text-primary)' }}>{db.getLabel('auto_ພະນັກງານພະຍາຍາມລົບລາຍການສ_w20go2', `ພະນັກງານພະຍາຍາມລົບລາຍການສິນຄ້າອອກຈາກບິນ ແຕ່ໃສ່ລະຫັດແອດມິນບໍ່ຖືກຕ້ອງ. ຄວນກວດສອບວ່າມີການພະຍາຍາມແກ້ໄຂບິນເພື່ອໂກງເງິນລູກຄ້າຫຼືບໍ່.`)}</p>
                   </div>
                 )}
 
                 {stats.manualDrawers > 0 && (
                   <div style={{ background: 'rgba(231, 76, 60, 0.08)', border: '1px solid rgba(231, 76, 60, 0.2)', borderLeft: '4px solid var(--alert-red)', padding: '10px', borderRadius: '6px', fontSize: '0.8rem' }}>
-                    <div style={{ color: 'var(--alert-red)', fontWeight: 'bold', marginBottom: '2px' }}>🚨 ເປີດລິ້ນຊັກເປີດດ້ວຍມື ({stats.manualDrawers} {db.getLabel('auto_ຄັ້ງ__ccynr6', `ຄັ້ງ)`)}</div>
+                    <div style={{ color: 'var(--alert-red)', fontWeight: 'bold', marginBottom: '2px' }}>{db.getLabel('auto____ເປີດລິ້ນຊັກເປີດດ້ວຍມື__n76a1r', `🚨 ເປີດລິ້ນຊັກເປີດດ້ວຍມື (`)}{stats.manualDrawers} {db.getLabel('auto_ຄັ້ງ__ccynr6', `ຄັ້ງ)`)}</div>
                     <p style={{ color: 'var(--text-primary)' }}>{db.getLabel('auto_ມີການເປີດລິ້ນຊັກເກັບເງິນດ_288l2h', `ມີການເປີດລິ້ນຊັກເກັບເງິນດ້ວຍມືໂດຍບໍ່ໄດ້ເກີດຈາກການຂາຍ/ອອກບິນສົດ (Manual release). ລະບົບ AI ແນະນຳໃຫ້ກວດສອບກ້ອງວົງຈອນປິດຕາມເວລາໃນບັນທຶກ.`)}</p>
                   </div>
                 )}
 
                 {stats.discounts > 0 && (
                   <div style={{ background: 'rgba(243, 156, 18, 0.08)', border: '1px solid rgba(243, 156, 18, 0.2)', borderLeft: '4px solid var(--accent-amber)', padding: '10px', borderRadius: '6px', fontSize: '0.8rem' }}>
-                    <div style={{ color: 'var(--accent-amber)', fontWeight: 'bold', marginBottom: '2px' }}>💡 ມີການໃຊ້ສ່ວນຫຼຸດພິເສດ ({stats.discounts} {db.getLabel('auto_ຄັ້ງ__ccynr6', `ຄັ້ງ)`)}</div>
+                    <div style={{ color: 'var(--accent-amber)', fontWeight: 'bold', marginBottom: '2px' }}>{db.getLabel('auto____ມີການໃຊ້ສ່ວນຫຼຸດພິເສດ__jmjh2j', `💡 ມີການໃຊ້ສ່ວນຫຼຸດພິເສດ (`)}{stats.discounts} {db.getLabel('auto_ຄັ້ງ__ccynr6', `ຄັ້ງ)`)}</div>
                     <p style={{ color: 'var(--text-primary)' }}>{db.getLabel('auto_ມີການກົດໃຫ້ສ່ວນຫຼຸດ_____ກ_6olf9g', `ມີການກົດໃຫ້ສ່ວນຫຼຸດ (%) ກັບລູກຄ້າ. ໃຫ້ແນ່ໃຈວ່າເປັນໂປຣໂມຊັ່ນຂອງທາງຮ້ານ ແລະ ບໍ່ແມ່ນການຕັ້ງສ່ວນຫຼຸດເອງຂອງພະນັກງານຂາຍ.`)}</p>
                   </div>
                 )}

@@ -732,13 +732,13 @@ export default function FramingBoard({
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content modal-sm animate-fade-in">
             <div className="modal-header">
-              <span className="modal-title">🔔 ແຈ້ງເຕືອນລູກຄ້າ (Notify Customer)</span>
+              <span className="modal-title">{db.getLabel('auto____ແຈ້ງເຕືອນລູກຄ້າ__Notif_itb8m4', `🔔 ແຈ້ງເຕືອນລູກຄ້າ (Notify Customer)`)}</span>
               <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowNotifyModal(false)}>✕</button>
             </div>
             
             <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label className="form-label" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>&nbsp;ຊື່ລູກຄ້າ:</label>
+                <label className="form-label" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto__nbsp_ຊື່ລູກຄ້າ__5nelp9', `&nbsp;ຊື່ລູກຄ້າ:`)}</label>
                 <div style={{ fontWeight: 'bold', color: 'white' }}>{notifyJob.customerName} ({notifyJob.customerPhone})</div>
               </div>
 

@@ -523,8 +523,8 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
               alignItems: 'center',
               gap: '12px'
             }}>
-              <button className="btn btn-secondary" style={{ height: '42px', padding: '0 24px', fontSize: '0.88rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }} onClick={() => setShowCheckout(false)}>✕ ຍົກເລີກ</button>
-              <button className="btn btn-primary" style={{ height: '42px', padding: '0 28px', fontSize: '0.88rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }} onClick={handleConfirmPayment}>💾 ຢືນຢັນການຊຳລະ</button>
+              <button className="btn btn-secondary" style={{ height: '42px', padding: '0 24px', fontSize: '0.88rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }} onClick={() => setShowCheckout(false)}>{db.getLabel('auto___ຍົກເລີກ_il20hl', `✕ ຍົກເລີກ`)}</button>
+              <button className="btn btn-primary" style={{ height: '42px', padding: '0 28px', fontSize: '0.88rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }} onClick={handleConfirmPayment}>{db.getLabel('auto____ຢືນຢັນການຊຳລະ_xjxwcp', `💾 ຢືນຢັນການຊຳລະ`)}</button>
             </div>
 
           </div>

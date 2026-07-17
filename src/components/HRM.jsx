@@ -807,7 +807,7 @@ export default function HRM({ activeUser, onUpdate }) {
         <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '20px' }}>
           {/* Shift Form */}
           <div className="glass-card" style={{ padding: '20px' }}>
-            <h3 style={{ color: 'var(--gold-primary)', fontSize: '1rem', margin: '0 0 16px' }}>⚙️ ກໍານົດກະການເຮັດວຽກ</h3>
+            <h3 style={{ color: 'var(--gold-primary)', fontSize: '1rem', margin: '0 0 16px' }}>{db.getLabel('auto____ກໍານົດກະການເຮັດວຽກ_oerlxl', `⚙️ ກໍານົດກະການເຮັດວຽກ`)}</h3>
             <form onSubmit={handleSaveShift} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div className="form-group">
                 <label className="form-label">{db.getLabel('auto_ພະນັກງານ__Employee__z2qw10', `ພະນັກງານ (Employee)`)}</label>
@@ -817,7 +817,7 @@ export default function HRM({ activeUser, onUpdate }) {
                   value={shiftForm.userId}
                   onChange={(e) => setShiftForm({ ...shiftForm, userId: e.target.value })}
                 >
-                  <option value="">-- ເລືອກພະນັກງານ --</option>
+                  <option value="">{db.getLabel('auto____ເລືອກພະນັກງານ____86xxlv', `-- ເລືອກພະນັກງານ --`)}</option>
                   {users.map(u => (
                     <option key={u.id} value={u.id}>{u.name} ({u.roleName?.split(' ')[0] || u.role})</option>
                   ))}
@@ -902,7 +902,7 @@ export default function HRM({ activeUser, onUpdate }) {
 
           {/* Shifts Calendar Grid */}
           <div className="glass-card" style={{ padding: '20px', minHeight: '400px' }}>
-            <h3 style={{ color: 'var(--gold-primary)', fontSize: '1rem', margin: '0 0 16px' }}>📅 ຕາຕະລາງກະການເຮັດວຽກຂອງພະນັກງານທັງໝົດ</h3>
+            <h3 style={{ color: 'var(--gold-primary)', fontSize: '1rem', margin: '0 0 16px' }}>{db.getLabel('auto____ຕາຕະລາງກະການເຮັດວຽກຂອງ_mdt169', `📅 ຕາຕະລາງກະການເຮັດວຽກຂອງພະນັກງານທັງໝົດ`)}</h3>
             {shifts.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
                 ບໍ່ມີຂໍ້ມູນຕາຕະລາງກະການເຮັດວຽກ. ກະລຸນາສ້າງຕາຕະລາງດ້ານຊ້າຍມື.
@@ -1013,7 +1013,7 @@ export default function HRM({ activeUser, onUpdate }) {
                   </h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <div>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--success-green)', fontWeight: 'bold' }}>🟢 ເຂົ້າງານແລ້ວ ({checkedInToday.length} {db.getLabel('auto_ຄົນ___ccvpfx', `ຄົນ):`)}</span>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--success-green)', fontWeight: 'bold' }}>{db.getLabel('auto____ເຂົ້າງານແລ້ວ___720y29', `🟢 ເຂົ້າງານແລ້ວ (`)}{checkedInToday.length} {db.getLabel('auto_ຄົນ___ccvpfx', `ຄົນ):`)}</span>
                       {checkedInToday.length === 0 ? (
                         <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginLeft: '12px', marginTop: '2px' }}>{db.getLabel('auto_ຍັງບໍ່ມີພະນັກງານເຂົ້າງານ_sd45l', `ຍັງບໍ່ມີພະນັກງານເຂົ້າງານ`)}</p>
                       ) : (
@@ -1027,7 +1027,7 @@ export default function HRM({ activeUser, onUpdate }) {
                       )}
                     </div>
                     <div style={{ marginTop: '8px' }}>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--alert-red)', fontWeight: 'bold' }}>🔴 ຂາດງານ / ຍັງບໍ່ທັນເຂົ້າງານ ({absentToday.length} {db.getLabel('auto_ຄົນ___ccvpfx', `ຄົນ):`)}</span>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--alert-red)', fontWeight: 'bold' }}>{db.getLabel('auto____ຂາດງານ___ຍັງບໍ່ທັນເຂົ້_6uco65', `🔴 ຂາດງານ / ຍັງບໍ່ທັນເຂົ້າງານ (`)}{absentToday.length} {db.getLabel('auto_ຄົນ___ccvpfx', `ຄົນ):`)}</span>
                       {absentToday.length === 0 ? (
                         <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginLeft: '12px', marginTop: '2px' }}>{db.getLabel('auto_ເຂົ້າງານຄົບທຸກຄົນແລ້ວ_xhfimd', `ເຂົ້າງານຄົບທຸກຄົນແລ້ວ`)}</p>
                       ) : (
@@ -1071,7 +1071,7 @@ export default function HRM({ activeUser, onUpdate }) {
 
           {/* Attendance logs history */}
           <div className="glass-card" style={{ padding: '16px' }}>
-            <h4 style={{ color: 'white', marginBottom: '12px', fontSize: '0.95rem' }}>📅 ປະຫວັດການລົງເວລາເຂົ້າ-ອອກງານ (Attendance Timesheet Logs)</h4>
+            <h4 style={{ color: 'white', marginBottom: '12px', fontSize: '0.95rem' }}>{db.getLabel('auto____ປະຫວັດການລົງເວລາເຂົ້າ__4wz9fi', `📅 ປະຫວັດການລົງເວລາເຂົ້າ-ອອກງານ (Attendance Timesheet Logs)`)}</h4>
             
             <div className="desktop-table-view" style={{ overflowX: 'auto', maxHeight: '350px', overflowY: 'auto' }}>
               <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
@@ -1198,7 +1198,7 @@ export default function HRM({ activeUser, onUpdate }) {
         <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '20px' }}>
           {/* Apply Leave Request Form */}
           <div className="glass-card" style={{ padding: '20px' }}>
-            <h3 style={{ color: 'var(--gold-primary)', fontSize: '1rem', margin: '0 0 16px' }}>📝 ສົ່ງຄຳຂໍລາພັກ (Manual Request)</h3>
+            <h3 style={{ color: 'var(--gold-primary)', fontSize: '1rem', margin: '0 0 16px' }}>{db.getLabel('auto____ສົ່ງຄຳຂໍລາພັກ__Manual__f7azmz', `📝 ສົ່ງຄຳຂໍລາພັກ (Manual Request)`)}</h3>
             <form onSubmit={handleApplyLeave} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div className="form-group">
                 <label className="form-label">{db.getLabel('auto_ພະນັກງານ__Employee__z2qw10', `ພະນັກງານ (Employee)`)}</label>
@@ -1208,7 +1208,7 @@ export default function HRM({ activeUser, onUpdate }) {
                   value={leaveForm.userId}
                   onChange={(e) => setLeaveForm({ ...leaveForm, userId: e.target.value })}
                 >
-                  <option value="">-- ເລືອກພະນັກງານ --</option>
+                  <option value="">{db.getLabel('auto____ເລືອກພະນັກງານ____86xxlv', `-- ເລືອກພະນັກງານ --`)}</option>
                   {users.map(u => (
                     <option key={u.id} value={u.id}>{u.name} ({u.roleName?.split(' ')[0] || u.role})</option>
                   ))}
@@ -1278,7 +1278,7 @@ export default function HRM({ activeUser, onUpdate }) {
 
           {/* Leaves Ledger Table */}
           <div className="glass-card" style={{ padding: '20px' }}>
-            <h3 style={{ color: 'var(--gold-primary)', fontSize: '1rem', margin: '0 0 16px' }}>📄 ລາຍການໃບລາພັກຂອງພະນັກງານ</h3>
+            <h3 style={{ color: 'var(--gold-primary)', fontSize: '1rem', margin: '0 0 16px' }}>{db.getLabel('auto____ລາຍການໃບລາພັກຂອງພະນັກງ_n9htzq', `📄 ລາຍການໃບລາພັກຂອງພະນັກງານ`)}</h3>
             {leaves.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
                 ບໍ່ມີຄຳຂໍລາພັກໃນລະບົບ.
@@ -1428,7 +1428,7 @@ export default function HRM({ activeUser, onUpdate }) {
 
           {/* Payroll Grid */}
           <div className="glass-card" style={{ padding: '20px' }}>
-            <h3 style={{ color: 'var(--gold-primary)', fontSize: '1rem', margin: '0 0 16px' }}>💵 ບັນຊີເງິນເດືອນພະນັກງານ ປະຈຳເດືອນ {selectedMonth}</h3>
+            <h3 style={{ color: 'var(--gold-primary)', fontSize: '1rem', margin: '0 0 16px' }}>{db.getLabel('auto____ບັນຊີເງິນເດືອນພະນັກງານ_q2uy78', `💵 ບັນຊີເງິນເດືອນພະນັກງານ ປະຈຳເດືອນ`)} {selectedMonth}</h3>
             <div className="desktop-table-view" style={{ overflowX: 'auto' }}>
               <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
                 <thead>
@@ -1486,7 +1486,7 @@ export default function HRM({ activeUser, onUpdate }) {
                               💵 ຈ່າຍເງິນ
                             </button>
                           ) : (
-                            <span style={{ color: 'var(--success-green)', fontSize: '0.75rem', fontWeight: 'bold' }}>✓ ຈ່າຍແລ້ວ</span>
+                            <span style={{ color: 'var(--success-green)', fontSize: '0.75rem', fontWeight: 'bold' }}>{db.getLabel('auto___ຈ່າຍແລ້ວ_chetze', `✓ ຈ່າຍແລ້ວ`)}</span>
                           )}
                           <button
                             type="button"
@@ -1565,7 +1565,7 @@ export default function HRM({ activeUser, onUpdate }) {
                         💵 ຈ່າຍເງິນ
                       </button>
                     ) : (
-                      <span style={{ flex: 1, textAlign: 'center', color: 'var(--success-green)', fontSize: '0.8rem', fontWeight: 'bold', padding: '8px' }}>✓ ຈ່າຍແລ້ວ</span>
+                      <span style={{ flex: 1, textAlign: 'center', color: 'var(--success-green)', fontSize: '0.8rem', fontWeight: 'bold', padding: '8px' }}>{db.getLabel('auto___ຈ່າຍແລ້ວ_chetze', `✓ ຈ່າຍແລ້ວ`)}</span>
                     )}
                     <button
                       type="button"
@@ -1597,7 +1597,7 @@ export default function HRM({ activeUser, onUpdate }) {
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content modal-sm animate-fade-in">
             <div className="modal-header">
-              <span className="modal-title">➕ ເພີ່ມບັນຊີພະນັກງານໃໝ່</span>
+              <span className="modal-title">{db.getLabel('auto___ເພີ່ມບັນຊີພະນັກງານໃໝ່_19cc9b', `➕ ເພີ່ມບັນຊີພະນັກງານໃໝ່`)}</span>
               <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowAddUserModal(false)}>✕</button>
             </div>
             <form onSubmit={handleAddUserSubmit}>
@@ -1919,7 +1919,7 @@ export default function HRM({ activeUser, onUpdate }) {
                     }
                   });
                 }}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
-                <button type="submit" className="btn btn-primary">➕ ເພີ່ມພະນັກງານ</button>
+                <button type="submit" className="btn btn-primary">{db.getLabel('auto___ເພີ່ມພະນັກງານ_gva08s', `➕ ເພີ່ມພະນັກງານ`)}</button>
               </div>
             </form>
           </div>
@@ -1933,7 +1933,7 @@ export default function HRM({ activeUser, onUpdate }) {
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content animate-fade-in" style={{ maxWidth: '400px' }}>
             <div className="modal-header">
-              <span className="modal-title">✏️ ແກ້ໄຂບັນຊີ: {editingUser.name}</span>
+              <span className="modal-title">{db.getLabel('auto____ແກ້ໄຂບັນຊີ__2zj510', `✏️ ແກ້ໄຂບັນຊີ:`)} {editingUser.name}</span>
               <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setEditingUser(null)}>✕</button>
             </div>
             <form onSubmit={handleUserSave}>
@@ -2270,7 +2270,7 @@ export default function HRM({ activeUser, onUpdate }) {
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content animate-fade-in" style={{ maxWidth: '400px' }}>
             <div className="modal-header">
-              <span className="modal-title">➕ ເພີ່ມບັນທຶກເຂົ້າງານດ້ວຍມື</span>
+              <span className="modal-title">{db.getLabel('auto___ເພີ່ມບັນທຶກເຂົ້າງານດ້ວຍ_li488u', `➕ ເພີ່ມບັນທຶກເຂົ້າງານດ້ວຍມື`)}</span>
               <button
                 className="btn-secondary"
                 style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }}
@@ -2289,7 +2289,7 @@ export default function HRM({ activeUser, onUpdate }) {
                     value={manualLogFormData.userId}
                     onChange={(e) => setManualLogFormData({ ...manualLogFormData, userId: e.target.value })}
                   >
-                    <option value="" disabled>-- ເລືອກພະນັກງານ --</option>
+                    <option value="" disabled>{db.getLabel('auto____ເລືອກພະນັກງານ____86xxlv', `-- ເລືອກພະນັກງານ --`)}</option>
                     {users.map(u => (
                       <option key={u.id} value={u.id}>{u.name} ({u.roleName?.split(' ')[0] || u.role})</option>
                     ))}
@@ -2315,9 +2315,9 @@ export default function HRM({ activeUser, onUpdate }) {
                     value={manualLogFormData.status}
                     onChange={(e) => setManualLogFormData({ ...manualLogFormData, status: e.target.value })}
                   >
-                    <option value="present">🟢 ມາເຮັດວຽກ (Present)</option>
-                    <option value="late">🟡 ມາຊ້າ (Late)</option>
-                    <option value="absent">🔴 ຂາດງານ (Absent)</option>
+                    <option value="present">{db.getLabel('auto____ມາເຮັດວຽກ__Present__w6ngsc', `🟢 ມາເຮັດວຽກ (Present)`)}</option>
+                    <option value="late">{db.getLabel('auto____ມາຊ້າ__Late__37khzf', `🟡 ມາຊ້າ (Late)`)}</option>
+                    <option value="absent">{db.getLabel('auto____ຂາດງານ__Absent__kin0dn', `🔴 ຂາດງານ (Absent)`)}</option>
                   </select>
                 </div>
 
@@ -2370,7 +2370,7 @@ export default function HRM({ activeUser, onUpdate }) {
                     payout: ''
                   });
                 }}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
-                <button type="submit" className="btn btn-primary">➕ ເພີ່ມບັນທຶก</button>
+                <button type="submit" className="btn btn-primary">{db.getLabel('auto___ເພີ່ມບັນທຶ__pphxyd', `➕ ເພີ່ມບັນທຶก`)}</button>
               </div>
             </form>
           </div>
@@ -2384,7 +2384,7 @@ export default function HRM({ activeUser, onUpdate }) {
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content animate-fade-in" style={{ maxWidth: '400px' }}>
             <div className="modal-header">
-              <span className="modal-title">✏️ ແກ້ໄຂບັນທຶກເຂົ້າງານ: {selectedLogEntry.userName}</span>
+              <span className="modal-title">{db.getLabel('auto____ແກ້ໄຂບັນທຶກເຂົ້າງານ__wspoqv', `✏️ ແກ້ໄຂບັນທຶກເຂົ້າງານ:`)} {selectedLogEntry.userName}</span>
               <button
                 className="btn-secondary"
                 style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }}
@@ -2427,9 +2427,9 @@ export default function HRM({ activeUser, onUpdate }) {
                     value={manualLogFormData.status}
                     onChange={(e) => setManualLogFormData({ ...manualLogFormData, status: e.target.value })}
                   >
-                    <option value="present">🟢 ມາເຮັດວຽກ (Present)</option>
-                    <option value="late">🟡 ມາຊ້າ (Late)</option>
-                    <option value="absent">🔴 ຂາດງານ (Absent)</option>
+                    <option value="present">{db.getLabel('auto____ມາເຮັດວຽກ__Present__w6ngsc', `🟢 ມາເຮັດວຽກ (Present)`)}</option>
+                    <option value="late">{db.getLabel('auto____ມາຊ້າ__Late__37khzf', `🟡 ມາຊ້າ (Late)`)}</option>
+                    <option value="absent">{db.getLabel('auto____ຂາດງານ__Absent__kin0dn', `🔴 ຂາດງານ (Absent)`)}</option>
                   </select>
                 </div>
 
@@ -2481,7 +2481,7 @@ export default function HRM({ activeUser, onUpdate }) {
                 >
                   ຍົກເລີກ
                 </button>
-                <button type="submit" className="btn btn-primary">💾 ບັນທຶກການແກ້ໄຂ</button>
+                <button type="submit" className="btn btn-primary">{db.getLabel('auto____ບັນທຶກການແກ້ໄຂ_doa6vy', `💾 ບັນທຶກການແກ້ໄຂ`)}</button>
               </div>
             </form>
           </div>
@@ -2495,7 +2495,7 @@ export default function HRM({ activeUser, onUpdate }) {
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content modal-sm glass-card" style={{ padding: '24px', maxHeight: '85%', overflowY: 'auto' }}>
             <div className="modal-header no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>🖨️ ໃບສະລິບຮັບເງິນເດືອນພະນັກງານ (A4 Payslip)</h3>
+              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>{db.getLabel('auto_____ໃບສະລິບຮັບເງິນເດືອນພະ_s4bskx', `🖨️ ໃບສະລິບຮັບເງິນເດືອນພະນັກງານ (A4 Payslip)`)}</h3>
               <button className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowPayslipModal(false)}>✕</button>
             </div>
 
@@ -2563,7 +2563,7 @@ export default function HRM({ activeUser, onUpdate }) {
                   <tr style={{ borderTop: '2px solid #000', background: '#f9f9f9', fontWeight: 'bold' }}>
                     <td style={{ padding: '8px' }}>{db.getLabel('auto_ລວມລາຍຮັບ__Total_Earnings_2jfa7u', `ລວມລາຍຮັບ (Total Earnings)`)}</td>
                     <td style={{ padding: '8px', textAlign: 'right' }}>{((selectedPayslip.baseWages || 0) + (selectedPayslip.otPay || 0)).toLocaleString()} ₭</td>
-                    <td style={{ padding: '8px', borderLeft: '1px solid #ddd' }}>%ລວມລາຍຫັກ (Total Deductions)</td>
+                    <td style={{ padding: '8px', borderLeft: '1px solid #ddd' }}>{db.getLabel('auto__ລວມລາຍຫັກ__Total_Deducti_d17kte', `%ລວມລາຍຫັກ (Total Deductions)`)}</td>
                     <td style={{ padding: '8px', textAlign: 'right', color: '#c0392b' }}>{((selectedPayslip.lateDeduction || 0) + (selectedPayslip.absenceDeduction || 0) + (selectedPayslip.leaveDeduction || 0)).toLocaleString()} ₭</td>
                   </tr>
                 </tbody>
@@ -2571,7 +2571,7 @@ export default function HRM({ activeUser, onUpdate }) {
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f5f5f5', padding: '12px 16px', borderRadius: '4px', border: '1px solid #ddd', marginBottom: '25px' }}>
                 <span style={{ fontSize: '15px', fontWeight: 'bold' }}>{db.getLabel('auto_ລາຍຮັບສຸດທິ__Net_Take_hom_ixmzlz', `ລາຍຮັບສຸດທິ (Net Take-home Pay):`)}</span>
-                <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#000' }}>{selectedPayslip.netPay?.toLocaleString() || 0} LAK (ກີບ)</span>
+                <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#000' }}>{selectedPayslip.netPay?.toLocaleString() || 0} {db.getLabel('auto_LAK__ກີບ__9v8ftt', `LAK (ກີບ)`)}</span>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', textAlign: 'center', fontSize: '12px', marginTop: '40px' }}>
@@ -2695,7 +2695,7 @@ export default function HRM({ activeUser, onUpdate }) {
                     </div>
                     <div className="print-receipt-title">{settings.shopName || 'ຂອບພຣະຣັທເກຊ'}</div>
                     <div className="print-receipt-subtitle">{settings.shopSubtitle || 'ຮ້ານອັດກອບພຣະເຄື່ອງ & ວັດຖຸມຸງຄຸນ'}</div>
-                    <div className="print-receipt-subtitle">{settings.shopAddress} | ໂທ: {settings.shopPhone}</div>
+                    <div className="print-receipt-subtitle">{settings.shopAddress} {db.getLabel('auto___ໂທ__1yz7z5', `| ໂທ:`)} {settings.shopPhone}</div>
                     <div className="print-receipt-divider"></div>
                     <div style={{ fontWeight: 'bold', fontSize: '10pt', margin: '4px 0', color: 'black' }}>{db.getLabel('auto_ໃບສະຫຼຸບຮັບເງິນເດືອນ___PA_4edlps', `ໃບສະຫຼຸບຮັບເງິນເດືອນ / PAYROLL SLIP`)}</div>
                   </div>

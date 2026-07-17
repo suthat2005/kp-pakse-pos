@@ -651,7 +651,7 @@ export default function App() {
               100% { transform: rotate(360deg); }
             }
           `}</style>
-          <span>⏳ ກຳລັງໂຫຼດໜ້າຮ້ານຄ້າອອນລາຍ...</span>
+          <span>{db.getLabel('auto___ກຳລັງໂຫຼດໜ້າຮ້ານຄ້າອອນລ_fncjhg', `⏳ ກຳລັງໂຫຼດໜ້າຮ້ານຄ້າອອນລາຍ...`)}</span>
         </div>
       }>
         <OnlineShop />
@@ -1161,7 +1161,7 @@ export default function App() {
               style={{ position: 'relative' }}
             >
               <span className="sidebar-icon">🛒</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel('🛒 ອໍເດີ້ອອນລາຍ (Online Orders)')}</span>}
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_online_orders', '🛒 ອໍເດີ້ອອນລາຍ (Online Orders)'))}</span>}
               {unreadChatCount > 0 && (
                 <span 
                   style={{
@@ -1596,7 +1596,7 @@ export default function App() {
                     100% { transform: rotate(360deg); }
                   }
                 `}</style>
-                <span>⏳ ກຳລັງໂຫຼດຂໍ້ມູນລະບົບ (Loading Component)...</span>
+                <span>{db.getLabel('auto___ກຳລັງໂຫຼດຂໍ້ມູນລະບົບ__L_j7jxoo', `⏳ ກຳລັງໂຫຼດຂໍ້ມູນລະບົບ (Loading Component)...`)}</span>
               </div>
             }>
               <>
@@ -1680,7 +1680,7 @@ export default function App() {
         <div className="modal-overlay" style={{ zIndex: 1100 }}>
           <div className="modal-content glass-card" style={{ maxWidth: '680px', padding: '28px', maxHeight: '92vh', overflowY: 'auto' }}>
             <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '1.15rem' }}>💸 ບັນທຶກລາຍຈ່າຍ (Record Expense)</h3>
+              <h3 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '1.15rem' }}>{db.getLabel('auto____ບັນທຶກລາຍຈ່າຍ__Record__5ndejm', `💸 ບັນທຶກລາຍຈ່າຍ (Record Expense)`)}</h3>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <button type="button" className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '6px 12px' }} onClick={() => setShowExpenseHistory(!showExpenseHistory)}>
                   {showExpenseHistory ? '📝 ຟອມໃໝ່' : '📋 ປະຫວັດລາຍຈ່າຍ'}
@@ -1780,7 +1780,7 @@ export default function App() {
                 {/* Row 1: Category & Supplier */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
                   <div>
-                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>📂 ປະເພດລາຍຈ່າຍ *</label>
+                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto____ປະເພດລາຍຈ່າຍ___vgiym7', `📂 ປະເພດລາຍຈ່າຍ *`)}</label>
                     <input
                       type="text"
                       list="expense-categories-datalist"
@@ -1823,7 +1823,7 @@ export default function App() {
                     </datalist>
                   </div>
                   <div>
-                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>🏢 ຜູ້ສະໜອງ / ຮ້ານ</label>
+                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto____ຜູ້ສະໜອງ___ຮ້ານ_jyccsr', `🏢 ຜູ້ສະໜອງ / ຮ້ານ`)}</label>
                     <input
                       type="text"
                       placeholder={db.getLabel('auto_ຊື່ຮ້ານ_ຜູ້ສະໜອງ__ຖ້າມີ__dq7klw', `ຊື່ຮ້ານ/ຜູ້ສະໜອງ (ຖ້າມີ)`)}
@@ -1838,7 +1838,7 @@ export default function App() {
                 {/* Row 2: Amount & Currency & Payment Method */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr 1fr', gap: '10px', marginBottom: '14px' }}>
                   <div>
-                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>💰 ຈຳນວນເງິນ *</label>
+                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto____ຈຳນວນເງິນ___v3pxx3', `💰 ຈຳນວນເງິນ *`)}</label>
                     <input
                       type="number"
                       required
@@ -1850,7 +1850,7 @@ export default function App() {
                     />
                   </div>
                   <div>
-                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>💵 ສະກຸນເງິນ *</label>
+                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto____ສະກຸນເງິນ___9aqgzu', `💵 ສະກຸນເງິນ *`)}</label>
                     <select
                       className="form-control"
                       value={expenseFormData.currency || 'LAK'}
@@ -1863,7 +1863,7 @@ export default function App() {
                     </select>
                   </div>
                   <div>
-                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>💳 ວິທີຊຳລະ *</label>
+                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto____ວິທີຊຳລະ___pxh5d9', `💳 ວິທີຊຳລະ *`)}</label>
                     <div style={{ display: 'flex', gap: '4px' }}>
                       <button
                         type="button"
@@ -1874,7 +1874,7 @@ export default function App() {
                           color: expenseFormData.paymentMethod === 'cash' ? '#2ecc71' : 'var(--text-secondary)',
                           cursor: 'pointer', fontWeight: 'bold', fontSize: '0.78rem', transition: 'all 0.2s', whiteSpace: 'nowrap'
                         }}
-                      >💵 ສົດ</button>
+                      >{db.getLabel('auto____ສົດ_acni3f', `💵 ສົດ`)}</button>
                       <button
                         type="button"
                         onClick={() => setExpenseFormData({ ...expenseFormData, paymentMethod: 'transfer' })}
@@ -1884,17 +1884,17 @@ export default function App() {
                           color: expenseFormData.paymentMethod === 'transfer' ? '#3498db' : 'var(--text-secondary)',
                           cursor: 'pointer', fontWeight: 'bold', fontSize: '0.78rem', transition: 'all 0.2s', whiteSpace: 'nowrap'
                         }}
-                      >📱 ໂອນ</button>
+                      >{db.getLabel('auto____ໂອນ_b9nn5u', `📱 ໂອນ`)}</button>
                     </div>
                   </div>
                 </div>
 
                 {/* Row 3: Notes */}
                 <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>📝 ຄຳອະທິບາຍ / ໝາຍເຫດ</label>
+                  <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto____ຄຳອະທິບາຍ___ໝາຍເຫດ_rrmun8', `📝 ຄຳອະທິບາຍ / ໝາຍເຫດ`)}</label>
                   <textarea
                     className="form-control"
-                    placeholder="ລະບຸລາຍລະອຽດ... (ຕົວຢ່າງ: ຊື້ອາໄຫຼ່ XX 5 ອັນ)"
+                    placeholder={db.getLabel('auto_ລະບຸລາຍລະອຽດ_____ຕົວຢ່າງ__2nzs5h', `ລະບຸລາຍລະອຽດ... (ຕົວຢ່າງ: ຊື້ອາໄຫຼ່ XX 5 ອັນ)`)}
                     style={{ width: '100%', background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px', minHeight: '70px', resize: 'vertical' }}
                     value={expenseFormData.notes}
                     onChange={(e) => setExpenseFormData({ ...expenseFormData, notes: e.target.value })}
@@ -1904,7 +1904,7 @@ export default function App() {
                 {/* Buttons */}
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                   <button type="button" className="btn btn-secondary" onClick={() => setShowExpenseModal(false)}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
-                  <button type="submit" className="btn btn-primary" style={{ padding: '10px 28px', fontSize: '0.95rem' }}>💾 ບັນທຶກລາຍຈ່າຍ</button>
+                  <button type="submit" className="btn btn-primary" style={{ padding: '10px 28px', fontSize: '0.95rem' }}>{db.getLabel('auto____ບັນທຶກລາຍຈ່າຍ_o0nvo', `💾 ບັນທຶກລາຍຈ່າຍ`)}</button>
                 </div>
               </form>
             )}
@@ -1952,7 +1952,7 @@ export default function App() {
         <div className="modal-overlay" style={{ zIndex: 1100 }}>
           <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
             <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '1.15rem' }}>🕒 ເປີດກະລິ້ນຊັກ / ເຂົ້າງານ</h3>
+              <h3 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '1.15rem' }}>{db.getLabel('auto____ເປີດກະລິ້ນຊັກ___ເຂົ້າງ_x4lh3e', `🕒 ເປີດກະລິ້ນຊັກ / ເຂົ້າງານ`)}</h3>
               <button className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowClockInModal(false)}>✕</button>
             </div>
             <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -2050,7 +2050,7 @@ export default function App() {
         <div className="modal-overlay" style={{ zIndex: 1100 }}>
           <div className="modal-content modal-sm glass-card" style={{ padding: '20px', maxHeight: '85%', overflowY: 'auto' }}>
             <div className="modal-header no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>🖨️ ໃບບິນສະຫຼຸບກະ (Shift Report)</h3>
+              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>{db.getLabel('auto_____ໃບບິນສະຫຼຸບກະ__Shift__yz2mwr', `🖨️ ໃບບິນສະຫຼຸບກະ (Shift Report)`)}</h3>
               <button className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowShiftReportModal(false)}>✕</button>
             </div>
             
@@ -2095,42 +2095,42 @@ export default function App() {
               <div style={{ marginBottom: '10px', borderBottom: '1px dashed #000', paddingBottom: '8px' }}>
                 <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{db.getLabel('auto_ແຍກຕາມການຊຳລະ__nq8x59', `ແຍກຕາມການຊຳລະ:`)}</div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', fontWeight: 'bold', color: '#2c3e50' }}>
-                  <span>- ເງິນທອນເລີ່ມຕົ້ນ (Opening Cash):</span>
+                  <span>{db.getLabel('auto___ເງິນທອນເລີ່ມຕົ້ນ__Openi_7melox', `- ເງິນທອນເລີ່ມຕົ້ນ (Opening Cash):`)}</span>
                   <span>{(shiftReportData.openingCash || 0).toLocaleString()} ₭</span>
                 </div>
                 
                 {/* Cash portion */}
-                <div style={{ fontWeight: 'bold', fontSize: '12px', marginTop: '4px', paddingLeft: '4px' }}>💵 ລວມຮັບເງິນສົດ (Cash):</div>
+                <div style={{ fontWeight: 'bold', fontSize: '12px', marginTop: '4px', paddingLeft: '4px' }}>{db.getLabel('auto____ລວມຮັບເງິນສົດ__Cash___yuudel', `💵 ລວມຮັບເງິນສົດ (Cash):`)}</div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '12px' }}>
-                  <span>• ເງິນສົດ LAK:</span>
+                  <span>{db.getLabel('auto___ເງິນສົດ_LAK__ssxtmd', `• ເງິນສົດ LAK:`)}</span>
                   <span>{(shiftReportData.totalCashLak || 0).toLocaleString()} ₭</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '12px' }}>
-                  <span>• ເງິນສົດ THB:</span>
+                  <span>{db.getLabel('auto___ເງິນສົດ_THB__ssskr1', `• ເງິນສົດ THB:`)}</span>
                   <span>{(shiftReportData.totalCashThb || 0).toLocaleString()} ฿</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '12px' }}>
-                  <span>• ເງິນສົດ USD:</span>
+                  <span>{db.getLabel('auto___ເງິນສົດ_USD__ssrpk5', `• ເງິນສົດ USD:`)}</span>
                   <span>${(shiftReportData.totalCashUsd || 0).toLocaleString()}</span>
                 </div>
 
                 {/* Transfer portion */}
-                <div style={{ fontWeight: 'bold', fontSize: '12px', marginTop: '4px', paddingLeft: '4px' }}>📱 ລວມຮັບເງິນໂອນ (Transfer):</div>
+                <div style={{ fontWeight: 'bold', fontSize: '12px', marginTop: '4px', paddingLeft: '4px' }}>{db.getLabel('auto____ລວມຮັບເງິນໂອນ__Transfe_cfdyiq', `📱 ລວມຮັບເງິນໂອນ (Transfer):`)}</div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '12px' }}>
-                  <span>• ເງິນໂອນ LAK:</span>
+                  <span>{db.getLabel('auto___ເງິນໂອນ_LAK__xn1cu8', `• ເງິນໂອນ LAK:`)}</span>
                   <span>{(shiftReportData.totalTransferLak || 0).toLocaleString()} ₭</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '12px' }}>
-                  <span>• ເງິນໂອນ THB:</span>
+                  <span>{db.getLabel('auto___ເງິນໂອນ_THB__xn6lpk', `• ເງິນໂອນ THB:`)}</span>
                   <span>{(shiftReportData.totalTransferThb || 0).toLocaleString()} ฿</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '12px' }}>
-                  <span>• ເງິນໂອນ USD:</span>
+                  <span>{db.getLabel('auto___ເງິນໂອນ_USD__xn7gwg', `• ເງິນໂອນ USD:`)}</span>
                   <span>${(shiftReportData.totalTransferUsd || 0).toLocaleString()}</span>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', color: '#c0392b', marginTop: '4px' }}>
-                  <span>- ຍອດຕິດໜີ້ (Debts):</span>
+                  <span>{db.getLabel('auto___ຍອດຕິດໜີ້__Debts___tbi26r', `- ຍອດຕິດໜີ້ (Debts):`)}</span>
                   <span>{(shiftReportData.totalDebtLak || 0).toLocaleString()} ₭</span>
                 </div>
               </div>

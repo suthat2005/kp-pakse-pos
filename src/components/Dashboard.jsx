@@ -467,10 +467,10 @@ export default function Dashboard({ activeUser, onTabChange, isMobile }) {
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fit,minmax(175px,1fr))', gap: 11 }}>
         {canFinance && <StatCard icon="💵" label={db.getLabel('auto_ຍອດຂາຍມື້ນີ້_uf2wo3', `ຍອດຂາຍມື້ນີ້`)}     value={fmt(data.todaySales)}     sub={`${data.todayBills} ໃບບິນ`}                        color="#2ecc71" spark={sparkSales} onClick={() => go('reports')} />}
         {canFinance && <StatCard icon="📅" label={db.getLabel('auto_ຍອດຂາຍອາທິດນີ້_3yffvo', `ຍອດຂາຍອາທິດນີ້`)}   value={fmt(data.weekSales)}     sub={`${data.weekBills} ໃບບິນ`}                         color="#D4AF37" spark={sparkSales} onClick={() => go('reports')} />}
-        {canFinance && <StatCard icon="↩️" label="ຄືນເງິນມື້ນີ້"   value={fmt(data.todayRefunds)}  color={data.todayRefunds > 0 ? '#e74c3c' : 'white'}      onClick={() => go('reports')} />}
+        {canFinance && <StatCard icon="↩️" label={db.getLabel('auto_ຄືນເງິນມື້ນີ້_r09gr0', `ຄືນເງິນມື້ນີ້`)}   value={fmt(data.todayRefunds)}  color={data.todayRefunds > 0 ? '#e74c3c' : 'white'}      onClick={() => go('reports')} />}
         {canFinance && <StatCard icon="🧾" label={db.getLabel('auto_ໜີ້ຄ້າງຮັບ_ni52a5', `ໜີ້ຄ້າງຮັບ`)}       value={fmt(data.outstandingDebt)} sub={`${data.debtorCount} ລາຍການ`}                    color={data.outstandingDebt > 0 ? '#f39c12' : 'white'} onClick={() => go('debts')} />}
         <StatCard icon="⚠️" label={db.getLabel('auto_ສິນຄ້າໃກ້ໝົດ_z3x19l', `ສິນຄ້າໃກ້ໝົດ`)}   value={data.lowStock.length}   sub="ຄລິກຈັດການ"                                           color={data.lowStock.length > 0 ? '#e74c3c' : '#2ecc71'} onClick={() => go('inventory')} />
-        <StatCard icon="🌐" label="ອໍເດີ້ອອນລາຍ"   value={data.pendingOnline}     color={data.pendingOnline > 0 ? '#3498db' : 'white'}       onClick={() => go('online_orders')} />
+        <StatCard icon="🌐" label={db.getLabel('auto_ອໍເດີ້ອອນລາຍ_7kp6i7', `ອໍເດີ້ອອນລາຍ`)}   value={data.pendingOnline}     color={data.pendingOnline > 0 ? '#3498db' : 'white'}       onClick={() => go('online_orders')} />
         <StatCard icon="🖼️" label={db.getLabel('auto_ງານກອບ_qldqsg', `ງານກອບ`)}          value={data.jobStats.pending + data.jobStats.framing + data.jobStats.done} sub={`ຮັບ ${data.jobStats.pending}·ເຮັດ ${data.jobStats.framing}·ພ້ອມ ${data.jobStats.done}`} color="#9b59b6" onClick={() => go('framing_board')} />
         <StatCard icon="👥" label={db.getLabel('auto_ສະມາຊິກ_rdc4xs', `ສະມາຊິກ`)}          value={data.memberCount}                                                                   color="#D4AF37" onClick={() => go('customers')} />
       </div>
@@ -478,7 +478,7 @@ export default function Dashboard({ activeUser, onTabChange, isMobile }) {
       {/* ── Main trend chart ── */}
       {canFinance && (
         <Section
-          title={<span>📈 ຍອດຂາຍ <span style={{ color: '#D4AF37' }}>vs</span> {db.getLabel('auto_ຄ່າໃຊ້ຈ່າຍ_q5l2dt', `ຄ່າໃຊ້ຈ່າຍ`)} <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', fontWeight: 400 }}>— 14 ວັນ</span></span>}
+          title={<span>{db.getLabel('auto____ຍອດຂາຍ_xac0u', `📈 ຍອດຂາຍ`)} <span style={{ color: '#D4AF37' }}>vs</span> {db.getLabel('auto_ຄ່າໃຊ້ຈ່າຍ_q5l2dt', `ຄ່າໃຊ້ຈ່າຍ`)} <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', fontWeight: 400 }}>{db.getLabel('auto___14_ວັນ_f6qq66', `— 14 ວັນ`)}</span></span>}
           actions={[
             <CBtn key="bar"  cur={mainCt} val="bar"  label="📊 Bar"  set={saveMc} />,
             <CBtn key="area" cur={mainCt} val="area" label="🌊 Area" set={saveMc} />,
@@ -518,7 +518,7 @@ export default function Dashboard({ activeUser, onTabChange, isMobile }) {
             const peak = data.hourly.reduce((m, d) => d.sales > m.sales ? d : m, data.hourly[0]);
             return peak.sales > 0 ? (
               <div style={{ marginTop: 10, fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)', display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-                <span>⚡ ຊ່ວງພີ​ກ: <strong style={{ color: '#FFCA28' }}>{peak.hour}:00–{peak.hour + 1}:00</strong></span>
+                <span>{db.getLabel('auto___ຊ່ວງພີ_ກ__17adow', `⚡ ຊ່ວງພີ​ກ:`)} <strong style={{ color: '#FFCA28' }}>{peak.hour}:00–{peak.hour + 1}:00</strong></span>
                 <span>💰 {fmtShort(peak.sales)} ₭</span>
               </div>
             ) : null;

@@ -418,7 +418,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                   onChange={(e) => setSettings({ ...settings, onlineShopSalesEnabled: e.target.checked })}
                   style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                 />
-                <span>🛒 ເປີດໃຊ້ງານການຂາຍອອນລາຍ (Enable Online Sales)</span>
+                <span>{db.getLabel('auto____ເປີດໃຊ້ງານການຂາຍອອນລາຍ_69gyke', `🛒 ເປີດໃຊ້ງານການຂາຍອອນລາຍ (Enable Online Sales)`)}</span>
               </label>
               <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຫາກປິດ__ລູກຄ້າຈະບໍ່ສາມາດກ_houcxz', `ຫາກປິດ, ລູກຄ້າຈະບໍ່ສາມາດກົດສັ່ງຊື້ສິນຄ້າອອນລາຍໄດ້.`)}</span>
             </div>
@@ -431,7 +431,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                   onChange={(e) => setSettings({ ...settings, onlineShopMemberDiscountEnabled: e.target.checked })}
                   style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                 />
-                <span>💎 ຮອງຮັບສ່ວນຫຼຸດສະມາຊິກອອນລາຍ (Enable Member Discounts)</span>
+                <span>{db.getLabel('auto____ຮອງຮັບສ່ວນຫຼຸດສະມາຊິກອ_gpbc7o', `💎 ຮອງຮັບສ່ວນຫຼຸດສະມາຊິກອອນລາຍ (Enable Member Discounts)`)}</span>
               </label>
               <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ອະນຸຍາດໃຫ້ລູກຄ້າທີ່ເຂົ້າສ_wuw9rc', `ອະນຸຍາດໃຫ້ລູກຄ້າທີ່ເຂົ້າສູ່ລະບົບໄດ້ຮັບສ່ວນຫຼຸດຕາມລະດັບສະມາຊິກ.`)}</span>
             </div>
@@ -464,7 +464,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
 
           {/* Disabled Categories */}
           <div className="form-group">
-            <label className="form-label">🚫 ເລືອກໝວດໝູ່ທີ່ບໍ່ຕ້ອງການຂາຍອອນລາຍ (Hide Categories Online)</label>
+            <label className="form-label">{db.getLabel('auto____ເລືອກໝວດໝູ່ທີ່ບໍ່ຕ້ອງກ_h9uxz7', `🚫 ເລືອກໝວດໝູ່ທີ່ບໍ່ຕ້ອງການຂາຍອອນລາຍ (Hide Categories Online)`)}</label>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', padding: '10px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
               {categories.map(cat => {
                 const disabledList = settings.onlineShopDisabledCategories || [];
@@ -486,12 +486,12 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
           {/* Shipping Methods Table */}
           <div className="form-group" style={{ marginTop: '8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <label className="form-label" style={{ margin: 0 }}>🚚 ຊ່ອງທາງການຈັດສົ່ງ (Shipping Methods)</label>
+              <label className="form-label" style={{ margin: 0 }}>{db.getLabel('auto____ຊ່ອງທາງການຈັດສົ່ງ__Shi_f5e865', `🚚 ຊ່ອງທາງການຈັດສົ່ງ (Shipping Methods)`)}</label>
               <button
                 type="button"
                 className="btn btn-secondary btn-sm"
                 onClick={addShippingMethod}
-              >+ ເພີ່ມຊ່ອງທາງ</button>
+              >{db.getLabel('auto___ເພີ່ມຊ່ອງທາງ_h0nrzb', `+ ເພີ່ມຊ່ອງທາງ`)}</button>
             </div>
 
             <div style={{ background: 'rgba(0,0,0,0.15)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
@@ -541,7 +541,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                   onChange={(e) => setSettings({ ...settings, onlineShopEnableQR: e.target.checked })}
                   style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                 />
-                <span>📱 ເປີດໃຊ້ງານຊຳລະຜ່ານ BCEL QR (Enable BCEL QR Payment)</span>
+                <span>{db.getLabel('auto____ເປີດໃຊ້ງານຊຳລະຜ່ານ_BCE_x9k06r', `📱 ເປີດໃຊ້ງານຊຳລະຜ່ານ BCEL QR (Enable BCEL QR Payment)`)}</span>
               </label>
               <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ສະແດງ_QR_ໂອນເງິນໃນຂັ້ນຕອນ_r5fndn', `ສະແດງ QR ໂອນເງິນໃນຂັ້ນຕອນການຊຳລະເງິນ.`)}</span>
             </div>
@@ -554,7 +554,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                   onChange={(e) => setSettings({ ...settings, onlineShopEnableCOD: e.target.checked })}
                   style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                 />
-                <span>💵 ເກັບເງິນປາຍທາງ (Cash on Delivery - COD)</span>
+                <span>{db.getLabel('auto____ເກັບເງິນປາຍທາງ__Cash_o_rk7b4w', `💵 ເກັບເງິນປາຍທາງ (Cash on Delivery - COD)`)}</span>
               </label>
               <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ອະນຸຍາດໃຫ້ລູກຄ້າເລືອກຈ່າຍ_nz79i7', `ອະນຸຍາດໃຫ້ລູກຄ້າເລືອກຈ່າຍເງິນສົດຕອນຮັບເຄື່ອງ.`)}</span>
             </div>
@@ -563,12 +563,12 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
           {/* Bank Accounts Table */}
           <div className="form-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <label className="form-label" style={{ margin: 0 }}>💳 ບັນຊີທະນາຄານຮັບເງິນ (Bank Accounts)</label>
+              <label className="form-label" style={{ margin: 0 }}>{db.getLabel('auto____ບັນຊີທະນາຄານຮັບເງິນ__B_v4e9dg', `💳 ບັນຊີທະນາຄານຮັບເງິນ (Bank Accounts)`)}</label>
               <button
                 type="button"
                 className="btn btn-secondary btn-sm"
                 onClick={addBankAccount}
-              >+ ເພີ່ມບັນຊີ</button>
+              >{db.getLabel('auto___ເພີ່ມບັນຊີ_9zgmmm', `+ ເພີ່ມບັນຊີ`)}</button>
             </div>
 
             <div style={{ background: 'rgba(0,0,0,0.15)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
@@ -595,7 +595,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                     className="form-control"
                     value={acc.accNum}
                     onChange={(e) => updateBankAccount(idx, 'accNum', e.target.value)}
-                    placeholder="ເລກບັນຊີ"
+                    placeholder={db.getLabel('auto_ເລກບັນຊີ_yumudt', `ເລກບັນຊີ`)}
                     style={{ flex: 2 }}
                   />
                   <button
@@ -614,7 +614,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
 
           {/* POS Integration */}
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '16px' }}>
-            <h4 style={{ fontSize: '0.9rem', color: 'var(--gold-primary)', marginBottom: '12px' }}>🔌 ການເຊື່ອມຕໍ່ລະບົບ POS (POS Integration)</h4>
+            <h4 style={{ fontSize: '0.9rem', color: 'var(--gold-primary)', marginBottom: '12px' }}>{db.getLabel('auto____ການເຊື່ອມຕໍ່ລະບົບ_POS__djs3mp', `🔌 ການເຊື່ອມຕໍ່ລະບົບ POS (POS Integration)`)}</h4>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', margin: 0 }}>
@@ -624,7 +624,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                     onChange={(e) => setSettings({ ...settings, onlineShopAutoSyncStock: e.target.checked })}
                     style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                   />
-                  <span>🔄 ຕັດສະຕັອກ POS ອັດຕະໂນມັດ (Shared Stock API)</span>
+                  <span>{db.getLabel('auto____ຕັດສະຕັອກ_POS_ອັດຕະໂນມ_9sx8gd', `🔄 ຕັດສະຕັອກ POS ອັດຕະໂນມັດ (Shared Stock API)`)}</span>
                 </label>
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ເມື່ອມີການສັ່ງຊື້ອອນລາຍ_ຈ_rvijc2', `ເມື່ອມີການສັ່ງຊື້ອອນລາຍ ຈະຕັດສະຕັອກໃນ POS ຫຼັກທັນທີ.`)}</span>
               </div>
@@ -671,7 +671,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                   onChange={(e) => setSettings({ ...settings, onlineShopAlertSound: e.target.checked })}
                   style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                 />
-                <span>🔊 ເປີດສຽງແຈ້ງເຕືອນອໍເດີ້ໃໝ່ (Play Sound for New Orders)</span>
+                <span>{db.getLabel('auto____ເປີດສຽງແຈ້ງເຕືອນອໍເດີ້_jcvr6k', `🔊 ເປີດສຽງແຈ້ງເຕືອນອໍເດີ້ໃໝ່ (Play Sound for New Orders)`)}</span>
               </label>
               <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຫຼິ້ນສຽງແຈ້ງເຕືອນເມື່ອມີລ_yp0gof', `ຫຼິ້ນສຽງແຈ້ງເຕືອນເມື່ອມີລູກຄ້າສັ່ງຊື້ອອນລາຍເຂົ້າມາ.`)}</span>
             </div>
@@ -686,7 +686,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                   onChange={(e) => setSettings({ ...settings, onlineShopAccessPinRequired: e.target.checked })}
                   style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                 />
-                <span>🔑 ຕ້ອງໃຊ້ PIN ເພື່ອເຂົ້າເຖິງການຕັ້ງຄ່າ (Admin PIN Protection)</span>
+                <span>{db.getLabel('auto____ຕ້ອງໃຊ້_PIN_ເພື່ອເຂົ້າ_a7dlw0', `🔑 ຕ້ອງໃຊ້ PIN ເພື່ອເຂົ້າເຖິງການຕັ້ງຄ່າ (Admin PIN Protection)`)}</span>
               </label>
               <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຕ້ອງການລະຫັດ_PIN_ຂອງແອດມິ_n3epag', `ຕ້ອງການລະຫັດ PIN ຂອງແອດມິນເພື່ອແກ້ໄຂການຕັ້ງຄ່າຮ້ານອອນລາຍ.`)}</span>
             </div>

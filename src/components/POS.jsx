@@ -3059,7 +3059,7 @@ export default function POS({
                   className="btn btn-secondary"
                   onClick={openReturnModal}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', padding: '9px 16px', borderRadius: '10px', fontWeight: 'bold', margin: 0 }}
-                  title="ຄືນສິນຄ້າ / ຄືນເງິນ"
+                  title={db.getLabel('auto_ຄືນສິນຄ້າ___ຄືນເງິນ_63o73v', `ຄືນສິນຄ້າ / ຄືນເງິນ`)}
                 >
                   ↩️ {db.getLabel('pos_return_refund', 'ຄືນສິນຄ້າ')}
                 </button>
@@ -3084,10 +3084,10 @@ export default function POS({
                 style={{ maxWidth: '240px', background: 'rgba(0,0,0,0.4)', color: 'white', border: '1px solid var(--border-color)', height: '36px', borderRadius: '10px', fontSize: '0.85rem', padding: '0 12px', margin: 0 }}
               />
               <div style={{ display: 'flex', gap: '6px', fontSize: '0.72rem', flexWrap: 'wrap' }}>
-                <span style={{ padding: '3px 8px', borderRadius: '20px', background: 'rgba(39,174,96,0.12)', border: '1px solid rgba(39,174,96,0.3)', color: '#2ecc71' }}>🟢 ມີສິນຄ້າ</span>
-                <span style={{ padding: '3px 8px', borderRadius: '20px', background: 'rgba(52,152,219,0.12)', border: '1px solid rgba(52,152,219,0.3)', color: '#3498db' }}>🔵 ມັດຈຳແລ້ວ</span>
-                <span style={{ padding: '3px 8px', borderRadius: '20px', background: 'rgba(231,76,60,0.12)', border: '1px solid rgba(231,76,60,0.3)', color: '#e74c3c' }}>🔴 ຕິດໜີ້</span>
-                <span style={{ padding: '3px 8px', borderRadius: '20px', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)', color: 'var(--gold-primary)' }}>⚪ ວ່າງ</span>
+                <span style={{ padding: '3px 8px', borderRadius: '20px', background: 'rgba(39,174,96,0.12)', border: '1px solid rgba(39,174,96,0.3)', color: '#2ecc71' }}>{db.getLabel('auto____ມີສິນຄ້າ_7kxzd9', `🟢 ມີສິນຄ້າ`)}</span>
+                <span style={{ padding: '3px 8px', borderRadius: '20px', background: 'rgba(52,152,219,0.12)', border: '1px solid rgba(52,152,219,0.3)', color: '#3498db' }}>{db.getLabel('auto____ມັດຈຳແລ້ວ_vpkkuh', `🔵 ມັດຈຳແລ້ວ`)}</span>
+                <span style={{ padding: '3px 8px', borderRadius: '20px', background: 'rgba(231,76,60,0.12)', border: '1px solid rgba(231,76,60,0.3)', color: '#e74c3c' }}>{db.getLabel('auto____ຕິດໜີ້_7nzi58', `🔴 ຕິດໜີ້`)}</span>
+                <span style={{ padding: '3px 8px', borderRadius: '20px', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)', color: 'var(--gold-primary)' }}>{db.getLabel('auto___ວ່າງ_swlu4', `⚪ ວ່າງ`)}</span>
               </div>
             </div>
           </div>
@@ -4006,7 +4006,7 @@ export default function POS({
           <div className="modal-overlay" style={{ zIndex: 1200 }}>
             <div className="modal-content modal-sm animate-fade-in">
               <div className="modal-header">
-                <span className="modal-title">🏷️ ສ່ວນຫຼຸດ / Discount</span>
+                <span className="modal-title">{db.getLabel('auto_____ສ່ວນຫຼຸດ___Discount_20uzqv', `🏷️ ສ່ວນຫຼຸດ / Discount`)}</span>
                 <button style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowDiscountModal(false)}>✕</button>
               </div>
               <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -4267,7 +4267,7 @@ export default function POS({
 
                   {entryCustomerId ? (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(39,174,96,0.1)', border: '1px solid rgba(39,174,96,0.2)', padding: '6px 12px', borderRadius: '6px', fontSize: '0.75rem', color: '#2ecc71', marginTop: '2px', textAlign: 'left' }}>
-                      <span>✓ ຜູກສະມາຊິກ: {entryCustomerId} ({entryDiscountType === 'percent' ? `${entryDiscountPercent}%` : `${entryDiscountAmount.toLocaleString()} ₭`})</span>
+                      <span>{db.getLabel('auto___ຜູກສະມາຊິກ__5azj67', `✓ ຜູກສະມາຊິກ:`)} {entryCustomerId} ({entryDiscountType === 'percent' ? `${entryDiscountPercent}%` : `${entryDiscountAmount.toLocaleString()} ₭`})</span>
                       <button type="button" onClick={() => {
                         setEntryCustomerId('');
                         setEntryDiscountType('percent');
@@ -4397,7 +4397,7 @@ export default function POS({
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="ເຊັ່ນ: ວີໄອພີ 1 (ຖ້າວ່າງຈະໃຊ້ລະຫັດແທນ)"
+                    placeholder={db.getLabel('auto_ເຊັ່ນ__ວີໄອພີ_1__ຖ້າວ່າງຈ_ucajhb', `ເຊັ່ນ: ວີໄອພີ 1 (ຖ້າວ່າງຈະໃຊ້ລະຫັດແທນ)`)}
                     value={newSlotLabel}
                     onChange={(e) => setNewSlotLabel(e.target.value)}
                   />
@@ -4430,7 +4430,7 @@ export default function POS({
         <div className="modal-overlay" style={{ zIndex: 1250 }}>
           <div className="modal-content glass-card" style={{ padding: '24px', maxWidth: '560px', width: '100%', maxHeight: '92dvh', display: 'flex', flexDirection: 'column' }}>
             <div className="modal-header">
-              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>↩️ ຄືນສິນຄ້າ / ຄືນເງິນ (Return &amp; Refund)</h3>
+              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>{db.getLabel('auto____ຄືນສິນຄ້າ___ຄືນເງິນ__R_ponfn5', `↩️ ຄືນສິນຄ້າ / ຄືນເງິນ (Return &amp; Refund)`)}</h3>
               <button className="close-btn" onClick={() => setShowReturnModal(false)}>✕</button>
             </div>
 
@@ -4446,7 +4446,7 @@ export default function POS({
                     onChange={(e) => setReturnLookupId(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleLookupReturn(); } }}
                   />
-                  <button type="button" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }} onClick={handleLookupReturn}>🔍 ຄົ້ນຫາ</button>
+                  <button type="button" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }} onClick={handleLookupReturn}>{db.getLabel('auto____ຄົ້ນຫາ_36jo3m', `🔍 ຄົ້ນຫາ`)}</button>
                 </div>
               </div>
 
@@ -4460,8 +4460,8 @@ export default function POS({
               {returnOrder && (
                 <>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                    ບິນ <strong style={{ color: 'var(--gold-primary)' }}>{returnOrder.id}</strong> • {new Date(returnOrder.date).toLocaleString('lo-LA')} • ຍອດລວມ {(returnOrder.total || 0).toLocaleString()} ₭
-                    {returnOrder.refundedAmount > 0 && <span style={{ color: 'var(--alert-red)' }}> • ຄືນແລ້ວ {returnOrder.refundedAmount.toLocaleString()} ₭</span>}
+                    ບິນ <strong style={{ color: 'var(--gold-primary)' }}>{returnOrder.id}</strong> • {new Date(returnOrder.date).toLocaleString('lo-LA')} {db.getLabel('auto___ຍອດລວມ_fneld5', `• ຍອດລວມ`)} {(returnOrder.total || 0).toLocaleString()} ₭
+                    {returnOrder.refundedAmount > 0 && <span style={{ color: 'var(--alert-red)' }}> {db.getLabel('auto___ຄືນແລ້ວ_2q4pca', `• ຄືນແລ້ວ`)} {returnOrder.refundedAmount.toLocaleString()} ₭</span>}
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -4471,7 +4471,7 @@ export default function POS({
                         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px', borderRadius: '8px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', opacity: maxQty === 0 ? 0.5 : 1 }}>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: '0.85rem', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
-                            <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{(item.price || 0).toLocaleString()} ₭ × {item.qty} • ຄືນໄດ້ {maxQty}</div>
+                            <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{(item.price || 0).toLocaleString()} ₭ × {item.qty} {db.getLabel('auto___ຄືນໄດ້_bjlr8x', `• ຄືນໄດ້`)} {maxQty}</div>
                           </div>
                           <input
                             type="number"
@@ -4541,7 +4541,7 @@ export default function POS({
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content animate-fade-in" style={{ maxWidth: '480px', padding: 0, height: '100dvh', maxHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
             <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid var(--border-color)' }}>
-              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>🛠️ ຕັ້ງຄ່າການບໍລິການອັດກອບ</h3>
+              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>{db.getLabel('auto_____ຕັ້ງຄ່າການບໍລິການອັດກ_bvtucc', `🛠️ ຕັ້ງຄ່າການບໍລິການອັດກອບ`)}</h3>
               <button style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => { setShowServiceConfigModal(false); setServiceConfigProduct(null); }}>✕</button>
             </div>
 
@@ -4549,7 +4549,7 @@ export default function POS({
               <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px', overflowY: 'auto' }}>
                 <div style={{ background: 'rgba(255,255,255,0.02)', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
                   <div style={{ fontWeight: 'bold', fontSize: '1rem', color: 'white' }}>{serviceConfigProduct.name}</div>
-                  <div style={{ color: 'var(--gold-primary)', fontWeight: 'bold', marginTop: '4px' }}>₭{(serviceConfigProduct.price || 0).toLocaleString()} / ອົງ</div>
+                  <div style={{ color: 'var(--gold-primary)', fontWeight: 'bold', marginTop: '4px' }}>₭{(serviceConfigProduct.price || 0).toLocaleString()} {db.getLabel('auto___ອົງ_smqeg', `/ ອົງ`)}</div>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -4727,7 +4727,7 @@ export default function POS({
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content modal-sm animate-fade-in" style={{ padding: '24px' }}>
             <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>✏️ ແກ້ໄຂຂໍ້ມູນບັດຄິວ / Edit Queue Slot</h3>
+              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>{db.getLabel('auto____ແກ້ໄຂຂໍ້ມູນບັດຄິວ___Ed_3nfqk6', `✏️ ແກ້ໄຂຂໍ້ມູນບັດຄິວ / Edit Queue Slot`)}</h3>
               <button style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowRenameModal(false)}>✕</button>
             </div>
             
@@ -4828,13 +4828,13 @@ export default function POS({
 
                 {renameCustomerId ? (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(39,174,96,0.1)', border: '1px solid rgba(39,174,96,0.2)', padding: '6px 12px', borderRadius: '6px', fontSize: '0.75rem', color: '#2ecc71', marginTop: '4px' }}>
-                    <span>✓ ເຊື່ອມຕໍ່ສະມາຊິກແລ້ວ: {renameCustomerId} ({renameDiscountType === 'percent' ? `${renameDiscountPercent}%` : `${renameDiscountAmount.toLocaleString()} ₭`})</span>
+                    <span>{db.getLabel('auto___ເຊື່ອມຕໍ່ສະມາຊິກແລ້ວ__sn3k5w', `✓ ເຊື່ອມຕໍ່ສະມາຊິກແລ້ວ:`)} {renameCustomerId} ({renameDiscountType === 'percent' ? `${renameDiscountPercent}%` : `${renameDiscountAmount.toLocaleString()} ₭`})</span>
                     <button type="button" onClick={() => {
                       setRenameCustomerId('');
                       setRenameDiscountType('percent');
                       setRenameDiscountPercent(0);
                       setRenameDiscountAmount(0);
-                    }} style={{ background: 'none', border: 'none', color: '#e74c3c', cursor: 'pointer', fontSize: '0.85rem' }}>✕ ຍົກເລີກ</button>
+                    }} style={{ background: 'none', border: 'none', color: '#e74c3c', cursor: 'pointer', fontSize: '0.85rem' }}>{db.getLabel('auto___ຍົກເລີກ_il20hl', `✕ ຍົກເລີກ`)}</button>
                   </div>
                 ) : (
                   <div style={{ border: '1.5px dashed var(--border-color)', borderRadius: '8px', padding: '12px', marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -5085,7 +5085,7 @@ export default function POS({
                   </div>
                   {activePromo && (
                     <div style={{ marginTop: '6px', fontSize: '0.75rem', color: '#2ecc71', fontWeight: 'bold' }}>
-                      🎉 {activePromo.name} — ຫຼຸດ {activePromo.type === 'percentage' ? activePromo.value + '%' : activePromo.value.toLocaleString() + ' ₭'}
+                      🎉 {activePromo.name} {db.getLabel('auto___ຫຼຸດ_g4ra07', `— ຫຼຸດ`)} {activePromo.type === 'percentage' ? activePromo.value + '%' : activePromo.value.toLocaleString() + ' ₭'}
                     </div>
                   )}
                 </div>
@@ -5097,14 +5097,14 @@ export default function POS({
                     return (
                       <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.07)', padding: '14px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                          <span style={{ fontSize: '0.78rem', color: 'var(--gold-primary)', fontWeight: 'bold' }}>💎 ສະສົມຄະແນນ (Loyalty Points)</span>
+                          <span style={{ fontSize: '0.78rem', color: 'var(--gold-primary)', fontWeight: 'bold' }}>{db.getLabel('auto____ສະສົມຄະແນນ__Loyalty_Po_xh736y', `💎 ສະສົມຄະແນນ (Loyalty Points)`)}</span>
                           <span style={{ fontSize: '0.8rem', color: 'white', fontWeight: 'bold' }}>{db.getLabel('auto_ມີ_2khg', `ມີ`)} {customerObj.points || 0} {db.getLabel('auto_ຄະແນນ_cczde3', `ຄະແນນ`)}</span>
                         </div>
                         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                           <input
                             type="number"
                             className="form-control"
-                            placeholder="ປ້ອນຈຳນວນຄະແນນ..."
+                            placeholder={db.getLabel('auto_ປ້ອນຈຳນວນຄະແນນ____6kjd7j', `ປ້ອນຈຳນວນຄະແນນ...`)}
                             value={pointsToRedeem}
                             onChange={(e) => {
                               const val = Math.min(customerObj.points, Math.max(0, parseInt(e.target.value) || 0));
@@ -5130,7 +5130,7 @@ export default function POS({
                         </div>
                         {redeemedPoints > 0 && (
                           <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#2ecc71', display: 'flex', justifyContent: 'space-between' }}>
-                            <span>🎉 ແລກຄະແນນ {redeemedPoints} {db.getLabel('auto_ຄະແນນສຳເລັດ__9j922j', `ຄະແນນສຳເລັດ!`)}</span>
+                            <span>{db.getLabel('auto____ແລກຄະແນນ_j0yut', `🎉 ແລກຄະແນນ`)} {redeemedPoints} {db.getLabel('auto_ຄະແນນສຳເລັດ__9j922j', `ຄະແນນສຳເລັດ!`)}</span>
                             <span>-{redeemedDiscount.toLocaleString()} ₭</span>
                           </div>
                         )}
@@ -5191,7 +5191,7 @@ export default function POS({
                       >
                         <span style={{ fontSize: '1.1rem' }}>{m.icon}</span>
                         {m.label}
-                        {paymentMethod === m.key && <span style={{ marginLeft: 'auto', fontSize: '0.75rem', color: m.color }}>✓ ເລືອກ</span>}
+                        {paymentMethod === m.key && <span style={{ marginLeft: 'auto', fontSize: '0.75rem', color: m.color }}>{db.getLabel('auto___ເລືອກ_3qe4nt', `✓ ເລືອກ`)}</span>}
                       </button>
                     ))}
                   </div>
@@ -5421,11 +5421,11 @@ export default function POS({
                         }}>
                           {bcelPaymentStatus === 'success' ? (
                             <div style={{ color: '#2ecc71', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                              <span>✅ ໄດ້ຮັບເງິນແລ້ວ! ກຳລັງພິມບິນ...</span>
+                              <span>{db.getLabel('auto___ໄດ້ຮັບເງິນແລ້ວ__ກຳລັງພິ_ilv5d5', `✅ ໄດ້ຮັບເງິນແລ້ວ! ກຳລັງພິມບິນ...`)}</span>
                             </div>
                           ) : (
                             <div style={{ color: 'var(--text-secondary)' }}>
-                              <span>📱 ກະລຸນາສະແກນຄິວອານີ້ເພື່ອຊຳລະເງິນ</span>
+                              <span>{db.getLabel('auto____ກະລຸນາສະແກນຄິວອານີ້ເພື_w0eiap', `📱 ກະລຸນາສະແກນຄິວອານີ້ເພື່ອຊຳລະເງິນ`)}</span>
                             </div>
                           )}
                         </div>
@@ -5549,7 +5549,7 @@ export default function POS({
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                       <div>
-                        <label style={{ fontSize: '0.78rem', color: '#27ae60', fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>💵 ເງິນສົດ</label>
+                        <label style={{ fontSize: '0.78rem', color: '#27ae60', fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>{db.getLabel('auto____ເງິນສົດ_lwldox', `💵 ເງິນສົດ`)}</label>
                         <input
                           type="number"
                           value={cashReceived}
@@ -5573,7 +5573,7 @@ export default function POS({
                         />
                       </div>
                       <div>
-                        <label style={{ fontSize: '0.78rem', color: '#3498db', fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>📱 ຍອດໂອນ</label>
+                        <label style={{ fontSize: '0.78rem', color: '#3498db', fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>{db.getLabel('auto____ຍອດໂອນ_ouzupm', `📱 ຍອດໂອນ`)}</label>
                         <input
                           type="number"
                           value={transferAmount}
@@ -5618,7 +5618,7 @@ export default function POS({
                     </div>
 
                     <div>
-                      <label style={{ fontSize: '0.78rem', color: 'var(--gold-primary)', fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>🔢 ເລກອ້າງອີງ (Tx Ref) *</label>
+                      <label style={{ fontSize: '0.78rem', color: 'var(--gold-primary)', fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>{db.getLabel('auto____ເລກອ້າງອີງ__Tx_Ref____3hpjrb', `🔢 ເລກອ້າງອີງ (Tx Ref) *`)}</label>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <input
                           type="text"
@@ -5719,7 +5719,7 @@ export default function POS({
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content modal-sm animate-fade-in">
             <div className="modal-header">
-              <span className="modal-title">🔑 ຕ້ອງໃຊ້ລະຫັດແອດມິນ (Admin PIN)</span>
+              <span className="modal-title">{db.getLabel('auto____ຕ້ອງໃຊ້ລະຫັດແອດມິນ__Ad_qkb0l6', `🔑 ຕ້ອງໃຊ້ລະຫັດແອດມິນ (Admin PIN)`)}</span>
               <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => { setShowAdminPinModal(false); setPendingDeleteIndex(-1); }}>✕</button>
             </div>
             
@@ -5767,13 +5767,13 @@ export default function POS({
         <div className="modal-overlay">
           <div className="modal-content modal-sm animate-fade-in">
             <div className="modal-header">
-              <span className="modal-title">📒 ລົງທະບຽນລູກຄ້າຕິດໜີ້ (Customer Credit)</span>
+              <span className="modal-title">{db.getLabel('auto____ລົງທະບຽນລູກຄ້າຕິດໜີ້___pd0nm0', `📒 ລົງທະບຽນລູກຄ້າຕິດໜີ້ (Customer Credit)`)}</span>
               <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowDebtModal(false)}>✕</button>
             </div>
             <form onSubmit={handleProcessDebtSubmit}>
               <div className="modal-body">
                 <div className="form-group" style={{ position: 'relative' }}>
-                  <label className="form-label">🔍 ຄົ້ນຫາຂໍ້ມູນສະມາຊິກ (Search Member)</label>
+                  <label className="form-label">{db.getLabel('auto____ຄົ້ນຫາຂໍ້ມູນສະມາຊິກ__S_bdq2ym', `🔍 ຄົ້ນຫາຂໍ້ມູນສະມາຊິກ (Search Member)`)}</label>
                   <input
                     type="text"
                     className="form-control"
@@ -5861,7 +5861,7 @@ export default function POS({
         <div className="modal-overlay print-modal">
           <div className="modal-content animate-fade-in" style={{ maxWidth: '400px' }}>
             <div className="modal-header no-print">
-              <span className="modal-title">📥 ໃບສັ່ງງານອັດກອບພຣະ (Production Slip)</span>
+              <span className="modal-title">{db.getLabel('auto____ໃບສັ່ງງານອັດກອບພຣະ__Pr_hxeula', `📥 ໃບສັ່ງງານອັດກອບພຣະ (Production Slip)`)}</span>
               <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowWorkOrder(false)}>✕</button>
             </div>
             
@@ -5927,7 +5927,7 @@ export default function POS({
             
             <div className="modal-footer no-print">
               <button className="btn btn-secondary" onClick={() => setShowWorkOrder(false)}>{db.getLabel('auto_ປິດ_27lff', `ປິດ`)}</button>
-              <button className="btn btn-primary" onClick={handlePrint}>🖨️ ປຣິນໃບສັ່ງງານ</button>
+              <button className="btn btn-primary" onClick={handlePrint}>{db.getLabel('auto_____ປຣິນໃບສັ່ງງານ_fhcoa0', `🖨️ ປຣິນໃບສັ່ງງານ`)}</button>
             </div>
           </div>
         </div>
@@ -5982,7 +5982,7 @@ export default function POS({
                   {settings.receiptShowContactInfo !== false && (
                     <>
                       <div className="print-receipt-subtitle" style={{ fontSize: settings.receiptContactFontSize || 'calc(100% - 2pt)', textAlign: 'center' }}>{settings.receiptHeaderNote || settings.shopSubtitle}</div>
-                      <div className="print-receipt-subtitle" style={{ fontSize: settings.receiptContactFontSize || 'calc(100% - 2pt)', textAlign: 'center' }}>{settings.shopAddress} | ໂທ: {settings.shopPhone}</div>
+                      <div className="print-receipt-subtitle" style={{ fontSize: settings.receiptContactFontSize || 'calc(100% - 2pt)', textAlign: 'center' }}>{settings.shopAddress} {db.getLabel('auto___ໂທ__1yz7z5', `| ໂທ:`)} {settings.shopPhone}</div>
                     </>
                   )}
                 </div>
@@ -6093,7 +6093,7 @@ export default function POS({
                         })()}
                         {currentReceipt.redeemedPoints > 0 && (
                           <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px', color: '#27ae60' }}>
-                            <span>💎 ແລກຄະແນນ ({currentReceipt.redeemedPoints} Pts):</span>
+                            <span>{db.getLabel('auto____ແລກຄະແນນ___aomea9', `💎 ແລກຄະແນນ (`)}{currentReceipt.redeemedPoints} Pts):</span>
                             <span>-{currentReceipt.redeemedDiscount.toLocaleString()} {db.getLabel('auto_ກີບ_2726e', `ກີບ`)}</span>
                           </div>
                         )}
@@ -6117,7 +6117,7 @@ export default function POS({
                         )}
                         {currentReceipt.pointsEarned > 0 && (
                           <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px', borderTop: '1px dotted #ccc', paddingTop: '4px', color: '#f39c12' }}>
-                            <span>💎 ຄະແນນທີ່ໄດ້ຮັບ (Points Earned):</span>
+                            <span>{db.getLabel('auto____ຄະແນນທີ່ໄດ້ຮັບ__Points_wgd679', `💎 ຄະແນນທີ່ໄດ້ຮັບ (Points Earned):`)}</span>
                             <span>+{currentReceipt.pointsEarned} Pts</span>
                           </div>
                         )}
@@ -6193,7 +6193,7 @@ export default function POS({
                   settings.receiptShowChange !== false && (
                     <>
                       <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px' }}>
-                        <span>💵 ຮັບເງິນສົດ ({currentReceipt.payCurrency}):</span>
+                        <span>{db.getLabel('auto____ຮັບເງິນສົດ___tid28g', `💵 ຮັບເງິນສົດ (`)}{currentReceipt.payCurrency}):</span>
                         <span>
                           {currentReceipt.payCurrency === 'USD'
                             ? Number(currentReceipt.currencyCashReceived).toFixed(2) + ' USD'
@@ -6201,7 +6201,7 @@ export default function POS({
                         </span>
                       </div>
                       <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '2px' }}>
-                        <span>📱 ຍອດໂອນ ({currentReceipt.payCurrency}):</span>
+                        <span>{db.getLabel('auto____ຍອດໂອນ___p18d6a', `📱 ຍອດໂອນ (`)}{currentReceipt.payCurrency}):</span>
                         <span>
                           {currentReceipt.payCurrency === 'USD'
                             ? Number(currentReceipt.currencyTransferAmount).toFixed(2) + ' USD'
@@ -6246,7 +6246,7 @@ export default function POS({
                 ) : settings.receiptShowChange !== false && currentReceipt.paymentMethod === 'transfer' ? (
                   <>
                     <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'normal', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1.5pt)`, marginTop: '4px' }}>
-                      <span>📱 ຍອດໂອນ ({currentReceipt.payCurrency}):</span>
+                      <span>{db.getLabel('auto____ຍອດໂອນ___p18d6a', `📱 ຍອດໂອນ (`)}{currentReceipt.payCurrency}):</span>
                       <span>
                         {currentReceipt.payCurrency === 'USD'
                           ? Number(currentReceipt.currencyTransferAmount).toFixed(2) + ' USD'
@@ -6262,7 +6262,7 @@ export default function POS({
                   </>
                 ) : currentReceipt.paymentMethod === 'debt' ? (
                   <div className="print-receipt-totals" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 1pt)`, marginTop: '4px', color: '#e74c3c' }}>
-                    <span>📒 ຍອດຕິດໜີ້ (Debt):</span>
+                    <span>{db.getLabel('auto____ຍອດຕິດໜີ້__Debt___g363dc', `📒 ຍອດຕິດໜີ້ (Debt):`)}</span>
                     <span>{remainingBalanceFinal.toLocaleString()} {db.getLabel('auto_ກີບ_2726e', `ກີບ`)}</span>
                   </div>
                 ) : (
@@ -6380,7 +6380,7 @@ export default function POS({
             </div>
             <div className="modal-footer no-print">
               <button className="btn btn-secondary" onClick={() => setShowReceipt(false)}>{db.getLabel('auto_ປິດ_27lff', `ປິດ`)}</button>
-              <button className="btn btn-primary" onClick={handlePrint}>🖨️ ປຣິນໃບບິນ</button>
+              <button className="btn btn-primary" onClick={handlePrint}>{db.getLabel('auto_____ປຣິນໃບບິນ_xd5j0f', `🖨️ ປຣິນໃບບິນ`)}</button>
             </div>
           </div>
         </div>
@@ -6393,7 +6393,7 @@ export default function POS({
         <div className="modal-overlay">
           <div className="modal-content modal-md animate-fade-in">
             <div className="modal-header">
-              <span className="modal-title">➕ ລົງທະບຽນຮັບງານອັດກອບພຣະເຄື່ອງ</span>
+              <span className="modal-title">{db.getLabel('auto___ລົງທະບຽນຮັບງານອັດກອບພຣະ_ke13ta', `➕ ລົງທະບຽນຮັບງານອັດກອບພຣະເຄື່ອງ`)}</span>
               <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowFramingAddModal(false)}>✕</button>
             </div>
             
@@ -6435,7 +6435,7 @@ export default function POS({
                 {/* Dynamic Amulets list */}
                 <div style={{ marginBottom: '15px' }}>
                   <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span>📿 ລາຍການພຣະເຄື່ອງ ({framingFormData.amulets?.length || 0} {db.getLabel('auto_ອົງ__1wv2y8', `ອົງ)`)}</span>
+                    <span>{db.getLabel('auto____ລາຍການພຣະເຄື່ອງ___98gknw', `📿 ລາຍການພຣະເຄື່ອງ (`)}{framingFormData.amulets?.length || 0} {db.getLabel('auto_ອົງ__1wv2y8', `ອົງ)`)}</span>
                     <button
                       type="button"
                       className="btn btn-secondary"
@@ -6495,7 +6495,7 @@ export default function POS({
                             type="text"
                             className="form-control"
                             style={{ padding: '6px', fontSize: '0.8rem' }}
-                            placeholder="ລາຍລະອຽດພຣະ (ຊື່ພຣະເຄື່ອງ...)"
+                            placeholder={db.getLabel('auto_ລາຍລະອຽດພຣະ__ຊື່ພຣະເຄື່ອງ_e8ht58', `ລາຍລະອຽດພຣະ (ຊື່ພຣະເຄື່ອງ...)`)}
                             required
                             value={amulet.description}
                             onChange={(e) => {
@@ -6694,7 +6694,7 @@ export default function POS({
         <div className="modal-overlay">
           <div className="modal-content animate-fade-in" style={{ maxWidth: '500px' }}>
             <div className="modal-header">
-              <span className="modal-title">📝 ແກ້ໄຂຂໍ້ມູນງານອັດກອບພຣະເຄື່ອງ ({currentFramingJob.id})</span>
+              <span className="modal-title">{db.getLabel('auto____ແກ້ໄຂຂໍ້ມູນງານອັດກອບພຣ_lphjgg', `📝 ແກ້ໄຂຂໍ້ມູນງານອັດກອບພຣະເຄື່ອງ (`)}{currentFramingJob.id})</span>
               <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => { setShowFramingEditModal(false); setCurrentFramingJob(null); }}>✕</button>
             </div>
             
@@ -6736,7 +6736,7 @@ export default function POS({
                 {/* Dynamic Amulets list */}
                 <div style={{ marginBottom: '15px' }}>
                   <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span>📿 ລາຍການພຣະເຄື່ອງ ({framingFormData.amulets?.length || 0} {db.getLabel('auto_ອົງ__1wv2y8', `ອົງ)`)}</span>
+                    <span>{db.getLabel('auto____ລາຍການພຣະເຄື່ອງ___98gknw', `📿 ລາຍການພຣະເຄື່ອງ (`)}{framingFormData.amulets?.length || 0} {db.getLabel('auto_ອົງ__1wv2y8', `ອົງ)`)}</span>
                     <button
                       type="button"
                       className="btn btn-secondary"
@@ -6871,7 +6871,7 @@ export default function POS({
                             type="text"
                             className="form-control"
                             style={{ padding: '6px', fontSize: '0.8rem' }}
-                            placeholder="ໝາຍເຫດພິເສດ (ເຊັ່ນ: ກອບໜາ, ຢາງແດງ...)"
+                            placeholder={db.getLabel('auto_ໝາຍເຫດພິເສດ__ເຊັ່ນ__ກອບໜາ_yqamd9', `ໝາຍເຫດພິເສດ (ເຊັ່ນ: ກອບໜາ, ຢາງແດງ...)`)}
                             value={amulet.specialNotes || ''}
                             onChange={(e) => {
                               const newAmulets = [...framingFormData.amulets];
@@ -6962,7 +6962,7 @@ export default function POS({
                       amulets: []
                     });
                   }}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
-                  <button type="submit" className="btn btn-primary">💾 ບັນທຶກການແກ້ໄຂ</button>
+                  <button type="submit" className="btn btn-primary">{db.getLabel('auto____ບັນທຶກການແກ້ໄຂ_doa6vy', `💾 ບັນທຶກການແກ້ໄຂ`)}</button>
                 </div>
               </div>
             </form>
@@ -6977,7 +6977,7 @@ export default function POS({
         <div className="modal-overlay print-modal">
           <div className="modal-content animate-fade-in" style={{ maxWidth: '400px' }}>
             <div className="modal-header no-print">
-              <span className="modal-title">🎫 ໃບບິນຮັບຝາກພຣະ (Job Receipt)</span>
+              <span className="modal-title">{db.getLabel('auto____ໃບບິນຮັບຝາກພຣະ__Job_Re_n74qh1', `🎫 ໃບບິນຮັບຝາກພຣະ (Job Receipt)`)}</span>
               <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowFramingPrintModal(false)}>✕</button>
             </div>
 
@@ -7017,8 +7017,8 @@ export default function POS({
                   {settings.receiptShowContactInfo !== false && (
                     <>
                       <div className="print-receipt-subtitle" style={{ fontSize: settings.receiptContactFontSize || 'calc(100% - 2pt)', textAlign: 'center' }}>{settings.receiptHeaderNote || settings.shopSubtitle || 'ໃບບິນຮັບຝາກອັດກອບພຣະເຄື່ອງ'}</div>
-                      <div className="print-receipt-subtitle" style={{ fontSize: settings.receiptContactFontSize || 'calc(100% - 2pt)', textAlign: 'center' }}>{settings.shopAddress} | ໂທ: {settings.shopPhone}</div>
-                      <div className="print-receipt-subtitle" style={{ fontSize: `calc(${settings.receiptContactFontSize || 'calc(100% - 2pt)'} - 0.5pt)`, textAlign: 'center', fontStyle: 'italic', fontWeight: 'bold' }}>(ໃບບິນຮັບຝາກອັດກອບ - ສຳເນົາລູກຄ້າ)</div>
+                      <div className="print-receipt-subtitle" style={{ fontSize: settings.receiptContactFontSize || 'calc(100% - 2pt)', textAlign: 'center' }}>{settings.shopAddress} {db.getLabel('auto___ໂທ__1yz7z5', `| ໂທ:`)} {settings.shopPhone}</div>
+                      <div className="print-receipt-subtitle" style={{ fontSize: `calc(${settings.receiptContactFontSize || 'calc(100% - 2pt)'} - 0.5pt)`, textAlign: 'center', fontStyle: 'italic', fontWeight: 'bold' }}>{db.getLabel('auto__ໃບບິນຮັບຝາກອັດກອບ___ສຳເນ_jjprbk', `(ໃບບິນຮັບຝາກອັດກອບ - ສຳເນົາລູກຄ້າ)`)}</div>
                     </>
                   )}
                 </div>
@@ -7052,9 +7052,9 @@ export default function POS({
                             <div><b>{idx + 1}. {a.description || 'ພຣະເຄື່ອງ'}</b></div>
                             <div style={{ color: '#555', fontSize: '0.8rem' }}>{db.getLabel('auto_ກອບ__1w2pm4', `ກອບ:`)} {a.frameTypeName || 'ອັດກອບ'}</div>
                             <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '2px', lineHeight: '1.2' }}>
-                              {a.frameStyle && <div>• ຂອບ: {a.frameStyle}</div>}
-                              {a.acrylicThickness && <div>• ອັດກັນນ້ຳ: {a.acrylicThickness}</div>}
-                              {a.specialNotes && <div>• ໝາຍເຫດ: {a.specialNotes}</div>}
+                              {a.frameStyle && <div>{db.getLabel('auto___ຂອບ__9iv5mf', `• ຂອບ:`)} {a.frameStyle}</div>}
+                              {a.acrylicThickness && <div>{db.getLabel('auto___ອັດກັນນ້ຳ__kf7p2q', `• ອັດກັນນ້ຳ:`)} {a.acrylicThickness}</div>}
+                              {a.specialNotes && <div>{db.getLabel('auto___ໝາຍເຫດ__rxkpvv', `• ໝາຍເຫດ:`)} {a.specialNotes}</div>}
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginTop: '2px' }}>
                               <span>{db.getLabel('auto_ລາຄ___buuadd', `ລາຄา:`)}</span>
@@ -7119,7 +7119,7 @@ export default function POS({
                 {/* Job ticket barcode for scan-to-retrieve */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '12px' }}>
                   <canvas ref={framingBarcodeCanvasRef} width="220" height="75" />
-                  <p style={{ fontSize: `calc(${settings.receiptFontSize || '10pt'} - 3.5pt)`, color: '#666', marginTop: '2px' }}>*ນຳໃບບິນນີ້ມາສະແກນຮັບພຣະເຄື່ອງຄືນ</p>
+                  <p style={{ fontSize: `calc(${settings.receiptFontSize || '10pt'} - 3.5pt)`, color: '#666', marginTop: '2px' }}>{db.getLabel('auto__ນຳໃບບິນນີ້ມາສະແກນຮັບພຣະເ_wddsve', `*ນຳໃບບິນນີ້ມາສະແກນຮັບພຣະເຄື່ອງຄືນ`)}</p>
                 </div>
 
                 {/* Signatures */}
@@ -7147,7 +7147,7 @@ export default function POS({
             </div>
             <div className="modal-footer no-print">
               <button className="btn btn-secondary" onClick={() => setShowFramingPrintModal(false)}>{db.getLabel('auto_ປິດ_27lff', `ປິດ`)}</button>
-              <button className="btn btn-primary" onClick={handlePrint}>🖨️ ປຣິນໃບບິນຮັບຝາກ</button>
+              <button className="btn btn-primary" onClick={handlePrint}>{db.getLabel('auto_____ປຣິນໃບບິນຮັບຝາກ_28ky5o', `🖨️ ປຣິນໃບບິນຮັບຝາກ`)}</button>
             </div>
           </div>
         </div>
@@ -7278,7 +7278,7 @@ export default function POS({
                 className="btn btn-secondary"
                 onClick={() => setShowDepositInputModal(false)}
                 style={{ padding: '8px 16px', borderRadius: '8px' }}
-              >✕ ຍົກເລີກ</button>
+              >{db.getLabel('auto___ຍົກເລີກ_il20hl', `✕ ຍົກເລີກ`)}</button>
               <button
                 type="button"
                 className="btn btn-primary"
@@ -7331,7 +7331,7 @@ export default function POS({
                   boxShadow: '0 4px 15px rgba(212,175,55,0.3)',
                   cursor: 'pointer'
                 }}
-              >✓ ຢືນຢັນ</button>
+              >{db.getLabel('auto___ຢືນຢັນ_ur2bn7', `✓ ຢືນຢັນ`)}</button>
             </div>
           </div>
         </div>
