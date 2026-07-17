@@ -3969,13 +3969,13 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
                   <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '780px' }}>
                     <thead>
                       <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
-                        <th style={{ padding: '12px' }}>{db.getLabel(db.getLabel(db.getLabel(db.getLabel('auto_auto_auto_auto_ເລກບິນ__ID_c8hqfw', 'auto_auto_auto_ເລກບິນ__ID__rz3_obhnn7'), 'auto_auto_ເລກບິນ__ID__rz3rst_f2xlx2'), 'auto_ເລກບິນ__ID__rz3rst'), `ເລກບິນ (ID)`)}</th>
-                        <th style={{ padding: '12px' }}>{db.getLabel(db.getLabel(db.getLabel(db.getLabel('auto_auto_auto_auto_ວັນທີ___ເວ_za5efg', 'auto_auto_auto_ວັນທີ___ເວລາ_8i_sdfvbh'), 'auto_auto_ວັນທີ___ເວລາ_8idz7c_dk0q5g'), 'auto_ວັນທີ___ເວລາ_8idz7c'), `ວັນທີ / ເວລາ`)}</th>
-                        <th style={{ padding: '12px' }}>{db.getLabel(db.getLabel(db.getLabel(db.getLabel('auto_auto_auto_auto_ຜູ້ອະນຸມັດ_wu35hg', 'auto_auto_auto_ຜູ້ອະນຸມັດ__Tre_vlzlt2'), 'auto_auto_ຜູ້ອະນຸມັດ__Treated__lrioy0'), 'auto_ຜູ້ອະນຸມັດ__Treated_By__r0ywp9'), `ຜູ້ອະນຸມັດ (Treated By)`)}</th>
-                        <th style={{ padding: '12px' }}>{db.getLabel(db.getLabel(db.getLabel(db.getLabel('auto_auto_auto_auto_ລາຍການສິນຄ_buqy2p', 'auto_auto_auto_ລາຍການສິນຄ້າ_ny_aiepop'), 'auto_auto_ລາຍການສິນຄ້າ_nys70m_za29kl'), 'auto_ລາຍການສິນຄ້າ_nys70m'), `ລາຍການສິນຄ້າ`)}</th>
-                        <th style={{ padding: '12px', textAlign: 'right' }}>{db.getLabel(db.getLabel(db.getLabel(db.getLabel('auto_auto_auto_auto_ມູນຄ່າ__Va_ilvpqk', 'auto_auto_auto_ມູນຄ່າ__Value___ky8wrf'), 'auto_auto_ມູນຄ່າ__Value__b2mg0_qmtzag'), 'auto_ມູນຄ່າ__Value__b2mg0j'), `ມູນຄ່າ (Value)`)}</th>
-                        <th style={{ padding: '12px' }}>{db.getLabel(db.getLabel(db.getLabel(db.getLabel('auto_auto_auto_auto_ໝາຍເຫດ__Re_1voids', 'auto_auto_auto_ໝາຍເຫດ__Remark__n2g6u1'), 'auto_auto_ໝາຍເຫດ__Remark__r1io_50s6ww'), 'auto_ໝາຍເຫດ__Remark__r1iouo'), `ໝາຍເຫດ (Remark)`)}</th>
-                        <th style={{ padding: '12px', textAlign: 'center' }}>{db.getLabel(db.getLabel(db.getLabel(db.getLabel('auto_auto_auto_auto_ຈັດການ_q4z_30q4au', 'auto_auto_auto_ຈັດການ_q4z3sz_u_f5rny'), 'auto_auto_ຈັດການ_q4z3sz_u3t7kb'), 'auto_ຈັດການ_q4z3sz'), `ຈັດການ`)}</th>
+                        <th style={{ padding: '12px' }}>{db.getLabel('auto_auto_auto_auto_ເລກບິນ__ID_c8hqfw', `ເລກບິນ (ID)`)}</th>
+                        <th style={{ padding: '12px' }}>{db.getLabel('auto_auto_auto_auto_ວັນທີ___ເວ_za5efg', `ວັນທີ / ເວລາ`)}</th>
+                        <th style={{ padding: '12px' }}>{db.getLabel('auto_auto_auto_auto_ຜູ້ອະນຸມັດ_wu35hg', `ຜູ້ອະນຸມັດ (Treated By)`)}</th>
+                        <th style={{ padding: '12px' }}>{db.getLabel('auto_auto_auto_auto_ລາຍການສິນຄ_buqy2p', `ລາຍການສິນຄ້າ`)}</th>
+                        <th style={{ padding: '12px', textAlign: 'right' }}>{db.getLabel('auto_auto_auto_auto_ມູນຄ່າ__Va_ilvpqk', `ມູນຄ່າ (Value)`)}</th>
+                        <th style={{ padding: '12px' }}>{db.getLabel('auto_auto_auto_auto_ໝາຍເຫດ__Re_1voids', `ໝາຍເຫດ (Remark)`)}</th>
+                        <th style={{ padding: '12px', textAlign: 'center' }}>{db.getLabel('auto_auto_auto_auto_ຈັດການ_q4z_30q4au', `ຈັດການ`)}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -3983,7 +3983,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
                         <tr key={order.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', fontSize: '0.85rem', borderLeft: '3px solid #e67e22' }}>
                           <td style={{ padding: '12px', fontWeight: 'bold', color: 'var(--gold-primary)' }}>{order.id}</td>
                           <td style={{ padding: '12px', fontSize: '0.78rem' }}>{new Date(order.date).toLocaleString('lo-LA')}</td>
-                          <td style={{ padding: '12px', fontWeight: 'bold', color: '#e67e22' }}>{order.cashierName || db.getLabel(db.getLabel(db.getLabel('auto_auto_auto_ເຈົ້າຂອງຮ້ານ_u8_8f1h24', 'auto_auto_ເຈົ້າຂອງຮ້ານ_u8ftvi_p06b4f'), 'auto_ເຈົ້າຂອງຮ້ານ_u8ftvi'), 'ເຈົ້າຂອງຮ້ານ')}</td>
+                          <td style={{ padding: '12px', fontWeight: 'bold', color: '#e67e22' }}>{order.cashierName || db.getLabel('auto_auto_auto_ເຈົ້າຂອງຮ້ານ_u8_8f1h24', 'ເຈົ້າຂອງຮ້ານ')}</td>
                           <td style={{ padding: '12px', maxWidth: '220px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {(order.items || []).map(i => `${i.name} (x${i.qty})`).join(', ')}
                           </td>
@@ -3991,9 +3991,9 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
                           <td style={{ padding: '12px', color: '#e67e22', fontStyle: 'italic' }}>{order.treatRemark || '—'}</td>
                           <td style={{ padding: '12px', textAlign: 'center' }}>
                             <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                              <button style={btnOpen} onClick={() => handleReprint(order)}>{db.getLabel(db.getLabel(db.getLabel('auto_auto_auto_____ເປີດເບິ່ງ_c_c8lx4g', 'auto_auto_____ເປີດເບິ່ງ_ceeqwt_du3b0l'), 'auto_____ເປີດເບິ່ງ_ceeqwt'), `🖨️ ເປີດເບິ່ງ`)}</button>
-                              <button style={btnEdit} onClick={() => handleOpenEdit('order', order)}>{db.getLabel(db.getLabel(db.getLabel('auto_auto_auto____ແກ້ໄຂ_1rhy6x_79dctq', 'auto_auto____ແກ້ໄຂ_1rhy6x_q3h0fv'), 'auto____ແກ້ໄຂ_1rhy6x'), `✏️ ແກ້ໄຂ`)}</button>
-                              {hasReportsPermission('reportsDelete') && <button style={btnDel} onClick={() => handleRequestDelete('pos', order.id, 'ລ້ຽງແຂກ')}>{db.getLabel(db.getLabel(db.getLabel('auto_auto_auto_____ລຶບ_ps8og4__c8smxc', 'auto_auto_____ລຶບ_ps8og4_j7t0r7'), 'auto_____ລຶບ_ps8og4'), `🗑️ ລຶບ`)}</button>}
+                              <button style={btnOpen} onClick={() => handleReprint(order)}>{db.getLabel('auto_auto_auto_____ເປີດເບິ່ງ_c_c8lx4g', `🖨️ ເປີດເບິ່ງ`)}</button>
+                              <button style={btnEdit} onClick={() => handleOpenEdit('order', order)}>{db.getLabel('auto_auto_auto____ແກ້ໄຂ_1rhy6x_79dctq', `✏️ ແກ້ໄຂ`)}</button>
+                              {hasReportsPermission('reportsDelete') && <button style={btnDel} onClick={() => handleRequestDelete('pos', order.id, 'ລ້ຽງແຂກ')}>{db.getLabel('auto_auto_auto_____ລຶບ_ps8og4__c8smxc', `🗑️ ລຶບ`)}</button>}
                             </div>
                           </td>
                         </tr>

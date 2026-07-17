@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const bundlePath = 'file://' + path.resolve(__dirname, '../dist/assets/index-C3-mnKmt.js').replace(/\\/g, '/');
+const bundlePath = 'file://' + path.resolve(__dirname, '../dist/assets/index-BBXllJrP.js').replace(/\\/g, '/');
 
 // Mock browser globals
 global.window = {
@@ -21,10 +21,12 @@ global.window = {
   AudioContext: function() {}
 };
 global.MutationObserver = class { observe() {} disconnect() {} };
+global.HTMLIFrameElement = class {};
+global.window.HTMLIFrameElement = global.HTMLIFrameElement;
 global.document = {
-  getElementById: () => ({
-    appendChild: () => {}
-  }),
+  getElementById: () => rootElement,
+  addEventListener: () => {},
+  removeEventListener: () => {},
   createElement: () => ({
     setAttribute: () => {},
     style: {}
@@ -37,6 +39,14 @@ global.document = {
   },
   querySelector: () => null,
   querySelectorAll: () => []
+};
+
+const rootElement = {
+  nodeType: 1,
+  ownerDocument: global.document,
+  appendChild: () => {},
+  addEventListener: () => {},
+  removeEventListener: () => {}
 };
 Object.defineProperty(global, 'navigator', { value: global.window.navigator, configurable: true });
 Object.defineProperty(global, 'localStorage', { value: global.window.localStorage, configurable: true });
