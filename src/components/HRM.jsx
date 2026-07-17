@@ -74,7 +74,7 @@ const SUB_PERMS = {
 };
 
 
-export default function HRM({ activeUser, onUpdate }) {
+export default function HRM({ activeUser, onUpdate, isMobile }) {
   const hasHrmPermission = (subKey) => {
     if (!activeUser) return false;
     if (activeUser.role === 'owner') return true;
