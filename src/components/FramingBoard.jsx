@@ -161,7 +161,7 @@ export default function FramingBoard({
     const groups = {};
     jobsList.forEach(job => {
       if (!job) return;
-      const groupKey = job.orderId || `${job.slotId || '01'}_${job.customerName || 'ລູກຄ້າທົ່ວໄປ'}_${job.pickupDate ? String(job.pickupDate).slice(0, 10) : ''}`;
+      const groupKey = job.orderId || `${job.slotId || 'VIP1'}_${job.customerName || 'ລູກຄ້າທົ່ວໄປ'}_${job.pickupDate ? String(job.pickupDate).slice(0, 10) : ''}`;
       if (!groups[groupKey]) {
         groups[groupKey] = {
           ...job,

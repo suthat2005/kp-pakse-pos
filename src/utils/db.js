@@ -1948,29 +1948,25 @@ severity: 'info'
 ];
 
 const getInitialSlots = () => {
-const ids = [
-'01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16',
-'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9', 'P10', 'P11', 'P12', 'P13', 'P14', 'P15', 'P16',
-'OUT-1', 'OUT-2'
-];
-const slots = {};
-ids.forEach(id => {
-slots[id] = {
-id: id,
-label: id,
-items: [],
-notes: '',
-customerName: '',
-customerPhone: '',
-isDebt: false,
-debtId: '',
-amuletImage: '',
-discountPercent: 0,
-discountType: 'percent',
-discountAmount: 0
-};
-});
-return slots;
+  const slots = {};
+  for (let i = 1; i <= 34; i++) {
+    const id = `VIP${i}`;
+    slots[id] = {
+      id: id,
+      label: id,
+      items: [],
+      notes: '',
+      customerName: '',
+      customerPhone: '',
+      isDebt: false,
+      debtId: '',
+      amuletImage: '',
+      discountPercent: 0,
+      discountType: 'percent',
+      discountAmount: 0
+    };
+  }
+  return slots;
 };
 
 let syncIntervalId = null;
@@ -2463,10 +2459,61 @@ this.saveSettings(settings);
 
   getSlots() {
     this.init();
-    const slots = getStorage('slots', null);
+    let slots = getStorage('slots', null);
     if (!slots || typeof slots !== 'object') {
-      return getInitialSlots();
+      slots = getInitialSlots();
     }
+
+    // Auto-migration: check if slots have old labels or old keys
+    const slotKeys = Object.keys(slots);
+    const hasOldLabels = slotKeys.some(k => k === '01' || k === 'P1' || slots[k].label === '01' || slots[k].label === 'P1');
+
+    if (hasOldLabels) {
+      const oldOrder = [
+        '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16',
+        'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9', 'P10', 'P11', 'P12', 'P13', 'P14', 'P15', 'P16',
+        'OUT-1', 'OUT-2'
+      ];
+      
+      const newSlots = {};
+      oldOrder.forEach((oldId, idx) => {
+        const vipNum = idx + 1;
+        const newId = `VIP${vipNum}`;
+        if (slots[oldId]) {
+          newSlots[newId] = {
+            ...slots[oldId],
+            id: newId,
+            label: newId
+          };
+        } else {
+          newSlots[newId] = {
+            id: newId,
+            label: newId,
+            items: [],
+            notes: '',
+            customerName: '',
+            customerPhone: '',
+            isDebt: false,
+            debtId: '',
+            amuletImage: '',
+            discountPercent: 0,
+            discountType: 'percent',
+            discountAmount: 0
+          };
+        }
+      });
+
+      // Keep any custom slots added by user
+      slotKeys.forEach(k => {
+        if (!oldOrder.includes(k) && !k.startsWith('VIP')) {
+          newSlots[k] = slots[k];
+        }
+      });
+
+      slots = newSlots;
+      setStorage('slots', slots);
+    }
+
     if (slots['Walk-In']) {
       delete slots['Walk-In'];
       setStorage('slots', slots);
