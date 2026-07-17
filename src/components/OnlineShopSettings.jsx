@@ -146,30 +146,30 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div className="form-group">
-              <label className="form-label">ຊື່ຮ້ານອອນລາຍ (Online Shop Title)</label>
+              <label className="form-label">{db.getLabel('auto_ຊື່ຮ້ານອອນລາຍ__Online_Sho_v85sl6', `ຊື່ຮ້ານອອນລາຍ (Online Shop Title)`)}</label>
               <input
                 type="text"
                 className="form-control"
                 value={settings.onlineShopTitle || ''}
                 onChange={(e) => setSettings({ ...settings, onlineShopTitle: e.target.value })}
-                placeholder="ຂອບພຣະຣັທເກຊ Online"
+                placeholder={db.getLabel('auto_ຂອບພຣະຣັທເກຊ_Online_gltdrd', `ຂອບພຣະຣັທເກຊ Online`)}
               />
             </div>
             <div className="form-group">
-              <label className="form-label">ຄຳອະທິບາຍ (Announcement Description)</label>
+              <label className="form-label">{db.getLabel('auto_ຄຳອະທິບາຍ__Announcement_D_ya5d48', `ຄຳອະທິບາຍ (Announcement Description)`)}</label>
               <input
                 type="text"
                 className="form-control"
                 value={settings.onlineShopDescription || ''}
                 onChange={(e) => setSettings({ ...settings, onlineShopDescription: e.target.value })}
-                placeholder="ຍິນດີຕ້ອນຮັບສູ່ ຮ້ານອອນລາຍ..."
+                placeholder={db.getLabel('auto_ຍິນດີຕ້ອນຮັບສູ່_ຮ້ານອອນລາ_o8uvlm', `ຍິນດີຕ້ອນຮັບສູ່ ຮ້ານອອນລາຍ...`)}
               />
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
             <div className="form-group">
-              <label className="form-label">ເບີໂທຕິດຕໍ່ (Contact Phone)</label>
+              <label className="form-label">{db.getLabel('auto_ເບີໂທຕິດຕໍ່__Contact_Phon_392lou', `ເບີໂທຕິດຕໍ່ (Contact Phone)`)}</label>
               <input
                 type="text"
                 className="form-control"
@@ -179,7 +179,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
               />
             </div>
             <div className="form-group">
-              <label className="form-label">ອີເມວຕິດຕໍ່ (Email)</label>
+              <label className="form-label">{db.getLabel('auto_ອີເມວຕິດຕໍ່__Email__h8u6tq', `ອີເມວຕິດຕໍ່ (Email)`)}</label>
               <input
                 type="email"
                 className="form-control"
@@ -189,20 +189,20 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
               />
             </div>
             <div className="form-group">
-              <label className="form-label">ທີ່ຢູ່ຮ້ານ (Shop Address)</label>
+              <label className="form-label">{db.getLabel('auto_ທີ່ຢູ່ຮ້ານ__Shop_Address__wpjy6q', `ທີ່ຢູ່ຮ້ານ (Shop Address)`)}</label>
               <input
                 type="text"
                 className="form-control"
                 value={settings.onlineShopAddress || ''}
                 onChange={(e) => setSettings({ ...settings, onlineShopAddress: e.target.value })}
-                placeholder="ປາກເຊ, ແຂວງຈຳປາສັກ"
+                placeholder={db.getLabel('auto_ປາກເຊ__ແຂວງຈຳປາສັກ_h1h3gv', `ປາກເຊ, ແຂວງຈຳປາສັກ`)}
               />
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
             <div className="form-group">
-              <label className="form-label">ລິ້ງ Facebook (Facebook Link)</label>
+              <label className="form-label">{db.getLabel('auto_ລິ້ງ_Facebook__Facebook_L_oqghhm', `ລິ້ງ Facebook (Facebook Link)`)}</label>
               <input
                 type="text"
                 className="form-control"
@@ -212,7 +212,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
               />
             </div>
             <div className="form-group">
-              <label className="form-label">ລິ້ງ Telegram (Telegram Link)</label>
+              <label className="form-label">{db.getLabel('auto_ລິ້ງ_Telegram__Telegram_L_jekg2c', `ລິ້ງ Telegram (Telegram Link)`)}</label>
               <input
                 type="text"
                 className="form-control"
@@ -222,7 +222,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
               />
             </div>
             <div className="form-group">
-              <label className="form-label">ລິ້ງ Instagram (Instagram Link)</label>
+              <label className="form-label">{db.getLabel('auto_ລິ້ງ_Instagram__Instagram_2t28yu', `ລິ້ງ Instagram (Instagram Link)`)}</label>
               <input
                 type="text"
                 className="form-control"
@@ -235,7 +235,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div className="form-group">
-              <label className="form-label">ເວລາເປີດຮ້ານ (Open Time)</label>
+              <label className="form-label">{db.getLabel('auto_ເວລາເປີດຮ້ານ__Open_Time__e1ur36', `ເວລາເປີດຮ້ານ (Open Time)`)}</label>
               <input
                 type="time"
                 className="form-control"
@@ -244,7 +244,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
               />
             </div>
             <div className="form-group">
-              <label className="form-label">ເວລາປິດຮ້ານ (Close Time)</label>
+              <label className="form-label">{db.getLabel('auto_ເວລາປິດຮ້ານ__Close_Time__8ef5od', `ເວລາປິດຮ້ານ (Close Time)`)}</label>
               <input
                 type="time"
                 className="form-control"
@@ -256,7 +256,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div className="form-group">
-              <label className="form-label">ໂລໂກ້ຮ້ານອອນລາຍ (Online Shop Logo)</label>
+              <label className="form-label">{db.getLabel('auto_ໂລໂກ້ຮ້ານອອນລາຍ__Online_S_2qma21', `ໂລໂກ້ຮ້ານອອນລາຍ (Online Shop Logo)`)}</label>
               <input
                 type="file"
                 accept="image/*"
@@ -274,12 +274,12 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
               {settings.onlineShopLogo && (
                 <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <img src={settings.onlineShopLogo} alt="Shop Logo" style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--border-color)' }} />
-                  <button type="button" className="btn btn-secondary btn-sm" style={{ color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }} onClick={() => setSettings({ ...settings, onlineShopLogo: '' })}>ລຶບຮູບ (Delete)</button>
+                  <button type="button" className="btn btn-secondary btn-sm" style={{ color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }} onClick={() => setSettings({ ...settings, onlineShopLogo: '' })}>{db.getLabel('auto_ລຶບຮູບ__Delete__e8ldlc', `ລຶບຮູບ (Delete)`)}</button>
                 </div>
               )}
             </div>
             <div className="form-group">
-              <label className="form-label">ຮູບແບນເນີຫົວເວັບ (Shop Header Banner Image)</label>
+              <label className="form-label">{db.getLabel('auto_ຮູບແບນເນີຫົວເວັບ__Shop_He_p820yd', `ຮູບແບນເນີຫົວເວັບ (Shop Header Banner Image)`)}</label>
               <input
                 type="file"
                 accept="image/*"
@@ -297,26 +297,26 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
               {settings.onlineShopBannerImg && (
                 <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <img src={settings.onlineShopBannerImg} alt="Shop Banner" style={{ width: '120px', height: '50px', borderRadius: '4px', objectFit: 'cover', border: '1px solid var(--border-color)' }} />
-                  <button type="button" className="btn btn-secondary btn-sm" style={{ color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }} onClick={() => setSettings({ ...settings, onlineShopBannerImg: '' })}>ລຶບຮູບ (Delete)</button>
+                  <button type="button" className="btn btn-secondary btn-sm" style={{ color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }} onClick={() => setSettings({ ...settings, onlineShopBannerImg: '' })}>{db.getLabel('auto_ລຶບຮູບ__Delete__e8ldlc', `ລຶບຮູບ (Delete)`)}</button>
                 </div>
               )}
             </div>
           </div>
 
           <div className="form-group">
-            <label className="form-label">ຂໍ້ຄວາມຕ້ອນຮັບ / ແບນເນີຫົວຂໍ້ (Welcome Banner Text)</label>
+            <label className="form-label">{db.getLabel('auto_ຂໍ້ຄວາມຕ້ອນຮັບ___ແບນເນີຫົ_tgts91', `ຂໍ້ຄວາມຕ້ອນຮັບ / ແບນເນີຫົວຂໍ້ (Welcome Banner Text)`)}</label>
             <input
               type="text"
               className="form-control"
               value={settings.onlineShopBanner || ''}
               onChange={(e) => setSettings({ ...settings, onlineShopBanner: e.target.value })}
-              placeholder="ຍິນດີຕ້ອນຮັບສູ່ ຮ້ານອອນລາຍ KP Pakse!"
+              placeholder={db.getLabel('auto_ຍິນດີຕ້ອນຮັບສູ່_ຮ້ານອອນລາ_3qu0xo', `ຍິນດີຕ້ອນຮັບສູ່ ຮ້ານອອນລາຍ KP Pakse!`)}
             />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
             <div className="form-group">
-              <label className="form-label">ສີຫຼັກຂອງແອັບອອນລາຍ (Theme Color)</label>
+              <label className="form-label">{db.getLabel('auto_ສີຫຼັກຂອງແອັບອອນລາຍ__Them_mpi32n', `ສີຫຼັກຂອງແອັບອອນລາຍ (Theme Color)`)}</label>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <input
                   type="color"
@@ -334,7 +334,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
               </div>
             </div>
             <div className="form-group">
-              <label className="form-label">ສີເນັ້ນ (Accent Color)</label>
+              <label className="form-label">{db.getLabel('auto_ສີເນັ້ນ__Accent_Color__6ld2ax', `ສີເນັ້ນ (Accent Color)`)}</label>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <input
                   type="color"
@@ -352,7 +352,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
               </div>
             </div>
             <div className="form-group">
-              <label className="form-label">ຟອນສະແດງຜົນ (Font Family)</label>
+              <label className="form-label">{db.getLabel('auto_ຟອນສະແດງຜົນ__Font_Family__y2v2ul', `ຟອນສະແດງຜົນ (Font Family)`)}</label>
               <select
                 className="form-control"
                 value={settings.onlineShopFontFamily || 'Outfit, Phetsarath OT, sans-serif'}
@@ -367,39 +367,39 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
             <div className="form-group">
-              <label className="form-label">ຂະໜາດຕົວອັກສອນ (Font Size)</label>
+              <label className="form-label">{db.getLabel('auto_ຂະໜາດຕົວອັກສອນ__Font_Size_uk9rbd', `ຂະໜາດຕົວອັກສອນ (Font Size)`)}</label>
               <select
                 className="form-control"
                 value={settings.onlineShopFontSize || 'medium'}
                 onChange={(e) => setSettings({ ...settings, onlineShopFontSize: e.target.value })}
               >
-                <option value="small">ນ້ອຍ (Small)</option>
-                <option value="medium">ກາງ (Medium)</option>
-                <option value="large">ໃຫຍ່ (Large)</option>
+                <option value="small">{db.getLabel('auto_ນ້ອຍ__Small__46hxq2', `ນ້ອຍ (Small)`)}</option>
+                <option value="medium">{db.getLabel('auto_ກາງ__Medium__bkhze2', `ກາງ (Medium)`)}</option>
+                <option value="large">{db.getLabel('auto_ໃຫຍ່__Large__wky3rt', `ໃຫຍ່ (Large)`)}</option>
               </select>
             </div>
             <div className="form-group">
-              <label className="form-label">ຮູບແບບ Layout ໜ້າທຳອິດ</label>
+              <label className="form-label">{db.getLabel('auto_ຮູບແບບ_Layout_ໜ້າທຳອິດ_gp29bo', `ຮູບແບບ Layout ໜ້າທຳອິດ`)}</label>
               <select
                 className="form-control"
                 value={settings.onlineShopLayout || 'grid'}
                 onChange={(e) => setSettings({ ...settings, onlineShopLayout: e.target.value })}
               >
-                <option value="grid">ຕາຕະລາງ (Grid - Multi columns)</option>
-                <option value="list">ລາຍການລຽງລົງ (List - Single column)</option>
+                <option value="grid">{db.getLabel('auto_ຕາຕະລາງ__Grid___Multi_col_i2l5jq', `ຕາຕະລາງ (Grid - Multi columns)`)}</option>
+                <option value="list">{db.getLabel('auto_ລາຍການລຽງລົງ__List___Sing_z8g79a', `ລາຍການລຽງລົງ (List - Single column)`)}</option>
               </select>
             </div>
             <div className="form-group">
-              <label className="form-label">ລຽງລໍາດັບສິນຄ້າ (Sorting)</label>
+              <label className="form-label">{db.getLabel('auto_ລຽງລໍາດັບສິນຄ້າ__Sorting__fykui5', `ລຽງລໍາດັບສິນຄ້າ (Sorting)`)}</label>
               <select
                 className="form-control"
                 value={settings.onlineShopProductSort || 'default'}
                 onChange={(e) => setSettings({ ...settings, onlineShopProductSort: e.target.value })}
               >
-                <option value="default">ຄ່າເລີ່ມຕົ້ນ (Default Order)</option>
-                <option value="priceAsc">ລາຄາຕໍ່າຫາສູງ (Price: Low to High)</option>
-                <option value="priceDesc">ລາຄາສູງຫາຕໍ່າ (Price: High to Low)</option>
-                <option value="newest">ສິນຄ້າມາໃໝ່ (Newest First)</option>
+                <option value="default">{db.getLabel('auto_ຄ່າເລີ່ມຕົ້ນ__Default_Ord_u3ddkj', `ຄ່າເລີ່ມຕົ້ນ (Default Order)`)}</option>
+                <option value="priceAsc">{db.getLabel('auto_ລາຄາຕໍ່າຫາສູງ__Price__Low_7xh13z', `ລາຄາຕໍ່າຫາສູງ (Price: Low to High)`)}</option>
+                <option value="priceDesc">{db.getLabel('auto_ລາຄາສູງຫາຕໍ່າ__Price__Hig_gpe9lv', `ລາຄາສູງຫາຕໍ່າ (Price: High to Low)`)}</option>
+                <option value="newest">{db.getLabel('auto_ສິນຄ້າມາໃໝ່__Newest_First_kvgtlg', `ສິນຄ້າມາໃໝ່ (Newest First)`)}</option>
               </select>
             </div>
           </div>
@@ -420,7 +420,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                 />
                 <span>🛒 ເປີດໃຊ້ງານການຂາຍອອນລາຍ (Enable Online Sales)</span>
               </label>
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>ຫາກປິດ, ລູກຄ້າຈະບໍ່ສາມາດກົດສັ່ງຊື້ສິນຄ້າອອນລາຍໄດ້.</span>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຫາກປິດ__ລູກຄ້າຈະບໍ່ສາມາດກ_houcxz', `ຫາກປິດ, ລູກຄ້າຈະບໍ່ສາມາດກົດສັ່ງຊື້ສິນຄ້າອອນລາຍໄດ້.`)}</span>
             </div>
 
             <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -433,13 +433,13 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                 />
                 <span>💎 ຮອງຮັບສ່ວນຫຼຸດສະມາຊິກອອນລາຍ (Enable Member Discounts)</span>
               </label>
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>ອະນຸຍາດໃຫ້ລູກຄ້າທີ່ເຂົ້າສູ່ລະບົບໄດ້ຮັບສ່ວນຫຼຸດຕາມລະດັບສະມາຊິກ.</span>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ອະນຸຍາດໃຫ້ລູກຄ້າທີ່ເຂົ້າສ_wuw9rc', `ອະນຸຍາດໃຫ້ລູກຄ້າທີ່ເຂົ້າສູ່ລະບົບໄດ້ຮັບສ່ວນຫຼຸດຕາມລະດັບສະມາຊິກ.`)}</span>
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div className="form-group">
-              <label className="form-label">ບວກລາຄາສິນຄ້າອອນລາຍເພີ່ມເຕີມ (%) (Online Markup Rate)</label>
+              <label className="form-label">{db.getLabel('auto_ບວກລາຄາສິນຄ້າອອນລາຍເພີ່ມເ_faigkt', `ບວກລາຄາສິນຄ້າອອນລາຍເພີ່ມເຕີມ (%) (Online Markup Rate)`)}</label>
               <input
                 type="number"
                 className="form-control"
@@ -447,10 +447,10 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                 onChange={(e) => setSettings({ ...settings, onlineShopMarkupPercent: Number(e.target.value) || 0 })}
                 placeholder="0"
               />
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>ລາຄາສິນຄ້າໃນໜ້າເວັບອອນລາຍຈະບວກເພີ່ມ % ນີ້ຈາກລາຄາໜ້າຮ້ານ (0 = ລາຄາເທົ່າກັນ).</span>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ລາຄາສິນຄ້າໃນໜ້າເວັບອອນລາຍ_ldk1oy', `ລາຄາສິນຄ້າໃນໜ້າເວັບອອນລາຍຈະບວກເພີ່ມ % ນີ້ຈາກລາຄາໜ້າຮ້ານ (0 = ລາຄາເທົ່າກັນ).`)}</span>
             </div>
             <div className="form-group">
-              <label className="form-label">ຍອດຊື້ຂັ້ນຕ່ຳເພື່ອຈັດສົ່ງຟຣີ (Free Shipping Threshold - ກີບ)</label>
+              <label className="form-label">{db.getLabel('auto_ຍອດຊື້ຂັ້ນຕ່ຳເພື່ອຈັດສົ່ງ_e4oxtg', `ຍອດຊື້ຂັ້ນຕ່ຳເພື່ອຈັດສົ່ງຟຣີ (Free Shipping Threshold - ກີບ)`)}</label>
               <input
                 type="number"
                 className="form-control"
@@ -458,7 +458,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                 onChange={(e) => setSettings({ ...settings, onlineShopFreeShippingThreshold: Number(e.target.value) || 0 })}
                 placeholder="0"
               />
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>ປ້ອນ 0 ຫາກບໍ່ຕ້ອງການເປີດໂປຣໂມຊັ່ນສົ່ງຟຣີ.</span>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ປ້ອນ_0_ຫາກບໍ່ຕ້ອງການເປີດໂ_lgw7yj', `ປ້ອນ 0 ຫາກບໍ່ຕ້ອງການເປີດໂປຣໂມຊັ່ນສົ່ງຟຣີ.`)}</span>
             </div>
           </div>
 
@@ -502,7 +502,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                     className="form-control"
                     value={method.name}
                     onChange={(e) => updateShippingMethod(idx, 'name', e.target.value)}
-                    placeholder="ຊື່ວິທີການຈັດສົ່ງ"
+                    placeholder={db.getLabel('auto_ຊື່ວິທີການຈັດສົ່ງ_ytvtgn', `ຊື່ວິທີການຈັດສົ່ງ`)}
                     style={{ flex: 2 }}
                   />
                   <input
@@ -510,7 +510,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                     className="form-control"
                     value={method.baseRate}
                     onChange={(e) => updateShippingMethod(idx, 'baseRate', Number(e.target.value) || 0)}
-                    placeholder="ຄ່າຈັດສົ່ງ (LAK)"
+                    placeholder={db.getLabel('auto_ຄ່າຈັດສົ່ງ__LAK__qqoviw', `ຄ່າຈັດສົ່ງ (LAK)`)}
                     style={{ flex: 1 }}
                   />
                   <button
@@ -518,11 +518,11 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                     className="btn btn-secondary"
                     style={{ color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }}
                     onClick={() => removeShippingMethod(idx)}
-                  >ລຶບ</button>
+                  >{db.getLabel('auto_ລຶບ_27sw9', `ລຶບ`)}</button>
                 </div>
               ))}
               {(settings.onlineShopShippingMethods || []).length === 0 && (
-                <div style={{ text: 'center', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ບໍ່ມີຊ່ອງທາງການຈັດສົ່ງທີ່ກຳນົດ</div>
+                <div style={{ text: 'center', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ບໍ່ມີຊ່ອງທາງການຈັດສົ່ງທີ່_f8aay4', `ບໍ່ມີຊ່ອງທາງການຈັດສົ່ງທີ່ກຳນົດ`)}</div>
               )}
             </div>
           </div>
@@ -543,7 +543,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                 />
                 <span>📱 ເປີດໃຊ້ງານຊຳລະຜ່ານ BCEL QR (Enable BCEL QR Payment)</span>
               </label>
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>ສະແດງ QR ໂອນເງິນໃນຂັ້ນຕອນການຊຳລະເງິນ.</span>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ສະແດງ_QR_ໂອນເງິນໃນຂັ້ນຕອນ_r5fndn', `ສະແດງ QR ໂອນເງິນໃນຂັ້ນຕອນການຊຳລະເງິນ.`)}</span>
             </div>
 
             <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -556,7 +556,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                 />
                 <span>💵 ເກັບເງິນປາຍທາງ (Cash on Delivery - COD)</span>
               </label>
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>ອະນຸຍາດໃຫ້ລູກຄ້າເລືອກຈ່າຍເງິນສົດຕອນຮັບເຄື່ອງ.</span>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ອະນຸຍາດໃຫ້ລູກຄ້າເລືອກຈ່າຍ_nz79i7', `ອະນຸຍາດໃຫ້ລູກຄ້າເລືອກຈ່າຍເງິນສົດຕອນຮັບເຄື່ອງ.`)}</span>
             </div>
           </div>
 
@@ -579,7 +579,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                     className="form-control"
                     value={acc.bankName}
                     onChange={(e) => updateBankAccount(idx, 'bankName', e.target.value)}
-                    placeholder="ຊື່ທະນາຄານ (e.g. BCEL)"
+                    placeholder={db.getLabel('auto_ຊື່ທະນາຄານ__e_g__BCEL__5d4rx3', `ຊື່ທະນາຄານ (e.g. BCEL)`)}
                     style={{ flex: 1 }}
                   />
                   <input
@@ -587,7 +587,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                     className="form-control"
                     value={acc.accName}
                     onChange={(e) => updateBankAccount(idx, 'accName', e.target.value)}
-                    placeholder="ຊື່ບັນຊີ"
+                    placeholder={db.getLabel('auto_ຊື່ບັນຊີ_g8tjbi', `ຊື່ບັນຊີ`)}
                     style={{ flex: 2 }}
                   />
                   <input
@@ -603,11 +603,11 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                     className="btn btn-secondary"
                     style={{ color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }}
                     onClick={() => removeBankAccount(idx)}
-                  >ລຶບ</button>
+                  >{db.getLabel('auto_ລຶບ_27sw9', `ລຶບ`)}</button>
                 </div>
               ))}
               {(settings.onlineShopBankAccounts || []).length === 0 && (
-                <div style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ບໍ່ມີບັນຊີຮັບເງິນທີ່ກຳນົດ</div>
+                <div style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ບໍ່ມີບັນຊີຮັບເງິນທີ່ກຳນົດ_sdabaj', `ບໍ່ມີບັນຊີຮັບເງິນທີ່ກຳນົດ`)}</div>
               )}
             </div>
           </div>
@@ -626,24 +626,24 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                   />
                   <span>🔄 ຕັດສະຕັອກ POS ອັດຕະໂນມັດ (Shared Stock API)</span>
                 </label>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>ເມື່ອມີການສັ່ງຊື້ອອນລາຍ ຈະຕັດສະຕັອກໃນ POS ຫຼັກທັນທີ.</span>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ເມື່ອມີການສັ່ງຊື້ອອນລາຍ_ຈ_rvijc2', `ເມື່ອມີການສັ່ງຊື້ອອນລາຍ ຈະຕັດສະຕັອກໃນ POS ຫຼັກທັນທີ.`)}</span>
               </div>
 
               <div className="form-group">
-                <label className="form-label">ສົ່ງອໍເດີ້ອອນລາຍເຂົ້າບັດຄິວ (POS Slot Routing)</label>
+                <label className="form-label">{db.getLabel('auto_ສົ່ງອໍເດີ້ອອນລາຍເຂົ້າບັດຄ_zfvqqc', `ສົ່ງອໍເດີ້ອອນລາຍເຂົ້າບັດຄິວ (POS Slot Routing)`)}</label>
                 <select
                   className="form-control"
                   value={settings.onlineShopPosRedirectSlot || 'SLOT1'}
                   onChange={(e) => setSettings({ ...settings, onlineShopPosRedirectSlot: e.target.value })}
                 >
-                  <option value="SLOT1">ບັດຄິວ 1 (Slot 1)</option>
-                  <option value="SLOT2">ບັດຄິວ 2 (Slot 2)</option>
-                  <option value="SLOT3">ບັດຄິວ 3 (Slot 3)</option>
-                  <option value="SLOT4">ບັດຄິວ 4 (Slot 4)</option>
-                  <option value="SLOT5">ບັດຄິວ 5 (Slot 5)</option>
-                  <option value="SLOT6">ບັດຄິວ 6 (Slot 6)</option>
+                  <option value="SLOT1">{db.getLabel('auto_ບັດຄິວ_1__Slot_1__5fnrtl', `ບັດຄິວ 1 (Slot 1)`)}</option>
+                  <option value="SLOT2">{db.getLabel('auto_ບັດຄິວ_2__Slot_2__8onql7', `ບັດຄິວ 2 (Slot 2)`)}</option>
+                  <option value="SLOT3">{db.getLabel('auto_ບັດຄິວ_3__Slot_3__bxnpct', `ບັດຄິວ 3 (Slot 3)`)}</option>
+                  <option value="SLOT4">{db.getLabel('auto_ບັດຄິວ_4__Slot_4__f6no4f', `ບັດຄິວ 4 (Slot 4)`)}</option>
+                  <option value="SLOT5">{db.getLabel('auto_ບັດຄິວ_5__Slot_5__ifnmw1', `ບັດຄິວ 5 (Slot 5)`)}</option>
+                  <option value="SLOT6">{db.getLabel('auto_ບັດຄິວ_6__Slot_6__lonlnn', `ບັດຄິວ 6 (Slot 6)`)}</option>
                 </select>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>ເລືອກບັດຄິວຫຼັກທີ່ຕ້ອງການໃຫ້ອໍເດີ້ອອນລາຍແລ່ນເຂົ້າ.</span>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ເລືອກບັດຄິວຫຼັກທີ່ຕ້ອງການ_e99c8w', `ເລືອກບັດຄິວຫຼັກທີ່ຕ້ອງການໃຫ້ອໍເດີ້ອອນລາຍແລ່ນເຂົ້າ.`)}</span>
               </div>
             </div>
           </div>
@@ -655,7 +655,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div className="form-group">
-              <label className="form-label">ຍອດສະຕັອກຕໍ່າສຸດເພື່ອແຈ້ງເຕືອນ (Low Stock Alert Threshold)</label>
+              <label className="form-label">{db.getLabel('auto_ຍອດສະຕັອກຕໍ່າສຸດເພື່ອແຈ້ງ_5ptahn', `ຍອດສະຕັອກຕໍ່າສຸດເພື່ອແຈ້ງເຕືອນ (Low Stock Alert Threshold)`)}</label>
               <input
                 type="number"
                 className="form-control"
@@ -673,7 +673,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                 />
                 <span>🔊 ເປີດສຽງແຈ້ງເຕືອນອໍເດີ້ໃໝ່ (Play Sound for New Orders)</span>
               </label>
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>ຫຼິ້ນສຽງແຈ້ງເຕືອນເມື່ອມີລູກຄ້າສັ່ງຊື້ອອນລາຍເຂົ້າມາ.</span>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຫຼິ້ນສຽງແຈ້ງເຕືອນເມື່ອມີລ_yp0gof', `ຫຼິ້ນສຽງແຈ້ງເຕືອນເມື່ອມີລູກຄ້າສັ່ງຊື້ອອນລາຍເຂົ້າມາ.`)}</span>
             </div>
           </div>
 
@@ -688,11 +688,11 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                 />
                 <span>🔑 ຕ້ອງໃຊ້ PIN ເພື່ອເຂົ້າເຖິງການຕັ້ງຄ່າ (Admin PIN Protection)</span>
               </label>
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>ຕ້ອງການລະຫັດ PIN ຂອງແອດມິນເພື່ອແກ້ໄຂການຕັ້ງຄ່າຮ້ານອອນລາຍ.</span>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຕ້ອງການລະຫັດ_PIN_ຂອງແອດມິ_n3epag', `ຕ້ອງການລະຫັດ PIN ຂອງແອດມິນເພື່ອແກ້ໄຂການຕັ້ງຄ່າຮ້ານອອນລາຍ.`)}</span>
             </div>
 
             <div className="form-group">
-              <label className="form-label">ລະຫັດ Admin PIN</label>
+              <label className="form-label">{db.getLabel('auto_ລະຫັດ_Admin_PIN_v5tfuv', `ລະຫັດ Admin PIN`)}</label>
               <input
                 type="password"
                 maxLength="4"
@@ -702,7 +702,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
                 placeholder="••••"
                 style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)', cursor: 'not-allowed' }}
               />
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>ລະຫັດດຽວກັນກັບ Master Admin PIN ຂອງລະບົບ POS.</span>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ລະຫັດດຽວກັນກັບ_Master_Adm_l5r75e', `ລະຫັດດຽວກັນກັບ Master Admin PIN ຂອງລະບົບ POS.`)}</span>
             </div>
           </div>
         </div>
@@ -718,9 +718,9 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
             <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
               <thead>
                 <tr style={{ background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid var(--border-color)' }}>
-                  <th style={{ padding: '8px 12px' }}>ປຸ່ມ / ຂໍ້ຄວາມ (Label Key)</th>
-                  <th style={{ padding: '8px 12px' }}>ພາສາລາວ (Lao)</th>
-                  <th style={{ padding: '8px 12px' }}>ພາສາໄທ (Thai)</th>
+                  <th style={{ padding: '8px 12px' }}>{db.getLabel('auto_ປຸ່ມ___ຂໍ້ຄວາມ__Label_Key_rbc9qr', `ປຸ່ມ / ຂໍ້ຄວາມ (Label Key)`)}</th>
+                  <th style={{ padding: '8px 12px' }}>{db.getLabel('auto_ພາສາລາວ__Lao__9wzi4r', `ພາສາລາວ (Lao)`)}</th>
+                  <th style={{ padding: '8px 12px' }}>{db.getLabel('auto_ພາສາໄທ__Thai__uvg8ly', `ພາສາໄທ (Thai)`)}</th>
                   <th style={{ padding: '8px 12px' }}>English (EN)</th>
                 </tr>
               </thead>

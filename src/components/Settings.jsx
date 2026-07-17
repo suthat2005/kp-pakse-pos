@@ -716,7 +716,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
       {/* Header */}
       <div>
         <h2 style={{ color: 'var(--gold-primary)' }}>⚙️ ຕັ້ງຄ່າລະບົບຫຼັງບ້ານ (Developer Settings)</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>ຈັດການຂໍ້ມູນຮ້ານ, ຂໍ້ມູນບັນຊີທະນາຄານຮັບເງິນ, ພະນັກງານ, ປັບແຕ່ງຮູບແບບໃບບິນ ແລະ ປ່ຽນສີລະບົບ</p>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{db.getLabel('auto_ຈັດການຂໍ້ມູນຮ້ານ__ຂໍ້ມູນບ_3xfwma', `ຈັດການຂໍ້ມູນຮ້ານ, ຂໍ້ມູນບັນຊີທະນາຄານຮັບເງິນ, ພະນັກງານ, ປັບແຕ່ງຮູບແບບໃບບິນ ແລະ ປ່ຽນສີລະບົບ`)}</p>
       </div>
 
       {successMsg && (
@@ -918,7 +918,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--gold-primary)' }}
                 />
                 <label htmlFor="local-is-main-terminal-shop" style={{ fontSize: '0.88rem', color: 'white', cursor: 'pointer', userSelect: 'none' }}>
-                  💻 <strong>ເຄື່ອງນີ້ແມ່ນເຄື່ອງຫຼັກທີ່ຕໍ່ເຄື່ອງພິມ (Main Terminal)</strong>
+                  💻 <strong>{db.getLabel('auto_ເຄື່ອງນີ້ແມ່ນເຄື່ອງຫຼັກທີ_66257f', `ເຄື່ອງນີ້ແມ່ນເຄື່ອງຫຼັກທີ່ຕໍ່ເຄື່ອງພິມ (Main Terminal)`)}</strong>
                   <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
                     (ເປີດສະເພາະເຄື່ອງຄອມພິວເຕີທີ່ຕໍ່ກັບເຄື່ອງພິມຢູ່ໜ້າຮ້ານ, ສ່ວນໃນໂທລະສັບໃຫ້ປິດໄວ້ ເພື່ອໃຫ້ກົດເປີດລິ້ນຊັກຈາກທາງໄກໄດ້)
                   </span>
@@ -927,7 +927,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div className="form-group">
-                  <label className="form-label">ຊື່ຮ້ານ (Shop Name)</label>
+                  <label className="form-label">{db.getLabel('auto_ຊື່ຮ້ານ__Shop_Name__e5y353', `ຊື່ຮ້ານ (Shop Name)`)}</label>
                   <input
                     type="text"
                     className="form-control"
@@ -937,7 +937,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">ຄຳຂວັນ/ຄຳອະທິບາຍ (Subtitle)</label>
+                  <label className="form-label">{db.getLabel('auto_ຄຳຂວັນ_ຄຳອະທິບາຍ__Subtitl_2n0qfe', `ຄຳຂວັນ/ຄຳອະທິບາຍ (Subtitle)`)}</label>
                   <input
                     type="text"
                     className="form-control"
@@ -949,7 +949,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
               </div>
 
               <div className="form-group">
-                <label className="form-label">ໂລໂກ້ຮ້ານ / ໂລໂກ້ເຂົ້າສູ່ລະບົບ (Shop Logo / Login Logo)</label>
+                <label className="form-label">{db.getLabel('auto_ໂລໂກ້ຮ້ານ___ໂລໂກ້ເຂົ້າສູ່_nfqgtn', `ໂລໂກ້ຮ້ານ / ໂລໂກ້ເຂົ້າສູ່ລະບົບ (Shop Logo / Login Logo)`)}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginTop: '5px' }}>
                   {settings.shopLogo ? (
                     <img 
@@ -993,7 +993,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div className="form-group">
-                  <label className="form-label">ເບີໂທຕິດຕໍ່ (Phone)</label>
+                  <label className="form-label">{db.getLabel('auto_ເບີໂທຕິດຕໍ່__Phone__b6ar4i', `ເບີໂທຕິດຕໍ່ (Phone)`)}</label>
                   <input
                     type="text"
                     className="form-control"
@@ -1003,7 +1003,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">ທີ່ຢູ່ຮ້ານ (Address)</label>
+                  <label className="form-label">{db.getLabel('auto_ທີ່ຢູ່ຮ້ານ__Address__oxhexy', `ທີ່ຢູ່ຮ້ານ (Address)`)}</label>
                   <input
                     type="text"
                     className="form-control"
@@ -1015,7 +1015,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
               </div>
 
               <div className="form-group">
-                <label className="form-label">ລິ້ງ/IP ຕິດຕາມສະຖານະຮາຍການ (Tracking Base URL / IP Address)</label>
+                <label className="form-label">{db.getLabel('auto_ລິ້ງ_IP_ຕິດຕາມສະຖານະຮາຍກາ_yq4ngg', `ລິ້ງ/IP ຕິດຕາມສະຖານະຮາຍການ (Tracking Base URL / IP Address)`)}</label>
                 <input
                   type="text"
                   className="form-control"
@@ -1070,7 +1070,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                         />
                       </div>
                       <div className="form-group">
-                        <label className="form-label">ຊື່ບັນຊີທະນາຄານ (Account Name)</label>
+                        <label className="form-label">{db.getLabel('auto_ຊື່ບັນຊີທະນາຄານ__Account__3otd5o', `ຊື່ບັນຊີທະນາຄານ (Account Name)`)}</label>
                         <input
                           type="text"
                           className="form-control"
@@ -1083,7 +1083,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                       <div className="form-group">
-                        <label className="form-label">ເລກບັນຊີທະນາຄານ (Account Number)</label>
+                        <label className="form-label">{db.getLabel('auto_ເລກບັນຊີທະນາຄານ__Account__8c5mt9', `ເລກບັນຊີທະນາຄານ (Account Number)`)}</label>
                         <input
                           type="text"
                           className="form-control"
@@ -1094,7 +1094,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">ອັບໂຫຼດຮູບ QR Code (Bank QR Code Image)</label>
+                        <label className="form-label">{db.getLabel('auto_ອັບໂຫຼດຮູບ_QR_Code__Bank__5h4ply', `ອັບໂຫຼດຮູບ QR Code (Bank QR Code Image)`)}</label>
                         <input
                           type="file"
                           accept="image/*"
@@ -1112,7 +1112,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           }}
                         />
                         <div style={{ marginTop: '10px' }}>
-                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ພຣີວິວ QR Code ທີ່ອັບໂຫຼດ:</p>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ພຣີວິວ_QR_Code_ທີ່ອັບໂຫຼດ_9b0xer', `ພຣີວິວ QR Code ທີ່ອັບໂຫຼດ:`)}</p>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
                             <img
                               src={settings.bankQrPreview || settings.bankQrTemplate}
@@ -1129,7 +1129,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                               className="btn btn-secondary"
                               style={{ padding: '4px 8px', fontSize: '0.75rem', color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }}
                               onClick={() => setSettings({ ...settings, bankQrTemplate: '', bankQrPreview: '' })}
-                            >ລຶບຮູບ</button>
+                            >{db.getLabel('auto_ລຶບຮູບ_cbsby2', `ລຶບຮູບ`)}</button>
                           </div>
                           {settings.bankQrTemplate && !settings.bankQrTemplate.startsWith('data:image/') && (
                             <div style={{ marginTop: '8px', padding: '8px 12px', background: 'rgba(46,204,113,0.08)', border: '1px solid rgba(46,204,113,0.3)', borderRadius: '8px', fontSize: '0.73rem', color: '#2ecc71' }}>
@@ -1154,18 +1154,18 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                       <div className="form-group">
-                        <label className="form-label">ຊື່ທະນາຄານ (Bank Name - THB)</label>
+                        <label className="form-label">{db.getLabel('auto_ຊື່ທະນາຄານ__Bank_Name___T_8g2d7f', `ຊື່ທະນາຄານ (Bank Name - THB)`)}</label>
                         <input
                           type="text"
                           className="form-control"
                           required
                           value={settings.bankNameThb || ''}
                           onChange={(e) => setSettings({ ...settings, bankNameThb: e.target.value })}
-                          placeholder="e.g. ກະສິກອນໄທ (KBank)"
+                          placeholder={db.getLabel('auto_e_g__ກະສິກອນໄທ__KBank__uy8kld', `e.g. ກະສິກອນໄທ (KBank)`)}
                         />
                       </div>
                       <div className="form-group">
-                        <label className="form-label">ຊື່ບັນຊີທະນາຄານ (Account Name - THB)</label>
+                        <label className="form-label">{db.getLabel('auto_ຊື່ບັນຊີທະນາຄານ__Account__64qh1b', `ຊື່ບັນຊີທະນາຄານ (Account Name - THB)`)}</label>
                         <input
                           type="text"
                           className="form-control"
@@ -1178,7 +1178,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                       <div className="form-group">
-                        <label className="form-label">ເລກບັນຊີທະນາຄານ (Account Number - THB)</label>
+                        <label className="form-label">{db.getLabel('auto_ເລກບັນຊີທະນາຄານ__Account__r5yogy', `ເລກບັນຊີທະນາຄານ (Account Number - THB)`)}</label>
                         <input
                           type="text"
                           className="form-control"
@@ -1189,7 +1189,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">ອັບໂຫຼດຮູບ QR Code ບາດ (THB QR Code Image)</label>
+                        <label className="form-label">{db.getLabel('auto_ອັບໂຫຼດຮູບ_QR_Code_ບາດ__T_u3nfa4', `ອັບໂຫຼດຮູບ QR Code ບາດ (THB QR Code Image)`)}</label>
                         <input
                           type="file"
                           accept="image/*"
@@ -1207,7 +1207,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           }}
                         />
                         <div style={{ marginTop: '10px' }}>
-                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ພຣີວິວ QR Code ທີ່ອັບໂຫຼດ:</p>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ພຣີວິວ_QR_Code_ທີ່ອັບໂຫຼດ_9b0xer', `ພຣີວິວ QR Code ທີ່ອັບໂຫຼດ:`)}</p>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
                             <img
                               src={settings.bankQrPreviewThb || settings.bankQrTemplateThb}
@@ -1224,7 +1224,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                               className="btn btn-secondary"
                               style={{ padding: '4px 8px', fontSize: '0.75rem', color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }}
                               onClick={() => setSettings({ ...settings, bankQrTemplateThb: '', bankQrPreviewThb: '' })}
-                            >ລຶບຮູບ</button>
+                            >{db.getLabel('auto_ລຶບຮູບ_cbsby2', `ລຶບຮູບ`)}</button>
                           </div>
                           {settings.bankQrTemplateThb && !settings.bankQrTemplateThb.startsWith('data:image/') && (
                             <div style={{ marginTop: '8px', padding: '8px 12px', background: 'rgba(46,204,113,0.08)', border: '1px solid rgba(46,204,113,0.3)', borderRadius: '8px', fontSize: '0.73rem', color: '#2ecc71' }}>
@@ -1249,18 +1249,18 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                       <div className="form-group">
-                        <label className="form-label">ຊື່ທະນາຄານ (Bank Name - USD)</label>
+                        <label className="form-label">{db.getLabel('auto_ຊື່ທະນາຄານ__Bank_Name___U_8g1i0j', `ຊື່ທະນາຄານ (Bank Name - USD)`)}</label>
                         <input
                           type="text"
                           className="form-control"
                           required
                           value={settings.bankNameUsd || ''}
                           onChange={(e) => setSettings({ ...settings, bankNameUsd: e.target.value })}
-                          placeholder="e.g. ທະນາຄານຮ່ວມພັດທະນາ (JDB)"
+                          placeholder={db.getLabel('auto_e_g__ທະນາຄານຮ່ວມພັດທະນາ___jt8gw1', `e.g. ທະນາຄານຮ່ວມພັດທະນາ (JDB)`)}
                         />
                       </div>
                       <div className="form-group">
-                        <label className="form-label">ຊື່ບັນຊີທະນາຄານ (Account Name - USD)</label>
+                        <label className="form-label">{db.getLabel('auto_ຊື່ບັນຊີທະນາຄານ__Account__64pluf', `ຊື່ບັນຊີທະນາຄານ (Account Name - USD)`)}</label>
                         <input
                           type="text"
                           className="form-control"
@@ -1273,7 +1273,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                       <div className="form-group">
-                        <label className="form-label">ເລກບັນຊີທະນາຄານ (Account Number - USD)</label>
+                        <label className="form-label">{db.getLabel('auto_ເລກບັນຊີທະນາຄານ__Account__r5zjnu', `ເລກບັນຊີທະນາຄານ (Account Number - USD)`)}</label>
                         <input
                           type="text"
                           className="form-control"
@@ -1284,7 +1284,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">ອັບໂຫຼດຮູບ QR Code ໂດລາ (USD QR Code Image)</label>
+                        <label className="form-label">{db.getLabel('auto_ອັບໂຫຼດຮູບ_QR_Code_ໂດລາ___bdjmyp', `ອັບໂຫຼດຮູບ QR Code ໂດລາ (USD QR Code Image)`)}</label>
                         <input
                           type="file"
                           accept="image/*"
@@ -1302,7 +1302,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           }}
                         />
                         <div style={{ marginTop: '10px' }}>
-                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ພຣີວິວ QR Code ທີ່ອັບໂຫຼດ:</p>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ພຣີວິວ_QR_Code_ທີ່ອັບໂຫຼດ_9b0xer', `ພຣີວິວ QR Code ທີ່ອັບໂຫຼດ:`)}</p>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
                             <img
                               src={settings.bankQrPreviewUsd || settings.bankQrTemplateUsd}
@@ -1319,7 +1319,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                               className="btn btn-secondary"
                               style={{ padding: '4px 8px', fontSize: '0.75rem', color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }}
                               onClick={() => setSettings({ ...settings, bankQrTemplateUsd: '', bankQrPreviewUsd: '' })}
-                            >ລຶບຮູບ</button>
+                            >{db.getLabel('auto_ລຶບຮູບ_cbsby2', `ລຶບຮູບ`)}</button>
                           </div>
                           {settings.bankQrTemplateUsd && !settings.bankQrTemplateUsd.startsWith('data:image/') && (
                             <div style={{ marginTop: '8px', padding: '8px 12px', background: 'rgba(46,204,113,0.08)', border: '1px solid rgba(46,204,113,0.3)', borderRadius: '8px', fontSize: '0.73rem', color: '#2ecc71' }}>
@@ -1394,7 +1394,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '12px' }}>
                         <div className="form-group">
-                          <label className="form-label">ຂະໜາດເຈ້ຍ (Paper Width)</label>
+                          <label className="form-label">{db.getLabel('auto_ຂະໜາດເຈ້ຍ__Paper_Width__enzk05', `ຂະໜາດເຈ້ຍ (Paper Width)`)}</label>
                           <select
                             className="form-control"
                             value={settings.receiptPaperWidth || '80mm'}
@@ -1412,7 +1412,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           </select>
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຂະໜາດຟອນ ( {parseNum(settings.receiptFontSize, 10)} pt )</label>
+                          <label className="form-label">{db.getLabel('auto_ຂະໜາດຟອນ___t6w63n', `ຂະໜາດຟອນ (`)} {parseNum(settings.receiptFontSize, 10)} pt )</label>
                           <input
                             type="range"
                             min="6"
@@ -1424,7 +1424,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ໄລຍະຂອບບິນ ( {parseNum(settings.receiptPadding, 3)} mm )</label>
+                          <label className="form-label">{db.getLabel('auto_ໄລຍະຂອບບິນ___xjrce4', `ໄລຍະຂອບບິນ (`)} {parseNum(settings.receiptPadding, 3)} mm )</label>
                           <input
                             type="range"
                             min="0"
@@ -1436,7 +1436,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຄວາມສູງແຖວ ( {parseNum(settings.receiptLineHeight, 1.3)} )</label>
+                          <label className="form-label">{db.getLabel('auto_ຄວາມສູງແຖວ___5edlbg', `ຄວາມສູງແຖວ (`)} {parseNum(settings.receiptLineHeight, 1.3)} )</label>
                           <input
                             type="range"
                             min="1.0"
@@ -1461,7 +1461,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                             value={parseNum(settings.receiptQtyColWidth, 35)}
                             onChange={(e) => setSettings({ ...settings, receiptQtyColWidth: e.target.value + 'px' })}
                           />
-                          <small style={{ color: '#aaa', fontSize: '0.72rem' }}>ເລື່ອນເພື່ອຂະຫຍາຍ/ຫຍໍ້ຖັນຈຳນວນ</small>
+                          <small style={{ color: '#aaa', fontSize: '0.72rem' }}>{db.getLabel('auto_ເລື່ອນເພື່ອຂະຫຍາຍ_ຫຍໍ້ຖັນ_y5rymg', `ເລື່ອນເພື່ອຂະຫຍາຍ/ຫຍໍ້ຖັນຈຳນວນ`)}</small>
                         </div>
                         <div className="form-group">
                           <label className="form-label">💰 ຖັນລາຄາ ( {parseNum(settings.receiptPriceColWidth, 95)} px )</label>
@@ -1474,7 +1474,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                             value={parseNum(settings.receiptPriceColWidth, 95)}
                             onChange={(e) => setSettings({ ...settings, receiptPriceColWidth: e.target.value + 'px' })}
                           />
-                          <small style={{ color: '#aaa', fontSize: '0.72rem' }}>ເພີ່ມຖ້າລາຄາຕົກຂອບ ຫຼື ຂາດ</small>
+                          <small style={{ color: '#aaa', fontSize: '0.72rem' }}>{db.getLabel('auto_ເພີ່ມຖ້າລາຄາຕົກຂອບ_ຫຼື_ຂາ_wpmb5k', `ເພີ່ມຖ້າລາຄາຕົກຂອບ ຫຼື ຂາດ`)}</small>
                         </div>
                         <div className="form-group">
                           <label className="form-label">⬇️ ໄລຍະລາກເຈ້ຍ ( {parseNum(settings.receiptFeedPadding, 8)} mm )</label>
@@ -1487,7 +1487,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                             value={parseNum(settings.receiptFeedPadding, 8)}
                             onChange={(e) => setSettings({ ...settings, receiptFeedPadding: e.target.value + 'mm' })}
                           />
-                          <small style={{ color: '#aaa', fontSize: '0.72rem' }}>ເພີ່ມຖ້າທ້າຍບິນຖືກຕັດຂາດ</small>
+                          <small style={{ color: '#aaa', fontSize: '0.72rem' }}>{db.getLabel('auto_ເພີ່ມຖ້າທ້າຍບິນຖືກຕັດຂາດ_j4a4y1', `ເພີ່ມຖ້າທ້າຍບິນຖືກຕັດຂາດ`)}</small>
                         </div>
                       </div>
                     </div>
@@ -1497,7 +1497,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.85rem', margin: 0 }}>📍 ໄລຍະຂອບໃບບິນ (Print Margins)</h4>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '12px' }}>
                         <div className="form-group">
-                          <label className="form-label">ຂອບຊ້າຍ ( {parseNum(settings.receiptMarginLeft, 0)} mm )</label>
+                          <label className="form-label">{db.getLabel('auto_ຂອບຊ້າຍ___rj9ob3', `ຂອບຊ້າຍ (`)} {parseNum(settings.receiptMarginLeft, 0)} mm )</label>
                           <input
                             type="range"
                             min="0"
@@ -1509,7 +1509,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຂອບຂວາ ( {parseNum(settings.receiptMarginRight, 0)} mm )</label>
+                          <label className="form-label">{db.getLabel('auto_ຂອບຂວາ___afe2yu', `ຂອບຂວາ (`)} {parseNum(settings.receiptMarginRight, 0)} mm )</label>
                           <input
                             type="range"
                             min="0"
@@ -1521,7 +1521,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຂອບເທິງ ( {parseNum(settings.receiptMarginTop, 0)} mm )</label>
+                          <label className="form-label">{db.getLabel('auto_ຂອບເທິງ___2qan5r', `ຂອບເທິງ (`)} {parseNum(settings.receiptMarginTop, 0)} mm )</label>
                           <input
                             type="range"
                             min="0"
@@ -1533,7 +1533,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຂອບລຸ່ມ ( {parseNum(settings.receiptMarginBottom, 0)} mm )</label>
+                          <label className="form-label">{db.getLabel('auto_ຂອບລຸ່ມ___ezzx7h', `ຂອບລຸ່ມ (`)} {parseNum(settings.receiptMarginBottom, 0)} mm )</label>
                           <input
                             type="range"
                             min="0"
@@ -1552,7 +1552,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.85rem', margin: 0 }}>🔤 ຂະໜາດຟອນແຕ່ລະສ່ວນ (Section Font Sizes)</h4>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: '12px' }}>
                         <div className="form-group">
-                          <label className="form-label">ຫົວບິນ (Header)</label>
+                          <label className="form-label">{db.getLabel('auto_ຫົວບິນ__Header__exprkk', `ຫົວບິນ (Header)`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -1561,7 +1561,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຂໍ້ມູນຕິດຕໍ່ (Contact)</label>
+                          <label className="form-label">{db.getLabel('auto_ຂໍ້ມູນຕິດຕໍ່__Contact__tstlzj', `ຂໍ້ມູນຕິດຕໍ່ (Contact)`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -1570,7 +1570,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ລາຍການ (Items)</label>
+                          <label className="form-label">{db.getLabel('auto_ລາຍການ__Items__djoint', `ລາຍການ (Items)`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -1579,7 +1579,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຍອດລວມ (Totals)</label>
+                          <label className="form-label">{db.getLabel('auto_ຍອດລວມ__Totals__bboalj', `ຍອດລວມ (Totals)`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -1588,7 +1588,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ທ້າຍບິນ (Footer)</label>
+                          <label className="form-label">{db.getLabel('auto_ທ້າຍບິນ__Footer__bdervw', `ທ້າຍບິນ (Footer)`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -1604,7 +1604,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.85rem', margin: 0 }}>🖼️ ໂລໂກ້ & QR Code (Logo & QR Code Settings)</h4>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
                         <div className="form-group">
-                          <label className="form-label">ອັບໂຫຼດໂລໂກ້ໃບບິນ</label>
+                          <label className="form-label">{db.getLabel('auto_ອັບໂຫຼດໂລໂກ້ໃບບິນ_mjvyc8', `ອັບໂຫຼດໂລໂກ້ໃບບິນ`)}</label>
                           <input
                             type="file"
                             accept="image/*"
@@ -1621,7 +1621,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຄວາມກວ້າງໂລໂກ້</label>
+                          <label className="form-label">{db.getLabel('auto_ຄວາມກວ້າງໂລໂກ້_1377oh', `ຄວາມກວ້າງໂລໂກ້`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -1630,20 +1630,20 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຮູບຊົງໂລໂກ້</label>
+                          <label className="form-label">{db.getLabel('auto_ຮູບຊົງໂລໂກ້_q38q5c', `ຮູບຊົງໂລໂກ້`)}</label>
                           <select
                             className="form-control"
                             value={settings.receiptLogoShape || '50%'}
                             onChange={(e) => setSettings({ ...settings, receiptLogoShape: e.target.value })}
                           >
-                            <option value="50%">ວົງມົນ (Circle)</option>
-                            <option value="8px">ມຸມມົນ (Rounded)</option>
-                            <option value="0%">ສີ່ຫຼ່ຽມ (Square)</option>
+                            <option value="50%">{db.getLabel('auto_ວົງມົນ__Circle__am7ny3', `ວົງມົນ (Circle)`)}</option>
+                            <option value="8px">{db.getLabel('auto_ມຸມມົນ__Rounded__mdgx7d', `ມຸມມົນ (Rounded)`)}</option>
+                            <option value="0%">{db.getLabel('auto_ສີ່ຫຼ່ຽມ__Square__odf5ja', `ສີ່ຫຼ່ຽມ (Square)`)}</option>
                           </select>
                         </div>
 
                         <div className="form-group">
-                          <label className="form-label">ອັບໂຫຼດ QR Code ທະນາຄານ</label>
+                          <label className="form-label">{db.getLabel('auto_ອັບໂຫຼດ_QR_Code_ທະນາຄານ_t2h4t8', `ອັບໂຫຼດ QR Code ທະນາຄານ`)}</label>
                           <input
                             type="file"
                             accept="image/*"
@@ -1671,22 +1671,22 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           )}
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຂະໜາດ QR Code</label>
+                          <label className="form-label">{db.getLabel('auto_ຂະໜາດ_QR_Code_pjp2e4', `ຂະໜາດ QR Code`)}</label>
                           <select
                             className="form-control"
                             value={settings.receiptQrSize || 'medium'}
                             onChange={(e) => setSettings({ ...settings, receiptQrSize: e.target.value })}
                           >
-                            <option value="small">ຂະໜາດນ້ອຍ (70px)</option>
-                            <option value="medium">ຂະໜາດກາງ (100px)</option>
-                            <option value="130px">ຂະໜາດກາງ-ໃຫຍ່ (130px)</option>
-                            <option value="large">ຂະໜາດໃຫຍ່ (150px)</option>
-                            <option value="180px">ຂະໜາດໃຫຍ່ຫຼາຍ (180px)</option>
-                            <option value="xlarge">ຂະໜາດໃຫຍ່ສຸດ (200px)</option>
+                            <option value="small">{db.getLabel('auto_ຂະໜາດນ້ອຍ__70px__qmfh8g', `ຂະໜາດນ້ອຍ (70px)`)}</option>
+                            <option value="medium">{db.getLabel('auto_ຂະໜາດກາງ__100px__qh00rm', `ຂະໜາດກາງ (100px)`)}</option>
+                            <option value="130px">{db.getLabel('auto_ຂະໜາດກາງ_ໃຫຍ່__130px__3t5oh1', `ຂະໜາດກາງ-ໃຫຍ່ (130px)`)}</option>
+                            <option value="large">{db.getLabel('auto_ຂະໜາດໃຫຍ່__150px__21dr0w', `ຂະໜາດໃຫຍ່ (150px)`)}</option>
+                            <option value="180px">{db.getLabel('auto_ຂະໜາດໃຫຍ່ຫຼາຍ__180px__5b1i1t', `ຂະໜາດໃຫຍ່ຫຼາຍ (180px)`)}</option>
+                            <option value="xlarge">{db.getLabel('auto_ຂະໜາດໃຫຍ່ສຸດ__200px__sxh0gm', `ຂະໜາດໃຫຍ່ສຸດ (200px)`)}</option>
                           </select>
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຂອບເທິງ QR Code</label>
+                          <label className="form-label">{db.getLabel('auto_ຂອບເທິງ_QR_Code_b2zp4r', `ຂອບເທິງ QR Code`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -1702,20 +1702,20 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.85rem', margin: 0 }}>➖ ເສັ້ນຄັ່ນ & ຂໍ້ຄວາມ (Dividers & Notes)</h4>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '12px' }}>
                         <div className="form-group">
-                          <label className="form-label">ຮູບແບບເສັ້ນຄັ່ນ</label>
+                          <label className="form-label">{db.getLabel('auto_ຮູບແບບເສັ້ນຄັ່ນ_70k0sj', `ຮູບແບບເສັ້ນຄັ່ນ`)}</label>
                           <select
                             className="form-control"
                             value={settings.receiptDividerStyle || 'dashed'}
                             onChange={(e) => setSettings({ ...settings, receiptDividerStyle: e.target.value })}
                           >
-                            <option value="dashed">ເສັ້ນຂີດຕໍ່ (Dashed)</option>
-                            <option value="dotted">ເສັ້ນຈຸດ (Dotted)</option>
-                            <option value="solid">ເສັ້ນທຶບ (Solid)</option>
-                            <option value="double">ເສັ້ນຄູ່ (Double)</option>
+                            <option value="dashed">{db.getLabel('auto_ເສັ້ນຂີດຕໍ່__Dashed__v5ztee', `ເສັ້ນຂີດຕໍ່ (Dashed)`)}</option>
+                            <option value="dotted">{db.getLabel('auto_ເສັ້ນຈຸດ__Dotted__1dyxnu', `ເສັ້ນຈຸດ (Dotted)`)}</option>
+                            <option value="solid">{db.getLabel('auto_ເສັ້ນທຶບ__Solid__owlw5y', `ເສັ້ນທຶບ (Solid)`)}</option>
+                            <option value="double">{db.getLabel('auto_ເສັ້ນຄູ່__Double__78bmic', `ເສັ້ນຄູ່ (Double)`)}</option>
                           </select>
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຄວາມໜາເສັ້ນຄັ່ນ</label>
+                          <label className="form-label">{db.getLabel('auto_ຄວາມໜາເສັ້ນຄັ່ນ_bjoy6l', `ຄວາມໜາເສັ້ນຄັ່ນ`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -1724,7 +1724,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຂໍ້ຄວາມຫົວໃບບິນ (Header Note)</label>
+                          <label className="form-label">{db.getLabel('auto_ຂໍ້ຄວາມຫົວໃບບິນ__Header_N_763ajx', `ຂໍ້ຄວາມຫົວໃບບິນ (Header Note)`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -1733,7 +1733,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຂໍ້ຄວາມທ້າຍໃບບິນ (Footer Note)</label>
+                          <label className="form-label">{db.getLabel('auto_ຂໍ້ຄວາມທ້າຍໃບບິນ__Footer__i7obad', `ຂໍ້ຄວາມທ້າຍໃບບິນ (Footer Note)`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -1747,10 +1747,10 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
 
                   {settings.receiptLogoUrl && (
                     <div style={{ marginTop: '5px' }}>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ພຣີວິວໂລໂກ້ໃບບິນ:</p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ພຣີວິວໂລໂກ້ໃບບິນ__cj2hd', `ພຣີວິວໂລໂກ້ໃບບິນ:`)}</p>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
                         <img src={settings.receiptLogoUrl} alt="Receipt Logo" style={{ width: settings.receiptLogoWidth || '60px', height: settings.receiptLogoWidth || '60px', objectFit: 'cover', borderRadius: settings.receiptLogoShape || '50%', border: '1px solid var(--border-color)' }} />
-                        <button type="button" className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '0.75rem', color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }} onClick={() => setSettings({ ...settings, receiptLogoUrl: '' })}>ລຶບຮູບ</button>
+                        <button type="button" className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '0.75rem', color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }} onClick={() => setSettings({ ...settings, receiptLogoUrl: '' })}>{db.getLabel('auto_ລຶບຮູບ_cbsby2', `ລຶບຮູບ`)}</button>
                       </div>
                     </div>
                   )}
@@ -1938,8 +1938,8 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       {/* Bill Meta */}
                       <div style={{ fontSize: settings.receiptItemsFontSize || 'calc(100% - 2pt)', marginBottom: '6px', color: '#333' }}>
                         {settings.receiptShowBillId !== false && <div><b>{db.getLabel('rcpt_bill_no', 'ເລກບິນ:')}</b> RCPT-10023</div>}
-                        {settings.receiptShowDate !== false && <div><b>ວันທີ:</b> {new Date().toLocaleString('lo-LA')}</div>}
-                        {settings.receiptShowCashier !== false && <div><b>{db.getLabel('rcpt_cashier', 'ພະນັກງານຂາຍ:')}</b> ແອດມິນ</div>}
+                        {settings.receiptShowDate !== false && <div><b>{db.getLabel('auto_ວ__ທີ__dh4ndf', `ວันທີ:`)}</b> {new Date().toLocaleString('lo-LA')}</div>}
+                        {settings.receiptShowCashier !== false && <div><b>{db.getLabel('rcpt_cashier', 'ພະນັກງານຂາຍ:')}</b> {db.getLabel('auto_ແອດມິນ_seu2m', `ແອດມິນ`)}</div>}
                         {settings.receiptShowPaymentMethod !== false && <div><b>{db.getLabel('rcpt_payment_method_label', 'ການຊຳລະ:')}</b> {db.getLabel('rcpt_payment_cash', 'ເງິນສົດ (Cash)')}</div>}
                         {settings.receiptShowCustomer !== false && <div><b>{db.getLabel('rcpt_customer_label', 'ລູກຄ້າ:')}</b> {db.getLabel('rcpt_customer_general', 'ລູກຄ້າທົ່ວໄປ')}</div>}
                       </div>
@@ -1958,12 +1958,12 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                         </thead>
                         <tbody>
                           <tr>
-                            <td style={{ padding: '2px 0' }}>ອັດກອບພຣະ ທອງທິບ</td>
+                            <td style={{ padding: '2px 0' }}>{db.getLabel('auto_ອັດກອບພຣະ_ທອງທິບ_seec9t', `ອັດກອບພຣະ ທອງທິບ`)}</td>
                             <td style={{ textAlign: 'center' }}>1</td>
                             <td style={{ textAlign: 'right' }}>150,000</td>
                           </tr>
                           <tr>
-                            <td style={{ padding: '2px 0' }}>ສາຍຄໍ ຫ້ອຍພຣະ</td>
+                            <td style={{ padding: '2px 0' }}>{db.getLabel('auto_ສາຍຄໍ_ຫ້ອຍພຣະ_vk7u9x', `ສາຍຄໍ ຫ້ອຍພຣະ`)}</td>
                             <td style={{ textAlign: 'center' }}>1</td>
                             <td style={{ textAlign: 'right' }}>50,000</td>
                           </tr>
@@ -2043,11 +2043,11 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       {settings.receiptShowTrackingQr !== false && (
                         <div style={{ marginTop: '10px', textAlign: 'center', fontSize: `calc(${settings.receiptTotalsFontSize || '100%'} - 2.5pt)`, borderTop: `${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} black`, paddingTop: '8px', color: 'black' }}>
                           <p style={{ fontWeight: 'bold', marginBottom: '2px' }}>🔍 ສະແກນຕິດຕາມສະຖານະລາຍການ (Scan to Track)</p>
-                          <p style={{ fontSize: '0.72rem', color: '#555' }}>ຕິດຕາມຂັ້ນຕອນການອັດກອບພຣະເຄື່ອງຂອງທ່ານແບບ Real-time</p>
+                          <p style={{ fontSize: '0.72rem', color: '#555' }}>{db.getLabel('auto_ຕິດຕາມຂັ້ນຕອນການອັດກອບພຣະ_ovo3ww', `ຕິດຕາມຂັ້ນຕອນການອັດກອບພຣະເຄື່ອງຂອງທ່ານແບບ Real-time`)}</p>
                           <div style={{ display: 'flex', justifyContent: 'center', marginTop: '6px' }}>
                             <div style={{ width: '80px', height: '80px', background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: '#666', border: '1px solid #ddd', borderRadius: '4px', fontWeight: 'bold' }}>TRACK QR</div>
                           </div>
-                          <p style={{ fontSize: '0.7rem', color: '#666', marginTop: '4px' }}>ເລກທີງານ: JOB10023</p>
+                          <p style={{ fontSize: '0.7rem', color: '#666', marginTop: '4px' }}>{db.getLabel('auto_ເລກທີງານ__JOB10023_ny94b3', `ເລກທີງານ: JOB10023`)}</p>
                         </div>
                       )}
 
@@ -2296,7 +2296,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     {/* Sliders & Format dropdown */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                       <div className="form-group">
-                        <label className="form-label">ປະເພດບາໂຄ້ດ (Barcode Type)</label>
+                        <label className="form-label">{db.getLabel('auto_ປະເພດບາໂຄ້ດ__Barcode_Type_h86vtt', `ປະເພດບາໂຄ້ດ (Barcode Type)`)}</label>
                         <select
                           className="form-control"
                           value={settings.barcodeFormat || 'CODE128'}
@@ -2312,15 +2312,15 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">ຕຳແໜ່ງຂໍ້ຄວາມ (Text Alignment)</label>
+                        <label className="form-label">{db.getLabel('auto_ຕຳແໜ່ງຂໍ້ຄວາມ__Text_Align_olt86x', `ຕຳແໜ່ງຂໍ້ຄວາມ (Text Alignment)`)}</label>
                         <select
                           className="form-control"
                           value={settings.barcodeTextAlign || 'center'}
                           onChange={(e) => setSettings({ ...settings, barcodeTextAlign: e.target.value })}
                         >
-                          <option value="left">ຊ້າຍ (Left)</option>
-                          <option value="center">ກາງ (Center)</option>
-                          <option value="right">ຂວາ (Right)</option>
+                          <option value="left">{db.getLabel('auto_ຊ້າຍ__Left__ap5268', `ຊ້າຍ (Left)`)}</option>
+                          <option value="center">{db.getLabel('auto_ກາງ__Center__g4k2mi', `ກາງ (Center)`)}</option>
+                          <option value="right">{db.getLabel('auto_ຂວາ__Right__agch42', `ຂວາ (Right)`)}</option>
                         </select>
                       </div>
                     </div>
@@ -2328,7 +2328,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
                       <div className="form-group">
                         <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>ສູງ (Height)</span>
+                          <span>{db.getLabel('auto_ສູງ__Height__7pi6jm', `ສູງ (Height)`)}</span>
                           <span style={{ color: 'var(--gold-primary)' }}>{settings.barcodeHeight || 50}px</span>
                         </label>
                         <input
@@ -2342,7 +2342,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       </div>
                       <div className="form-group">
                         <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>ກວ້າງ (Line Width)</span>
+                          <span>{db.getLabel('auto_ກວ້າງ__Line_Width__4kap7z', `ກວ້າງ (Line Width)`)}</span>
                           <span style={{ color: 'var(--gold-primary)' }}>{settings.barcodeWidth || 2}px</span>
                         </label>
                         <input
@@ -2356,7 +2356,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       </div>
                       <div className="form-group">
                         <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>ຂອບຫວ່າງ (Margin)</span>
+                          <span>{db.getLabel('auto_ຂອບຫວ່າງ__Margin__u31pc1', `ຂອບຫວ່າງ (Margin)`)}</span>
                           <span style={{ color: 'var(--gold-primary)' }}>{settings.barcodeMargin || 10}px</span>
                         </label>
                         <input
@@ -2432,7 +2432,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                       <div className="form-group">
                         <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>ຂະໜາດຟອນຕ໌ລະຫັດ</span>
+                          <span>{db.getLabel('auto_ຂະໜາດຟອນຕ໌ລະຫັດ_qbklip', `ຂະໜາດຟອນຕ໌ລະຫັດ`)}</span>
                           <span style={{ color: 'var(--gold-primary)' }}>{settings.barcodeCodeSize || 10}pt</span>
                         </label>
                         <input
@@ -2446,7 +2446,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       </div>
                       <div className="form-group">
                         <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>ຂະໜາດຟອນຕ໌ຊື່ສິນຄ້າ</span>
+                          <span>{db.getLabel('auto_ຂະໜາດຟອນຕ໌ຊື່ສິນຄ້າ_dtqv3b', `ຂະໜາດຟອນຕ໌ຊື່ສິນຄ້າ`)}</span>
                           <span style={{ color: 'var(--gold-primary)' }}>{settings.barcodeNameSize || 10}pt</span>
                         </label>
                         <input
@@ -2460,7 +2460,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       </div>
                       <div className="form-group">
                         <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>ຂະໜາດຟອນຕ໌ລາຄາ</span>
+                          <span>{db.getLabel('auto_ຂະໜາດຟອນຕ໌ລາຄາ_alvbxv', `ຂະໜາດຟອນຕ໌ລາຄາ`)}</span>
                           <span style={{ color: 'var(--gold-primary)' }}>{settings.barcodePriceSize || 12}pt</span>
                         </label>
                         <input
@@ -2474,7 +2474,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       </div>
                       <div className="form-group">
                         <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>ໄລຍະຫ່າງບาໂຄດ/ໂຕໜັງສື</span>
+                          <span>{db.getLabel('auto_ໄລຍະຫ່າງບ_ໂຄດ_ໂຕໜັງສື_5fxuxt', `ໄລຍະຫ່າງບาໂຄດ/ໂຕໜັງສື`)}</span>
                           <span style={{ color: 'var(--gold-primary)' }}>{settings.barcodeTextSpacing || 5}px</span>
                         </label>
                         <input
@@ -2489,7 +2489,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">ຄວາມໄວເຄື່ອງສະແກນ (Scan Delay ms)</label>
+                      <label className="form-label">{db.getLabel('auto_ຄວາມໄວເຄື່ອງສະແກນ__Scan_D_yypcbq', `ຄວາມໄວເຄື່ອງສະແກນ (Scan Delay ms)`)}</label>
                       <input
                         type="number"
                         min="10"
@@ -2498,7 +2498,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                         value={settings.barcodeDelay || 50}
                         onChange={(e) => setSettings({ ...settings, barcodeDelay: parseInt(e.target.value) || 50 })}
                       />
-                      <small style={{ color: 'var(--text-secondary)' }}>ຄວາມໄວສົ່ງຄ່າຂອງເຄື່ອງສະແກນ (ມາດຕະຖານ: 50ms)</small>
+                      <small style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຄວາມໄວສົ່ງຄ່າຂອງເຄື່ອງສະແ_g1b17a', `ຄວາມໄວສົ່ງຄ່າຂອງເຄື່ອງສະແກນ (ມາດຕະຖານ: 50ms)`)}</small>
                     </div>
 
                     <div className="form-group">
@@ -2529,7 +2529,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       </div>
                       {settings.barcodeDirectPrint && (
                         <div className="form-group">
-                          <label className="form-label">ຊື່ເຄື່ອງພິມບາໂຄ້ດໃນ Windows (Barcode Printer Name)</label>
+                          <label className="form-label">{db.getLabel('auto_ຊື່ເຄື່ອງພິມບາໂຄ້ດໃນ_Wind_qaicr3', `ຊື່ເຄື່ອງພິມບາໂຄ້ດໃນ Windows (Barcode Printer Name)`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -2537,7 +2537,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                             onChange={(e) => setSettings({ ...settings, windowsBarcodePrinterName: e.target.value })}
                             placeholder="e.g. Xprinter XP-365B"
                           />
-                          <small style={{ color: 'var(--text-secondary)' }}>ປ້ອນຊື່ເຄື່ອງພິມໃຫ້ກົງກັບທີ່ຕັ້ງຄ່າໄວ້ໃນ Control Panel</small>
+                          <small style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ປ້ອນຊື່ເຄື່ອງພິມໃຫ້ກົງກັບ_p7c2c0', `ປ້ອນຊື່ເຄື່ອງພິມໃຫ້ກົງກັບທີ່ຕັ້ງຄ່າໄວ້ໃນ Control Panel`)}</small>
                         </div>
                       )}
                     </div>
@@ -2560,7 +2560,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                         />
                         <label htmlFor="local-is-main-terminal" style={{ fontSize: '0.85rem', color: 'white', cursor: 'pointer', userSelect: 'none' }}>
-                          💻 <strong>ເຄື່ອງນີ້ແມ່ນເຄື່ອງຫຼັກທີ່ຕໍ່ເຄື່ອງພິມ (Main Terminal)</strong>
+                          💻 <strong>{db.getLabel('auto_ເຄື່ອງນີ້ແມ່ນເຄື່ອງຫຼັກທີ_66257f', `ເຄື່ອງນີ້ແມ່ນເຄື່ອງຫຼັກທີ່ຕໍ່ເຄື່ອງພິມ (Main Terminal)`)}</strong>
                           <span style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
                             (ເປີດສະເພาະເຄື່ອງຄອມພິວເຕີທີ່ຕໍ່ກັບເຄື່ອງພິມຢູ່ໜ້າຮ້ານ, ສ່ວນໃນໂທລະສັບໃຫ້ປິດໄວ້ ເພື່ອໃຫ້ກົດເປີດລິ້ນຊັກຈາກທາງໄກໄດ້)
                           </span>
@@ -2568,7 +2568,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       </div>
                       
                       <div className="form-group" style={{ marginBottom: '12px' }}>
-                        <label className="form-label">ຮູບແບບການເຊື່ອມຕໍ່ເຄື່ອງພິມ (Printer Connection Type)</label>
+                        <label className="form-label">{db.getLabel('auto_ຮູບແບບການເຊື່ອມຕໍ່ເຄື່ອງພ_3u6ygc', `ຮູບແບບການເຊື່ອມຕໍ່ເຄື່ອງພິມ (Printer Connection Type)`)}</label>
                         <select
                           className="form-control"
                           value={settings.printerConnectionType || 'windows'}
@@ -2589,7 +2589,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
 
                       {settings.printerConnectionType === 'lan' ? (
                         <div className="form-group" style={{ marginBottom: '12px' }}>
-                          <label className="form-label">ທີ່ຢູ່ IP ຂອງເຄື່ອງພິມ LAN (LAN Printer IP Address)</label>
+                          <label className="form-label">{db.getLabel('auto_ທີ່ຢູ່_IP_ຂອງເຄື່ອງພິມ_LA_55qwv4', `ທີ່ຢູ່ IP ຂອງເຄື່ອງພິມ LAN (LAN Printer IP Address)`)}</label>
                           <div style={{ display: 'flex', gap: '8px' }}>
                             <input
                               type="text"
@@ -2643,11 +2643,11 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                               🔍 ຄົ້ນຫາອັດຕະໂນມັດ
                             </button>
                           </div>
-                          <small style={{ color: 'var(--text-secondary)' }}>ປ້ອນ IP ຂອງເຄື່ອງພິມ LAN ເຊັ່ນ 192.168.1.100 ຫຼື ກົດປຸ່ມຄົ້ນຫາອັດຕະໂນມັດ (ພອດມາດຕະຖານ: 9100)</small>
+                          <small style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ປ້ອນ_IP_ຂອງເຄື່ອງພິມ_LAN__mwxige', `ປ້ອນ IP ຂອງເຄື່ອງພິມ LAN ເຊັ່ນ 192.168.1.100 ຫຼື ກົດປຸ່ມຄົ້ນຫາອັດຕະໂນມັດ (ພອດມາດຕະຖານ: 9100)`)}</small>
                         </div>
                       ) : (
                         <div className="form-group" style={{ marginBottom: '12px' }}>
-                          <label className="form-label">ຊື່ເຄື່ອງພິມໃບບິນໃນ Windows (Windows Printer Name)</label>
+                          <label className="form-label">{db.getLabel('auto_ຊື່ເຄື່ອງພິມໃບບິນໃນ_Windo_ksplkd', `ຊື່ເຄື່ອງພິມໃບບິນໃນ Windows (Windows Printer Name)`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -2655,12 +2655,12 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                             onChange={(e) => setSettings({ ...settings, windowsPrinterName: e.target.value })}
                             placeholder="e.g. GP-L80250 Series"
                           />
-                          <small style={{ color: 'var(--text-secondary)' }}>ຊື່ເຄື່ອງພິມຫຼັກໃນ Control Panel (ໃຊ້ສຳລັບການປິ້ນ ແລະ ຍິງລິ້ນຊັກເກັບເງິນ)</small>
+                          <small style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຊື່ເຄື່ອງພິມຫຼັກໃນ_Contro_jbl14f', `ຊື່ເຄື່ອງພິມຫຼັກໃນ Control Panel (ໃຊ້ສຳລັບການປິ້ນ ແລະ ຍິງລິ້ນຊັກເກັບເງິນ)`)}</small>
                         </div>
                       )}
 
                       <div className="form-group" style={{ marginBottom: '12px' }}>
-                        <label className="form-label">ທີ່ຢູ່ເຊີເວີການພິມ (Local Print Server URL)</label>
+                        <label className="form-label">{db.getLabel('auto_ທີ່ຢູ່ເຊີເວີການພິມ__Local_4nsrba', `ທີ່ຢູ່ເຊີເວີການພິມ (Local Print Server URL)`)}</label>
                         <input
                           type="text"
                           className="form-control"
@@ -2675,8 +2675,8 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(212,175,55,0.05)', border: '1px dashed var(--gold-primary)', borderRadius: '8px', fontSize: '0.8rem' }}>
                         <h5 style={{ color: 'var(--gold-primary)', margin: '0 0 8px', fontSize: '0.85rem' }}>ℹ️ ວິທີຕັ້ງຄ່າການພິມຜ່ານ LAN & ເຄື່ອງສະແກນ Bluetooth</h5>
                         <ul style={{ paddingLeft: '16px', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px', color: 'var(--text-secondary)' }}>
-                          <li><b>ເຄື່ອງພິມ LAN & ລิ້ນຊັກ:</b> ເຊື່ອມຕໍ່ສາຍ LAN ເຂົ້າເຄື່ອງພິມ, ຈາກນັ້ນເສີບສາຍ RJ11 ຂອງລິ້ນຊັກເກັບເງິນເຂົ້າເຄື່ອງພິມ. ເມື່ອມີການພິມບິນ ລະບົບຈະຍິງກະແສໄຟເປີດລິ້ນຊັກໂດຍກົງຜ່ານ IP ອັດຕະໂນມັດ.</li>
-                          <li><b>ເຄື່ອງສະແກນ Bluetooth:</b> ເຊື່ອມຕໍ່ (Pair) ເຄື່ອງສະແກນເຂົ້າກັບໂທລະສັບ ຫຼື ຄອມພິວເຕີ ໂດຍຕັ້ງຄ່າໃຫ້ຢູ່ໃນໂໝດ <b>Keyboard Emulator (HID)</b>. ລະບົບ POS ຈະຮັບຄ່າບາໂຄ້ດ ແລະ ເພີ່ມສິນຄ້າເຂົ້າຕະກ່າໃຫ້ເອງໂດຍອັດຕະໂນມັດທັນທີເມື່ອສະແກນ.</li>
+                          <li><b>{db.getLabel('auto_ເຄື່ອງພິມ_LAN___ລ_້ນຊັກ__lhx7r8', `ເຄື່ອງພິມ LAN & ລิ້ນຊັກ:`)}</b> {db.getLabel('auto_ເຊື່ອມຕໍ່ສາຍ_LAN_ເຂົ້າເຄື_co1pw', `ເຊື່ອມຕໍ່ສາຍ LAN ເຂົ້າເຄື່ອງພິມ, ຈາກນັ້ນເສີບສາຍ RJ11 ຂອງລິ້ນຊັກເກັບເງິນເຂົ້າເຄື່ອງພິມ. ເມື່ອມີການພິມບິນ ລະບົບຈະຍິງກະແສໄຟເປີດລິ້ນຊັກໂດຍກົງຜ່ານ IP ອັດຕະໂນມັດ.`)}</li>
+                          <li><b>{db.getLabel('auto_ເຄື່ອງສະແກນ_Bluetooth__342ktk', `ເຄື່ອງສະແກນ Bluetooth:`)}</b> {db.getLabel('auto_ເຊື່ອມຕໍ່__Pair__ເຄື່ອງສະ_31mt9k', `ເຊື່ອມຕໍ່ (Pair) ເຄື່ອງສະແກນເຂົ້າກັບໂທລະສັບ ຫຼື ຄອມພິວເຕີ ໂດຍຕັ້ງຄ່າໃຫ້ຢູ່ໃນໂໝດ`)} <b>Keyboard Emulator (HID)</b>. ລະບົບ POS ຈະຮັບຄ່າບາໂຄ້ດ ແລະ ເພີ່ມສິນຄ້າເຂົ້າຕະກ່າໃຫ້ເອງໂດຍອັດຕະໂນມັດທັນທີເມື່ອສະແກນ.</li>
                         </ul>
                       </div>
                     </div>
@@ -2686,7 +2686,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       <h4 style={{ color: '#3498db', fontSize: '0.9rem', marginBottom: '12px' }}>🌐 ຕັ້ງຄ່າເວັບໄຊຕ໌/ເມนູອອນລາຍ (Online Shop & Menu QR Settings)</h4>
                       
                       <div className="form-group" style={{ marginBottom: '12px' }}>
-                        <label className="form-label">ລິ້ງເວັບໄຊຕ໌/ເມນູອອນລາຍ (Online Shop Link URL)</label>
+                        <label className="form-label">{db.getLabel('auto_ລິ້ງເວັບໄຊຕ໌_ເມນູອອນລາຍ___7bsf42', `ລິ້ງເວັບໄຊຕ໌/ເມນູອອນລາຍ (Online Shop Link URL)`)}</label>
                         <input
                           type="text"
                           className="form-control"
@@ -2694,19 +2694,19 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           onChange={(e) => setSettings({ ...settings, onlineShopUrl: e.target.value })}
                           placeholder={`e.g. ${window.location.origin}`}
                         />
-                        <small style={{ color: 'var(--text-secondary)' }}>ລິ້ງສຳລັບໃຫ້ລູກຄ້າສະແກນເບິ່ງສິນຄ້າ ຫຼື ສັ່ງອາຫານອອນລາຍ (ຫາກວ່າງໄວ້ ຈະໃຊ້ທີ່ຢູ່ເວັບໄຊຕ໌ປັດຈຸບັນ)</small>
+                        <small style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ລິ້ງສຳລັບໃຫ້ລູກຄ້າສະແກນເບ_u7c3vs', `ລິ້ງສຳລັບໃຫ້ລູກຄ້າສະແກນເບິ່ງສິນຄ້າ ຫຼື ສັ່ງອາຫານອອນລາຍ (ຫາກວ່າງໄວ້ ຈະໃຊ້ທີ່ຢູ່ເວັບໄຊຕ໌ປັດຈຸບັນ)`)}</small>
                       </div>
 
                       <div className="form-group" style={{ marginBottom: '12px' }}>
-                        <label className="form-label">ຫົວຂໍ້/ຄຳອະທິບາຍ QR (QR Label / Description)</label>
+                        <label className="form-label">{db.getLabel('auto_ຫົວຂໍ້_ຄຳອະທິບາຍ_QR__QR_L_muh6n6', `ຫົວຂໍ້/ຄຳອະທິບາຍ QR (QR Label / Description)`)}</label>
                         <input
                           type="text"
                           className="form-control"
                           value={settings.onlineShopLabel || ''}
                           onChange={(e) => setSettings({ ...settings, onlineShopLabel: e.target.value })}
-                          placeholder="e.g. ສະແກນເບິ່ງເມນູອອນລາຍ (Scan Menu Online)"
+                          placeholder={db.getLabel('auto_e_g__ສະແກນເບິ່ງເມນູອອນລາຍ_tdybda', `e.g. ສະແກນເບິ່ງເມນູອອນລາຍ (Scan Menu Online)`)}
                         />
-                        <small style={{ color: 'var(--text-secondary)' }}>ຂໍ้ຄວາມສະແດງໃຕ້ຮູບ QR Code (ປ່ຽນຂໍ້ຄວາມສະແກນເບິ່ງເມນູໃນຮ້ານໄດ້)</small>
+                        <small style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຂໍ_ຄວາມສະແດງໃຕ້ຮູບ_QR_Cod_k3i2b0', `ຂໍ้ຄວາມສະແດງໃຕ້ຮູບ QR Code (ປ່ຽນຂໍ້ຄວາມສະແກນເບິ່ງເມນູໃນຮ້ານໄດ້)`)}</small>
                       </div>
 
                       {/* Live QR Code Preview */}
@@ -2735,7 +2735,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                         <input
                           type="text"
                           className="form-control"
-                          placeholder="ຄລິກບ່ອນນີ້ແລ້ວທົດລອງສະແກນ..."
+                          placeholder={db.getLabel('auto_ຄລິກບ່ອນນີ້ແລ້ວທົດລອງສະແກ_lto7qn', `ຄລິກບ່ອນນີ້ແລ້ວທົດລອງສະແກນ...`)}
                           style={{ flex: 1, background: '#1c1915' }}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') {
@@ -2794,23 +2794,23 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       </h4>
 
                       <div className="form-group">
-                        <label className="form-label">ໂປຣໄຟລ໌ເຈ້ຍສະຕິກເກີ (Sticker Profile)</label>
+                        <label className="form-label">{db.getLabel('auto_ໂປຣໄຟລ໌ເຈ້ຍສະຕິກເກີ__Stic_fjytb9', `ໂປຣໄຟລ໌ເຈ້ຍສະຕິກເກີ (Sticker Profile)`)}</label>
                         <select
                           className="form-control"
                           value={settings.barcodeProfile || '1_col_40_30'}
                           onChange={(e) => handleProfileChange(e.target.value)}
                         >
-                          <option value="1_col_30_20">ບາໂຄ້ດ (1 ດວງ/ແຖວ) 30x20 ມມ.</option>
-                          <option value="1_col_40_30">ບາໂຄ້ດ (1 ດວງ/ແຖວ) 40x30 ມມ.</option>
-                          <option value="2_col_32_25">ບາໂຄ້ດ (2 ດວງ/ແຖວ) 32x25 ມມ.</option>
-                          <option value="3_col_32_25">ບາໂຄ້ດ (3 ດວງ/ແຖວ) 32x25 ມມ.</option>
-                          <option value="custom">ກຳນົດເອງ (Custom Profile)</option>
+                          <option value="1_col_30_20">{db.getLabel('auto_ບາໂຄ້ດ__1_ດວງ_ແຖວ__30x20__ri46gb', `ບາໂຄ້ດ (1 ດວງ/ແຖວ) 30x20 ມມ.`)}</option>
+                          <option value="1_col_40_30">{db.getLabel('auto_ບາໂຄ້ດ__1_ດວງ_ແຖວ__40x30__e3xh4l', `ບາໂຄ້ດ (1 ດວງ/ແຖວ) 40x30 ມມ.`)}</option>
+                          <option value="2_col_32_25">{db.getLabel('auto_ບາໂຄ້ດ__2_ດວງ_ແຖວ__32x25__ngh7uf', `ບາໂຄ້ດ (2 ດວງ/ແຖວ) 32x25 ມມ.`)}</option>
+                          <option value="3_col_32_25">{db.getLabel('auto_ບາໂຄ້ດ__3_ດວງ_ແຖວ__32x25__gp2p1y', `ບາໂຄ້ດ (3 ດວງ/ແຖວ) 32x25 ມມ.`)}</option>
+                          <option value="custom">{db.getLabel('auto_ກຳນົດເອງ__Custom_Profile__4w16s3', `ກຳນົດເອງ (Custom Profile)`)}</option>
                         </select>
                       </div>
 
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         <div className="form-group">
-                          <label className="form-label">ຄວາມກວ້າງເຈ້ຍ (Paper Width)</label>
+                          <label className="form-label">{db.getLabel('auto_ຄວາມກວ້າງເຈ້ຍ__Paper_Widt_sc87tb', `ຄວາມກວ້າງເຈ້ຍ (Paper Width)`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -2821,7 +2821,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຄວາມສູງເຈ້ຍ (Paper Height)</label>
+                          <label className="form-label">{db.getLabel('auto_ຄວາມສູງເຈ້ຍ__Paper_Height_s9nx3o', `ຄວາມສູງເຈ້ຍ (Paper Height)`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -2832,7 +2832,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຄວາມກວ້າງສະຕິກເກີ (Sticker Width)</label>
+                          <label className="form-label">{db.getLabel('auto_ຄວາມກວ້າງສະຕິກເກີ__Sticke_e72ufo', `ຄວາມກວ້າງສະຕິກເກີ (Sticker Width)`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -2843,7 +2843,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຄວາມສູງສະຕິກເກີ (Sticker Height)</label>
+                          <label className="form-label">{db.getLabel('auto_ຄວາມສູງສະຕິກເກີ__Sticker__8h64zd', `ຄວາມສູງສະຕິກເກີ (Sticker Height)`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -2854,7 +2854,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ຈຳນວນຖັນຕໍ່ແຖວ (Columns/Row)</label>
+                          <label className="form-label">{db.getLabel('auto_ຈຳນວນຖັນຕໍ່ແຖວ__Columns_R_uwxlcn', `ຈຳນວນຖັນຕໍ່ແຖວ (Columns/Row)`)}</label>
                           <input
                             type="number"
                             min="1"
@@ -2866,7 +2866,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ໄລຍະຫ່າງແນວນອນ (Gap X)</label>
+                          <label className="form-label">{db.getLabel('auto_ໄລຍະຫ່າງແນວນອນ__Gap_X__juxsen', `ໄລຍະຫ່າງແນວນອນ (Gap X)`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -2876,7 +2876,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ໄລຍະຫ່າງແນວຕັ້ງ (Gap Y)</label>
+                          <label className="form-label">{db.getLabel('auto_ໄລຍະຫ່າງແນວຕັ້ງ__Gap_Y__hhfkad', `ໄລຍະຫ່າງແນວຕັ້ງ (Gap Y)`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -2886,7 +2886,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ໄລຍະຂອບຊ້າຍ (Left Margin)</label>
+                          <label className="form-label">{db.getLabel('auto_ໄລຍະຂອບຊ້າຍ__Left_Margin__sp86wf', `ໄລຍະຂອບຊ້າຍ (Left Margin)`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -2897,7 +2897,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">ໄລຍະຂອບເທິງ (Top Margin)</label>
+                          <label className="form-label">{db.getLabel('auto_ໄລຍະຂອບເທິງ__Top_Margin__wl5t0z', `ໄລຍະຂອບເທິງ (Top Margin)`)}</label>
                           <input
                             type="text"
                             className="form-control"
@@ -3040,7 +3040,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div className="form-group" style={{ margin: 0 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ຄວາມໂຄ້ງມົນຂອງຂອບ (Border Radius)</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຄວາມໂຄ້ງມົນຂອງຂອບ__Border_h1fzqj', `ຄວາມໂຄ້ງມົນຂອງຂອບ (Border Radius)`)}</span>
                         <span style={{ fontSize: '0.75rem', color: 'var(--gold-primary)', fontWeight: 'bold' }}>
                           {parseInt(settings.themeConfig?.layout?.borderRadius || '8')}px
                         </span>
@@ -3072,7 +3072,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     </div>
 
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label" style={{ fontSize: '0.75rem' }}>ຄວາມກວ້າງເມນູຊ້າຍ (Sidebar Width)</label>
+                      <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ຄວາມກວ້າງເມນູຊ້າຍ__Sideba_kgt6c0', `ຄວາມກວ້າງເມນູຊ້າຍ (Sidebar Width)`)}</label>
                       <select
                         className="form-control"
                         value={settings.themeConfig?.layout?.sidebarWidth || '260px'}
@@ -3101,7 +3101,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   <h4 style={{ color: 'white', fontSize: '0.9rem', marginBottom: '12px' }}>✍️ ປັບແຕ່ງຕົວໜັງສື (Typography)</h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label" style={{ fontSize: '0.75rem' }}>ຟອນຕົວໜັງສື (Font Family)</label>
+                      <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ຟອນຕົວໜັງສື__Font_Family__xhrrjv', `ຟອນຕົວໜັງສື (Font Family)`)}</label>
                       <select
                         className="form-control"
                         value={settings.themeConfig?.typography?.fontFamily || 'Outfit, Phetsarath OT, sans-serif'}
@@ -3123,7 +3123,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     </div>
 
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label" style={{ fontSize: '0.75rem' }}>ຂະໜາດຕົວໜັງສືເລີ່ມຕົ້ນ (Base Font Size)</label>
+                      <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ຂະໜາດຕົວໜັງສືເລີ່ມຕົ້ນ__B_vwln1', `ຂະໜາດຕົວໜັງສືເລີ່ມຕົ້ນ (Base Font Size)`)}</label>
                       <select
                         className="form-control"
                         value={settings.themeConfig?.typography?.fontSizeBase || '14px'}
@@ -3232,7 +3232,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', borderTop: '1px solid var(--border-color)', paddingTop: '12px', marginTop: '8px' }}>
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label" style={{ fontSize: '0.75rem' }}>ຮູບແບບກຣາຟລາຍຮັບ (Default Chart Type)</label>
+                      <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ຮູບແບບກຣາຟລາຍຮັບ__Default_i62zym', `ຮູບແບບກຣາຟລາຍຮັບ (Default Chart Type)`)}</label>
                       <select
                         className="form-control"
                         value={settings.dashboardBuilder?.chartType || 'bar'}
@@ -3253,7 +3253,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     </div>
 
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label" style={{ fontSize: '0.75rem' }}>ໄລຍະເວລາໂຫຼດໃໝ່ - ວິນາທີ (Auto Refresh Interval)</label>
+                      <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ໄລຍະເວລາໂຫຼດໃໝ່___ວິນາທີ__pklryg', `ໄລຍະເວລາໂຫຼດໃໝ່ - ວິນາທີ (Auto Refresh Interval)`)}</label>
                       <input
                         type="number"
                         className="form-control"
@@ -3347,7 +3347,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="🔍 ຄົ້ນຫາຂໍ້ຄວາມ ຫຼື ຄີທີ່ຕ້ອງການແກ້ໄຂ..."
+                    placeholder={db.getLabel('auto____ຄົ້ນຫາຂໍ້ຄວາມ_ຫຼື_ຄີທີ_fo3428', `🔍 ຄົ້ນຫາຂໍ້ຄວາມ ຫຼື ຄີທີ່ຕ້ອງການແກ້ໄຂ...`)}
                     value={labelsSearchQuery}
                     onChange={(e) => setLabelsSearchQuery(e.target.value)}
                     style={{ background: '#1c1915' }}
@@ -3356,7 +3356,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', maxHeight: '420px', overflowY: 'auto', paddingRight: '8px' }}>
                   {filteredKeys.length === 0 ? (
-                    <p style={{ gridColumn: 'span 2', textAlign: 'center', color: 'var(--text-secondary)', padding: '20px' }}>ບໍ່ພົບລາຍການທີ່ຄົ້ນຫາ</p>
+                    <p style={{ gridColumn: 'span 2', textAlign: 'center', color: 'var(--text-secondary)', padding: '20px' }}>{db.getLabel('auto_ບໍ່ພົບລາຍການທີ່ຄົ້ນຫາ_ep3960', `ບໍ່ພົບລາຍການທີ່ຄົ້ນຫາ`)}</p>
                   ) : filteredKeys.map((item) => {
                     const currentValue = settings.labels?.[item.key] !== undefined ? settings.labels[item.key] : '';
                     return (
@@ -3399,7 +3399,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
               </p>
 
               <div className="form-group">
-                <label className="form-label">ຊ່ອງທາງການແຈ້ງເຕືອນ (Notification Channel)</label>
+                <label className="form-label">{db.getLabel('auto_ຊ່ອງທາງການແຈ້ງເຕືອນ__Noti_bdgpmm', `ຊ່ອງທາງການແຈ້ງເຕືອນ (Notification Channel)`)}</label>
                 <select
                   className="form-control"
                   value={settings.notifyProvider || 'none'}
@@ -3422,7 +3422,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       className="form-control"
                       value={settings.lineNotifyToken || ''}
                       onChange={(e) => setSettings({ ...settings, lineNotifyToken: e.target.value })}
-                      placeholder="ປ້ອນ LINE Notify Access Token..."
+                      placeholder={db.getLabel('auto_ປ້ອນ_LINE_Notify_Access_T_5hc8e8', `ປ້ອນ LINE Notify Access Token...`)}
                     />
                     <small style={{ color: 'var(--text-secondary)' }}>
                       ຂໍ Token ໄດ້ທີ່ເວັບໄຊ LINE Notify. ຫາກຕ້ອງການແຈ້ງເຕືອນໃນກຸ່ມ, ຢ່າລືມດຶງ "LINE Notify" ເຂົ້າໄປໃນກຸ່ມນັ້ນ.
@@ -3627,7 +3627,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
                 <div className="form-group">
-                  <label className="form-label">ລະຫັດ PIN ຜູ້ບໍລິຫານ (Master Admin PIN)</label>
+                  <label className="form-label">{db.getLabel('auto_ລະຫັດ_PIN_ຜູ້ບໍລິຫານ__Mas_i9kzn3', `ລະຫັດ PIN ຜູ້ບໍລິຫານ (Master Admin PIN)`)}</label>
                   <input
                     type="text"
                     className="form-control"
@@ -3637,11 +3637,11 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     value={settings.masterAdminPin || ''}
                     onChange={(e) => setSettings({ ...settings, masterAdminPin: e.target.value.replace(/\D/g, '') })}
                   />
-                  <small style={{ color: 'var(--text-secondary)' }}>ລະຫັດ 4 ຫຼັກສຳລັບຢືນຢັນການລົບລາຍການ/ສ່ວນຫຼຸດໃນ POS</small>
+                  <small style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ລະຫັດ_4_ຫຼັກສຳລັບຢືນຢັນກາ_73mwkv', `ລະຫັດ 4 ຫຼັກສຳລັບຢືນຢັນການລົບລາຍການ/ສ່ວນຫຼຸດໃນ POS`)}</small>
                 </div>
                 
                 <div className="form-group">
-                  <label className="form-label">ອັດຕາແລກປ່ຽນ ບາດ/ກີບ (THB/LAK Exchange Rate)</label>
+                  <label className="form-label">{db.getLabel('auto_ອັດຕາແລກປ່ຽນ_ບາດ_ກີບ__THB_lilxyj', `ອັດຕາແລກປ່ຽນ ບາດ/ກີບ (THB/LAK Exchange Rate)`)}</label>
                   <input
                     type="number"
                     className="form-control"
@@ -3653,7 +3653,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">ອັດຕາແລກປ່ຽນ ໂດລາ/ກີບ (USD/LAK Exchange Rate)</label>
+                  <label className="form-label">{db.getLabel('auto_ອັດຕາແລກປ່ຽນ_ໂດລາ_ກີບ__US_eso26c', `ອັດຕາແລກປ່ຽນ ໂດລາ/ກີບ (USD/LAK Exchange Rate)`)}</label>
                   <input
                     type="number"
                     className="form-control"
@@ -3667,7 +3667,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
                 <div className="form-group">
-                  <label className="form-label">ອັດຕາພາສີ % (Tax Rate %)</label>
+                  <label className="form-label">{db.getLabel('auto_ອັດຕາພາສີ____Tax_Rate____jqyr62', `ອັດຕາພາສີ % (Tax Rate %)`)}</label>
                   <input
                     type="number"
                     className="form-control"
@@ -3679,7 +3679,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                 </div>
                 
                 <div className="form-group">
-                  <label className="form-label">ເວລາເຂົ້າງານ (Work Start Time)</label>
+                  <label className="form-label">{db.getLabel('auto_ເວລາເຂົ້າງານ__Work_Start__hngd3', `ເວລາເຂົ້າງານ (Work Start Time)`)}</label>
                   <input
                     type="time"
                     className="form-control"
@@ -3689,7 +3689,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                 </div>
                 
                 <div className="form-group">
-                  <label className="form-label">ເວລາເລີກງານ (Work End Time)</label>
+                  <label className="form-label">{db.getLabel('auto_ເວລາເລີກງານ__Work_End_Tim_6ety4n', `ເວລາເລີກງານ (Work End Time)`)}</label>
                   <input
                     type="time"
                     className="form-control"
@@ -3716,7 +3716,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     <input type="text" className="form-control" disabled value={label} readOnly />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">ຄ່າຈ້າງ/ວັນ (Daily Wage)</label>
+                    <label className="form-label">{db.getLabel('auto_ຄ່າຈ້າງ_ວັນ__Daily_Wage__x39zm6', `ຄ່າຈ້າງ/ວັນ (Daily Wage)`)}</label>
                     <input
                       type="number"
                       className="form-control"
@@ -3726,7 +3726,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">ຄ່າ OT/ຊົ່ວໂມງ (OT Rate)</label>
+                    <label className="form-label">{db.getLabel('auto_ຄ່າ_OT_ຊົ່ວໂມງ__OT_Rate__ezjqye', `ຄ່າ OT/ຊົ່ວໂມງ (OT Rate)`)}</label>
                     <input
                       type="number"
                       className="form-control"
@@ -3759,11 +3759,11 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   <h4 style={{ color: 'var(--gold-primary)', margin: '0 0 8px 0', fontSize: '0.95rem' }}>➕ ເພີ່ມໂປຣໂມຊັ່ນໃໝ່</h4>
                   
                   <div className="form-group">
-                    <label className="form-label">ລະຫັດຄູປອງ (Coupon Code)</label>
+                    <label className="form-label">{db.getLabel('auto_ລະຫັດຄູປອງ__Coupon_Code__air8h3', `ລະຫັດຄູປອງ (Coupon Code)`)}</label>
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="ຕົວຢ່າງ: GOLD10"
+                      placeholder={db.getLabel('auto_ຕົວຢ່າງ__GOLD10_1zaibl', `ຕົວຢ່າງ: GOLD10`)}
                       required
                       value={promoFormData.code}
                       onChange={(e) => setPromoFormData({ ...promoFormData, code: e.target.value.toUpperCase() })}
@@ -3771,11 +3771,11 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">ຊື່ໂປຣໂມຊັ່ນ (Description)</label>
+                    <label className="form-label">{db.getLabel('auto_ຊື່ໂປຣໂມຊັ່ນ__Description_85m8zf', `ຊື່ໂປຣໂມຊັ່ນ (Description)`)}</label>
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="ຕົວຢ່າງ: ສ່ວນຫຼຸດພіເສດ 10%"
+                      placeholder={db.getLabel('auto_ຕົວຢ່າງ__ສ່ວນຫຼຸດພ_ເສດ_10_cjr9qx', `ຕົວຢ່າງ: ສ່ວນຫຼຸດພіເສດ 10%`)}
                       required
                       value={promoFormData.name}
                       onChange={(e) => setPromoFormData({ ...promoFormData, name: e.target.value })}
@@ -3783,19 +3783,19 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">ປະເພດສ່ວນຫຼຸດ (Discount Type)</label>
+                    <label className="form-label">{db.getLabel('auto_ປະເພດສ່ວນຫຼຸດ__Discount_T_ma5kga', `ປະເພດສ່ວນຫຼຸດ (Discount Type)`)}</label>
                     <select
                       className="form-control"
                       value={promoFormData.type}
                       onChange={(e) => setPromoFormData({ ...promoFormData, type: e.target.value })}
                     >
-                      <option value="percentage">ຫຼຸດເປັນເປີເຊັນ % (Percentage)</option>
-                      <option value="fixed">ຫຼຸດເປັນຈຳນວນເງິນ ກີບ (LAK Fixed)</option>
+                      <option value="percentage">{db.getLabel('auto_ຫຼຸດເປັນເປີເຊັນ____Percen_ckrzq2', `ຫຼຸດເປັນເປີເຊັນ % (Percentage)`)}</option>
+                      <option value="fixed">{db.getLabel('auto_ຫຼຸດເປັນຈຳນວນເງິນ_ກີບ__LA_bsoy7r', `ຫຼຸດເປັນຈຳນວນເງິນ ກີບ (LAK Fixed)`)}</option>
                     </select>
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">ມູນຄ່າສ່ວນຫຼຸດ (Discount Value)</label>
+                    <label className="form-label">{db.getLabel('auto_ມູນຄ່າສ່ວນຫຼຸດ__Discount__klcl0b', `ມູນຄ່າສ່ວນຫຼຸດ (Discount Value)`)}</label>
                     <input
                       type="number"
                       className="form-control"
@@ -3807,7 +3807,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">ຂັ້ນຕ່ຳໃນການຊື້ (Min Purchase Required)</label>
+                    <label className="form-label">{db.getLabel('auto_ຂັ້ນຕ່ຳໃນການຊື້__Min_Purc_fqg37w', `ຂັ້ນຕ່ຳໃນການຊື້ (Min Purchase Required)`)}</label>
                     <input
                       type="number"
                       className="form-control"
@@ -3853,11 +3853,11 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           </div>
                           
                           <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '8px', rowGap: '2px' }}>
-                            <span>ຄ່າສ່ວນຫຼຸດ:</span>
+                            <span>{db.getLabel('auto_ຄ່າສ່ວນຫຼຸດ__75n829', `ຄ່າສ່ວນຫຼຸດ:`)}</span>
                             <span style={{ color: 'white' }}>
                               {p.type === 'percentage' ? `${p.value || 0}%` : `${(p.value || 0).toLocaleString()} ກີບ`}
                             </span>
-                            <span>ຍອດຊື້ຂັ້ນຕ່ຳ:</span>
+                            <span>{db.getLabel('auto_ຍອດຊື້ຂັ້ນຕ່ຳ__6xqw5b', `ຍອດຊື້ຂັ້ນຕ່ຳ:`)}</span>
                             <span style={{ color: 'white' }}>{p.minPurchase && p.minPurchase > 0 ? `${Number(p.minPurchase).toLocaleString()} ກີບ` : 'ບໍ່ມີຂັ້ນຕ່ຳ'}</span>
                           </div>
                         </div>
@@ -3905,7 +3905,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="ເຊັ່ນ: ກອບໃສ, ກອບສີ, ເລເຊີລາຍ..."
+                      placeholder={db.getLabel('auto_ເຊັ່ນ__ກອບໃສ__ກອບສີ__ເລເຊ_t0h2su', `ເຊັ່ນ: ກອບໃສ, ກອບສີ, ເລເຊີລາຍ...`)}
                       value={newFrameStyle}
                       onChange={(e) => setNewFrameStyle(e.target.value)}
                       style={{ fontSize: '0.85rem' }}
@@ -4029,12 +4029,12 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label className="form-label" style={{ marginBottom: '6px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>ຊື່ປະເພດລາຍຈ່າຍ *</label>
+                  <label className="form-label" style={{ marginBottom: '6px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຊື່ປະເພດລາຍຈ່າຍ___upskwx', `ຊື່ປະເພດລາຍຈ່າຍ *`)}</label>
                   <input 
                     type="text" 
                     required 
                     className="form-control" 
-                    placeholder="ຕົວຢ່າງ: ຄ່າອິນເຕີເນັດ, ຄ່າເຊົ່າຮ້ານ..."
+                    placeholder={db.getLabel('auto_ຕົວຢ່າງ__ຄ່າອິນເຕີເນັດ__ຄ_8rvoxh', `ຕົວຢ່າງ: ຄ່າອິນເຕີເນັດ, ຄ່າເຊົ່າຮ້ານ...`)}
                     value={newCatRawName}
                     onChange={(e) => setNewCatRawName(e.target.value)}
                     style={{ background: '#221e1a', color: 'white', border: '1px solid var(--border-color)' }}
@@ -4047,7 +4047,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
 
               {/* Categories List */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label className="form-label" style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>ລາຍການທັງໝົດ ({expenseCategories.length})</label>
+                <label className="form-label" style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ລາຍການທັງໝົດ___d34x9j', `ລາຍການທັງໝົດ (`)}{expenseCategories.length})</label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px' }}>
                   {expenseCategories.map(cat => (
                     <div key={cat.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
@@ -4064,7 +4064,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           }
                         }}
                         style={{ background: 'none', border: 'none', color: 'var(--alert-red)', cursor: 'pointer', fontSize: '1.1rem', padding: '4px' }}
-                        title="ລົບປະເພດນີ້"
+                        title={db.getLabel('auto_ລົບປະເພດນີ້_2qnkfk', `ລົບປະເພດນີ້`)}
                       >
                         🗑️
                       </button>
@@ -4087,7 +4087,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
               </h3>
               
               <div style={{ background: 'rgba(231, 76, 60, 0.05)', border: '1px solid rgba(231, 76, 60, 0.2)', padding: '16px', borderRadius: '8px' }}>
-                <h4 style={{ color: 'var(--alert-red)', fontWeight: 'bold', fontSize: '0.95rem' }}>ຣີເຊັດຖານຂໍ້ມູນທັງໝົດ (Database Hard Reset)</h4>
+                <h4 style={{ color: 'var(--alert-red)', fontWeight: 'bold', fontSize: '0.95rem' }}>{db.getLabel('auto_ຣີເຊັດຖານຂໍ້ມູນທັງໝົດ__Da_ztvz8', `ຣີເຊັດຖານຂໍ້ມູນທັງໝົດ (Database Hard Reset)`)}</h4>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '6px', marginBottom: '14px', lineHeight: '1.4' }}>
                   ການກົດປຸ່ມນີ້ຈະລຶບຂໍ້ມູນທັງໝົດທີ່ຖືກບັນທຶກໄວ້ໃນ LocalStorage ເຊັ່ນ: ສະຕັອກສິນຄ້າທີ່ເພີ່ມໃໝ່, ປະຫວັດໃບບິນ, ງານອັດກອບທີ່ລູກຄ້າຝາກໄວ້ ແລະ ຂໍ້ມູນການຕັ້ງຄ່າທັງໝົດ ໃຫ້ກັບໄປເປັນຄ່າເລີ່ມຕົ້ນຂອງລະບົບທັນທີ.
                 </p>
@@ -4101,7 +4101,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
               </div>
 
               <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', padding: '16px', borderRadius: '8px', marginTop: '10px' }}>
-                <h4 style={{ color: 'var(--gold-primary)', fontWeight: 'bold', fontSize: '0.95rem' }}>ສະຖານະຂອງຖານຂໍ້ມູນ LocalStorage</h4>
+                <h4 style={{ color: 'var(--gold-primary)', fontWeight: 'bold', fontSize: '0.95rem' }}>{db.getLabel('auto_ສະຖານະຂອງຖານຂໍ້ມູນ_LocalS_6w439v', `ສະຖານະຂອງຖານຂໍ້ມູນ LocalStorage`)}</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '8px', rowGap: '4px' }}>
                   <span>Products Key:</span>
                   <span style={{ fontFamily: 'monospace', color: 'white' }}>amulet_pos_products ({localStorage.getItem('amulet_pos_products')?.length || 0} bytes)</span>
@@ -4226,7 +4226,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     <textarea
                       className="form-control"
                       rows="3"
-                      placeholder="ເຊັ່ນ: ພຣະເຄື່ອງຄຸ້ມຄອງ, ໂຊກດີ ມີໄຊ! ຂອບໃຈທີ່ໃຊ້ບໍລິການ..."
+                      placeholder={db.getLabel('auto_ເຊັ່ນ__ພຣະເຄື່ອງຄຸ້ມຄອງ___9yhthx', `ເຊັ່ນ: ພຣະເຄື່ອງຄຸ້ມຄອງ, ໂຊກດີ ມີໄຊ! ຂອບໃຈທີ່ໃຊ້ບໍລິການ...`)}
                       value={settings.trackingFooterNote || ''}
                       onChange={(e) => setSettings({ ...settings, trackingFooterNote: e.target.value })}
                     />
@@ -4336,7 +4336,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderLeft: '3px solid var(--gold-primary)', paddingLeft: '16px', marginTop: '8px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     <div className="form-group">
-                      <label className="form-label">ລຶບໃບບິນຂາຍໜ້າຮ້ານ (POS Bills) ທີ່ເກົ່າກວ່າ (ມື້) *</label>
+                      <label className="form-label">{db.getLabel('auto_ລຶບໃບບິນຂາຍໜ້າຮ້ານ__POS_B_2ajke0', `ລຶບໃບບິນຂາຍໜ້າຮ້ານ (POS Bills) ທີ່ເກົ່າກວ່າ (ມື້) *`)}</label>
                       <input
                         type="number"
                         className="form-control"
@@ -4345,11 +4345,11 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                         value={settings.dataRetentionDaysDaysBills !== undefined ? settings.dataRetentionDaysDaysBills : (settings.dataRetentionDaysBills || '')}
                         onChange={(e) => setSettings({ ...settings, dataRetentionDaysBills: Number(e.target.value) })}
                       />
-                      <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>ໃບບິນເກົ່າກວ່ານີ້ຈະຖືກລຶບອອກຈາກຖານຂໍ້ມູນ.</span>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ໃບບິນເກົ່າກວ່ານີ້ຈະຖືກລຶບ_v13ymi', `ໃບບິນເກົ່າກວ່ານີ້ຈະຖືກລຶບອອກຈາກຖານຂໍ້ມູນ.`)}</span>
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">ລຶບອໍເດີ້ອອນລາຍ (Online Orders - Delivered) ທີ່ເກົ່າກວ່າ (ມື້) *</label>
+                      <label className="form-label">{db.getLabel('auto_ລຶບອໍເດີ້ອອນລາຍ__Online_O_3lzplg', `ລຶບອໍເດີ້ອອນລາຍ (Online Orders - Delivered) ທີ່ເກົ່າກວ່າ (ມື້) *`)}</label>
                       <input
                         type="number"
                         className="form-control"
@@ -4358,13 +4358,13 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                         value={settings.dataRetentionDaysOrders || ''}
                         onChange={(e) => setSettings({ ...settings, dataRetentionDaysOrders: Number(e.target.value) })}
                       />
-                      <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>ສະເພາະອໍເດີ້ທີ່ຈັດສົ່ງສຳເລັດແລ້ວເທົ່ານັ້ນ.</span>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ສະເພາະອໍເດີ້ທີ່ຈັດສົ່ງສຳເ_p5z4e2', `ສະເພາະອໍເດີ້ທີ່ຈັດສົ່ງສຳເລັດແລ້ວເທົ່ານັ້ນ.`)}</span>
                     </div>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     <div className="form-group">
-                      <label className="form-label">ລຶບປະຫວັດໜີ້ສິນທີ່ຊຳລະແລ້ວ (Paid Debts) ທີ່ເກົ່າກວ່າ (ມື້) *</label>
+                      <label className="form-label">{db.getLabel('auto_ລຶບປະຫວັດໜີ້ສິນທີ່ຊຳລະແລ້_kolein', `ລຶບປະຫວັດໜີ້ສິນທີ່ຊຳລະແລ້ວ (Paid Debts) ທີ່ເກົ່າກວ່າ (ມື້) *`)}</label>
                       <input
                         type="number"
                         className="form-control"
@@ -4373,11 +4373,11 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                         value={settings.dataRetentionDaysDebts || ''}
                         onChange={(e) => setSettings({ ...settings, dataRetentionDaysDebts: Number(e.target.value) })}
                       />
-                      <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>ສະເພາະໜີ້ທີ່ປ່ຽນສະຖານةເປັນ Paid ແລ້ວ.</span>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ສະເພາະໜີ້ທີ່ປ່ຽນສະຖານ_ເປັ_8s47y6', `ສະເພາະໜີ້ທີ່ປ່ຽນສະຖານةເປັນ Paid ແລ້ວ.`)}</span>
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">ຈຳນວນລຶບສູງສຸດຕໍ່ການເປີດແອັບ 1 ຄັ້ງ (Batch Size) *</label>
+                      <label className="form-label">{db.getLabel('auto_ຈຳນວນລຶບສູງສຸດຕໍ່ການເປີດແ_ptvpg8', `ຈຳນວນລຶບສູງສຸດຕໍ່ການເປີດແອັບ 1 ຄັ້ງ (Batch Size) *`)}</label>
                       <input
                         type="number"
                         className="form-control"
@@ -4386,7 +4386,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                         value={settings.dataRetentionMaxPerRun || ''}
                         onChange={(e) => setSettings({ ...settings, dataRetentionMaxPerRun: Number(e.target.value) })}
                       />
-                      <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>ຈຳກັດການລຶບຕໍ່ຄັ້ງເພື່ອປ້ອງກັນແອັບຄ້າງ.</span>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຈຳກັດການລຶບຕໍ່ຄັ້ງເພື່ອປ້_uab3r9', `ຈຳກັດການລຶບຕໍ່ຄັ້ງເພື່ອປ້ອງກັນແອັບຄ້າງ.`)}</span>
                     </div>
                   </div>
                 </div>
@@ -4621,7 +4621,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                 </h4>
 
                 <div className="form-group">
-                  <label className="form-label">ເລືອກຮູບແບບພື້ນຫຼັງ (Preset Theme)</label>
+                  <label className="form-label">{db.getLabel('auto_ເລືອກຮູບແບບພື້ນຫຼັງ__Pres_nyg32p', `ເລືອກຮູບແບບພື້ນຫຼັງ (Preset Theme)`)}</label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                     <button
                       type="button"
@@ -4727,7 +4727,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     </div>
                     
                     <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '12px', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ສີພື້ນຫຼັງດ່ຽວ (Solid Color)</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ສີພື້ນຫຼັງດ່ຽວ__Solid_Col_corev0', `ສີພື້ນຫຼັງດ່ຽວ (Solid Color)`)}</span>
                       <input
                         type="color"
                         value={designBgSolid}
@@ -4740,10 +4740,10 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ສີພື້ນຫຼັງໄລ່ລະດັບ (Gradient Background)</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ສີພື້ນຫຼັງໄລ່ລະດັບ__Gradi_5kptbt', `ສີພື້ນຫຼັງໄລ່ລະດັບ (Gradient Background)`)}</span>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
                         <div>
-                          <span style={{ fontSize: '0.65rem', color: '#888' }}>ສີທີ 1</span>
+                          <span style={{ fontSize: '0.65rem', color: '#888' }}>{db.getLabel('auto_ສີທີ_1_9z8ckm', `ສີທີ 1`)}</span>
                           <input
                             type="color"
                             value={designBgGradient1}
@@ -4755,7 +4755,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div>
-                          <span style={{ fontSize: '0.65rem', color: '#888' }}>ສີທີ 2</span>
+                          <span style={{ fontSize: '0.65rem', color: '#888' }}>{db.getLabel('auto_ສີທີ_2_9z8ckl', `ສີທີ 2`)}</span>
                           <input
                             type="color"
                             value={designBgGradient2}
@@ -4767,7 +4767,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           />
                         </div>
                         <div>
-                          <span style={{ fontSize: '0.65rem', color: '#888' }}>ອົງສາ (Angle)</span>
+                          <span style={{ fontSize: '0.65rem', color: '#888' }}>{db.getLabel('auto_ອົງສາ__Angle__yodunz', `ອົງສາ (Angle)`)}</span>
                           <input
                             type="number"
                             className="form-control"
@@ -4780,7 +4780,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     </div>
 
                     <div className="form-group" style={{ margin: 0 }}>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ຫຼື ອັບໂຫຼດຮູບພື້ນຫຼັງເອງ (Background Image)</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຫຼື_ອັບໂຫຼດຮູບພື້ນຫຼັງເອງ_kqw7ts', `ຫຼື ອັບໂຫຼດຮູບພື້ນຫຼັງເອງ (Background Image)`)}</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -4810,7 +4810,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '16px' }}>
                   <div className="form-group">
-                    <label className="form-label">ຮູບແບບຂອບບັດ (Border Style)</label>
+                    <label className="form-label">{db.getLabel('auto_ຮູບແບບຂອບບັດ__Border_Styl_m3mtyc', `ຮູບແບບຂອບບັດ (Border Style)`)}</label>
                     <select
                       className="form-control"
                       value={designBorder}
@@ -4877,7 +4877,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   </div>
 
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label">ຄວາມສູງຂອງບັດ (Card Height): {designCardHeight}px</label>
+                    <label className="form-label">{db.getLabel('auto_ຄວາມສູງຂອງບັດ__Card_Heigh_687nhj', `ຄວາມສູງຂອງບັດ (Card Height):`)} {designCardHeight}px</label>
                     <input
                       type="range"
                       min="240"
@@ -4896,7 +4896,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                 <div className="glass-card" style={{ padding: '12px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '8px' }}>
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label">ຂໍ້ຄວາມຫົວຂໍ້ບັດ (Card Title)</label>
+                      <label className="form-label">{db.getLabel('auto_ຂໍ້ຄວາມຫົວຂໍ້ບັດ__Card_Ti_gzjael', `ຂໍ້ຄວາມຫົວຂໍ້ບັດ (Card Title)`)}</label>
                       <input
                         type="text"
                         className="form-control"
@@ -4906,7 +4906,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       />
                     </div>
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label">ຂະໜາດຕົວໜັງສື</label>
+                      <label className="form-label">{db.getLabel('auto_ຂະໜາດຕົວໜັງສື_4cpxn6', `ຂະໜາດຕົວໜັງສື`)}</label>
                       <input
                         type="number"
                         className="form-control"
@@ -4919,7 +4919,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
 
                   {designTheme === 'custom' && (
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label">ສີຕົວໜັງສືຫົວຂໍ້</label>
+                      <label className="form-label">{db.getLabel('auto_ສີຕົວໜັງສືຫົວຂໍ້_7dq47k', `ສີຕົວໜັງສືຫົວຂໍ້`)}</label>
                       <input
                         type="color"
                         value={designTitleColor}
@@ -4934,7 +4934,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   <div className="glass-card" style={{ padding: '12px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', maxWidth: '500px', gap: '12px' }}>
                       <div className="form-group" style={{ margin: 0 }}>
-                        <label className="form-label">ສີມູນຄ່າສ່ວນຫຼຸດ</label>
+                        <label className="form-label">{db.getLabel('auto_ສີມູນຄ່າສ່ວນຫຼຸດ_oqce9h', `ສີມູນຄ່າສ່ວນຫຼຸດ`)}</label>
                         <input
                           type="color"
                           value={designValueColor}
@@ -4943,7 +4943,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                         />
                       </div>
                       <div className="form-group" style={{ margin: 0 }}>
-                        <label className="form-label">ຂະໜາດຕົວໜັງສື</label>
+                        <label className="form-label">{db.getLabel('auto_ຂະໜາດຕົວໜັງສື_4cpxn6', `ຂະໜາດຕົວໜັງສື`)}</label>
                         <input
                           type="number"
                           className="form-control"
@@ -4959,7 +4959,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                 <div className="glass-card" style={{ padding: '12px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '8px' }}>
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label">ເງື່ອນໄຂການນຳໃຊ້ (Terms & Conditions)</label>
+                      <label className="form-label">{db.getLabel('auto_ເງື່ອນໄຂການນຳໃຊ້__Terms___bmwsss', `ເງື່ອນໄຂການນຳໃຊ້ (Terms & Conditions)`)}</label>
                       <input
                         type="text"
                         className="form-control"
@@ -4969,7 +4969,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       />
                     </div>
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label">ຂະໜາດຕົວໜັງສື</label>
+                      <label className="form-label">{db.getLabel('auto_ຂະໜາດຕົວໜັງສື_4cpxn6', `ຂະໜາດຕົວໜັງສື`)}</label>
                       <input
                         type="number"
                         step="0.5"
@@ -4983,7 +4983,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
 
                   {designTheme === 'custom' && (
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label">ສີຕົວໜັງສືເງື່ອນໄຂ</label>
+                      <label className="form-label">{db.getLabel('auto_ສີຕົວໜັງສືເງື່ອນໄຂ_2fh4ff', `ສີຕົວໜັງສືເງື່ອນໄຂ`)}</label>
                       <input
                         type="color"
                         value={designTermsColor}

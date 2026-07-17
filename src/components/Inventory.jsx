@@ -178,12 +178,12 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
           <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
             <thead>
               <tr>
-                <th style={{ textAlign: 'left', padding: '12px' }}>ລາຍການອຸປະກອນ</th>
-                <th style={{ textAlign: 'right', padding: '12px' }}>ຕົ້ນທຶນ/ໜ່ວຍ</th>
-                <th style={{ textAlign: 'center', padding: '12px' }}>ຍອດຄົງເຫຼືອ</th>
-                <th style={{ textAlign: 'center', padding: '12px' }}>ຂັ້ນຕ່ຳ</th>
-                <th style={{ textAlign: 'right', padding: '12px' }}>ມູນຄ່າສາງ</th>
-                <th style={{ textAlign: 'center', padding: '12px' }}>ທຸລະກຳສາງ</th>
+                <th style={{ textAlign: 'left', padding: '12px' }}>{db.getLabel('auto_ລາຍການອຸປະກອນ_7l9211', `ລາຍການອຸປະກອນ`)}</th>
+                <th style={{ textAlign: 'right', padding: '12px' }}>{db.getLabel('auto_ຕົ້ນທຶນ_ໜ່ວຍ_qaqin1', `ຕົ້ນທຶນ/ໜ່ວຍ`)}</th>
+                <th style={{ textAlign: 'center', padding: '12px' }}>{db.getLabel('auto_ຍອດຄົງເຫຼືອ_da785x', `ຍອດຄົງເຫຼືອ`)}</th>
+                <th style={{ textAlign: 'center', padding: '12px' }}>{db.getLabel('auto_ຂັ້ນຕ່ຳ_pveo1t', `ຂັ້ນຕ່ຳ`)}</th>
+                <th style={{ textAlign: 'right', padding: '12px' }}>{db.getLabel('auto_ມູນຄ່າສາງ_dfn642', `ມູນຄ່າສາງ`)}</th>
+                <th style={{ textAlign: 'center', padding: '12px' }}>{db.getLabel('auto_ທຸລະກຳສາງ_hsxfzz', `ທຸລະກຳສາງ`)}</th>
               </tr>
             </thead>
             <tbody>
@@ -240,32 +240,32 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
               </div>
               <form onSubmit={handleAddConsumable} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div>
-                  <label className="form-label">ຊື່ອຸປະກອນ *</label>
-                  <input type="text" className="form-control" placeholder="ຕົວຢ່າງ: ເຈ້ຍຫ້ອງນ້ຳ, ສະບູ, ສະກັອດເທບ..." value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })} required />
+                  <label className="form-label">{db.getLabel('auto_ຊື່ອຸປະກອນ___6r1gnw', `ຊື່ອຸປະກອນ *`)}</label>
+                  <input type="text" className="form-control" placeholder={db.getLabel('auto_ຕົວຢ່າງ__ເຈ້ຍຫ້ອງນ້ຳ__ສະບ_15n3gy', `ຕົວຢ່າງ: ເຈ້ຍຫ້ອງນ້ຳ, ສະບູ, ສະກັອດເທບ...`)} value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })} required />
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                   <div>
-                    <label className="form-label">ຕົ້ນທຶນຕໍ່ໜ່ວຍ (LAK)</label>
+                    <label className="form-label">{db.getLabel('auto_ຕົ້ນທຶນຕໍ່ໜ່ວຍ__LAK__m0wy6x', `ຕົ້ນທຶນຕໍ່ໜ່ວຍ (LAK)`)}</label>
                     <input type="number" className="form-control" placeholder="0" value={addForm.costPerUnit} onChange={(e) => setAddForm({ ...addForm, costPerUnit: e.target.value })} />
                   </div>
                   <div>
-                    <label className="form-label">ຫົວໜ່ວຍ (Unit)</label>
+                    <label className="form-label">{db.getLabel('auto_ຫົວໜ່ວຍ__Unit__ogidx0', `ຫົວໜ່ວຍ (Unit)`)}</label>
                     <input type="text" className="form-control" placeholder="ອັນ, ມ້ວນ, ແກັດ..." value={addForm.unit} onChange={(e) => setAddForm({ ...addForm, unit: e.target.value })} />
                   </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                   <div>
-                    <label className="form-label">ຍອດເລີ່ມຕົ້ນ</label>
+                    <label className="form-label">{db.getLabel('auto_ຍອດເລີ່ມຕົ້ນ_tour11', `ຍອດເລີ່ມຕົ້ນ`)}</label>
                     <input type="number" className="form-control" placeholder="0" value={addForm.stock} onChange={(e) => setAddForm({ ...addForm, stock: e.target.value })} />
                   </div>
                   <div>
-                    <label className="form-label">ລະດັບຂັ້ນຕ່ຳ</label>
+                    <label className="form-label">{db.getLabel('auto_ລະດັບຂັ້ນຕ່ຳ_f6qj1r', `ລະດັບຂັ້ນຕ່ຳ`)}</label>
                     <input type="number" className="form-control" placeholder="5" value={addForm.minStock} onChange={(e) => setAddForm({ ...addForm, minStock: e.target.value })} />
                   </div>
                 </div>
                 <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-                  <button type="button" className="btn btn-secondary" onClick={() => setShowAddModal(false)}>ຍົກເລີກ</button>
-                  <button type="submit" className="btn btn-primary" style={{ background: 'var(--gold-primary)', color: 'black', borderColor: 'var(--gold-primary)' }}>ບັນທຶກ</button>
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowAddModal(false)}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
+                  <button type="submit" className="btn btn-primary" style={{ background: 'var(--gold-primary)', color: 'black', borderColor: 'var(--gold-primary)' }}>{db.getLabel('auto_ບັນທຶກ_hm29ds', `ບັນທຶກ`)}</button>
                 </div>
               </form>
             </div>
@@ -282,35 +282,35 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
                 <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowRestockModal(false)}>✕</button>
               </div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '14px' }}>
-                <b>ລາຍການ:</b> {activeItem.name} (ຍອດຄົງເຫຼືອ: {activeItem.stock} {activeItem.unit})
+                <b>{db.getLabel('auto_ລາຍການ__t3ypbi', `ລາຍການ:`)}</b> {activeItem.name} (ຍອດຄົງເຫຼືອ: {activeItem.stock} {activeItem.unit})
               </div>
               <form onSubmit={handleRestock} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                   <div>
-                    <label className="form-label">ຈຳນວນຮັບເຂົ້າ *</label>
+                    <label className="form-label">{db.getLabel('auto_ຈຳນວນຮັບເຂົ້າ___kiq25n', `ຈຳນວນຮັບເຂົ້າ *`)}</label>
                     <input type="number" className="form-control" placeholder="10" value={restockForm.qty} onChange={(e) => setRestockForm({ ...restockForm, qty: e.target.value })} required />
                   </div>
                   <div>
-                    <label className="form-label">ຕົ້ນທຶນຕໍ່ໜ່ວຍ (LAK)</label>
+                    <label className="form-label">{db.getLabel('auto_ຕົ້ນທຶນຕໍ່ໜ່ວຍ__LAK__m0wy6x', `ຕົ້ນທຶນຕໍ່ໜ່ວຍ (LAK)`)}</label>
                     <input type="number" className="form-control" placeholder={activeItem.costPerUnit} value={restockForm.costPerUnit} onChange={(e) => setRestockForm({ ...restockForm, costPerUnit: e.target.value })} />
                   </div>
                 </div>
                 <div>
-                  <label className="form-label">ວິທີການຊຳລະເງິນ</label>
+                  <label className="form-label">{db.getLabel('auto_ວິທີການຊຳລະເງິນ_2zxxy5', `ວິທີການຊຳລະເງິນ`)}</label>
                   <select className="form-control" value={restockForm.paymentMethod} onChange={(e) => setRestockForm({ ...restockForm, paymentMethod: e.target.value })}>
                     <option value="cash">💵 ເງິນສົດ (Cash)</option>
                     <option value="transfer">📱 ໂອນຜ່ານ BCEL One (Transfer)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="form-label">ໝາຍເຫດ/Supplier (Notes)</label>
-                  <input type="text" className="form-control" placeholder="ຊື້ຢູ່ຮ້ານສະດວກຊື້, ຊື້ມາເພີ່ມ..." value={restockForm.notes} onChange={(e) => setRestockForm({ ...restockForm, notes: e.target.value })} />
+                  <label className="form-label">{db.getLabel('auto_ໝາຍເຫດ_Supplier__Notes__z7ccd6', `ໝາຍເຫດ/Supplier (Notes)`)}</label>
+                  <input type="text" className="form-control" placeholder={db.getLabel('auto_ຊື້ຢູ່ຮ້ານສະດວກຊື້__ຊື້ມາ_ogvf04', `ຊື້ຢູ່ຮ້ານສະດວກຊື້, ຊື້ມາເພີ່ມ...`)} value={restockForm.notes} onChange={(e) => setRestockForm({ ...restockForm, notes: e.target.value })} />
                 </div>
                 <div style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)', padding: '10px', borderRadius: '6px', fontSize: '0.75rem', color: 'var(--gold-primary)' }}>
-                  ⚠️ <b>ຫມາຍເຫດ:</b> ການຮັບເຂົ້າຈະເຮັດການ **ບັນທຶກລາຍຈ່າຍຮ້ານອັດຕະໂນມັດ** ມູນຄ່າ {((parseFloat(restockForm.qty) || 0) * (parseFloat(restockForm.costPerUnit) || activeItem.costPerUnit || 0)).toLocaleString()} ກີບ.
+                  ⚠️ <b>{db.getLabel('auto_ຫມາຍເຫດ__x5aa4i', `ຫມາຍເຫດ:`)}</b> {db.getLabel('auto_ການຮັບເຂົ້າຈະເຮັດການ___ບັ_qie2ni', `ການຮັບເຂົ້າຈະເຮັດການ **ບັນທຶກລາຍຈ່າຍຮ້ານອັດຕະໂນມັດ** ມູນຄ່າ`)} {((parseFloat(restockForm.qty) || 0) * (parseFloat(restockForm.costPerUnit) || activeItem.costPerUnit || 0)).toLocaleString()} ກີບ.
                 </div>
                 <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-                  <button type="button" className="btn btn-secondary" onClick={() => setShowRestockModal(false)}>ຍົກເລີກ</button>
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowRestockModal(false)}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
                   <button type="submit" className="btn btn-primary" style={{ background: '#2ecc71', color: 'black', borderColor: '#2ecc71', fontWeight: 'bold' }}> Restock 📥</button>
                 </div>
               </form>
@@ -328,22 +328,22 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
                 <button type="button" className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowDisburseModal(false)}>✕</button>
               </div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '14px' }}>
-                <b>ລາຍການ:</b> {activeItem.name} (ຍອດຄົງເຫຼືອ: {activeItem.stock} {activeItem.unit})
+                <b>{db.getLabel('auto_ລາຍການ__t3ypbi', `ລາຍການ:`)}</b> {activeItem.name} (ຍອດຄົງເຫຼືອ: {activeItem.stock} {activeItem.unit})
               </div>
               <form onSubmit={handleDisburse} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div>
-                  <label className="form-label">ຈຳນວນເບີກອອກ *</label>
+                  <label className="form-label">{db.getLabel('auto_ຈຳນວນເບີກອອກ___oprvd1', `ຈຳນວນເບີກອອກ *`)}</label>
                   <input type="number" className="form-control" placeholder="5" value={disburseForm.qty} onChange={(e) => setDisburseForm({ ...disburseForm, qty: e.target.value })} required />
                 </div>
                 <div>
-                  <label className="form-label">ຈຸດປະສົງ/ໝາຍເຫດ</label>
-                  <input type="text" className="form-control" placeholder="ເບີກໄປໃຊ້ຢູ່ຫ້ອງນ້ຳ, ເບີກໄປແພັກເຄື່ອງ..." value={disburseForm.notes} onChange={(e) => setDisburseForm({ ...disburseForm, notes: e.target.value })} />
+                  <label className="form-label">{db.getLabel('auto_ຈຸດປະສົງ_ໝາຍເຫດ_egg4zh', `ຈຸດປະສົງ/ໝາຍເຫດ`)}</label>
+                  <input type="text" className="form-control" placeholder={db.getLabel('auto_ເບີກໄປໃຊ້ຢູ່ຫ້ອງນ້ຳ__ເບີກ_572uwy', `ເບີກໄປໃຊ້ຢູ່ຫ້ອງນ້ຳ, ເບີກໄປແພັກເຄື່ອງ...`)} value={disburseForm.notes} onChange={(e) => setDisburseForm({ ...disburseForm, notes: e.target.value })} />
                 </div>
                 <div style={{ background: 'rgba(231,76,60,0.06)', border: '1px solid rgba(231,76,60,0.2)', padding: '10px', borderRadius: '6px', fontSize: '0.75rem', color: '#FAB1A0' }}>
                   ℹ️ ການເບີກອອກໃຊ້ຈະບໍ່ມີການບັນທຶກລາຍຈ່າຍເພີ່ມ (ຍ້ອນວ່າໄດ້ບັນທຶກເປັນລາຍຈ່າຍໄປແລ້ວຕອນຊື້ຮັບເຂົ້າ).
                 </div>
                 <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-                  <button type="button" className="btn btn-secondary" onClick={() => setShowDisburseModal(false)}>ຍົກເລີກ</button>
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowDisburseModal(false)}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
                   <button type="submit" className="btn btn-primary" style={{ background: '#e74c3c', color: 'white', borderColor: '#e74c3c', fontWeight: 'bold' }}>Disburse 📤</button>
                 </div>
               </form>
@@ -364,12 +364,12 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
                 <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
                   <thead>
                     <tr>
-                      <th style={{ textAlign: 'left', padding: '10px' }}>ວັນທີ/ເວລາ</th>
-                      <th style={{ textAlign: 'left', padding: '10px' }}>ລາຍການ</th>
-                      <th style={{ textAlign: 'center', padding: '10px' }}>ປະເພດ</th>
-                      <th style={{ textAlign: 'center', padding: '10px' }}>ຈຳນວນ</th>
-                      <th style={{ textAlign: 'right', padding: '10px' }}>ມູນຄ່າ</th>
-                      <th style={{ textAlign: 'left', padding: '10px' }}>ໝາຍເຫດ/ຜູ້ເຮັດ</th>
+                      <th style={{ textAlign: 'left', padding: '10px' }}>{db.getLabel('auto_ວັນທີ_ເວລາ_34372i', `ວັນທີ/ເວລາ`)}</th>
+                      <th style={{ textAlign: 'left', padding: '10px' }}>{db.getLabel('auto_ລາຍການ_ce8qoo', `ລາຍການ`)}</th>
+                      <th style={{ textAlign: 'center', padding: '10px' }}>{db.getLabel('auto_ປະເພດ_c0c4db', `ປະເພດ`)}</th>
+                      <th style={{ textAlign: 'center', padding: '10px' }}>{db.getLabel('auto_ຈຳນວນ_car3ds', `ຈຳນວນ`)}</th>
+                      <th style={{ textAlign: 'right', padding: '10px' }}>{db.getLabel('auto_ມູນຄ່າ_e6cxhv', `ມູນຄ່າ`)}</th>
+                      <th style={{ textAlign: 'left', padding: '10px' }}>{db.getLabel('auto_ໝາຍເຫດ_ຜູ້ເຮັດ_gq9awx', `ໝາຍເຫດ/ຜູ້ເຮັດ`)}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -404,7 +404,7 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
                         </td>
                         <td style={{ padding: '10px' }}>
                           <div style={{ color: 'white' }}>{tx.notes || '-'}</div>
-                          <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ໂດຍ: {tx.createdByName}</div>
+                          <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ໂດຍ__1x7owv', `ໂດຍ:`)} {tx.createdByName}</div>
                         </td>
                       </tr>
                     ))}
@@ -426,7 +426,7 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>ເລືອກເດືອນ:</label>
+                <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ເລືອກເດືອນ__9kr26p', `ເລືອກເດືອນ:`)}</label>
                 <input type="month" className="form-control" style={{ width: '160px', background: '#1c1915' }} value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} />
               </div>
 
@@ -438,7 +438,7 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
                   </div>
                 </div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'right' }}>
-                  ຈຳນວນລາຍການ: <b>{monthExpenses.length} ລາຍການ</b>
+                  ຈຳນວນລາຍການ: <b>{monthExpenses.length} {db.getLabel('auto_ລາຍການ_ce8qoo', `ລາຍການ`)}</b>
                 </div>
               </div>
 
@@ -447,10 +447,10 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
                 <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
                   <thead>
                     <tr>
-                      <th style={{ textAlign: 'left', padding: '10px' }}>ປະເພດລາຍຈ່າຍ</th>
-                      <th style={{ textAlign: 'center', padding: '10px' }}>ຈຳນວນບິນ</th>
-                      <th style={{ textAlign: 'right', padding: '10px' }}>ຍອດລວມ (LAK)</th>
-                      <th style={{ textAlign: 'right', padding: '10px' }}>ເປີເຊັນ (%)</th>
+                      <th style={{ textAlign: 'left', padding: '10px' }}>{db.getLabel('auto_ປະເພດລາຍຈ່າຍ_m7xuee', `ປະເພດລາຍຈ່າຍ`)}</th>
+                      <th style={{ textAlign: 'center', padding: '10px' }}>{db.getLabel('auto_ຈຳນວນບິນ_cltp5t', `ຈຳນວນບິນ`)}</th>
+                      <th style={{ textAlign: 'right', padding: '10px' }}>{db.getLabel('auto_ຍອດລວມ__LAK__evrkyi', `ຍອດລວມ (LAK)`)}</th>
+                      <th style={{ textAlign: 'right', padding: '10px' }}>{db.getLabel('auto_ເປີເຊັນ_____8o7jk8', `ເປີເຊັນ (%)`)}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -487,7 +487,7 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
               <h4 style={{ color: 'white', fontSize: '0.9rem', marginBottom: '10px' }}>📋 ລາຍການບັນທຶກລາຍຈ່າຍ (Expenses Log):</h4>
               <div style={{ maxHeight: '250px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {monthExpenses.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>ບໍ່ມີລາຍການ</div>
+                  <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{db.getLabel('auto_ບໍ່ມີລາຍການ_hoaujz', `ບໍ່ມີລາຍການ`)}</div>
                 ) : monthExpenses.map(ex => (
                   <div key={ex.id} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem' }}>
                     <div>
@@ -688,7 +688,7 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
                 <button key={cat.id} type="button" onClick={()=>setActiveFilter(isActive?'all':cat.id)} style={{background:isActive?'rgba(212,175,55,0.12)':'rgba(255,255,255,0.03)',border:`1px solid ${isActive?'var(--gold-primary)':'var(--border-color)'}`,borderRadius:'10px',padding:'12px',cursor:'pointer',textAlign:'left',transition:'all 0.2s'}}>
                   <div style={{fontSize:'1.3rem',marginBottom:'4px'}}>{cat.icon}</div>
                   <div style={{fontSize:'0.8rem',fontWeight:'bold',color:isActive?'var(--gold-primary)':'white'}}>{cat.name}</div>
-                  <div style={{fontSize:'0.7rem',color:'var(--text-secondary)',marginTop:'2px'}}>{items.length} ລາຍການ</div>
+                  <div style={{fontSize:'0.7rem',color:'var(--text-secondary)',marginTop:'2px'}}>{items.length} {db.getLabel('auto_ລາຍການ_ce8qoo', `ລາຍການ`)}</div>
                   <div style={{fontSize:'0.7rem',color:'var(--gold-primary)',fontWeight:'600'}}>{catVal.toLocaleString()} ₭</div>
                 </button>
               );
@@ -702,14 +702,14 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
         <div style={{background:'rgba(231,76,60,0.08)',border:'1px solid rgba(231,76,60,0.35)',borderRadius:'10px',padding:'14px 16px'}}>
           <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'10px'}}>
             <span>🚨</span>
-            <span style={{fontWeight:'bold',color:'#e74c3c',fontSize:'0.9rem'}}>ອຸປະກອນໃກ້ໝົດສາງ ({lowStockItems.length} ລາຍການ)</span>
+            <span style={{fontWeight:'bold',color:'#e74c3c',fontSize:'0.9rem'}}>{db.getLabel('auto_ອຸປະກອນໃກ້ໝົດສາງ___a38ytr', `ອຸປະກອນໃກ້ໝົດສາງ (`)}{lowStockItems.length} {db.getLabel('auto_ລາຍການ__t3ypbz', `ລາຍການ)`)}</span>
           </div>
           <div style={{display:'flex',flexDirection:'column',gap:'6px'}}>
             {lowStockItems.map(item=>(
               <div key={item.id} style={{display:'flex',justifyContent:'space-between',alignItems:'center',background:'rgba(231,76,60,0.06)',borderRadius:'6px',padding:'8px 12px'}}>
                 <div>
                   <span style={{fontWeight:'bold',color:'white',fontSize:'0.85rem'}}>{item.name}</span>
-                  <span style={{marginLeft:'8px',color:'#e74c3c',fontSize:'0.8rem'}}>ຍອດ: {item.stock} / ຂັ້ນຕ່ຳ: {item.minStock} {item.unit}</span>
+                  <span style={{marginLeft:'8px',color:'#e74c3c',fontSize:'0.8rem'}}>{db.getLabel('auto_ຍອດ__1wadba', `ຍອດ:`)} {item.stock} / ຂັ້ນຕ່ຳ: {item.minStock} {item.unit}</span>
                 </div>
                 <button type="button" className="btn btn-secondary" style={{padding:'3px 10px',fontSize:'0.75rem',borderColor:'#2ecc71',color:'#2ecc71',background:'rgba(46,204,113,0.05)',whiteSpace:'nowrap'}}
                   onClick={()=>{setActiveItem(item);setShowRestockModal(true);}}>📥 ຕື່ມສະຕັອກ</button>
@@ -754,18 +754,18 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
         <div className="desktop-table-view" style={{overflowX:'auto'}}>
           <table className="table-premium" style={{width:'100%',marginTop:0}}>
             <thead><tr>
-              <th style={{textAlign:'left',padding:'12px'}}>ລະຫັດ / ອຸປະກອນ</th>
-              <th style={{textAlign:'left',padding:'12px'}}>ໝວດໝູ່</th>
-              <th style={{textAlign:'right',padding:'12px'}}>ຕົ້ນທຶນ/ໜ່ວຍ</th>
-              <th style={{textAlign:'center',padding:'12px'}}>ຍອດຄົງເຫຼືອ</th>
-              <th style={{textAlign:'center',padding:'12px'}}>ຂັ້ນຕ່ຳ</th>
-              <th style={{textAlign:'right',padding:'12px'}}>ມູນຄ່າສາງ</th>
-              <th style={{textAlign:'center',padding:'12px'}}>ທຸລະກຳ</th>
-              <th style={{textAlign:'right',padding:'12px'}}>ຈັດການ</th>
+              <th style={{textAlign:'left',padding:'12px'}}>{db.getLabel('auto_ລະຫັດ___ອຸປະກອນ_wo0npb', `ລະຫັດ / ອຸປະກອນ`)}</th>
+              <th style={{textAlign:'left',padding:'12px'}}>{db.getLabel('auto_ໝວດໝູ່_dyeq76', `ໝວດໝູ່`)}</th>
+              <th style={{textAlign:'right',padding:'12px'}}>{db.getLabel('auto_ຕົ້ນທຶນ_ໜ່ວຍ_qaqin1', `ຕົ້ນທຶນ/ໜ່ວຍ`)}</th>
+              <th style={{textAlign:'center',padding:'12px'}}>{db.getLabel('auto_ຍອດຄົງເຫຼືອ_da785x', `ຍອດຄົງເຫຼືອ`)}</th>
+              <th style={{textAlign:'center',padding:'12px'}}>{db.getLabel('auto_ຂັ້ນຕ່ຳ_pveo1t', `ຂັ້ນຕ່ຳ`)}</th>
+              <th style={{textAlign:'right',padding:'12px'}}>{db.getLabel('auto_ມູນຄ່າສາງ_dfn642', `ມູນຄ່າສາງ`)}</th>
+              <th style={{textAlign:'center',padding:'12px'}}>{db.getLabel('auto_ທຸລະກຳ_ix4f9e', `ທຸລະກຳ`)}</th>
+              <th style={{textAlign:'right',padding:'12px'}}>{db.getLabel('auto_ຈັດການ_q4z3sz', `ຈັດການ`)}</th>
             </tr></thead>
             <tbody>
               {filteredConsumables.length===0?(
-                <tr><td colSpan="8" style={{textAlign:'center',padding:'30px',color:'var(--text-secondary)'}}>ບໍ່ມີລາຍການ</td></tr>
+                <tr><td colSpan="8" style={{textAlign:'center',padding:'30px',color:'var(--text-secondary)'}}>{db.getLabel('auto_ບໍ່ມີລາຍການ_hoaujz', `ບໍ່ມີລາຍການ`)}</td></tr>
               ):filteredConsumables.map(item=>{
                 const totalVal=(item.stock||0)*(item.costPerUnit||0);
                 const isLow=(item.stock||0)<=(item.minStock||0);
@@ -798,7 +798,7 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
           </table>
         </div>
         <div className="mobile-cards-view" style={{display:'none',flexDirection:'column',gap:'12px'}}>
-          {filteredConsumables.length===0?(<div style={{textAlign:'center',padding:'24px',color:'var(--text-secondary)'}}>ບໍ່ມີລາຍການ</div>):filteredConsumables.map(item=>{
+          {filteredConsumables.length===0?(<div style={{textAlign:'center',padding:'24px',color:'var(--text-secondary)'}}>{db.getLabel('auto_ບໍ່ມີລາຍການ_hoaujz', `ບໍ່ມີລາຍການ`)}</div>):filteredConsumables.map(item=>{
             const totalVal=(item.stock||0)*(item.costPerUnit||0);const isLow=(item.stock||0)<=(item.minStock||0);
             return(<div key={item.id} className="glass-card animate-fade-in" style={{padding:'14px',display:'flex',flexDirection:'column',gap:'10px',borderLeft:`4px solid ${isLow?'#e74c3c':'#2ecc71'}`}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
@@ -809,10 +809,10 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
                 </div>
               </div>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'6px',background:'rgba(255,255,255,0.02)',padding:'8px',borderRadius:'6px',fontSize:'0.78rem'}}>
-                <div><span style={{color:'var(--text-secondary)'}}>ຍອດ:</span> <strong style={{color:isLow?'#e74c3c':'white'}}>{(item.stock||0).toLocaleString()} {item.unit||'ອັນ'}</strong></div>
-                <div><span style={{color:'var(--text-secondary)'}}>ຂັ້ນຕ່ຳ:</span> <span>{(item.minStock||0).toLocaleString()}</span></div>
-                <div><span style={{color:'var(--text-secondary)'}}>ຕົ້ນທຶນ:</span> <span>{(item.costPerUnit||0).toLocaleString()} ₭</span></div>
-                <div><span style={{color:'var(--text-secondary)'}}>ມູນຄ່າ:</span> <strong style={{color:'var(--gold-primary)'}}>{totalVal.toLocaleString()} ₭</strong></div>
+                <div><span style={{color:'var(--text-secondary)'}}>{db.getLabel('auto_ຍອດ__1wadba', `ຍອດ:`)}</span> <strong style={{color:isLow?'#e74c3c':'white'}}>{(item.stock||0).toLocaleString()} {item.unit||'ອັນ'}</strong></div>
+                <div><span style={{color:'var(--text-secondary)'}}>{db.getLabel('auto_ຂັ້ນຕ່ຳ__kpe3vd', `ຂັ້ນຕ່ຳ:`)}</span> <span>{(item.minStock||0).toLocaleString()}</span></div>
+                <div><span style={{color:'var(--text-secondary)'}}>{db.getLabel('auto_ຕົ້ນທຶນ__4t4aie', `ຕົ້ນທຶນ:`)}</span> <span>{(item.costPerUnit||0).toLocaleString()} ₭</span></div>
+                <div><span style={{color:'var(--text-secondary)'}}>{db.getLabel('auto_ມູນຄ່າ__dagihf', `ມູນຄ່າ:`)}</span> <strong style={{color:'var(--gold-primary)'}}>{totalVal.toLocaleString()} ₭</strong></div>
               </div>
               <div style={{display:'flex',gap:'8px'}}>
                 <button type="button" className="btn btn-secondary" style={{flex:1,padding:'6px',fontSize:'0.8rem',borderColor:'#2ecc71',color:'#2ecc71'}} onClick={()=>{setActiveItem(item);setShowRestockModal(true);}}>📥 ຮັບເຂົ້າ</button>
@@ -830,19 +830,19 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
           <button type="button" className="close-btn" style={{background:'none',border:'none',color:'var(--text-secondary)',fontSize:'1.25rem',cursor:'pointer'}} onClick={()=>setShowAddModal(false)}>✕</button>
         </div>
         <form onSubmit={handleAddConsumable} style={{display:'flex',flexDirection:'column',gap:'12px'}}>
-          <div><label className="form-label">ຊື່ອຸປະກອນ *</label><input type="text" className="form-control" placeholder="ເຈ້ຍຫ້ອງນ້ຳ, ສະບູ..." value={addForm.name} onChange={e=>setAddForm({...addForm,name:e.target.value})} required/></div>
-          <div><label className="form-label">ໝວດໝູ່ *</label><select className="form-control" value={addForm.category} onChange={e=>setAddForm({...addForm,category:e.target.value})}>{categories.map(cat=><option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>)}</select></div>
+          <div><label className="form-label">{db.getLabel('auto_ຊື່ອຸປະກອນ___6r1gnw', `ຊື່ອຸປະກອນ *`)}</label><input type="text" className="form-control" placeholder="ເຈ້ຍຫ້ອງນ້ຳ, ສະບູ..." value={addForm.name} onChange={e=>setAddForm({...addForm,name:e.target.value})} required/></div>
+          <div><label className="form-label">{db.getLabel('auto_ໝວດໝູ່___db4z84', `ໝວດໝູ່ *`)}</label><select className="form-control" value={addForm.category} onChange={e=>setAddForm({...addForm,category:e.target.value})}>{categories.map(cat=><option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>)}</select></div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
-            <div><label className="form-label">ຕົ້ນທຶນ/ໜ່ວຍ</label><input type="number" className="form-control" placeholder="0" value={addForm.costPerUnit} onChange={e=>setAddForm({...addForm,costPerUnit:e.target.value})}/></div>
-            <div><label className="form-label">ຫົວໜ່ວຍ</label><input type="text" className="form-control" placeholder="ອັນ, ມ້ວນ..." value={addForm.unit} onChange={e=>setAddForm({...addForm,unit:e.target.value})}/></div>
+            <div><label className="form-label">{db.getLabel('auto_ຕົ້ນທຶນ_ໜ່ວຍ_qaqin1', `ຕົ້ນທຶນ/ໜ່ວຍ`)}</label><input type="number" className="form-control" placeholder="0" value={addForm.costPerUnit} onChange={e=>setAddForm({...addForm,costPerUnit:e.target.value})}/></div>
+            <div><label className="form-label">{db.getLabel('auto_ຫົວໜ່ວຍ_7dd5p3', `ຫົວໜ່ວຍ`)}</label><input type="text" className="form-control" placeholder={db.getLabel('auto_ອັນ__ມ້ວນ____g3myt1', `ອັນ, ມ້ວນ...`)} value={addForm.unit} onChange={e=>setAddForm({...addForm,unit:e.target.value})}/></div>
           </div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
-            <div><label className="form-label">ຍອດເລີ່ມຕົ້ນ</label><input type="number" className="form-control" placeholder="0" value={addForm.stock} onChange={e=>setAddForm({...addForm,stock:e.target.value})}/></div>
-            <div><label className="form-label">ລະດັບຂັ້ນຕ່ຳ</label><input type="number" className="form-control" placeholder="5" value={addForm.minStock} onChange={e=>setAddForm({...addForm,minStock:e.target.value})}/></div>
+            <div><label className="form-label">{db.getLabel('auto_ຍອດເລີ່ມຕົ້ນ_tour11', `ຍອດເລີ່ມຕົ້ນ`)}</label><input type="number" className="form-control" placeholder="0" value={addForm.stock} onChange={e=>setAddForm({...addForm,stock:e.target.value})}/></div>
+            <div><label className="form-label">{db.getLabel('auto_ລະດັບຂັ້ນຕ່ຳ_f6qj1r', `ລະດັບຂັ້ນຕ່ຳ`)}</label><input type="number" className="form-control" placeholder="5" value={addForm.minStock} onChange={e=>setAddForm({...addForm,minStock:e.target.value})}/></div>
           </div>
           <div className="modal-footer" style={{display:'flex',justifyContent:'flex-end',gap:'10px',marginTop:'8px'}}>
-            <button type="button" className="btn btn-secondary" onClick={()=>setShowAddModal(false)}>ຍົກເລີກ</button>
-            <button type="submit" className="btn btn-primary" style={{background:'var(--gold-primary)',color:'black',borderColor:'var(--gold-primary)'}}>ບັນທຶກ</button>
+            <button type="button" className="btn btn-secondary" onClick={()=>setShowAddModal(false)}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
+            <button type="submit" className="btn btn-primary" style={{background:'var(--gold-primary)',color:'black',borderColor:'var(--gold-primary)'}}>{db.getLabel('auto_ບັນທຶກ_hm29ds', `ບັນທຶກ`)}</button>
           </div>
         </form>
       </div></div></Portal>)}
@@ -854,16 +854,16 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
           <button type="button" className="close-btn" style={{background:'none',border:'none',color:'var(--text-secondary)',fontSize:'1.25rem',cursor:'pointer'}} onClick={()=>setShowEditModal(false)}>✕</button>
         </div>
         <form onSubmit={handleEditConsumable} style={{display:'flex',flexDirection:'column',gap:'12px'}}>
-          <div><label className="form-label">ຊື່ *</label><input type="text" className="form-control" value={editForm.name} onChange={e=>setEditForm({...editForm,name:e.target.value})} required/></div>
-          <div><label className="form-label">ໝວດໝູ່ *</label><select className="form-control" value={editForm.category} onChange={e=>setEditForm({...editForm,category:e.target.value})}>{categories.map(cat=><option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>)}</select></div>
+          <div><label className="form-label">{db.getLabel('auto_ຊື່___c9mj7f', `ຊື່ *`)}</label><input type="text" className="form-control" value={editForm.name} onChange={e=>setEditForm({...editForm,name:e.target.value})} required/></div>
+          <div><label className="form-label">{db.getLabel('auto_ໝວດໝູ່___db4z84', `ໝວດໝູ່ *`)}</label><select className="form-control" value={editForm.category} onChange={e=>setEditForm({...editForm,category:e.target.value})}>{categories.map(cat=><option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>)}</select></div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
-            <div><label className="form-label">ຕົ້ນທຶນ/ໜ່ວຍ</label><input type="number" className="form-control" value={editForm.costPerUnit} onChange={e=>setEditForm({...editForm,costPerUnit:e.target.value})}/></div>
-            <div><label className="form-label">ຫົວໜ່ວຍ</label><input type="text" className="form-control" value={editForm.unit} onChange={e=>setEditForm({...editForm,unit:e.target.value})}/></div>
+            <div><label className="form-label">{db.getLabel('auto_ຕົ້ນທຶນ_ໜ່ວຍ_qaqin1', `ຕົ້ນທຶນ/ໜ່ວຍ`)}</label><input type="number" className="form-control" value={editForm.costPerUnit} onChange={e=>setEditForm({...editForm,costPerUnit:e.target.value})}/></div>
+            <div><label className="form-label">{db.getLabel('auto_ຫົວໜ່ວຍ_7dd5p3', `ຫົວໜ່ວຍ`)}</label><input type="text" className="form-control" value={editForm.unit} onChange={e=>setEditForm({...editForm,unit:e.target.value})}/></div>
           </div>
-          <div><label className="form-label">ລະດັບຂັ້ນຕ່ຳ</label><input type="number" className="form-control" value={editForm.minStock} onChange={e=>setEditForm({...editForm,minStock:e.target.value})}/></div>
+          <div><label className="form-label">{db.getLabel('auto_ລະດັບຂັ້ນຕ່ຳ_f6qj1r', `ລະດັບຂັ້ນຕ່ຳ`)}</label><input type="number" className="form-control" value={editForm.minStock} onChange={e=>setEditForm({...editForm,minStock:e.target.value})}/></div>
           <div className="modal-footer" style={{display:'flex',justifyContent:'flex-end',gap:'10px',marginTop:'8px'}}>
-            <button type="button" className="btn btn-secondary" onClick={()=>setShowEditModal(false)}>ຍົກເລີກ</button>
-            <button type="submit" className="btn btn-primary" style={{background:'var(--gold-primary)',color:'black',borderColor:'var(--gold-primary)'}}>ບັນທຶກ</button>
+            <button type="button" className="btn btn-secondary" onClick={()=>setShowEditModal(false)}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
+            <button type="submit" className="btn btn-primary" style={{background:'var(--gold-primary)',color:'black',borderColor:'var(--gold-primary)'}}>{db.getLabel('auto_ບັນທຶກ_hm29ds', `ບັນທຶກ`)}</button>
           </div>
         </form>
       </div></div></Portal>)}
@@ -877,20 +877,20 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
         <div style={{fontSize:'0.85rem',color:'var(--text-secondary)',marginBottom:'14px'}}><b>{activeItem.name}</b> | ຍອດ: {activeItem.stock} {activeItem.unit}</div>
         <form onSubmit={handleRestock} style={{display:'flex',flexDirection:'column',gap:'12px'}}>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
-            <div><label className="form-label">ຈຳນວນຮັບ *</label><input type="number" className="form-control" placeholder="10" value={restockForm.qty} onChange={e=>setRestockForm({...restockForm,qty:e.target.value})} required/></div>
-            <div><label className="form-label">ຕົ້ນທຶນ/ໜ່ວຍ</label><input type="number" className="form-control" placeholder={activeItem.costPerUnit} value={restockForm.costPerUnit} onChange={e=>setRestockForm({...restockForm,costPerUnit:e.target.value})}/></div>
+            <div><label className="form-label">{db.getLabel('auto_ຈຳນວນຮັບ___vzeq8x', `ຈຳນວນຮັບ *`)}</label><input type="number" className="form-control" placeholder="10" value={restockForm.qty} onChange={e=>setRestockForm({...restockForm,qty:e.target.value})} required/></div>
+            <div><label className="form-label">{db.getLabel('auto_ຕົ້ນທຶນ_ໜ່ວຍ_qaqin1', `ຕົ້ນທຶນ/ໜ່ວຍ`)}</label><input type="number" className="form-control" placeholder={activeItem.costPerUnit} value={restockForm.costPerUnit} onChange={e=>setRestockForm({...restockForm,costPerUnit:e.target.value})}/></div>
           </div>
-          <div><label className="form-label">ວິທີຊຳລະ</label>
+          <div><label className="form-label">{db.getLabel('auto_ວິທີຊຳລະ_sk6mtd', `ວິທີຊຳລະ`)}</label>
             <select className="form-control" value={restockForm.paymentMethod} onChange={e=>setRestockForm({...restockForm,paymentMethod:e.target.value})}>
               <option value="cash">💵 ເງິນສົດ</option><option value="transfer">📱 ໂອນ BCEL One</option>
             </select>
           </div>
-          <div><label className="form-label">ໝາຍເຫດ</label><input type="text" className="form-control" placeholder="ຊື້ຢູ່ຮ້ານ..." value={restockForm.notes} onChange={e=>setRestockForm({...restockForm,notes:e.target.value})}/></div>
+          <div><label className="form-label">{db.getLabel('auto_ໝາຍເຫດ_e4bdxt', `ໝາຍເຫດ`)}</label><input type="text" className="form-control" placeholder="ຊື້ຢູ່ຮ້ານ..." value={restockForm.notes} onChange={e=>setRestockForm({...restockForm,notes:e.target.value})}/></div>
           <div style={{background:'rgba(212,175,55,0.08)',border:'1px solid rgba(212,175,55,0.25)',padding:'10px',borderRadius:'6px',fontSize:'0.75rem',color:'var(--gold-primary)'}}>
             ⚠️ ຈະບັນທຶກລາຍຈ່າຍ <b>{((parseFloat(restockForm.qty)||0)*(parseFloat(restockForm.costPerUnit)||activeItem.costPerUnit||0)).toLocaleString()} ₭</b> ອັດຕະໂນມັດ
           </div>
           <div className="modal-footer" style={{display:'flex',justifyContent:'flex-end',gap:'10px',marginTop:'8px'}}>
-            <button type="button" className="btn btn-secondary" onClick={()=>setShowRestockModal(false)}>ຍົກເລີກ</button>
+            <button type="button" className="btn btn-secondary" onClick={()=>setShowRestockModal(false)}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
             <button type="submit" className="btn btn-primary" style={{background:'#2ecc71',color:'black',borderColor:'#2ecc71',fontWeight:'bold'}}>📥 ຢືນຢັນ</button>
           </div>
         </form>
@@ -904,13 +904,13 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
         </div>
         <div style={{fontSize:'0.85rem',color:'var(--text-secondary)',marginBottom:'14px'}}><b>{activeItem.name}</b> | ຍອດ: {activeItem.stock} {activeItem.unit}</div>
         <form onSubmit={handleDisburse} style={{display:'flex',flexDirection:'column',gap:'12px'}}>
-          <div><label className="form-label">ຈຳນວນເບີກ *</label><input type="number" className="form-control" placeholder="5" value={disburseForm.qty} onChange={e=>setDisburseForm({...disburseForm,qty:e.target.value})} required/></div>
-          <div><label className="form-label">ໝາຍເຫດ</label><input type="text" className="form-control" placeholder="ເບີກໄປໃຊ້..." value={disburseForm.notes} onChange={e=>setDisburseForm({...disburseForm,notes:e.target.value})}/></div>
+          <div><label className="form-label">{db.getLabel('auto_ຈຳນວນເບີກ___5autf4', `ຈຳນວນເບີກ *`)}</label><input type="number" className="form-control" placeholder="5" value={disburseForm.qty} onChange={e=>setDisburseForm({...disburseForm,qty:e.target.value})} required/></div>
+          <div><label className="form-label">{db.getLabel('auto_ໝາຍເຫດ_e4bdxt', `ໝາຍເຫດ`)}</label><input type="text" className="form-control" placeholder={db.getLabel('auto_ເບີກໄປໃຊ້____gn9qbt', `ເບີກໄປໃຊ້...`)} value={disburseForm.notes} onChange={e=>setDisburseForm({...disburseForm,notes:e.target.value})}/></div>
           <div style={{background:'rgba(231,76,60,0.06)',border:'1px solid rgba(231,76,60,0.2)',padding:'10px',borderRadius:'6px',fontSize:'0.75rem',color:'#FAB1A0'}}>
             ℹ️ ການເບີກອອກຈະບໍ່ສ້າງລາຍຈ່າຍໃໝ່
           </div>
           <div className="modal-footer" style={{display:'flex',justifyContent:'flex-end',gap:'10px',marginTop:'8px'}}>
-            <button type="button" className="btn btn-secondary" onClick={()=>setShowDisburseModal(false)}>ຍົກເລີກ</button>
+            <button type="button" className="btn btn-secondary" onClick={()=>setShowDisburseModal(false)}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
             <button type="submit" className="btn btn-primary" style={{background:'#e74c3c',color:'white',borderColor:'#e74c3c',fontWeight:'bold'}}>📤 ຢືນຢັນ</button>
           </div>
         </form>
@@ -926,8 +926,8 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
           <div style={{fontSize:'0.8rem',fontWeight:'bold',color:'var(--gold-primary)',marginBottom:'10px'}}>➕ ເພີ່ມໝວດໝູ່ໃໝ່</div>
           <div style={{display:'flex',gap:'8px',flexWrap:'wrap'}}>
             <input type="text" className="form-control" style={{width:'60px',textAlign:'center',fontSize:'1.2rem'}} placeholder="🔧" value={newCatIcon} onChange={e=>setNewCatIcon(e.target.value)}/>
-            <input type="text" className="form-control" style={{flex:1}} placeholder="ຊື່ໝວດໝູ່..." value={newCatName} onChange={e=>{setNewCatName(e.target.value);setCategoryError('');}}/>
-            <button type="button" className="btn btn-primary" style={{background:'var(--gold-primary)',color:'black',borderColor:'var(--gold-primary)',fontWeight:'bold'}} onClick={handleAddCategory}>ເພີ່ມ</button>
+            <input type="text" className="form-control" style={{flex:1}} placeholder={db.getLabel('auto_ຊື່ໝວດໝູ່____9tdehb', `ຊື່ໝວດໝູ່...`)} value={newCatName} onChange={e=>{setNewCatName(e.target.value);setCategoryError('');}}/>
+            <button type="button" className="btn btn-primary" style={{background:'var(--gold-primary)',color:'black',borderColor:'var(--gold-primary)',fontWeight:'bold'}} onClick={handleAddCategory}>{db.getLabel('auto_ເພີ່ມ_bgbfbk', `ເພີ່ມ`)}</button>
           </div>
           {categoryError&&<div style={{color:'#e74c3c',fontSize:'0.78rem',marginTop:'6px'}}>{categoryError}</div>}
         </div>
@@ -940,14 +940,14 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
                 <div style={{display:'flex',gap:'8px',alignItems:'center',flexWrap:'wrap'}}>
                   <input type="text" className="form-control" style={{width:'60px',textAlign:'center',fontSize:'1.1rem'}} value={editingCategory.icon} onChange={e=>setEditingCategory({...editingCategory,icon:e.target.value})}/>
                   <input type="text" className="form-control" style={{flex:1}} value={editingCategory.name} onChange={e=>setEditingCategory({...editingCategory,name:e.target.value})}/>
-                  <button type="button" className="btn btn-primary" style={{padding:'4px 10px',fontSize:'0.78rem',background:'var(--gold-primary)',color:'black',borderColor:'var(--gold-primary)'}} onClick={handleUpdateCategory}>ບັນທຶກ</button>
-                  <button type="button" className="btn btn-secondary" style={{padding:'4px 10px',fontSize:'0.78rem'}} onClick={()=>setEditingCategory(null)}>ຍົກເລີກ</button>
+                  <button type="button" className="btn btn-primary" style={{padding:'4px 10px',fontSize:'0.78rem',background:'var(--gold-primary)',color:'black',borderColor:'var(--gold-primary)'}} onClick={handleUpdateCategory}>{db.getLabel('auto_ບັນທຶກ_hm29ds', `ບັນທຶກ`)}</button>
+                  <button type="button" className="btn btn-secondary" style={{padding:'4px 10px',fontSize:'0.78rem'}} onClick={()=>setEditingCategory(null)}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
                 </div>
               ):(
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                   <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
                     <span style={{fontSize:'1.4rem'}}>{cat.icon}</span>
-                    <div><div style={{fontWeight:'bold',color:'white',fontSize:'0.9rem'}}>{cat.name}</div><div style={{fontSize:'0.72rem',color:'var(--text-secondary)'}}>{usageCount} ລາຍການ</div></div>
+                    <div><div style={{fontWeight:'bold',color:'white',fontSize:'0.9rem'}}>{cat.name}</div><div style={{fontSize:'0.72rem',color:'var(--text-secondary)'}}>{usageCount} {db.getLabel('auto_ລາຍການ_ce8qoo', `ລາຍການ`)}</div></div>
                   </div>
                   <div style={{display:'flex',gap:'6px'}}>
                     <button type="button" className="btn btn-secondary" style={{padding:'3px 8px',fontSize:'0.75rem'}} onClick={()=>{setEditingCategory({...cat});setCategoryError('');}}>📝</button>
@@ -968,19 +968,19 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
         </div>
         <table className="table-premium" style={{width:'100%',marginTop:0}}>
           <thead><tr>
-            <th style={{textAlign:'left',padding:'10px'}}>ວັນທີ</th><th style={{textAlign:'left',padding:'10px'}}>ລາຍການ</th>
-            <th style={{textAlign:'center',padding:'10px'}}>ປະເພດ</th><th style={{textAlign:'center',padding:'10px'}}>ຈຳນວນ</th>
-            <th style={{textAlign:'right',padding:'10px'}}>ມູນຄ່າ</th><th style={{textAlign:'left',padding:'10px'}}>ໝາຍເຫດ</th>
+            <th style={{textAlign:'left',padding:'10px'}}>{db.getLabel('auto_ວັນທີ_btqrbn', `ວັນທີ`)}</th><th style={{textAlign:'left',padding:'10px'}}>{db.getLabel('auto_ລາຍການ_ce8qoo', `ລາຍການ`)}</th>
+            <th style={{textAlign:'center',padding:'10px'}}>{db.getLabel('auto_ປະເພດ_c0c4db', `ປະເພດ`)}</th><th style={{textAlign:'center',padding:'10px'}}>{db.getLabel('auto_ຈຳນວນ_car3ds', `ຈຳນວນ`)}</th>
+            <th style={{textAlign:'right',padding:'10px'}}>{db.getLabel('auto_ມູນຄ່າ_e6cxhv', `ມູນຄ່າ`)}</th><th style={{textAlign:'left',padding:'10px'}}>{db.getLabel('auto_ໝາຍເຫດ_e4bdxt', `ໝາຍເຫດ`)}</th>
           </tr></thead>
           <tbody>
-            {allHistory.length===0?(<tr><td colSpan="6" style={{textAlign:'center',padding:'20px',color:'var(--text-secondary)'}}>ບໍ່ມີປະຫວັດ</td></tr>):allHistory.map(tx=>(
+            {allHistory.length===0?(<tr><td colSpan="6" style={{textAlign:'center',padding:'20px',color:'var(--text-secondary)'}}>{db.getLabel('auto_ບໍ່ມີປະຫວັດ_mfapxf', `ບໍ່ມີປະຫວັດ`)}</td></tr>):allHistory.map(tx=>(
               <tr key={tx.id} style={{borderBottom:'1px solid var(--border-color)',fontSize:'0.8rem'}}>
                 <td style={{padding:'10px'}}>{new Date(tx.date).toLocaleString('lo-LA')}</td>
                 <td style={{padding:'10px',fontWeight:'bold'}}>{tx.itemName}</td>
                 <td style={{padding:'10px',textAlign:'center'}}><span style={{padding:'2px 6px',borderRadius:'4px',fontSize:'0.65rem',fontWeight:'bold',background:tx.type==='restock'?'rgba(46,204,113,0.15)':'rgba(231,76,60,0.15)',color:tx.type==='restock'?'#2ecc71':'#e74c3c',border:`1px solid ${tx.type==='restock'?'#2ecc71':'#e74c3c'}`}}>{tx.type==='restock'?'ຮັບເຂົ້າ':'ເບີກອອກ'}</span></td>
                 <td style={{padding:'10px',textAlign:'center',fontWeight:'bold'}}>{tx.qty} {tx.unit}</td>
                 <td style={{padding:'10px',textAlign:'right',color:'var(--gold-primary)'}}>{tx.type==='restock'?`${(tx.totalCost||0).toLocaleString()} ₭`:'-'}</td>
-                <td style={{padding:'10px'}}><div style={{color:'white'}}>{tx.notes||'-'}</div><div style={{fontSize:'0.65rem',color:'var(--text-secondary)'}}>ໂດຍ: {tx.createdByName}</div></td>
+                <td style={{padding:'10px'}}><div style={{color:'white'}}>{tx.notes||'-'}</div><div style={{fontSize:'0.65rem',color:'var(--text-secondary)'}}>{db.getLabel('auto_ໂດຍ__1x7owv', `ໂດຍ:`)} {tx.createdByName}</div></td>
               </tr>
             ))}
           </tbody>
@@ -994,18 +994,18 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
           <button type="button" className="close-btn" style={{background:'none',border:'none',color:'var(--text-secondary)',fontSize:'1.25rem',cursor:'pointer'}} onClick={()=>setShowReportModal(false)}>✕</button>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:'10px',marginBottom:'20px',background:'rgba(255,255,255,0.03)',padding:'12px',borderRadius:'8px',border:'1px solid var(--border-color)'}}>
-          <label style={{fontSize:'0.85rem',color:'var(--text-secondary)'}}>ເລືອກເດືອນ:</label>
+          <label style={{fontSize:'0.85rem',color:'var(--text-secondary)'}}>{db.getLabel('auto_ເລືອກເດືອນ__9kr26p', `ເລືອກເດືອນ:`)}</label>
           <input type="month" className="form-control" style={{width:'160px',background:'#1c1915'}} value={selectedMonth} onChange={e=>setSelectedMonth(e.target.value)}/>
         </div>
         <div style={{background:'rgba(231,76,60,0.06)',border:'1px solid rgba(231,76,60,0.22)',padding:'16px',borderRadius:'12px',display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'20px'}}>
           <div><div style={{fontSize:'0.75rem',color:'var(--text-secondary)'}}>💵 ລວມລາຍຈ່າຍ:</div><div style={{fontSize:'1.6rem',fontWeight:'bold',color:'#FAB1A0',marginTop:'4px'}}>{totalMonthExpenseVal.toLocaleString()} ₭</div></div>
-          <div style={{fontSize:'0.8rem',color:'var(--text-secondary)',textAlign:'right'}}>ຈຳນວນ: <b>{monthExpenses.length} ລາຍການ</b></div>
+          <div style={{fontSize:'0.8rem',color:'var(--text-secondary)',textAlign:'right'}}>{db.getLabel('auto_ຈຳນວນ__q3rmxy', `ຈຳນວນ:`)} <b>{monthExpenses.length} {db.getLabel('auto_ລາຍການ_ce8qoo', `ລາຍການ`)}</b></div>
         </div>
         <h4 style={{color:'white',fontSize:'0.9rem',marginBottom:'10px'}}>📁 ແຍກຕາມໝວດໝູ່:</h4>
         <table className="table-premium" style={{width:'100%',marginBottom:'20px'}}>
-          <thead><tr><th style={{textAlign:'left',padding:'10px'}}>ໝວດໝູ່</th><th style={{textAlign:'center',padding:'10px'}}>ຈຳນວນ</th><th style={{textAlign:'right',padding:'10px'}}>ຍອດ</th><th style={{textAlign:'right',padding:'10px'}}>%</th></tr></thead>
+          <thead><tr><th style={{textAlign:'left',padding:'10px'}}>{db.getLabel('auto_ໝວດໝູ່_dyeq76', `ໝວດໝູ່`)}</th><th style={{textAlign:'center',padding:'10px'}}>{db.getLabel('auto_ຈຳນວນ_car3ds', `ຈຳນວນ`)}</th><th style={{textAlign:'right',padding:'10px'}}>{db.getLabel('auto_ຍອດ_27avo', `ຍອດ`)}</th><th style={{textAlign:'right',padding:'10px'}}>%</th></tr></thead>
           <tbody>
-            {sortedGroupedExpenses.length===0?(<tr><td colSpan="4" style={{textAlign:'center',padding:'20px',color:'var(--text-secondary)'}}>ບໍ່ມີ</td></tr>):sortedGroupedExpenses.map(row=>{
+            {sortedGroupedExpenses.length===0?(<tr><td colSpan="4" style={{textAlign:'center',padding:'20px',color:'var(--text-secondary)'}}>{db.getLabel('auto_ບໍ່ມີ_c0d8bb', `ບໍ່ມີ`)}</td></tr>):sortedGroupedExpenses.map(row=>{
               const pct=totalMonthExpenseVal>0?Math.round((row.total/totalMonthExpenseVal)*100):0;
               return(<tr key={row.name} style={{borderBottom:'1px solid var(--border-color)',fontSize:'0.85rem'}}>
                 <td style={{padding:'10px',fontWeight:'bold',color:'white'}}>{row.name}</td>
@@ -1023,7 +1023,7 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
         </table>
         <h4 style={{color:'white',fontSize:'0.9rem',marginBottom:'10px'}}>📋 ລາຍການ:</h4>
         <div style={{maxHeight:'250px',overflowY:'auto',display:'flex',flexDirection:'column',gap:'8px'}}>
-          {monthExpenses.length===0?(<div style={{textAlign:'center',padding:'20px',color:'var(--text-secondary)',fontSize:'0.8rem'}}>ບໍ່ມີ</div>):monthExpenses.map(ex=>(
+          {monthExpenses.length===0?(<div style={{textAlign:'center',padding:'20px',color:'var(--text-secondary)',fontSize:'0.8rem'}}>{db.getLabel('auto_ບໍ່ມີ_c0d8bb', `ບໍ່ມີ`)}</div>):monthExpenses.map(ex=>(
             <div key={ex.id} style={{background:'rgba(255,255,255,0.02)',border:'1px solid var(--border-color)',borderRadius:'8px',padding:'10px 14px',display:'flex',justifyContent:'space-between',alignItems:'center',fontSize:'0.8rem'}}>
               <div><div style={{fontWeight:'bold',color:'white'}}>{ex.categoryName||ex.category}</div><div style={{fontSize:'0.7rem',color:'var(--text-secondary)',marginTop:'2px'}}>{new Date(ex.date).toLocaleDateString('lo-LA')}{ex.notes?` • ${ex.notes}`:''}</div></div>
               <div style={{fontWeight:'bold',color:'#FAB1A0'}}>{(ex.convertedAmount||ex.amount).toLocaleString()} ₭</div>
@@ -1195,7 +1195,7 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
           <input
             type="text"
             className="form-control"
-            placeholder="🔍 ຄົ້ນຫາວັດຖຸດິບ..."
+            placeholder={db.getLabel('auto____ຄົ້ນຫາວັດຖຸດິບ____fas6ma', `🔍 ຄົ້ນຫາວັດຖຸດິບ...`)}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -1235,14 +1235,14 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
         <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
           <thead>
             <tr>
-              <th style={{ textAlign: 'left', padding: '12px' }}>ຊື່ວັດຖຸດິບ</th>
-              <th style={{ textAlign: 'left', padding: '12px' }}>ໝວດໝູ່</th>
-              <th style={{ textAlign: 'center', padding: '12px' }}>ຫົວໜ່ວຍ</th>
-              <th style={{ textAlign: 'right', padding: '12px' }}>ຈຳນວນສະຕັອກ</th>
-              <th style={{ textAlign: 'right', padding: '12px' }}>ຈຳນວນຕໍ່າສຸດ</th>
-              <th style={{ textAlign: 'right', padding: '12px' }}>ຕົ້ນທຶນ (LAK)</th>
-              <th style={{ textAlign: 'left', padding: '12px' }}>ຜູ້ສະໜອງ</th>
-              <th style={{ textAlign: 'center', padding: '12px' }}>ຈັດການ</th>
+              <th style={{ textAlign: 'left', padding: '12px' }}>{db.getLabel('auto_ຊື່ວັດຖຸດິບ_46tviv', `ຊື່ວັດຖຸດິບ`)}</th>
+              <th style={{ textAlign: 'left', padding: '12px' }}>{db.getLabel('auto_ໝວດໝູ່_dyeq76', `ໝວດໝູ່`)}</th>
+              <th style={{ textAlign: 'center', padding: '12px' }}>{db.getLabel('auto_ຫົວໜ່ວຍ_7dd5p3', `ຫົວໜ່ວຍ`)}</th>
+              <th style={{ textAlign: 'right', padding: '12px' }}>{db.getLabel('auto_ຈຳນວນສະຕັອກ_4sia96', `ຈຳນວນສະຕັອກ`)}</th>
+              <th style={{ textAlign: 'right', padding: '12px' }}>{db.getLabel('auto_ຈຳນວນຕໍ່າສຸດ_g3182k', `ຈຳນວນຕໍ່າສຸດ`)}</th>
+              <th style={{ textAlign: 'right', padding: '12px' }}>{db.getLabel('auto_ຕົ້ນທຶນ__LAK__wkmh35', `ຕົ້ນທຶນ (LAK)`)}</th>
+              <th style={{ textAlign: 'left', padding: '12px' }}>{db.getLabel('auto_ຜູ້ສະໜອງ_zfa9s4', `ຜູ້ສະໜອງ`)}</th>
+              <th style={{ textAlign: 'center', padding: '12px' }}>{db.getLabel('auto_ຈັດການ_q4z3sz', `ຈັດການ`)}</th>
             </tr>
           </thead>
           <tbody>
@@ -1282,19 +1282,19 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.85rem' }}>
               <div>
-                <span style={{ color: 'var(--text-secondary)' }}>ຈຳນວນ: </span>
+                <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຈຳນວນ__q3rmxy', `ຈຳນວນ:`)} </span>
                 <span style={{ fontWeight: 'bold', color: m.stock_qty <= m.min_stock ? 'var(--alert-red)' : 'white' }}>{m.stock_qty.toLocaleString()} {m.unit}</span>
               </div>
               <div>
-                <span style={{ color: 'var(--text-secondary)' }}>ຂັ້ນຕ່ຳ: </span>
+                <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຂັ້ນຕ່ຳ__kpe3vd', `ຂັ້ນຕ່ຳ:`)} </span>
                 <span>{m.min_stock} {m.unit}</span>
               </div>
               <div>
-                <span style={{ color: 'var(--text-secondary)' }}>ຕົ້ນທຶນ: </span>
+                <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຕົ້ນທຶນ__4t4aie', `ຕົ້ນທຶນ:`)} </span>
                 <span>{hasInventoryPermission('inventoryViewCost') ? `${m.cost_price.toLocaleString()} ₭` : '*** ₭'}</span>
               </div>
               <div>
-                <span style={{ color: 'var(--text-secondary)' }}>ຜູ້ສະໜອງ: </span>
+                <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຜູ້ສະໜອງ__wp5lme', `ຜູ້ສະໜອງ:`)} </span>
                 <span>{m.supplier || '-'}</span>
               </div>
             </div>
@@ -1325,12 +1325,12 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
                   {/* Left Column */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div className="form-group">
-                      <label className="form-label">ຊື່ວັດຖຸດິບ (Ingredient Name) *</label>
+                      <label className="form-label">{db.getLabel('auto_ຊື່ວັດຖຸດິບ__Ingredient_N_w2ch06', `ຊື່ວັດຖຸດິບ (Ingredient Name) *`)}</label>
                       <input type="text" className="form-control" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">ໝວດໝູ່ (Category) *</label>
+                      <label className="form-label">{db.getLabel('auto_ໝວດໝູ່__Category____rjpp1', `ໝວດໝູ່ (Category) *`)}</label>
                       <input
                         type="text"
                         className="form-control"
@@ -1348,22 +1348,22 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                       <div className="form-group">
-                        <label className="form-label">ຫົວໜ່ວຍ (Unit) *</label>
-                        <input type="text" className="form-control" placeholder="ແຜ່ນ, ອັນ,..." required value={formData.unit} onChange={(e) => setFormData({ ...formData, unit: e.target.value })} />
+                        <label className="form-label">{db.getLabel('auto_ຫົວໜ່ວຍ__Unit____6hgn42', `ຫົວໜ່ວຍ (Unit) *`)}</label>
+                        <input type="text" className="form-control" placeholder={db.getLabel('auto_ແຜ່ນ__ອັນ_____6a2myx', `ແຜ່ນ, ອັນ,...`)} required value={formData.unit} onChange={(e) => setFormData({ ...formData, unit: e.target.value })} />
                       </div>
                       <div className="form-group">
-                        <label className="form-label">ບາໂຄ້ດ (Barcode)</label>
+                        <label className="form-label">{db.getLabel('auto_ບາໂຄ້ດ__Barcode__h8mixi', `ບາໂຄ້ດ (Barcode)`)}</label>
                         <input type="text" className="form-control" placeholder="Barcode..." value={formData.barcode} onChange={(e) => setFormData({ ...formData, barcode: e.target.value })} />
                       </div>
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">ຜູ້ສະໜອງ (Supplier)</label>
+                      <label className="form-label">{db.getLabel('auto_ຜູ້ສະໜອງ__Supplier__v8027l', `ຜູ້ສະໜອງ (Supplier)`)}</label>
                       <input type="text" className="form-control" placeholder="Supplier name..." value={formData.supplier} onChange={(e) => setFormData({ ...formData, supplier: e.target.value })} />
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">ຄຳອະທິບາຍ (Description)</label>
+                      <label className="form-label">{db.getLabel('auto_ຄຳອະທິບາຍ__Description__p1frx7', `ຄຳອະທິບາຍ (Description)`)}</label>
                       <input type="text" className="form-control" placeholder="Description..." value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
                     </div>
                   </div>
@@ -1372,24 +1372,24 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                       <div className="form-group">
-                        <label className="form-label">ສະຕັອກປັດຈຸບັນ *</label>
+                        <label className="form-label">{db.getLabel('auto_ສະຕັອກປັດຈຸບັນ___ao6zho', `ສະຕັອກປັດຈຸບັນ *`)}</label>
                         <input type="number" className="form-control" required value={formData.stock_qty} onChange={(e) => setFormData({ ...formData, stock_qty: e.target.value })} />
                       </div>
                       <div className="form-group">
-                        <label className="form-label">ແຈ້ງເຕືອນຕໍ່າສຸດ *</label>
+                        <label className="form-label">{db.getLabel('auto_ແຈ້ງເຕືອນຕໍ່າສຸດ___1qfon9', `ແຈ້ງເຕືອນຕໍ່າສຸດ *`)}</label>
                         <input type="number" className="form-control" required value={formData.min_stock} onChange={(e) => setFormData({ ...formData, min_stock: e.target.value })} />
                       </div>
                     </div>
 
 {hasInventoryPermission('inventoryViewCost') && (
                     <div className="form-group">
-                      <label className="form-label">ລາຄາຊື້ / ຕົ້ນທຶນ (LAK) *</label>
+                      <label className="form-label">{db.getLabel('auto_ລາຄາຊື້___ຕົ້ນທຶນ__LAK____gxgyd5', `ລາຄາຊື້ / ຕົ້ນທຶນ (LAK) *`)}</label>
                       <input type="number" className="form-control" required value={formData.cost_price} onChange={(e) => setFormData({ ...formData, cost_price: e.target.value })} />
                     </div>
 )}
 
                     <div className="form-group">
-                      <label className="form-label">ຮູບພາບວັດຖຸດິບ (Ingredient Photo)</label>
+                      <label className="form-label">{db.getLabel('auto_ຮູບພາບວັດຖຸດິບ__Ingredien_9n3d7r', `ຮູບພາບວັດຖຸດິບ (Ingredient Photo)`)}</label>
                       <input
                         type="file"
                         accept="image/*"
@@ -1413,13 +1413,13 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
                       {formData.image && (
                         <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                           <img src={formData.image} alt="Raw Material Preview" style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-color)' }} />
-                          <button type="button" className="btn btn-secondary" style={{ padding: '0 8px', height: '30px', fontSize: '0.75rem', color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }} onClick={() => setFormData(prev => ({ ...prev, image: '' }))}>ລຶບຮູບ</button>
+                          <button type="button" className="btn btn-secondary" style={{ padding: '0 8px', height: '30px', fontSize: '0.75rem', color: 'var(--alert-red)', borderColor: 'var(--alert-red)' }} onClick={() => setFormData(prev => ({ ...prev, image: '' }))}>{db.getLabel('auto_ລຶບຮູບ_cbsby2', `ລຶບຮູບ`)}</button>
                         </div>
                       )}
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">ໝາຍເຫດ (Notes)</label>
+                      <label className="form-label">{db.getLabel('auto_ໝາຍເຫດ__Notes__lhjenz', `ໝາຍເຫດ (Notes)`)}</label>
                       <textarea className="form-control" style={{ minHeight: '80px', resize: 'vertical' }} placeholder="Notes..." value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} />
                     </div>
                   </div>
@@ -1442,7 +1442,7 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
                     description: '',
                     notes: ''
                   });
-                }}>ຍົກເລີກ</button>
+                }}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
                 <button type="submit" className="btn btn-primary">💾 ຢືນຢັນ</button>
               </div>
             </form>
@@ -1474,7 +1474,7 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
                 <button type="button" className="btn btn-secondary" onClick={() => {
                   setShowCsvModal(false);
                   setCsvText('');
-                }}>ຍົກເລີກ</button>
+                }}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
                 <button type="button" className="btn btn-primary" onClick={handleImportCsv} disabled={!csvText.trim()}>💾 ຢືນຢັນການນຳເຂົ້າ</button>
               </div>
             </div>
@@ -1488,7 +1488,7 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
         type="button" 
         className="fab-btn" 
         onClick={handleOpenAdd} 
-        title="ເພີ່ມວັດຖຸດິບໃໝ່ (Add Raw Material)"
+        title={db.getLabel('auto_ເພີ່ມວັດຖຸດິບໃໝ່__Add_Raw_s3z1hv', `ເພີ່ມວັດຖຸດິບໃໝ່ (Add Raw Material)`)}
       >
         ➕
       </button>
@@ -1835,7 +1835,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                     className="btn btn-secondary"
                     style={{ padding: '0 10px', fontSize: '0.85rem' }}
                     onClick={handleOpenAddMaterial}
-                    title="ເພີ່ມວັດຖຸດິບໃໝ່"
+                    title={db.getLabel('auto_ເພີ່ມວັດຖຸດິບໃໝ່_w4cts', `ເພີ່ມວັດຖຸດິບໃໝ່`)}
                   >
                     ➕
                   </button>
@@ -1845,11 +1845,11 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                     required
                     className="form-control"
                     style={{ width: '90px' }}
-                    placeholder="ຈຳນວນ"
+                    placeholder={db.getLabel('auto_ຈຳນວນ_car3ds', `ຈຳນວນ`)}
                     value={matQty}
                     onChange={(e) => setMatQty(e.target.value)}
                   />
-                  <button type="submit" className="btn btn-primary" style={{ padding: '0 16px' }}>ເພີ່ມ</button>
+                  <button type="submit" className="btn btn-primary" style={{ padding: '0 16px' }}>{db.getLabel('auto_ເພີ່ມ_bgbfbk', `ເພີ່ມ`)}</button>
                 </form>
 
                 <div style={{ minHeight: '120px', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px', background: 'rgba(0,0,0,0.1)' }}>
@@ -1890,9 +1890,9 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                   </h3>
                   
                   <div style={{ background: 'rgba(212,175,55,0.05)', border: '1px dashed var(--gold-primary)', borderRadius: '8px', padding: '14px', marginBottom: '20px' }}>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>ກຳລັງການຜະລິດສູງສຸດ (Max Yield Capacity):</div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ກຳລັງການຜະລິດສູງສຸດ__Max__hkfx8e', `ກຳລັງການຜະລິດສູງສຸດ (Max Yield Capacity):`)}</div>
                     <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: 'white', marginTop: '4px' }}>
-                      {calculateCapacity(selectedProduct)} <span style={{ fontSize: '1rem', color: 'var(--text-secondary)', fontWeight: 'normal' }}>ອັນ</span>
+                      {calculateCapacity(selectedProduct)} <span style={{ fontSize: '1rem', color: 'var(--text-secondary)', fontWeight: 'normal' }}>{db.getLabel('auto_ອັນ_27yph', `ອັນ`)}</span>
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
                       * ຄຳນວນຈາກວັດຖຸດິບຄົງເຫຼືອໃນສະຕັອກ
@@ -1900,7 +1900,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">ຈຳນວນທີ່ຕ້ອງການຜະລິດ</label>
+                    <label className="form-label">{db.getLabel('auto_ຈຳນວນທີ່ຕ້ອງການຜະລິດ_5ex9tr', `ຈຳນວນທີ່ຕ້ອງການຜະລິດ`)}</label>
                     <input
                       type="number"
                       className="form-control"
@@ -1931,54 +1931,54 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label" style={{ fontSize: '0.75rem' }}>ກວ້າງແຜ່ນ (Sheet W - cm)</label>
+                      <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ກວ້າງແຜ່ນ__Sheet_W___cm__3uypai', `ກວ້າງແຜ່ນ (Sheet W - cm)`)}</label>
                       <input type="number" className="form-control" value={sheetW} onChange={(e) => setSheetW(e.target.value)} />
                     </div>
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label" style={{ fontSize: '0.75rem' }}>ສູງແຜ່ນ (Sheet H - cm)</label>
+                      <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ສູງແຜ່ນ__Sheet_H___cm__k6nuu1', `ສູງແຜ່ນ (Sheet H - cm)`)}</label>
                       <input type="number" className="form-control" value={sheetH} onChange={(e) => setSheetH(e.target.value)} />
                     </div>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label" style={{ fontSize: '0.75rem' }}>ກວ້າງຊິ້ນງານ (Piece W - cm)</label>
+                      <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ກວ້າງຊິ້ນງານ__Piece_W___c_6zpyfn', `ກວ້າງຊິ້ນງານ (Piece W - cm)`)}</label>
                       <input type="number" className="form-control" value={pieceW} onChange={(e) => setPieceW(e.target.value)} />
                     </div>
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label className="form-label" style={{ fontSize: '0.75rem' }}>ສູງຊິ້ນງານ (Piece H - cm)</label>
+                      <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ສູງຊິ້ນງານ__Piece_H___cm__jteof2', `ສູງຊິ້ນງານ (Piece H - cm)`)}</label>
                       <input type="number" className="form-control" value={pieceH} onChange={(e) => setPieceH(e.target.value)} />
                     </div>
                   </div>
 
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label" style={{ fontSize: '0.75rem' }}>ໄລຍະຫ່າງ/ຄວາມໜາໃบຕັດ (Waste margin - cm)</label>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ໄລຍະຫ່າງ_ຄວາມໜາໃ_ຕັດ__Was_lr8x6g', `ໄລຍະຫ່າງ/ຄວາມໜາໃบຕັດ (Waste margin - cm)`)}</label>
                     <input type="number" step="0.1" className="form-control" value={margin} onChange={(e) => setMargin(e.target.value)} />
                   </div>
 
 {hasInventoryPermission('inventoryViewCost') && (
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label" style={{ fontSize: '0.75rem' }}>ຕົ້ນທຶນແຜ່ນອາຄຣີລິກ (Sheet Cost - LAK)</label>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ຕົ້ນທຶນແຜ່ນອາຄຣີລິກ__Shee_a6e5y7', `ຕົ້ນທຶນແຜ່ນອາຄຣີລິກ (Sheet Cost - LAK)`)}</label>
                     <input type="number" className="form-control" value={sheetCost} onChange={(e) => setSheetCost(e.target.value)} />
                   </div>
 )}
 
                   <div style={{ background: 'rgba(0,0,0,0.15)', borderRadius: '6px', padding: '12px', marginTop: '10px', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>ຈຳນວນຊິ້ນງານທີ່ໄດ້:</span>
-                      <b style={{ color: 'var(--gold-primary)' }}>{solverResult.yieldCount} ຊິ້ນ</b>
+                      <span>{db.getLabel('auto_ຈຳນວນຊິ້ນງານທີ່ໄດ້__9n66nr', `ຈຳນວນຊິ້ນງານທີ່ໄດ້:`)}</span>
+                      <b style={{ color: 'var(--gold-primary)' }}>{solverResult.yieldCount} {db.getLabel('auto_ຊິ້ນ_1w8pne', `ຊິ້ນ`)}</b>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>ອັດຕາໃຊ້ງານ (Yield):</span>
+                      <span>{db.getLabel('auto_ອັດຕາໃຊ້ງານ__Yield___2xmlzx', `ອັດຕາໃຊ້ງານ (Yield):`)}</span>
                       <b style={{ color: 'var(--success-green)' }}>{solverResult.efficiency}%</b>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>ອັດຕາເສຍເສດ (Waste):</span>
+                      <span>{db.getLabel('auto_ອັດຕາເສຍເສດ__Waste___actz7z', `ອັດຕາເສຍເສດ (Waste):`)}</span>
                       <b style={{ color: 'var(--alert-red)' }}>{solverResult.waste}%</b>
                     </div>
 {hasInventoryPermission('inventoryViewCost') && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', borderTop: '1px solid var(--border-color)', paddingTop: '6px', marginTop: '4px' }}>
-                      <span>ຕົ້ນທຶນສະເລ່ຍ:</span>
+                      <span>{db.getLabel('auto_ຕົ້ນທຶນສະເລ່ຍ__ytym4a', `ຕົ້ນທຶນສະເລ່ຍ:`)}</span>
                       <b style={{ color: 'white' }}>{solverResult.costPerUnit.toLocaleString()} ₭ / ຊິ້ນ</b>
                     </div>
 )}
@@ -2031,7 +2031,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                         ))}
                       </div>
                     ) : (
-                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>ຂະໜາດຊິ້ນງານໃຫຍ່ເກີນແຜ່ນອາຄຣີລິກ!</div>
+                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{db.getLabel('auto_ຂະໜາດຊິ້ນງານໃຫຍ່ເກີນແຜ່ນອ_4h13ko', `ຂະໜາດຊິ້ນງານໃຫຍ່ເກີນແຜ່ນອາຄຣີລິກ!`)}</div>
                     )}
                   </div>
                 </div>
@@ -2046,12 +2046,12 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                 <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
                   <thead>
                     <tr>
-                      <th style={{ textAlign: 'left', padding: '8px' }}>ວັນທີ</th>
-                      <th style={{ textAlign: 'left', padding: '8px' }}>ຊື່ສິນຄ້າ</th>
-                      <th style={{ textAlign: 'right', padding: '8px' }}>ຈຳນວນ</th>
-                      <th style={{ textAlign: 'right', padding: '8px' }}>ຕົ້ນທຶນສະເລ່ຍ</th>
-                      <th style={{ textAlign: 'right', padding: '8px' }}>ຕົ້ນທຶນລວມ</th>
-                      <th style={{ textAlign: 'left', padding: '8px' }}>ຜູ້ສັ່ງຜະລິດ</th>
+                      <th style={{ textAlign: 'left', padding: '8px' }}>{db.getLabel('auto_ວັນທີ_btqrbn', `ວັນທີ`)}</th>
+                      <th style={{ textAlign: 'left', padding: '8px' }}>{db.getLabel('auto_ຊື່ສິນຄ້າ_18q1y1', `ຊື່ສິນຄ້າ`)}</th>
+                      <th style={{ textAlign: 'right', padding: '8px' }}>{db.getLabel('auto_ຈຳນວນ_car3ds', `ຈຳນວນ`)}</th>
+                      <th style={{ textAlign: 'right', padding: '8px' }}>{db.getLabel('auto_ຕົ້ນທຶນສະເລ່ຍ_cmh35g', `ຕົ້ນທຶນສະເລ່ຍ`)}</th>
+                      <th style={{ textAlign: 'right', padding: '8px' }}>{db.getLabel('auto_ຕົ້ນທຶນລວມ_4dfm0r', `ຕົ້ນທຶນລວມ`)}</th>
+                      <th style={{ textAlign: 'left', padding: '8px' }}>{db.getLabel('auto_ຜູ້ສັ່ງຜະລິດ_eotxb3', `ຜູ້ສັ່ງຜະລິດ`)}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -2088,12 +2088,12 @@ function ManufacturingSubView({ isMobile, activeUser }) {
             </div>
             <form onSubmit={handleSaveProduct} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div className="form-group">
-                <label className="form-label">ຊື່ສິນຄ້າ (Product Name)</label>
+                <label className="form-label">{db.getLabel('auto_ຊື່ສິນຄ້າ__Product_Name__aw6958', `ຊື່ສິນຄ້າ (Product Name)`)}</label>
                 <input type="text" className="form-control" required value={prodName} onChange={(e) => setProdName(e.target.value)} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div className="form-group">
-                  <label className="form-label">ໝວດໝູ່ (Category)</label>
+                  <label className="form-label">{db.getLabel('auto_ໝວດໝູ່__Category__1el2u7', `ໝວດໝູ່ (Category)`)}</label>
                   <input
                     type="text"
                     className="form-control"
@@ -2109,32 +2109,32 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                   </datalist>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">ຫົວໜ່ວຍ (Unit)</label>
+                  <label className="form-label">{db.getLabel('auto_ຫົວໜ່ວຍ__Unit__ogidx0', `ຫົວໜ່ວຍ (Unit)`)}</label>
                   <input type="text" className="form-control" required value={prodUnit} onChange={(e) => setProdUnit(e.target.value)} />
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div className="form-group">
-                  <label className="form-label">ລາຄາຂາຍ (Price LAK)</label>
+                  <label className="form-label">{db.getLabel('auto_ລາຄາຂາຍ__Price_LAK__6l9k24', `ລາຄາຂາຍ (Price LAK)`)}</label>
                   <input type="number" className="form-control" required value={prodPrice} onChange={(e) => setProdPrice(e.target.value)} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">ຕົ້ນທຶນ (Cost LAK)</label>
+                  <label className="form-label">{db.getLabel('auto_ຕົ້ນທຶນ__Cost_LAK__2wdcna', `ຕົ້ນທຶນ (Cost LAK)`)}</label>
                   <input type="number" className="form-control" required value={prodCost} onChange={(e) => setProdCost(e.target.value)} />
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div className="form-group">
-                  <label className="form-label">ຈຳນວນສະຕັອກ</label>
+                  <label className="form-label">{db.getLabel('auto_ຈຳນວນສະຕັອກ_4sia96', `ຈຳນວນສະຕັອກ`)}</label>
                   <input type="number" className="form-control" required value={prodStock} onChange={(e) => setProdStock(e.target.value)} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">ເຕືອນຕໍ່າສຸດ</label>
+                  <label className="form-label">{db.getLabel('auto_ເຕືອນຕໍ່າສຸດ_7uowc6', `ເຕືອນຕໍ່າສຸດ`)}</label>
                   <input type="number" className="form-control" required value={prodMinStock} onChange={(e) => setProdMinStock(e.target.value)} />
                 </div>
               </div>
               <div className="form-group">
-                <label className="form-label">ລະຫັດບາໂຄ້ດ (Barcode)</label>
+                <label className="form-label">{db.getLabel('auto_ລະຫັດບາໂຄ້ດ__Barcode__njohbt', `ລະຫັດບາໂຄ້ດ (Barcode)`)}</label>
                 <input type="text" className="form-control" required value={prodBarcode} onChange={(e) => setProdBarcode(e.target.value)} />
               </div>
               <div className="modal-footer" style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
@@ -2149,7 +2149,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                   setProdUnit('ອັນ');
                   setProdBarcode('');
                   setProdImage('');
-                }}>ຍົກເລີກ</button>
+                }}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
                 <button type="submit" className="btn btn-primary">💾 ຢືນຢັນ</button>
               </div>
             </form>
@@ -2168,12 +2168,12 @@ function ManufacturingSubView({ isMobile, activeUser }) {
             </div>
             <form onSubmit={handleSaveMaterial} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div className="form-group">
-                <label className="form-label">ຊື່ວັດຖຸດິບ (Material Name)</label>
+                <label className="form-label">{db.getLabel('auto_ຊື່ວັດຖຸດິບ__Material_Nam_rkznyi', `ຊື່ວັດຖຸດິບ (Material Name)`)}</label>
                 <input type="text" className="form-control" required value={matName} onChange={(e) => setMatName(e.target.value)} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div className="form-group">
-                  <label className="form-label">ໝວດໝູ່ (Category)</label>
+                  <label className="form-label">{db.getLabel('auto_ໝວດໝູ່__Category__1el2u7', `ໝວດໝູ່ (Category)`)}</label>
                   <input
                     type="text"
                     className="form-control"
@@ -2192,26 +2192,26 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                   </datalist>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">ຫົວໜ່ວຍ (Unit)</label>
-                  <input type="text" className="form-control" placeholder="ແຜ່ນ, ອັນ, ກ່ອງ,..." required value={matUnit} onChange={(e) => setMatUnit(e.target.value)} />
+                  <label className="form-label">{db.getLabel('auto_ຫົວໜ່ວຍ__Unit__ogidx0', `ຫົວໜ່ວຍ (Unit)`)}</label>
+                  <input type="text" className="form-control" placeholder={db.getLabel('auto_ແຜ່ນ__ອັນ__ກ່ອງ_____jfpqic', `ແຜ່ນ, ອັນ, ກ່ອງ,...`)} required value={matUnit} onChange={(e) => setMatUnit(e.target.value)} />
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div className="form-group">
-                  <label className="form-label">ຈຳນວນສະຕັອກ</label>
+                  <label className="form-label">{db.getLabel('auto_ຈຳນວນສະຕັອກ_4sia96', `ຈຳນວນສະຕັອກ`)}</label>
                   <input type="number" className="form-control" required value={matStockQty} onChange={(e) => setMatStockQty(e.target.value)} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">ຈຳນວນເຕືອນຕໍ່າສຸດ</label>
+                  <label className="form-label">{db.getLabel('auto_ຈຳນວນເຕືອນຕໍ່າສຸດ_bc9iy2', `ຈຳນວນເຕືອນຕໍ່າສຸດ`)}</label>
                   <input type="number" className="form-control" required value={matMinStock} onChange={(e) => setMatMinStock(e.target.value)} />
                 </div>
               </div>
               <div className="form-group">
-                <label className="form-label">ຕົ້ນທຶນຕໍ່ໜ່ວຍ (Cost LAK)</label>
+                <label className="form-label">{db.getLabel('auto_ຕົ້ນທຶນຕໍ່ໜ່ວຍ__Cost_LAK__aavg80', `ຕົ້ນທຶນຕໍ່ໜ່ວຍ (Cost LAK)`)}</label>
                 <input type="number" className="form-control" required value={matCostPrice} onChange={(e) => setMatCostPrice(e.target.value)} />
               </div>
               <div className="form-group">
-                <label className="form-label">ຜູ້ສະໜອງ (Supplier)</label>
+                <label className="form-label">{db.getLabel('auto_ຜູ້ສະໜອງ__Supplier__v8027l', `ຜູ້ສະໜອງ (Supplier)`)}</label>
                 <input type="text" className="form-control" value={matSupplier} onChange={(e) => setMatSupplier(e.target.value)} />
               </div>
               <div className="modal-footer" style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
@@ -2224,7 +2224,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                   setMatMinStock('0');
                   setMatCostPrice('0');
                   setMatSupplier('');
-                }}>ຍົກເລີກ</button>
+                }}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
                 <button type="submit" className="btn btn-primary">💾 ຢືນຢັນ</button>
               </div>
             </form>
@@ -2435,12 +2435,12 @@ function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                 <thead>
                   <tr style={{ color: 'var(--text-secondary)', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
-                    <th style={{ padding: '10px 8px' }}>ລະຫັດ</th>
-                    <th style={{ padding: '10px 8px' }}>ຊື່</th>
-                    <th style={{ padding: '10px 8px' }}>ເບີໂທ</th>
-                    <th style={{ padding: '10px 8px' }}>ຜູ້ຕິດຕໍ່</th>
-                    <th style={{ padding: '10px 8px' }}>ທີ່ຢູ່</th>
-                    <th style={{ padding: '10px 8px', textAlign: 'center' }}>ຈັດການ</th>
+                    <th style={{ padding: '10px 8px' }}>{db.getLabel('auto_ລະຫັດ_buuljx', `ລະຫັດ`)}</th>
+                    <th style={{ padding: '10px 8px' }}>{db.getLabel('auto_ຊື່_278xn', `ຊື່`)}</th>
+                    <th style={{ padding: '10px 8px' }}>{db.getLabel('auto_ເບີໂທ_bgdzf4', `ເບີໂທ`)}</th>
+                    <th style={{ padding: '10px 8px' }}>{db.getLabel('auto_ຜູ້ຕິດຕໍ່_ms4dev', `ຜູ້ຕິດຕໍ່`)}</th>
+                    <th style={{ padding: '10px 8px' }}>{db.getLabel('auto_ທີ່ຢູ່_iy5pix', `ທີ່ຢູ່`)}</th>
+                    <th style={{ padding: '10px 8px', textAlign: 'center' }}>{db.getLabel('auto_ຈັດການ_q4z3sz', `ຈັດການ`)}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -2477,13 +2477,13 @@ function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.83rem' }}>
                 <thead>
                   <tr style={{ color: 'var(--text-secondary)', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
-                    <th style={{ padding: '10px 8px' }}>ລະຫັດ</th>
-                    <th style={{ padding: '10px 8px' }}>ວັນທີ</th>
-                    <th style={{ padding: '10px 8px' }}>ຜູ້ສະໜອງ</th>
-                    <th style={{ padding: '10px 8px' }}>ລາຍການ</th>
-                    <th style={{ padding: '10px 8px', textAlign: 'right' }}>ມູນຄ່າ (₭)</th>
-                    <th style={{ padding: '10px 8px', textAlign: 'center' }}>ສະຖານະ</th>
-                    <th style={{ padding: '10px 8px', textAlign: 'center' }}>ຈັດການ</th>
+                    <th style={{ padding: '10px 8px' }}>{db.getLabel('auto_ລະຫັດ_buuljx', `ລະຫັດ`)}</th>
+                    <th style={{ padding: '10px 8px' }}>{db.getLabel('auto_ວັນທີ_btqrbn', `ວັນທີ`)}</th>
+                    <th style={{ padding: '10px 8px' }}>{db.getLabel('auto_ຜູ້ສະໜອງ_zfa9s4', `ຜູ້ສະໜອງ`)}</th>
+                    <th style={{ padding: '10px 8px' }}>{db.getLabel('auto_ລາຍການ_ce8qoo', `ລາຍການ`)}</th>
+                    <th style={{ padding: '10px 8px', textAlign: 'right' }}>{db.getLabel('auto_ມູນຄ່າ_____bls8a7', `ມູນຄ່າ (₭)`)}</th>
+                    <th style={{ padding: '10px 8px', textAlign: 'center' }}>{db.getLabel('auto_ສະຖານະ_a1xh9j', `ສະຖານະ`)}</th>
+                    <th style={{ padding: '10px 8px', textAlign: 'center' }}>{db.getLabel('auto_ຈັດການ_q4z3sz', `ຈັດການ`)}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -2522,29 +2522,29 @@ function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
               <form onSubmit={handleSaveSupplier}>
                 <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '10px 0' }}>
                   <div className="form-group">
-                    <label className="form-label">ຊື່ຜູ້ສະໜອງ *</label>
+                    <label className="form-label">{db.getLabel('auto_ຊື່ຜູ້ສະໜອງ___3tiz49', `ຊື່ຜູ້ສະໜອງ *`)}</label>
                     <input type="text" className="form-control" required value={supplierForm.name} onChange={(e) => setSupplierForm({ ...supplierForm, name: e.target.value })} />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">ເບີໂທ</label>
+                    <label className="form-label">{db.getLabel('auto_ເບີໂທ_bgdzf4', `ເບີໂທ`)}</label>
                     <input type="text" className="form-control" value={supplierForm.phone} onChange={(e) => setSupplierForm({ ...supplierForm, phone: e.target.value })} />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">ຜູ້ຕິດຕໍ່</label>
+                    <label className="form-label">{db.getLabel('auto_ຜູ້ຕິດຕໍ່_ms4dev', `ຜູ້ຕິດຕໍ່`)}</label>
                     <input type="text" className="form-control" value={supplierForm.contact} onChange={(e) => setSupplierForm({ ...supplierForm, contact: e.target.value })} />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">ທີ່ຢູ່</label>
+                    <label className="form-label">{db.getLabel('auto_ທີ່ຢູ່_iy5pix', `ທີ່ຢູ່`)}</label>
                     <input type="text" className="form-control" value={supplierForm.address} onChange={(e) => setSupplierForm({ ...supplierForm, address: e.target.value })} />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">ໝາຍເຫດ</label>
+                    <label className="form-label">{db.getLabel('auto_ໝາຍເຫດ_e4bdxt', `ໝາຍເຫດ`)}</label>
                     <input type="text" className="form-control" value={supplierForm.note} onChange={(e) => setSupplierForm({ ...supplierForm, note: e.target.value })} />
                   </div>
                 </div>
                 <div className="modal-footer">
-                  <button type="button" className="btn btn-secondary" onClick={() => setShowSupplierModal(false)}>ຍົກເລີກ</button>
-                  <button type="submit" className="btn btn-primary">ບັນທຶກ ✓</button>
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowSupplierModal(false)}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
+                  <button type="submit" className="btn btn-primary">{db.getLabel('auto_ບັນທຶກ___klj66l', `ບັນທຶກ ✓`)}</button>
                 </div>
               </form>
             </div>
@@ -2564,20 +2564,20 @@ function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
               <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '10px 0', overflowY: 'auto' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px' }}>
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label">ຜູ້ສະໜອງ (Supplier)</label>
+                    <label className="form-label">{db.getLabel('auto_ຜູ້ສະໜອງ__Supplier__v8027l', `ຜູ້ສະໜອງ (Supplier)`)}</label>
                     <select className="form-control" value={poSupplierId} onChange={(e) => setPoSupplierId(e.target.value)}>
                       <option value="">— ບໍ່ລະບຸ —</option>
                       {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
                   </div>
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label">ໝາຍເຫດ</label>
+                    <label className="form-label">{db.getLabel('auto_ໝາຍເຫດ_e4bdxt', `ໝາຍເຫດ`)}</label>
                     <input type="text" className="form-control" value={poNote} onChange={(e) => setPoNote(e.target.value)} />
                   </div>
                 </div>
 
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">ເພີ່ມສິນຄ້າ</label>
+                  <label className="form-label">{db.getLabel('auto_ເພີ່ມສິນຄ້າ_jikg4y', `ເພີ່ມສິນຄ້າ`)}</label>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <select className="form-control" value={poProductId} onChange={(e) => setPoProductId(e.target.value)}>
                       <option value="">— ເລືອກສິນຄ້າ —</option>
@@ -2593,11 +2593,11 @@ function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
                       <div key={l.productId} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', borderRadius: '8px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
                         <div style={{ flex: 1, minWidth: 0, fontSize: '0.85rem', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l.name}</div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ຈຳນວນ</span>
+                          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຈຳນວນ_car3ds', `ຈຳນວນ`)}</span>
                           <input type="number" min="1" className="form-control" value={l.qty} onChange={(e) => updatePoLine(l.productId, 'qty', e.target.value)} style={{ width: '72px', textAlign: 'center' }} />
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ຕົ້ນທຶນ/ໜ່ວຍ</span>
+                          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຕົ້ນທຶນ_ໜ່ວຍ_qaqin1', `ຕົ້ນທຶນ/ໜ່ວຍ`)}</span>
                           <input type="number" min="0" className="form-control" value={l.cost} onChange={(e) => updatePoLine(l.productId, 'cost', e.target.value)} style={{ width: '100px', textAlign: 'right' }} />
                         </div>
                         <button type="button" className="btn btn-sm btn-danger" onClick={() => removePoLine(l.productId)}>✕</button>
@@ -2609,13 +2609,13 @@ function PurchaseOrdersSubView({ isMobile, activeUser, onUpdate }) {
                 {poError && <p style={{ color: 'var(--alert-red)', fontSize: '0.85rem', margin: 0 }}>⚠️ {poError}</p>}
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', borderRadius: '8px', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>ມູນຄ່າລວມ</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ມູນຄ່າລວມ_dfn25u', `ມູນຄ່າລວມ`)}</span>
                   <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>{poTotal.toLocaleString()} ₭</span>
                 </div>
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowPoModal(false)}>ຍົກເລີກ</button>
-                <button type="button" className="btn btn-primary" disabled={poLines.length === 0} onClick={handleCreatePo}>ບັນທຶກໃບສັ່ງຊື້ ✓</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setShowPoModal(false)}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
+                <button type="button" className="btn btn-primary" disabled={poLines.length === 0} onClick={handleCreatePo}>{db.getLabel('auto_ບັນທຶກໃບສັ່ງຊື້___74us4u', `ບັນທຶກໃບສັ່ງຊື້ ✓`)}</button>
               </div>
             </div>
           </div>
@@ -3837,7 +3837,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
             <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--gold-primary)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>📦 ຈຳນວນສິນຄ້າຄົງເຫຼືອໜ້າຮ້ານທັງໝົດ</span>
               <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'white' }}>
-                {totalStockCount.toLocaleString()} <span style={{ fontSize: '0.85rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>ຊິ້ນ (ຈາກ {physicalProducts.length} ລາຍການ)</span>
+                {totalStockCount.toLocaleString()} <span style={{ fontSize: '0.85rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຊິ້ນ__ຈາກ_4n4po5', `ຊິ້ນ (ຈາກ`)} {physicalProducts.length} {db.getLabel('auto_ລາຍການ__t3ypbz', `ລາຍການ)`)}</span>
               </span>
             </div>
             <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--accent-amber, #e67e22)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -3849,7 +3849,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
             <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--success-green, #27ae60)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>📈 ມູນຄ່າລາຄາາຍໜ້າຮ້ານລວມ</span>
               <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'white' }}>
-                {totalRetailValue.toLocaleString()} <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>ກີບ</span>
+                {totalRetailValue.toLocaleString()} <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ກີບ_2726e', `ກີບ`)}</span>
               </span>
             </div>
             <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--blue-primary, #3498db)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -3951,7 +3951,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                     key={p.id}
                     style={{ background: 'rgba(20, 10, 10, 0.5)', border: '1px solid rgba(231, 76, 60, 0.3)', padding: '8px 12px', borderRadius: '8px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '10px' }}
                   >
-                    <span>{p.name} (<b>ຄົງເຫຼືອ: {p.stock} {p.unit}</b>)</span>
+                    <span>{p.name} (<b>{db.getLabel('auto_ຄົງເຫຼືອ__8l71ml', `ຄົງເຫຼືອ:`)} {p.stock} {p.unit}</b>)</span>
                     {hasInventoryPermission('inventoryEditProduct') && (
                       <button
                         className="btn btn-primary"
@@ -4022,7 +4022,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
             {/* Sorting Dropdown */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>ຈັດລຽງ / Sort:</span>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{db.getLabel('auto_ຈັດລຽງ___Sort__46njnz', `ຈັດລຽງ / Sort:`)}</span>
               <select
                 value={prodSortMode}
                 onChange={(e) => setProdSortMode(e.target.value)}
@@ -4036,7 +4036,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   cursor: 'pointer'
                 }}
               >
-                <option value="none">ເລືອກການຈັດລຽງ (None)</option>
+                <option value="none">{db.getLabel('auto_ເລືອກການຈັດລຽງ__None__vpelsz', `ເລືອກການຈັດລຽງ (None)`)}</option>
                 <option value="name-asc">🔠 ຊື່: ກ - ຮ (A-Z)</option>
                 <option value="name-desc">🔠 ຊື່: ຮ - ກ (Z-A)</option>
                 <option value="stock-asc">📉 ສະຕັອກ: ຕ່ຳ &rarr; ສູງ (Low to High)</option>
@@ -4083,19 +4083,19 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
             <table className="table-premium" style={{ minWidth: '1000px', marginTop: 0 }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--gold-primary)', fontSize: '0.9rem' }}>
-                  <th style={{ padding: '16px' }}>ຮູບພາບ</th>
-                  <th style={{ padding: '16px' }}>ລະຫັດບາໂຄ້ດ</th>
-                  <th style={{ padding: '16px' }}>ຊື່ສິນຄ້າ</th>
-                  <th style={{ padding: '16px', textAlign: 'right' }}>ຕົ້ນທຶນ</th>
-                  <th style={{ padding: '16px', textAlign: 'right' }}>ລາຄາຂາຍ</th>
-                  <th style={{ padding: '16px', textAlign: 'center', width: '200px' }}>ສະຕັອກໜ້າຮ້ານ</th>
-                  <th style={{ padding: '16px', textAlign: 'right' }}>ຈັດການ</th>
+                  <th style={{ padding: '16px' }}>{db.getLabel('auto_ຮູບພາບ_80qond', `ຮູບພາບ`)}</th>
+                  <th style={{ padding: '16px' }}>{db.getLabel('auto_ລະຫັດບາໂຄ້ດ_jwwpuw', `ລະຫັດບາໂຄ້ດ`)}</th>
+                  <th style={{ padding: '16px' }}>{db.getLabel('auto_ຊື່ສິນຄ້າ_18q1y1', `ຊື່ສິນຄ້າ`)}</th>
+                  <th style={{ padding: '16px', textAlign: 'right' }}>{db.getLabel('auto_ຕົ້ນທຶນ_pcy3d0', `ຕົ້ນທຶນ`)}</th>
+                  <th style={{ padding: '16px', textAlign: 'right' }}>{db.getLabel('auto_ລາຄາຂາຍ_t82ggu', `ລາຄາຂາຍ`)}</th>
+                  <th style={{ padding: '16px', textAlign: 'center', width: '200px' }}>{db.getLabel('auto_ສະຕັອກໜ້າຮ້ານ_pee6pd', `ສະຕັອກໜ້າຮ້ານ`)}</th>
+                  <th style={{ padding: '16px', textAlign: 'right' }}>{db.getLabel('auto_ຈັດການ_q4z3sz', `ຈັດການ`)}</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredProducts.length === 0 ? (
                   <tr>
-                    <td colSpan="7" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>ບໍ່ມີລາຍການສິນຄ້າ</td>
+                    <td colSpan="7" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ບໍ່ມີລາຍການສິນຄ້າ_4c24pd', `ບໍ່ມີລາຍການສິນຄ້າ`)}</td>
                   </tr>
                 ) : filteredProducts.map(p => {
                   const isService = db.isServiceCategory(p.category);
@@ -4132,7 +4132,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       
                       <td style={{ padding: '12px 16px', textAlign: 'center' }}>
                         {isService ? (
-                          <span style={{ color: 'var(--text-secondary)' }}>ບໍລິການ (ບໍ່ມີສະຕັອກ)</span>
+                          <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ບໍລິການ__ບໍ່ມີສະຕັອກ__rff47c', `ບໍລິການ (ບໍ່ມີສະຕັອກ)`)}</span>
                         ) : (
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                             <button
@@ -4208,7 +4208,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
           <div className="mobile-cards-view" style={{ display: 'none', flexDirection: 'column', gap: '12px' }}>
             {filteredProducts.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>ບໍ່ມີລາຍການສິນຄ້າ</div>
+              <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ບໍ່ມີລາຍການສິນຄ້າ_4c24pd', `ບໍ່ມີລາຍການສິນຄ້າ`)}</div>
             ) : filteredProducts.map(p => {
               const isService = db.isServiceCategory(p.category);
               const isLow = !isService && p.stock <= p.minStock;
@@ -4222,27 +4222,27 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                     )}
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 'bold', fontSize: '1.05rem' }}>{p.name}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>ບາໂຄ້ດ: {p.barcode || '-'}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>{db.getLabel('auto_ບາໂຄ້ດ__nc7thx', `ບາໂຄ້ດ:`)} {p.barcode || '-'}</div>
                     </div>
                   </div>
                   
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.85rem' }}>
                     <div>
-                      <span style={{ color: 'var(--text-secondary)' }}>ຕົ້ນທຶນ: </span>
+                      <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຕົ້ນທຶນ__4t4aie', `ຕົ້ນທຶນ:`)} </span>
                       <span>{hasInventoryPermission('inventoryViewCost') ? `${p.cost.toLocaleString()} ₭` : '*** ₭'}</span>
                     </div>
                     <div>
-                      <span style={{ color: 'var(--text-secondary)' }}>ລາຄາາຍ: </span>
+                      <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ລາຄາາຍ__t81kl8', `ລາຄາາຍ:`)} </span>
                       <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{p.price.toLocaleString()} ₭</span>
                     </div>
                     <div>
-                      <span style={{ color: 'var(--text-secondary)' }}>ໝວດໝູ່: </span>
+                      <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ໝວດໝູ່__6g08d4', `ໝວດໝູ່:`)} </span>
                       <span style={{ textTransform: 'capitalize' }}>{p.category}</span>
                     </div>
                     <div>
-                      <span style={{ color: 'var(--text-secondary)' }}>ສະຕັອກໜ້າຮ້ານ: </span>
+                      <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ສະຕັອກໜ້າຮ້ານ__61z65l', `ສະຕັອກໜ້າຮ້ານ:`)} </span>
                       {isService ? (
-                        <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>ບໍລິການ</span>
+                        <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>{db.getLabel('auto_ບໍລິການ_zbt7i2', `ບໍລິການ`)}</span>
                       ) : (
                         <span style={{ fontWeight: 'bold', color: isLow ? 'var(--alert-red)' : 'white' }}>{p.stock} / {p.minStock} {p.unit}</span>
                       )}
@@ -4251,7 +4251,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
                   {!isService && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                      <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}><b>ປັບສະຕັອກໜ້າຮ້ານ:</b></span>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}><b>{db.getLabel('auto_ປັບສະຕັອກໜ້າຮ້ານ__elfa31', `ປັບສະຕັອກໜ້າຮ້ານ:`)}</b></span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
                         <button type="button" className="qty-btn" style={{ width: '32px', height: '32px', fontSize: '1rem' }} onClick={() => adjustStock(p, -1)}>-</button>
                         <input 
@@ -4334,7 +4334,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
             <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--gold-primary)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>🏠 ຈຳນວນສິນຄ້າໃນສາງໃຫຍ່ທັງໝົດ</span>
               <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'white' }}>
-                {totalWarehouseStockCount.toLocaleString()} <span style={{ fontSize: '0.85rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>ຊິ້ນ (ຈາກ {physicalProducts.length} ລາຍການ)</span>
+                {totalWarehouseStockCount.toLocaleString()} <span style={{ fontSize: '0.85rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຊິ້ນ__ຈາກ_4n4po5', `ຊິ້ນ (ຈາກ`)} {physicalProducts.length} {db.getLabel('auto_ລາຍການ__t3ypbz', `ລາຍການ)`)}</span>
               </span>
             </div>
             <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--accent-amber, #e67e22)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -4346,7 +4346,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
             <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--success-green, #27ae60)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>📈 ມູນຄ່າລາຄາຂາຍສາງໃຫຍ່ລວມ</span>
               <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'white' }}>
-                {totalWarehouseRetailValue.toLocaleString()} <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>ກີບ</span>
+                {totalWarehouseRetailValue.toLocaleString()} <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ກີບ_2726e', `ກີບ`)}</span>
               </span>
             </div>
             <div className="glass-card" style={{ padding: '16px', borderLeft: '4px solid var(--blue-primary, #3498db)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -4448,7 +4448,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                     key={p.id}
                     style={{ background: 'rgba(20, 10, 10, 0.5)', border: '1px solid rgba(230, 126, 34, 0.3)', padding: '8px 12px', borderRadius: '8px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '10px' }}
                   >
-                    <span>{p.name} (<b>ຄົງເຫຼືອໃນສາງ: {p.warehouseStock || 0} {p.unit}</b>)</span>
+                    <span>{p.name} (<b>{db.getLabel('auto_ຄົງເຫຼືອໃນສາງ__mm7zmg', `ຄົງເຫຼືອໃນສາງ:`)} {p.warehouseStock || 0} {p.unit}</b>)</span>
                     <button
                       className="btn btn-secondary"
                       style={{ padding: '2px 8px', fontSize: '0.75rem', borderRadius: '4px', borderColor: '#2ecc71', color: '#2ecc71' }}
@@ -4520,7 +4520,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
             {/* Sorting Dropdown */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>ຈັດລຽງ / Sort:</span>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{db.getLabel('auto_ຈັດລຽງ___Sort__46njnz', `ຈັດລຽງ / Sort:`)}</span>
               <select
                 value={prodSortMode}
                 onChange={(e) => setProdSortMode(e.target.value)}
@@ -4534,7 +4534,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   cursor: 'pointer'
                 }}
               >
-                <option value="none">ເລືອກການຈັດລຽງ (None)</option>
+                <option value="none">{db.getLabel('auto_ເລືອກການຈັດລຽງ__None__vpelsz', `ເລືອກການຈັດລຽງ (None)`)}</option>
                 <option value="name-asc">🔠 ຊື່: ກ - ຮ (A-Z)</option>
                 <option value="name-desc">🔠 ຊື່: ຮ - ກ (Z-A)</option>
                 <option value="stock-asc">📉 ສະຕັອກສາງ: ຕ່ຳ &rarr; ສູງ (Low to High)</option>
@@ -4581,21 +4581,21 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
             <table className="table-premium" style={{ minWidth: '1000px', marginTop: 0 }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--gold-primary)', fontSize: '0.9rem' }}>
-                  <th style={{ padding: '16px' }}>ຮູບພາບ</th>
-                  <th style={{ padding: '16px' }}>ລະຫັດບາໂຄ້ດ</th>
-                  <th style={{ padding: '16px' }}>ຊື່ສິນຄ້າ</th>
-                  <th style={{ padding: '16px', textAlign: 'right' }}>ຕົ້ນທຶນ</th>
-                  <th style={{ padding: '16px', textAlign: 'right' }}>ລາຄາຂາຍ</th>
-                  <th style={{ padding: '16px', textAlign: 'center', width: '180px' }}>ສະຕັອກສາງໃຫຍ່</th>
-                  <th style={{ padding: '16px', textAlign: 'center', width: '140px' }}>ສະຕັອກໜ້າຮ້ານ</th>
-                  <th style={{ padding: '16px', textAlign: 'center', width: '220px' }}>ທຸລະກຳ</th>
-                  <th style={{ padding: '16px', textAlign: 'right' }}>ຈັດການ</th>
+                  <th style={{ padding: '16px' }}>{db.getLabel('auto_ຮູບພາບ_80qond', `ຮູບພາບ`)}</th>
+                  <th style={{ padding: '16px' }}>{db.getLabel('auto_ລະຫັດບາໂຄ້ດ_jwwpuw', `ລະຫັດບາໂຄ້ດ`)}</th>
+                  <th style={{ padding: '16px' }}>{db.getLabel('auto_ຊື່ສິນຄ້າ_18q1y1', `ຊື່ສິນຄ້າ`)}</th>
+                  <th style={{ padding: '16px', textAlign: 'right' }}>{db.getLabel('auto_ຕົ້ນທຶນ_pcy3d0', `ຕົ້ນທຶນ`)}</th>
+                  <th style={{ padding: '16px', textAlign: 'right' }}>{db.getLabel('auto_ລາຄາຂາຍ_t82ggu', `ລາຄາຂາຍ`)}</th>
+                  <th style={{ padding: '16px', textAlign: 'center', width: '180px' }}>{db.getLabel('auto_ສະຕັອກສາງໃຫຍ່_9pn5n8', `ສະຕັອກສາງໃຫຍ່`)}</th>
+                  <th style={{ padding: '16px', textAlign: 'center', width: '140px' }}>{db.getLabel('auto_ສະຕັອກໜ້າຮ້ານ_pee6pd', `ສະຕັອກໜ້າຮ້ານ`)}</th>
+                  <th style={{ padding: '16px', textAlign: 'center', width: '220px' }}>{db.getLabel('auto_ທຸລະກຳ_ix4f9e', `ທຸລະກຳ`)}</th>
+                  <th style={{ padding: '16px', textAlign: 'right' }}>{db.getLabel('auto_ຈັດການ_q4z3sz', `ຈັດການ`)}</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredWarehouseProducts.length === 0 ? (
                   <tr>
-                    <td colSpan="9" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>ບໍ່ມີລາຍການສິນຄ້າໃນສາງ</td>
+                    <td colSpan="9" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ບໍ່ມີລາຍການສິນຄ້າໃນສາງ_t9ybju', `ບໍ່ມີລາຍການສິນຄ້າໃນສາງ`)}</td>
                   </tr>
                 ) : filteredWarehouseProducts.map(p => {
                   const isService = db.isServiceCategory(p.category);
@@ -4741,7 +4741,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
           <div className="mobile-cards-view" style={{ display: 'none', flexDirection: 'column', gap: '12px' }}>
             {filteredWarehouseProducts.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>ບໍ່ມີລາຍການສິນຄ້າໃນສາງ</div>
+              <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ບໍ່ມີລາຍການສິນຄ້າໃນສາງ_t9ybju', `ບໍ່ມີລາຍການສິນຄ້າໃນສາງ`)}</div>
             ) : filteredWarehouseProducts.map(p => {
               const isService = db.isServiceCategory(p.category);
               const isLow = !isService && (p.warehouseStock || 0) <= p.minStock;
@@ -4755,21 +4755,21 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                     )}
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 'bold', fontSize: '1.05rem' }}>{p.name}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>ບາໂຄ້ດ: {p.barcode || '-'}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>{db.getLabel('auto_ບາໂຄ້ດ__nc7thx', `ບາໂຄ້ດ:`)} {p.barcode || '-'}</div>
                     </div>
                   </div>
                   
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.85rem' }}>
                     <div>
-                      <span style={{ color: 'var(--text-secondary)' }}>ຕົ້ນທຶນ: </span>
+                      <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຕົ້ນທຶນ__4t4aie', `ຕົ້ນທຶນ:`)} </span>
                       <span>{hasInventoryPermission('inventoryViewCost') ? `${p.cost.toLocaleString()} ₭` : '*** ₭'}</span>
                     </div>
                     <div>
-                      <span style={{ color: 'var(--text-secondary)' }}>ລາຄາຂາຍ: </span>
+                      <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ລາຄາຂາຍ__hgcj88', `ລາຄາຂາຍ:`)} </span>
                       <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{p.price.toLocaleString()} ₭</span>
                     </div>
                     <div>
-                      <span style={{ color: 'var(--text-secondary)' }}>ສະຕັອກສາງໃຫຍ່: </span>
+                      <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ສະຕັອກສາງໃຫຍ່__gyhn1u', `ສະຕັອກສາງໃຫຍ່:`)} </span>
                       {isService ? (
                         <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>—</span>
                       ) : (
@@ -4777,7 +4777,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       )}
                     </div>
                     <div>
-                      <span style={{ color: 'var(--text-secondary)' }}>ສະຕັອກໜ້າຮ້ាន: </span>
+                      <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ສະຕັອກໜ້າຮ້____63c8j7', `ສະຕັອກໜ້າຮ້ាន:`)} </span>
                       <span>{p.stock} {p.unit}</span>
                     </div>
                   </div>
@@ -4785,7 +4785,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   {!isService && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>ປັບສະຕັອກສາງໃຫຍ່:</span>
+                        <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ປັບສະຕັອກສາງໃຫຍ່__8f1j4e', `ປັບສະຕັອກສາງໃຫຍ່:`)}</span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
                           <button type="button" className="qty-btn" style={{ width: '32px', height: '32px', fontSize: '1rem' }} onClick={() => adjustWarehouseStock(p, -1)}>-</button>
                           <input 
@@ -4868,7 +4868,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   </div>
                   
                   <div className="form-group">
-                    <label className="form-label" style={{ color: 'var(--text-secondary)' }}>ຈຳນວນຮັບເຂົ້າສາງໃຫຍ່ ({warehouseActiveProduct.unit}) <span style={{ color: 'var(--alert-red)' }}>*</span></label>
+                    <label className="form-label" style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຈຳນວນຮັບເຂົ້າສາງໃຫຍ່___1t3af5', `ຈຳນວນຮັບເຂົ້າສາງໃຫຍ່ (`)}{warehouseActiveProduct.unit}) <span style={{ color: 'var(--alert-red)' }}>*</span></label>
                     <input 
                       type="number" 
                       className="form-control" 
@@ -4882,11 +4882,11 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   </div>
                   
                   <div className="form-group">
-                    <label className="form-label" style={{ color: 'var(--text-secondary)' }}>ໝາຍເຫດ (ເຊັ່ນ: ຊື່ຜູ້ສະໜອງ, ເລກທີບິນ...)</label>
+                    <label className="form-label" style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ໝາຍເຫດ__ເຊັ່ນ__ຊື່ຜູ້ສະໜອ_1y84u', `ໝາຍເຫດ (ເຊັ່ນ: ຊື່ຜູ້ສະໜອງ, ເລກທີບິນ...)`)}</label>
                     <textarea 
                       className="form-control" 
                       rows="2"
-                      placeholder="ປ້ອນໝາຍເຫດ..."
+                      placeholder={db.getLabel('auto_ປ້ອນໝາຍເຫດ____yl0co3', `ປ້ອນໝາຍເຫດ...`)}
                       value={warehouseRestockNotes} 
                       onChange={(e) => setWarehouseRestockNotes(e.target.value)} 
                     />
@@ -4900,7 +4900,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       setShowWarehouseRestockModal(false);
                       setWarehouseActiveProduct(null);
                     }}
-                  >ຍົກເລີກ</button>
+                  >{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
                   <button type="submit" className="btn btn-primary" style={{ background: '#2ecc71', color: 'black', borderColor: '#2ecc71', fontWeight: 'bold' }}>📥 ຢືນຢັນຮັບເຂົ້າ</button>
                 </div>
               </form>
@@ -4937,25 +4937,25 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   </div>
                   
                   <div className="form-group">
-                    <label className="form-label" style={{ color: 'var(--text-secondary)' }}>ຈຳນວນທີ່ຕ້ອງການໂອນຍ້າຍ ({warehouseActiveProduct.unit}) <span style={{ color: 'var(--alert-red)' }}>*</span></label>
+                    <label className="form-label" style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຈຳນວນທີ່ຕ້ອງການໂອນຍ້າຍ___m081er', `ຈຳນວນທີ່ຕ້ອງການໂອນຍ້າຍ (`)}{warehouseActiveProduct.unit}) <span style={{ color: 'var(--alert-red)' }}>*</span></label>
                     <input 
                       type="number" 
                       className="form-control" 
                       required 
                       min="0.001"
                       step="any"
-                      placeholder="ປ້ອນຈຳນວນໂອນຍ້າຍ..." 
+                      placeholder={db.getLabel('auto_ປ້ອນຈຳນວນໂອນຍ້າຍ____hhlycx', `ປ້ອນຈຳນວນໂອນຍ້າຍ...`)} 
                       value={warehouseTransferQty} 
                       onChange={(e) => setWarehouseTransferQty(e.target.value)} 
                     />
                   </div>
                   
                   <div className="form-group">
-                    <label className="form-label" style={{ color: 'var(--text-secondary)' }}>ໝາຍເຫດ (ເຊັ່ນ: ໂອນໄປເພີ່ມໜ້າຮ້ານ...)</label>
+                    <label className="form-label" style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ໝາຍເຫດ__ເຊັ່ນ__ໂອນໄປເພີ່ມ_bz6fte', `ໝາຍເຫດ (ເຊັ່ນ: ໂອນໄປເພີ່ມໜ້າຮ້ານ...)`)}</label>
                     <textarea 
                       className="form-control" 
                       rows="2"
-                      placeholder="ປ້ອນໝາຍເຫດ..."
+                      placeholder={db.getLabel('auto_ປ້ອນໝາຍເຫດ____yl0co3', `ປ້ອນໝາຍເຫດ...`)}
                       value={warehouseTransferNotes} 
                       onChange={(e) => setWarehouseTransferNotes(e.target.value)} 
                     />
@@ -4969,7 +4969,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       setShowWarehouseTransferModal(false);
                       setWarehouseActiveProduct(null);
                     }}
-                  >ຍົກເລີກ</button>
+                  >{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
                   <button type="submit" className="btn btn-primary" style={{ fontWeight: 'bold' }}>🚚 ຢືນຢັນການໂອນ</button>
                 </div>
               </form>
@@ -4996,16 +4996,16 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
               </p>
 
               <div className="form-group" style={{ textAlign: 'left', marginBottom: '12px' }}>
-                <label className="form-label" style={{ fontSize: '0.8rem' }}>ຄົ້ນຫາປະເພດບາໂຄ້ດ (Search Barcode Format)</label>
+                <label className="form-label" style={{ fontSize: '0.8rem' }}>{db.getLabel('auto_ຄົ້ນຫາປະເພດບາໂຄ້ດ__Search_bpn7ui', `ຄົ້ນຫາປະເພດບາໂຄ້ດ (Search Barcode Format)`)}</label>
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="🔍 ພິມເພື່ອຄົ້ນຫາປະເພດບາໂຄ້ດ..."
+                  placeholder={db.getLabel('auto____ພິມເພື່ອຄົ້ນຫາປະເພດບາໂ_pni3jb', `🔍 ພິມເພື່ອຄົ້ນຫາປະເພດບາໂຄ້ດ...`)}
                   value={barcodeFormatSearch}
                   onChange={(e) => setBarcodeFormatSearch(e.target.value)}
                   style={{ marginBottom: '8px' }}
                 />
-                <label className="form-label">ປະເພດບາໂຄ້ດ (Barcode Type / Format)</label>
+                <label className="form-label">{db.getLabel('auto_ປະເພດບາໂຄ້ດ__Barcode_Type_35owif', `ປະເພດບາໂຄ້ດ (Barcode Type / Format)`)}</label>
                 <select
                   className="form-control"
                   value={barcodeFormat}
@@ -5023,7 +5023,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
               {!selectedBarcodeProd && (
                 <div className="form-group" style={{ textAlign: 'left' }}>
-                  <label className="form-label">ລະຫັດບາໂຄ້ດ (ສະເພາະຕົວເລກ ແລະ ຕົວອັກສອນ A-Z)</label>
+                  <label className="form-label">{db.getLabel('auto_ລະຫັດບາໂຄ້ດ__ສະເພາະຕົວເລກ_htsrrc', `ລະຫັດບາໂຄ້ດ (ສະເພາະຕົວເລກ ແລະ ຕົວອັກສອນ A-Z)`)}</label>
                   <input
                     type="text"
                     className="form-control"
@@ -5034,7 +5034,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
               )}
 
               <div className="form-group" style={{ textAlign: 'left', marginTop: '12px' }}>
-                <label className="form-label">ຈຳນວນສະຕິກເກີທີ່ຕ້ອງການປຣິນ (Print Quantity)</label>
+                <label className="form-label">{db.getLabel('auto_ຈຳນວນສະຕິກເກີທີ່ຕ້ອງການປຣ_4bqeoi', `ຈຳນວນສະຕິກເກີທີ່ຕ້ອງການປຣິນ (Print Quantity)`)}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <button
                     type="button"
@@ -5089,7 +5089,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
             </div>
 
             <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowBarcodeModal(false)}>ປິດ</button>
+              <button className="btn btn-secondary" onClick={() => setShowBarcodeModal(false)}>{db.getLabel('auto_ປິດ_27lff', `ປິດ`)}</button>
               <button className="btn btn-primary" onClick={handlePrintBarcode}>🖨️ ປຣິນສະຕິກເກີບາໂຄ້ດ</button>
             </div>
           </div>
@@ -5112,7 +5112,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                 ເລືອກຈຳນວນປຣິນບາໂຄ້ດໃຫ້ແຕ່ລະສິນຄ້າ. ລະບົບຈະລວມເປັນໜ້າດຽວເພື່ອໃຫ້ປຣິນອອກເຄື່ອງສະຕິກເກີໄດ້ງ່າຍ.
               </p>
               <div className="form-group" style={{ textAlign: 'left', marginBottom: '12px' }}>
-                <label className="form-label" style={{ fontSize: '0.8rem' }}>ຄົ້ນຫາປະເພດບາໂຄ້ດ (Search Barcode Format)</label>
+                <label className="form-label" style={{ fontSize: '0.8rem' }}>{db.getLabel('auto_ຄົ້ນຫາປະເພດບາໂຄ້ດ__Search_bpn7ui', `ຄົ້ນຫາປະເພດບາໂຄ້ດ (Search Barcode Format)`)}</label>
                 <input
                   type="text"
                   className="form-control"
@@ -5121,7 +5121,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   onChange={(e) => setBulkBarcodeFormatSearch(e.target.value)}
                   style={{ marginBottom: '8px', padding: '6px 10px', height: '34px', fontSize: '0.85rem' }}
                 />
-                <label className="form-label" style={{ fontSize: '0.8rem' }}>ປະເພດບາໂຄ້ດ (Barcode Type / Format)</label>
+                <label className="form-label" style={{ fontSize: '0.8rem' }}>{db.getLabel('auto_ປະເພດບາໂຄ້ດ__Barcode_Type_35owif', `ປະເພດບາໂຄ້ດ (Barcode Type / Format)`)}</label>
                 <select
                   className="form-control"
                   value={barcodeFormat}
@@ -5141,7 +5141,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
               <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', marginBottom: '10px' }}>
                 <input
                   type="text"
-                  placeholder="🔍 ຄົ້ນຫາຊື່ ຫຼື ບາໂຄ້ດ..."
+                  placeholder={db.getLabel('auto____ຄົ້ນຫາຊື່_ຫຼື_ບາໂຄ້ດ___mjmwlw', `🔍 ຄົ້ນຫາຊື່ ຫຼື ບາໂຄ້ດ...`)}
                   className="form-control"
                   value={bulkSearch}
                   onChange={(e) => setBulkSearch(e.target.value)}
@@ -5299,7 +5299,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                             </button>
                           </div>
                         ) : (
-                          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', flexShrink: 0 }}>ບໍ່ມີສະຕັອກ</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', flexShrink: 0 }}>{db.getLabel('auto_ບໍ່ມີສະຕັອກ_fc08f5', `ບໍ່ມີສະຕັອກ`)}</span>
                         )}
                       </div>
                     );
@@ -5314,7 +5314,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
             </div>
 
             <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowBulkBarcodeModal(false)}>ຍົກເລີກ</button>
+              <button className="btn btn-secondary" onClick={() => setShowBulkBarcodeModal(false)}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
               <button className="btn btn-primary" onClick={handlePrintBulkBarcodes}>🖨️ ປຣິນບາໂຄ້ດທັງໝົດທີ່ເລືອກ</button>
             </div>
           </div>
@@ -5336,7 +5336,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
             <form onSubmit={handleSave}>
               <div className="modal-body">
                 <div className="form-group">
-                  <label className="form-label">ຊື່ສິນຄ້າ (ພາສາລາວ/ໄທ)</label>
+                  <label className="form-label">{db.getLabel('auto_ຊື່ສິນຄ້າ__ພາສາລາວ_ໄທ__f7rz6s', `ຊື່ສິນຄ້າ (ພາສາລາວ/ໄທ)`)}</label>
                   <input
                     type="text"
                     className="form-control"
@@ -5348,7 +5348,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                 </div>
 
                 <div className="form-group" style={{ position: 'relative' }}>
-                  <label className="form-label">ໝວດໝູ່ (Category)</label>
+                  <label className="form-label">{db.getLabel('auto_ໝວດໝູ່__Category__1el2u7', `ໝວດໝູ່ (Category)`)}</label>
                   <div 
                     onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
                     style={{
@@ -5378,7 +5378,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                           </div>
                         );
                       }
-                      return <span style={{ color: 'var(--text-secondary)' }}>ເລືອກໝວດໝູ່...</span>;
+                      return <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ເລືອກໝວດໝູ່____4x00h2', `ເລືອກໝວດໝູ່...`)}</span>;
                     })()}
                     <span style={{ transition: 'transform 0.2s', transform: showCategoryDropdown ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
                   </div>
@@ -5439,7 +5439,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
                   <div className="form-group">
-                    <label className="form-label">ລາຄາຂາຍ (ກີບ)</label>
+                    <label className="form-label">{db.getLabel('auto_ລາຄາຂາຍ__ກີບ__nwpdmb', `ລາຄາຂາຍ (ກີບ)`)}</label>
                     <input
                       type="number"
                       className="form-control"
@@ -5451,7 +5451,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   </div>
 {hasInventoryPermission('inventoryViewCost') && (
                   <div className="form-group">
-                    <label className="form-label">ລາຄาຕົ້ນທຶນ (ກີບ)</label>
+                    <label className="form-label">{db.getLabel('auto_ລາຄ_ຕົ້ນທຶນ__ກີບ__h4un78', `ລາຄาຕົ້ນທຶນ (ກີບ)`)}</label>
                     <input
                       type="number"
                       className="form-control"
@@ -5468,7 +5468,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                 {!db.isServiceCategory(formData.category) ? (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div className="form-group">
-                      <label className="form-label">ຈຳນວນໃນສະຕັອກ</label>
+                      <label className="form-label">{db.getLabel('auto_ຈຳນວນໃນສະຕັອກ_l9wofo', `ຈຳນວນໃນສະຕັອກ`)}</label>
                       <input
                         type="number"
                         className="form-control"
@@ -5479,7 +5479,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       />
                     </div>
                     <div className="form-group">
-                      <label className="form-label">ແຈ້ງເຕືອນເມື່ອຕໍ່າກວ່າ</label>
+                      <label className="form-label">{db.getLabel('auto_ແຈ້ງເຕືອນເມື່ອຕໍ່າກວ່າ_8xzqv8', `ແຈ້ງເຕືອນເມື່ອຕໍ່າກວ່າ`)}</label>
                       <input
                         type="number"
                         className="form-control"
@@ -5498,18 +5498,18 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div className="form-group">
-                    <label className="form-label">ຫົວໜ່ວย</label>
+                    <label className="form-label">{db.getLabel('auto_ຫົວໜ່ວ__7dd5s2', `ຫົວໜ່ວย`)}</label>
                     <input
                       type="text"
                       className="form-control"
                       value={formData.unit}
                       onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                      placeholder="ອັນ, ເສັ້ນ, ອົງ"
+                      placeholder={db.getLabel('auto_ອັນ__ເສັ້ນ__ອົງ_jx95pz', `ອັນ, ເສັ້ນ, ອົງ`)}
                       autoComplete="off"
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">ລະຫັດບາໂຄ້ດ (Barcode)</label>
+                    <label className="form-label">{db.getLabel('auto_ລະຫັດບາໂຄ້ດ__Barcode__njohbt', `ລະຫັດບາໂຄ້ດ (Barcode)`)}</label>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <input
                         type="text"
@@ -5523,7 +5523,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                           }
                         }}
                         style={{ flex: 1, margin: 0 }}
-                        placeholder="ລະຫັດບາໂຄ້ດ..."
+                        placeholder={db.getLabel('auto_ລະຫັດບາໂຄ້ດ____bukxvq', `ລະຫັດບາໂຄ້ດ...`)}
                         autoComplete="off"
                       />
                       <button
@@ -5550,11 +5550,11 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                         onChange={(e) => setFormData({ ...formData, showOnline: e.target.checked })}
                         style={{ width: '18px', height: '18px', cursor: 'pointer', margin: 0 }}
                       />
-                      <span>ສະແດງໃນ Online Shop</span>
+                      <span>{db.getLabel('auto_ສະແດງໃນ_Online_Shop_fglr8n', `ສະແດງໃນ Online Shop`)}</span>
                     </label>
                   </div>
                   <div className="form-group">
-                    <label className="form-label">ລາຄາອອນລາຍ (ກີບ)</label>
+                    <label className="form-label">{db.getLabel('auto_ລາຄາອອນລາຍ__ກີບ__mofhwt', `ລາຄາອອນລາຍ (ກີບ)`)}</label>
                     <input
                       type="number"
                       className="form-control"
@@ -5567,19 +5567,19 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">ລາຍລະອຽດສິນຄ້າ (Product Description)</label>
+                  <label className="form-label">{db.getLabel('auto_ລາຍລະອຽດສິນຄ້າ__Product_D_t54qv7', `ລາຍລະອຽດສິນຄ້າ (Product Description)`)}</label>
                   <textarea
                     className="form-control"
                     rows="3"
                     style={{ background: '#1c1916', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
-                    placeholder="ປ້ອນລາຍລະອຽດສິນຄ້າ..."
+                    placeholder={db.getLabel('auto_ປ້ອນລາຍລະອຽດສິນຄ້າ____8y7bpf', `ປ້ອນລາຍລະອຽດສິນຄ້າ...`)}
                     value={formData.description || ''}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">ຮູບພາບສິນຄ້າ (Product Photos - ອັບໂຫຼດໄດ້ຫຼາຍຮູບ)</label>
+                  <label className="form-label">{db.getLabel('auto_ຮູບພາບສິນຄ້າ__Product_Pho_7o79nw', `ຮູບພາບສິນຄ້າ (Product Photos - ອັບໂຫຼດໄດ້ຫຼາຍຮູບ)`)}</label>
                   <input
                     type="file"
                     accept="image/*"
@@ -5705,7 +5705,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                     priceOnline: '',
                     priceVip: ''
                   });
-                }}>ຍົກເລີກ</button>
+                }}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
                 <button type="submit" className="btn btn-primary">💾 ບັນທຶກສິນຄ້າ</button>
               </div>
             </form>
@@ -5741,25 +5741,25 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   </div>
                   
                   <div className="form-group">
-                    <label className="form-label">ຈຳນວນຮັບເຂົ້າສາງໃຫຍ່ ({warehouseActiveProduct.unit}) <span style={{ color: 'var(--alert-red)' }}>*</span></label>
+                    <label className="form-label">{db.getLabel('auto_ຈຳນວນຮັບເຂົ້າສາງໃຫຍ່___1t3af5', `ຈຳນວນຮັບເຂົ້າສາງໃຫຍ່ (`)}{warehouseActiveProduct.unit}) <span style={{ color: 'var(--alert-red)' }}>*</span></label>
                     <input 
                       type="number" 
                       className="form-control" 
                       required 
                       min="0.001"
                       step="any"
-                      placeholder="ປ້ອນຈຳນວນ..." 
+                      placeholder={db.getLabel('auto_ປ້ອນຈຳນວນ____4gla08', `ປ້ອນຈຳນວນ...`)} 
                       value={warehouseRestockQty} 
                       onChange={(e) => setWarehouseRestockQty(e.target.value)} 
                     />
                   </div>
                   
                   <div className="form-group">
-                    <label className="form-label">ໝາຍເຫດ (ເຊັ່ນ: ຊື່ຜູ້ສະໜອງ, ເລກທີບິນ...)</label>
+                    <label className="form-label">{db.getLabel('auto_ໝາຍເຫດ__ເຊັ່ນ__ຊື່ຜູ້ສະໜອ_1y84u', `ໝາຍເຫດ (ເຊັ່ນ: ຊື່ຜູ້ສະໜອງ, ເລກທີບິນ...)`)}</label>
                     <textarea 
                       className="form-control" 
                       rows="2"
-                      placeholder="ປ້ອນໝາຍເຫດ..."
+                      placeholder={db.getLabel('auto_ປ້ອນໝາຍເຫດ____yl0co3', `ປ້ອນໝາຍເຫດ...`)}
                       value={warehouseRestockNotes} 
                       onChange={(e) => setWarehouseRestockNotes(e.target.value)} 
                     />
@@ -5773,7 +5773,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       setShowWarehouseRestockModal(false);
                       setWarehouseActiveProduct(null);
                     }}
-                  >ຍົກເລີກ</button>
+                  >{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
                   <button type="submit" className="btn btn-primary">📥 ຢືນຢັນຮັບເຂົ້າ</button>
                 </div>
               </form>
@@ -5810,21 +5810,21 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   </div>
                   
                   <div className="form-group">
-                    <label className="form-label">ຈຳນວນທີ່ຕ້ອງການໂອນຍ້າຍ ({warehouseActiveProduct.unit}) <span style={{ color: 'var(--alert-red)' }}>*</span></label>
+                    <label className="form-label">{db.getLabel('auto_ຈຳນວນທີ່ຕ້ອງການໂອນຍ້າຍ___m081er', `ຈຳນວນທີ່ຕ້ອງການໂອນຍ້າຍ (`)}{warehouseActiveProduct.unit}) <span style={{ color: 'var(--alert-red)' }}>*</span></label>
                     <input 
                       type="number" 
                       className="form-control" 
                       required 
                       min="0.001"
                       step="any"
-                      placeholder="ປ້ອນຈຳນວນໂອນຍ້າຍ..." 
+                      placeholder={db.getLabel('auto_ປ້ອນຈຳນວນໂອນຍ້າຍ____hhlycx', `ປ້ອນຈຳນວນໂອນຍ້າຍ...`)} 
                       value={warehouseTransferQty} 
                       onChange={(e) => setWarehouseTransferQty(e.target.value)} 
                     />
                   </div>
                   
                   <div className="form-group">
-                    <label className="form-label">ໝາຍເຫດ (ເຊັ່ນ: ໂອນໄປເພີ່ມໜ້າຮ້ານ...)</label>
+                    <label className="form-label">{db.getLabel('auto_ໝາຍເຫດ__ເຊັ່ນ__ໂອນໄປເພີ່ມ_bz6fte', `ໝາຍເຫດ (ເຊັ່ນ: ໂອນໄປເພີ່ມໜ້າຮ້ານ...)`)}</label>
                     <textarea 
                       className="form-control" 
                       rows="2"
@@ -5842,7 +5842,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       setShowWarehouseTransferModal(false);
                       setWarehouseActiveProduct(null);
                     }}
-                  >ຍົກເລີກ</button>
+                  >{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
                   <button type="submit" className="btn btn-primary">🚚 ຢືນຢັນການໂອນ</button>
                 </div>
               </form>
@@ -5909,7 +5909,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                     
                     {/* Icon source selection */}
                     <div style={{ flex: 1 }}>
-                      <label className="form-label" style={{ marginBottom: '4px' }}>ອັບໂຫຼດໄອຄອນສ່ວນຕົວ (Upload Custom Icon)</label>
+                      <label className="form-label" style={{ marginBottom: '4px' }}>{db.getLabel('auto_ອັບໂຫຼດໄອຄອນສ່ວນຕົວ__Uplo_mm1idz', `ອັບໂຫຼດໄອຄອນສ່ວນຕົວ (Upload Custom Icon)`)}</label>
                       <input
                         type="file"
                         accept="image/*"
@@ -5949,7 +5949,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
                   {/* Scrollable emoji selection list */}
                   <div>
-                    <label className="form-label" style={{ marginBottom: '6px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>ຫຼື ເລືອກຈາກອີໂມຈິ (Choose Emoji):</label>
+                    <label className="form-label" style={{ marginBottom: '6px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຫຼື_ເລືອກຈາກອີໂມຈິ__Choos_yhdgwk', `ຫຼື ເລືອກຈາກອີໂມຈິ (Choose Emoji):`)}</label>
                     <div style={{
                       display: 'flex',
                       flexWrap: 'wrap',
@@ -5995,18 +5995,18 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
                 <div style={{ display: 'flex', gap: '12px' }}>
                   <div style={{ flex: 1 }}>
-                    <label className="form-label">ຊື່ໝວດໝູ່</label>
+                    <label className="form-label">{db.getLabel('auto_ຊື່ໝວດໝູ່_p6u319', `ຊື່ໝວດໝູ່`)}</label>
                     <input
                       type="text"
                       className="form-control"
                       required
-                      placeholder="ຕົວຢ່າງ: ພຣະຜົງ, ຂອງຂວັນ..."
+                      placeholder={db.getLabel('auto_ຕົວຢ່າງ__ພຣະຜົງ__ຂອງຂວັນ__ncoyew', `ຕົວຢ່າງ: ພຣະຜົງ, ຂອງຂວັນ...`)}
                       value={newCatName}
                       onChange={(e) => setNewCatName(e.target.value)}
                     />
                   </div>
                   <div style={{ width: '160px' }}>
-                    <label className="form-label">ປະເພດໝວດໝູ່</label>
+                    <label className="form-label">{db.getLabel('auto_ປະເພດໝວດໝູ່_pmuceb', `ປະເພດໝວດໝູ່`)}</label>
                     <select
                       className="form-control"
                       value={newCatType}
@@ -6124,7 +6124,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
               </div>
             </div>
             <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => { setShowCategoryModal(false); setEditingCategory(null); }}>ປິດ</button>
+              <button className="btn btn-secondary" onClick={() => { setShowCategoryModal(false); setEditingCategory(null); }}>{db.getLabel('auto_ປິດ_27lff', `ປິດ`)}</button>
             </div>
           </div>
         </div>
@@ -6160,7 +6160,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                 ref={scanInputRef}
                 type="text"
                 className="form-control"
-                placeholder="ລໍຖ້າການສະແກນ..."
+                placeholder={db.getLabel('auto_ລໍຖ້າການສະແກນ____m13898', `ລໍຖ້າການສະແກນ...`)}
                 value={scanHelperInput}
                 onChange={(e) => setScanHelperInput(e.target.value)}
                 onKeyDown={(e) => {

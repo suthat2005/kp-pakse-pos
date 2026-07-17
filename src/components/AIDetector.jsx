@@ -35,8 +35,8 @@ function CameraFeed({ cam, idx, currentTime }) {
     return (
       <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
         <span style={{ fontSize: '1.8rem', display: 'block' }}>⚠</span>
-        <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>ກ້ອງວົງຈອນປິດ Offline</span>
-        <p style={{ fontSize: '0.65rem', marginTop: '2px' }}>ເປີດໃຊ້ງານກ້ອງໃນເມນູຄວບຄຸມ</p>
+        <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>{db.getLabel('auto_ກ້ອງວົງຈອນປິດ_Offline_7hcvwb', `ກ້ອງວົງຈອນປິດ Offline`)}</span>
+        <p style={{ fontSize: '0.65rem', marginTop: '2px' }}>{db.getLabel('auto_ເປີດໃຊ້ງານກ້ອງໃນເມນູຄວບຄຸ_tc0qlx', `ເປີດໃຊ້ງານກ້ອງໃນເມນູຄວບຄຸມ`)}</p>
       </div>
     );
   }
@@ -952,7 +952,7 @@ export default function AIDetector({ activeUser }) {
                 scannerMode === 'upload' && (
                   <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '20px' }}>
                     <span style={{ fontSize: '3rem' }}>📁</span>
-                    <p style={{ marginTop: '8px', fontSize: '0.9rem' }}>ກະລຸນາເລືອກໄຟລ໌ຮູບພຣະເຄື່ອງ ຫຼື ລາກວາງທີ່ນີ້</p>
+                    <p style={{ marginTop: '8px', fontSize: '0.9rem' }}>{db.getLabel('auto_ກະລຸນາເລືອກໄຟລ໌ຮູບພຣະເຄື່_mfnovn', `ກະລຸນາເລືອກໄຟລ໌ຮູບພຣະເຄື່ອງ ຫຼື ລາກວາງທີ່ນີ້`)}</p>
                     <input
                       type="file"
                       accept="image/*"
@@ -966,7 +966,7 @@ export default function AIDetector({ activeUser }) {
               {!webcamStream && !scannedAmuletImage && scannerMode === 'webcam' && (
                 <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
                   <span style={{ fontSize: '3rem' }}>📷</span>
-                  <p style={{ marginTop: '8px', fontSize: '0.85rem' }}>ກຳລັງເປີດໃຊ້ງານກ້ອງ...</p>
+                  <p style={{ marginTop: '8px', fontSize: '0.85rem' }}>{db.getLabel('auto_ກຳລັງເປີດໃຊ້ງານກ້ອງ____oois0z', `ກຳລັງເປີດໃຊ້ງານກ້ອງ...`)}</p>
                 </div>
               )}
 
@@ -1013,26 +1013,26 @@ export default function AIDetector({ activeUser }) {
                 <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.95rem', fontWeight: 'bold', margin: 0 }}>✓ ຜົນການວິເຄາະໂດຍ AI (AI Analysis Complete)</h4>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', fontSize: '0.85rem', rowGap: '8px' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>ຊື່ພຣະເຄື່ອງ:</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຊື່ພຣະເຄື່ອງ__mt0h2z', `ຊື່ພຣະເຄື່ອງ:`)}</span>
                   <span style={{ fontWeight: 'bold' }}>{scanResult.name}</span>
 
-                  <span style={{ color: 'var(--text-secondary)' }}>ຮູບຊົງພຣະເຄື່ອງ:</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຮູບຊົງພຣະເຄື່ອງ__9fnc2h', `ຮູບຊົງພຣະເຄື່ອງ:`)}</span>
                   <span style={{ color: 'var(--accent-amber)', fontWeight: 'bold' }}>{scanResult.shape}</span>
 
-                  <span style={{ color: 'var(--text-secondary)' }}>ຂະໜາດທີ່ວັດໄດ້:</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຂະໜາດທີ່ວັດໄດ້__1lbmen', `ຂະໜາດທີ່ວັດໄດ້:`)}</span>
                   <span>{scanResult.dims}</span>
 
-                  <span style={{ color: 'var(--text-secondary)' }}>ຂອບແນະນຳ:</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຂອບແນະນຳ__2854x5', `ຂອບແນະນຳ:`)}</span>
                   <span style={{ color: 'var(--success-green)', fontWeight: 'bold' }}>{scanResult.suggestedFrame}</span>
 
-                  <span style={{ color: 'var(--text-secondary)' }}>ປະເມີນຄ່າບໍລິການ:</span>
-                  <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{scanResult.priceEst.toLocaleString()} ກີບ</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ປະເມີນຄ່າບໍລິການ__um7o7c', `ປະເມີນຄ່າບໍລິການ:`)}</span>
+                  <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{scanResult.priceEst.toLocaleString()} {db.getLabel('auto_ກີບ_2726e', `ກີບ`)}</span>
                 </div>
                 
                 {/* Integration Actions */}
                 <div style={{ borderTop: '1px solid rgba(212,175,55,0.2)', paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '4px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>ເລືອກບັດຄິວ POS:</label>
+                    <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ເລືອກບັດຄິວ_POS__jnndoa', `ເລືອກບັດຄິວ POS:`)}</label>
                     <select
                       className="form-control"
                       value={selectedTargetSlotId}
@@ -1104,7 +1104,7 @@ export default function AIDetector({ activeUser }) {
                 {forecastCount}
               </div>
               <div>
-                <h4 style={{ fontSize: '0.9rem', color: 'white' }}>ຄາດການຍອດຮັບອັດກອບ: {forecastCount} ອົງ</h4>
+                <h4 style={{ fontSize: '0.9rem', color: 'white' }}>{db.getLabel('auto_ຄາດການຍອດຮັບອັດກອບ__ujrc6h', `ຄາດການຍອດຮັບອັດກອບ:`)} {forecastCount} {db.getLabel('auto_ອົງ_27yxl', `ອົງ`)}</h4>
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
                   ຄຳນວນຈາກສະຖິຕິຍ້ອນຫຼັງ 30 ວັນ, ທ່າອ່ຽງຄວາມນິຍົມ, ແລະ ປັດໄຈວັນພຣະ.
                 </p>
@@ -1215,18 +1215,18 @@ export default function AIDetector({ activeUser }) {
                   <div style={{ position: 'relative', width: '140px', height: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: `radial-gradient(closest-side, #12100d 80%, transparent 84% 100%), conic-gradient(${stats.color} ${stats.riskScore}%, rgba(255,255,255,0.05) 0)`, borderRadius: '50%' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                       <span style={{ fontSize: '2rem', fontWeight: 'bold', color: 'white' }}>{stats.riskScore}%</span>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ລະດັບຄວາມສ່ຽງ</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ລະດັບຄວາມສ່ຽງ_fras18', `ລະດັບຄວາມສ່ຽງ`)}</span>
                     </div>
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left' }}>
                     <div>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>ລະດັບຄວາມສ່ຽງ:</span>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ລະດັບຄວາມສ່ຽງ__8pi8qa', `ລະດັບຄວາມສ່ຽງ:`)}</span>
                       <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: stats.color }}>{stats.riskLevel}</div>
                     </div>
                     <div>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>ພຶດຕິກຳຜິດປົກກະຕິ:</span>
-                      <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'white' }}>{stats.flaggedEvents} ຄັ້ງ</div>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ພຶດຕິກຳຜິດປົກກະຕິ__z8y57q', `ພຶດຕິກຳຜິດປົກກະຕິ:`)}</span>
+                      <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'white' }}>{stats.flaggedEvents} {db.getLabel('auto_ຄັ້ງ_1w4thn', `ຄັ້ງ`)}</div>
                     </div>
                     
                     <button className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '0.8rem', marginTop: '8px' }} onClick={runAuditAnalysis}>
@@ -1246,22 +1246,22 @@ export default function AIDetector({ activeUser }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', maxHeight: '200px' }}>
                 {stats.pinFails > 0 && (
                   <div style={{ background: 'rgba(231, 76, 60, 0.08)', border: '1px solid rgba(231, 76, 60, 0.2)', borderLeft: '4px solid var(--alert-red)', padding: '10px', borderRadius: '6px', fontSize: '0.8rem' }}>
-                    <div style={{ color: 'var(--alert-red)', fontWeight: 'bold', marginBottom: '2px' }}>⚠️ ພະຍາຍາມລົບສິນຄ້າໂດຍໃສ່ PIN ຜິດ ({stats.pinFails} ຄັ້ງ)</div>
-                    <p style={{ color: 'var(--text-primary)' }}>ພະນັກງານພະຍາຍາມລົບລາຍການສິນຄ້າອອກຈາກບິນ ແຕ່ໃສ່ລະຫັດແອດມິນບໍ່ຖືກຕ້ອງ. ຄວນກວດສອບວ່າມີການພະຍາຍາມແກ້ໄຂບິນເພື່ອໂກງເງິນລູກຄ້າຫຼືບໍ່.</p>
+                    <div style={{ color: 'var(--alert-red)', fontWeight: 'bold', marginBottom: '2px' }}>⚠️ ພະຍາຍາມລົບສິນຄ້າໂດຍໃສ່ PIN ຜິດ ({stats.pinFails} {db.getLabel('auto_ຄັ້ງ__ccynr6', `ຄັ້ງ)`)}</div>
+                    <p style={{ color: 'var(--text-primary)' }}>{db.getLabel('auto_ພະນັກງານພະຍາຍາມລົບລາຍການສ_w20go2', `ພະນັກງານພະຍາຍາມລົບລາຍການສິນຄ້າອອກຈາກບິນ ແຕ່ໃສ່ລະຫັດແອດມິນບໍ່ຖືກຕ້ອງ. ຄວນກວດສອບວ່າມີການພະຍາຍາມແກ້ໄຂບິນເພື່ອໂກງເງິນລູກຄ້າຫຼືບໍ່.`)}</p>
                   </div>
                 )}
 
                 {stats.manualDrawers > 0 && (
                   <div style={{ background: 'rgba(231, 76, 60, 0.08)', border: '1px solid rgba(231, 76, 60, 0.2)', borderLeft: '4px solid var(--alert-red)', padding: '10px', borderRadius: '6px', fontSize: '0.8rem' }}>
-                    <div style={{ color: 'var(--alert-red)', fontWeight: 'bold', marginBottom: '2px' }}>🚨 ເປີດລິ້ນຊັກເປີດດ້ວຍມື ({stats.manualDrawers} ຄັ້ງ)</div>
-                    <p style={{ color: 'var(--text-primary)' }}>ມີການເປີດລິ້ນຊັກເກັບເງິນດ້ວຍມືໂດຍບໍ່ໄດ້ເກີດຈາກການຂາຍ/ອອກບິນສົດ (Manual release). ລະບົບ AI ແນະນຳໃຫ້ກວດສອບກ້ອງວົງຈອນປິດຕາມເວລາໃນບັນທຶກ.</p>
+                    <div style={{ color: 'var(--alert-red)', fontWeight: 'bold', marginBottom: '2px' }}>🚨 ເປີດລິ້ນຊັກເປີດດ້ວຍມື ({stats.manualDrawers} {db.getLabel('auto_ຄັ້ງ__ccynr6', `ຄັ້ງ)`)}</div>
+                    <p style={{ color: 'var(--text-primary)' }}>{db.getLabel('auto_ມີການເປີດລິ້ນຊັກເກັບເງິນດ_288l2h', `ມີການເປີດລິ້ນຊັກເກັບເງິນດ້ວຍມືໂດຍບໍ່ໄດ້ເກີດຈາກການຂາຍ/ອອກບິນສົດ (Manual release). ລະບົບ AI ແນະນຳໃຫ້ກວດສອບກ້ອງວົງຈອນປິດຕາມເວລາໃນບັນທຶກ.`)}</p>
                   </div>
                 )}
 
                 {stats.discounts > 0 && (
                   <div style={{ background: 'rgba(243, 156, 18, 0.08)', border: '1px solid rgba(243, 156, 18, 0.2)', borderLeft: '4px solid var(--accent-amber)', padding: '10px', borderRadius: '6px', fontSize: '0.8rem' }}>
-                    <div style={{ color: 'var(--accent-amber)', fontWeight: 'bold', marginBottom: '2px' }}>💡 ມີການໃຊ້ສ່ວນຫຼຸດພິເສດ ({stats.discounts} ຄັ້ງ)</div>
-                    <p style={{ color: 'var(--text-primary)' }}>ມີການກົດໃຫ້ສ່ວນຫຼຸດ (%) ກັບລູກຄ້າ. ໃຫ້ແນ່ໃຈວ່າເປັນໂປຣໂມຊັ່ນຂອງທາງຮ້ານ ແລະ ບໍ່ແມ່ນການຕັ້ງສ່ວນຫຼຸດເອງຂອງພະນັກງານຂາຍ.</p>
+                    <div style={{ color: 'var(--accent-amber)', fontWeight: 'bold', marginBottom: '2px' }}>💡 ມີການໃຊ້ສ່ວນຫຼຸດພິເສດ ({stats.discounts} {db.getLabel('auto_ຄັ້ງ__ccynr6', `ຄັ້ງ)`)}</div>
+                    <p style={{ color: 'var(--text-primary)' }}>{db.getLabel('auto_ມີການກົດໃຫ້ສ່ວນຫຼຸດ_____ກ_6olf9g', `ມີການກົດໃຫ້ສ່ວນຫຼຸດ (%) ກັບລູກຄ້າ. ໃຫ້ແນ່ໃຈວ່າເປັນໂປຣໂມຊັ່ນຂອງທາງຮ້ານ ແລະ ບໍ່ແມ່ນການຕັ້ງສ່ວນຫຼຸດເອງຂອງພະນັກງານຂາຍ.`)}</p>
                   </div>
                 )}
 
@@ -1285,7 +1285,7 @@ export default function AIDetector({ activeUser }) {
               <div style={{ display: 'flex', gap: '8px' }}>
                 <input
                   type="text"
-                  placeholder="🔍 ຄົ້ນຫາບັນທຶກ..."
+                  placeholder={db.getLabel('auto____ຄົ້ນຫາບັນທຶກ____6okg7k', `🔍 ຄົ້ນຫາບັນທຶກ...`)}
                   className="form-control"
                   style={{ padding: '6px 12px', fontSize: '0.8rem', width: '200px', margin: 0 }}
                   value={auditSearch}
@@ -1301,17 +1301,17 @@ export default function AIDetector({ activeUser }) {
               <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--gold-primary)', fontSize: '0.85rem' }}>
-                    <th style={{ padding: '10px' }}>ວັນເວລາ (Timestamp)</th>
-                    <th style={{ padding: '10px' }}>ພະນັກງານ (User)</th>
-                    <th style={{ padding: '10px' }}>ປະເພດເຫດການ (Event)</th>
-                    <th style={{ padding: '10px' }}>ລາຍລະອຽດ (Description)</th>
-                    <th style={{ padding: '10px', textAlign: 'center' }}>ລະດັບຄວາມປອດໄພ</th>
+                    <th style={{ padding: '10px' }}>{db.getLabel('auto_ວັນເວລາ__Timestamp__vbwxq6', `ວັນເວລາ (Timestamp)`)}</th>
+                    <th style={{ padding: '10px' }}>{db.getLabel('auto_ພະນັກງານ__User__8trlun', `ພະນັກງານ (User)`)}</th>
+                    <th style={{ padding: '10px' }}>{db.getLabel('auto_ປະເພດເຫດການ__Event__uppr8p', `ປະເພດເຫດການ (Event)`)}</th>
+                    <th style={{ padding: '10px' }}>{db.getLabel('auto_ລາຍລະອຽດ__Description__5w8xsi', `ລາຍລະອຽດ (Description)`)}</th>
+                    <th style={{ padding: '10px', textAlign: 'center' }}>{db.getLabel('auto_ລະດັບຄວາມປອດໄພ_8y94dk', `ລະດັບຄວາມປອດໄພ`)}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredLogs.length === 0 ? (
                     <tr>
-                      <td colSpan="5" style={{ padding: '20px', textAlign: 'center', color: 'var(--text-secondary)' }}>ບໍ່ພົບບັນທຶກເຫດການ</td>
+                      <td colSpan="5" style={{ padding: '20px', textAlign: 'center', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ບໍ່ພົບບັນທຶກເຫດການ_2s76pl', `ບໍ່ພົບບັນທຶກເຫດການ`)}</td>
                     </tr>
                   ) : (
                     filteredLogs.map(log => {
@@ -1364,7 +1364,7 @@ export default function AIDetector({ activeUser }) {
                   {isEditing ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <label style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>ຊື່ກ້ອງ:</label>
+                        <label style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>{db.getLabel('auto_ຊື່ກ້ອງ__gm4qkj', `ຊື່ກ້ອງ:`)}</label>
                         <input
                           type="text"
                           className="form-control"
@@ -1375,7 +1375,7 @@ export default function AIDetector({ activeUser }) {
                       </div>
                       
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <label style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>ປະເພດກ້ອງ (Camera Type):</label>
+                        <label style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>{db.getLabel('auto_ປະເພດກ້ອງ__Camera_Type___k1i5b9', `ປະເພດກ້ອງ (Camera Type):`)}</label>
                         <select
                           className="form-control"
                           value={editCamType}
@@ -1708,7 +1708,7 @@ export default function AIDetector({ activeUser }) {
               
               <form onSubmit={handleAddCamera} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label className="form-label" style={{ fontSize: '0.8rem' }}>ຊື່ກ້ອງວົງຈອນປິດ (Camera Label Name)</label>
+                  <label className="form-label" style={{ fontSize: '0.8rem' }}>{db.getLabel('auto_ຊື່ກ້ອງວົງຈອນປິດ__Camera__1r64qk', `ຊື່ກ້ອງວົງຈອນປິດ (Camera Label Name)`)}</label>
                   <input
                     type="text"
                     className="form-control"
@@ -1719,7 +1719,7 @@ export default function AIDetector({ activeUser }) {
                   />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label className="form-label" style={{ fontSize: '0.8rem' }}>ປະເພດກ້ອງ (Camera Type)</label>
+                  <label className="form-label" style={{ fontSize: '0.8rem' }}>{db.getLabel('auto_ປະເພດກ້ອງ__Camera_Type__l9nts1', `ປະເພດກ້ອງ (Camera Type)`)}</label>
                   <select
                     className="form-control"
                     value={newCamType}
@@ -1738,7 +1738,7 @@ export default function AIDetector({ activeUser }) {
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="ຕົວຢ່າງ: webcam ຫຼື http://192.168.1.100:8080/video"
+                      placeholder={db.getLabel('auto_ຕົວຢ່າງ__webcam_ຫຼື_http__69oo2e', `ຕົວຢ່າງ: webcam ຫຼື http://192.168.1.100:8080/video`)}
                       value={newCamUrl}
                       onChange={(e) => setNewCamUrl(e.target.value)}
                       style={{ fontSize: '0.8rem', padding: '8px', margin: 0 }}
@@ -1752,7 +1752,7 @@ export default function AIDetector({ activeUser }) {
                         <input
                           type="text"
                           className="form-control"
-                          placeholder="ຕົວຢ່າງ: 192.168.1.200"
+                          placeholder={db.getLabel('auto_ຕົວຢ່າງ__192_168_1_200_uxzwj0', `ຕົວຢ່າງ: 192.168.1.200`)}
                           value={newCamHost}
                           onChange={(e) => setNewCamHost(e.target.value)}
                           style={{ fontSize: '0.8rem', padding: '8px', margin: 0 }}
@@ -1763,7 +1763,7 @@ export default function AIDetector({ activeUser }) {
                         <input
                           type="text"
                           className="form-control"
-                          placeholder="ຕົວຢ່າງ: 554"
+                          placeholder={db.getLabel('auto_ຕົວຢ່າງ__554_3kwyz6', `ຕົວຢ່າງ: 554`)}
                           value={newCamPort}
                           onChange={(e) => setNewCamPort(e.target.value)}
                           style={{ fontSize: '0.8rem', padding: '8px', margin: 0 }}
@@ -1850,7 +1850,7 @@ export default function AIDetector({ activeUser }) {
                 )}
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label className="form-label" style={{ fontSize: '0.8rem' }}>ເລື໅ກລະບູບ AI ກວດຈັບອັດສຽລິຍະ (AI Detection System)</label>
+                  <label className="form-label" style={{ fontSize: '0.8rem' }}>{db.getLabel('auto_ເລື໅ກລະບູບ_AI_ກວດຈັບອັດສຽ_d6fla1', `ເລື໅ກລະບູບ AI ກວດຈັບອັດສຽລິຍະ (AI Detection System)`)}</label>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', cursor: 'pointer' }}>
                       <input

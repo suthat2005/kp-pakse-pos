@@ -472,7 +472,7 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
                         value={cashReceived}
                         onChange={(e) => setCashReceived(e.target.value)}
                         style={{ fontSize: '1.4rem', height: '48px', fontWeight: 'bold', color: 'var(--gold-primary)', background: '#0e0d0b', border: '1px solid rgba(255,255,255,0.12)' }}
-                        placeholder="ປ້ອນຈຳນວນເງິນສົດ..."
+                        placeholder={db.getLabel('auto_ປ້ອນຈຳນວນເງິນສົດ____4tnra5', `ປ້ອນຈຳນວນເງິນສົດ...`)}
                       />
                     </div>
                     {(() => {

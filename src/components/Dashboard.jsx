@@ -267,7 +267,7 @@ function AreaChart({ data = [], c1 = '#D4AF37', c2 = '#0984E3', mode = 'area' })
 // ── Donut Chart ───────────────────────────────────────────────────────────────
 function DonutChart({ data = [], size = 180 }) {
   const [hov, setHov] = useState(null);
-  if (!data.length) return <EmptyChart msg="ຍັງບໍ່ມີຂໍ້ມູນການຂາຍ" />;
+  if (!data.length) return <EmptyChart msg={db.getLabel('auto_ຍັງບໍ່ມີຂໍ້ມູນການຂາຍ_xgzayq', `ຍັງບໍ່ມີຂໍ້ມູນການຂາຍ`)} />;
   const total = data.reduce((s, d) => s + d[1], 0) || 1;
   const cx = size / 2, cy = size / 2;
   const R = size * 0.37, ri = size * 0.23;
@@ -305,7 +305,7 @@ function DonutChart({ data = [], size = 180 }) {
             <text x={cx} y={cy + 23} textAnchor="middle" fill="rgba(255,255,255,0.45)" fontSize="9">{fmtShort(slices[hov].value)} ₭</text>
           </>
         ) : (
-          <text x={cx} y={cy + 5} textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="10">ລາຍໝວດ</text>
+          <text x={cx} y={cy + 5} textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="10">{db.getLabel('auto_ລາຍໝວດ_ce6uqe', `ລາຍໝວດ`)}</text>
         )}
       </svg>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '7px', flex: 1, minWidth: 120 }}>
@@ -325,7 +325,7 @@ function DonutChart({ data = [], size = 180 }) {
 // ── Horizontal Bar Chart ──────────────────────────────────────────────────────
 function HBarChart({ data = [] }) {
   const [hov, setHov] = useState(null);
-  if (!data.length) return <EmptyChart msg="ຍັງບໍ່ມີຂໍ້ມູນ" />;
+  if (!data.length) return <EmptyChart msg={db.getLabel('auto_ຍັງບໍ່ມີຂໍ້ມູນ_6xhzcn', `ຍັງບໍ່ມີຂໍ້ມູນ`)} />;
   const maxV = Math.max(...data.map(d => d[1]), 1);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '4px 0' }}>
@@ -384,11 +384,12 @@ function HourlyBar({ data = [] }) {
 }
 
 // ── Empty State ───────────────────────────────────────────────────────────────
-function EmptyChart({ msg = 'ຍັງບໍ່ມີຂໍ້ມູນ' }) {
+function EmptyChart({ msg }) {
+  const displayMsg = msg !== undefined ? msg : db.getLabel('auto_ຍັງບໍ່ມີຂໍ້ມູນ_6xhzcn', 'ຍັງບໍ່ມີຂໍ້ມູນ');
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 100, color: 'rgba(255,255,255,0.25)', fontSize: '0.82rem', flexDirection: 'column', gap: 6 }}>
       <span style={{ fontSize: '1.8rem', opacity: 0.3 }}>📊</span>
-      {msg}
+      {displayMsg}
     </div>
   );
 }
@@ -454,7 +455,7 @@ export default function Dashboard({ activeUser, onTabChange, isMobile }) {
   const go     = tab => { if (onTabChange) onTabChange(tab); };
 
   if (!data) {
-    return <div style={{ padding: 40, color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>ກຳລັງໂຫຼດ Dashboard...</div>;
+    return <div style={{ padding: 40, color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>{db.getLabel('auto_ກຳລັງໂຫຼດ_Dashboard____30xacw', `ກຳລັງໂຫຼດ Dashboard...`)}</div>;
   }
 
   const sparkSales = data.last14.slice(7).map(d => d.sales);
@@ -464,20 +465,20 @@ export default function Dashboard({ activeUser, onTabChange, isMobile }) {
 
       {/* ── KPI Cards ── */}
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fit,minmax(175px,1fr))', gap: 11 }}>
-        {canFinance && <StatCard icon="💵" label="ຍອດຂາຍມື້ນີ້"     value={fmt(data.todaySales)}     sub={`${data.todayBills} ໃບບິນ`}                        color="#2ecc71" spark={sparkSales} onClick={() => go('reports')} />}
-        {canFinance && <StatCard icon="📅" label="ຍອດຂາຍອາທິດນີ້"   value={fmt(data.weekSales)}     sub={`${data.weekBills} ໃບບິນ`}                         color="#D4AF37" spark={sparkSales} onClick={() => go('reports')} />}
+        {canFinance && <StatCard icon="💵" label={db.getLabel('auto_ຍອດຂາຍມື້ນີ້_uf2wo3', `ຍອດຂາຍມື້ນີ້`)}     value={fmt(data.todaySales)}     sub={`${data.todayBills} ໃບບິນ`}                        color="#2ecc71" spark={sparkSales} onClick={() => go('reports')} />}
+        {canFinance && <StatCard icon="📅" label={db.getLabel('auto_ຍອດຂາຍອາທິດນີ້_3yffvo', `ຍອດຂາຍອາທິດນີ້`)}   value={fmt(data.weekSales)}     sub={`${data.weekBills} ໃບບິນ`}                         color="#D4AF37" spark={sparkSales} onClick={() => go('reports')} />}
         {canFinance && <StatCard icon="↩️" label="ຄືນເງິນມື້ນີ້"   value={fmt(data.todayRefunds)}  color={data.todayRefunds > 0 ? '#e74c3c' : 'white'}      onClick={() => go('reports')} />}
-        {canFinance && <StatCard icon="🧾" label="ໜີ້ຄ້າງຮັບ"       value={fmt(data.outstandingDebt)} sub={`${data.debtorCount} ລາຍການ`}                    color={data.outstandingDebt > 0 ? '#f39c12' : 'white'} onClick={() => go('debts')} />}
-        <StatCard icon="⚠️" label="ສິນຄ້າໃກ້ໝົດ"   value={data.lowStock.length}   sub="ຄລິກຈັດການ"                                           color={data.lowStock.length > 0 ? '#e74c3c' : '#2ecc71'} onClick={() => go('inventory')} />
+        {canFinance && <StatCard icon="🧾" label={db.getLabel('auto_ໜີ້ຄ້າງຮັບ_ni52a5', `ໜີ້ຄ້າງຮັບ`)}       value={fmt(data.outstandingDebt)} sub={`${data.debtorCount} ລາຍການ`}                    color={data.outstandingDebt > 0 ? '#f39c12' : 'white'} onClick={() => go('debts')} />}
+        <StatCard icon="⚠️" label={db.getLabel('auto_ສິນຄ້າໃກ້ໝົດ_z3x19l', `ສິນຄ້າໃກ້ໝົດ`)}   value={data.lowStock.length}   sub="ຄລິກຈັດການ"                                           color={data.lowStock.length > 0 ? '#e74c3c' : '#2ecc71'} onClick={() => go('inventory')} />
         <StatCard icon="🌐" label="ອໍເດີ້ອອນລາຍ"   value={data.pendingOnline}     color={data.pendingOnline > 0 ? '#3498db' : 'white'}       onClick={() => go('online_orders')} />
-        <StatCard icon="🖼️" label="ງານກອບ"          value={data.jobStats.pending + data.jobStats.framing + data.jobStats.done} sub={`ຮັບ ${data.jobStats.pending}·ເຮັດ ${data.jobStats.framing}·ພ້ອມ ${data.jobStats.done}`} color="#9b59b6" onClick={() => go('framing_board')} />
-        <StatCard icon="👥" label="ສະມາຊິກ"          value={data.memberCount}                                                                   color="#D4AF37" onClick={() => go('customers')} />
+        <StatCard icon="🖼️" label={db.getLabel('auto_ງານກອບ_qldqsg', `ງານກອບ`)}          value={data.jobStats.pending + data.jobStats.framing + data.jobStats.done} sub={`ຮັບ ${data.jobStats.pending}·ເຮັດ ${data.jobStats.framing}·ພ້ອມ ${data.jobStats.done}`} color="#9b59b6" onClick={() => go('framing_board')} />
+        <StatCard icon="👥" label={db.getLabel('auto_ສະມາຊິກ_rdc4xs', `ສະມາຊິກ`)}          value={data.memberCount}                                                                   color="#D4AF37" onClick={() => go('customers')} />
       </div>
 
       {/* ── Main trend chart ── */}
       {canFinance && (
         <Section
-          title={<span>📈 ຍອດຂາຍ <span style={{ color: '#D4AF37' }}>vs</span> ຄ່າໃຊ້ຈ່າຍ <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', fontWeight: 400 }}>— 14 ວັນ</span></span>}
+          title={<span>📈 ຍອດຂາຍ <span style={{ color: '#D4AF37' }}>vs</span> {db.getLabel('auto_ຄ່າໃຊ້ຈ່າຍ_q5l2dt', `ຄ່າໃຊ້ຈ່າຍ`)} <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', fontWeight: 400 }}>— 14 ວັນ</span></span>}
           actions={[
             <CBtn key="bar"  cur={mainCt} val="bar"  label="📊 Bar"  set={saveMc} />,
             <CBtn key="area" cur={mainCt} val="area" label="🌊 Area" set={saveMc} />,
@@ -485,8 +486,8 @@ export default function Dashboard({ activeUser, onTabChange, isMobile }) {
           ]}
         >
           <div style={{ display: 'flex', gap: 14, marginBottom: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><div style={{ width: 14, height: 4, borderRadius: 2, background: '#D4AF37' }} /><span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)' }}>ຍອດຂາຍ</span></div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><div style={{ width: 14, height: 4, borderRadius: 2, background: '#0984E3' }} /><span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)' }}>ຄ່າໃຊ້ຈ່າຍ</span></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><div style={{ width: 14, height: 4, borderRadius: 2, background: '#D4AF37' }} /><span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)' }}>{db.getLabel('auto_ຍອດຂາຍ_nty5h3', `ຍອດຂາຍ`)}</span></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><div style={{ width: 14, height: 4, borderRadius: 2, background: '#0984E3' }} /><span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)' }}>{db.getLabel('auto_ຄ່າໃຊ້ຈ່າຍ_q5l2dt', `ຄ່າໃຊ້ຈ່າຍ`)}</span></div>
           </div>
           <div style={{ overflowX: 'auto' }}>
             {mainCt === 'bar'  && <BarChart  data={data.last14} c1="#D4AF37" c2="#0984E3" />}
@@ -499,7 +500,7 @@ export default function Dashboard({ activeUser, onTabChange, isMobile }) {
       {/* ── Category + Hourly ── */}
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 14 }}>
         <Section
-          title="🍩 ຍອດຂາຍຕາມໝວດ (ອາທິດນີ້)"
+          title={db.getLabel('auto____ຍອດຂາຍຕາມໝວດ__ອາທິດນີ້_o646jg', `🍩 ຍອດຂາຍຕາມໝວດ (ອາທິດນີ້)`)}
           actions={[
             <CBtn key="d" cur={catCt} val="donut" label="🍩 Donut" set={saveCc} />,
             <CBtn key="h" cur={catCt} val="hbar"  label="📊 H-Bar" set={saveCc} />,
@@ -508,9 +509,9 @@ export default function Dashboard({ activeUser, onTabChange, isMobile }) {
           {catCt === 'donut' ? <DonutChart data={data.catData} size={isMobile ? 155 : 180} /> : <HBarChart data={data.catData} />}
         </Section>
 
-        <Section title="⏰ ຍອດຂາຍລາຍຊົ່ວໂມງ (ມື້ນີ້)">
+        <Section title={db.getLabel('auto___ຍອດຂາຍລາຍຊົ່ວໂມງ__ມື້ນີ_tzzqh6', `⏰ ຍອດຂາຍລາຍຊົ່ວໂມງ (ມື້ນີ້)`)}>
           {data.todaySales === 0
-            ? <EmptyChart msg="ຍັງບໍ່ມີຍອດຂາຍໃນມື້ນີ້" />
+            ? <EmptyChart msg={db.getLabel('auto_ຍັງບໍ່ມີຍອດຂາຍໃນມື້ນີ້_xd68f3', `ຍັງບໍ່ມີຍອດຂາຍໃນມື້ນີ້`)} />
             : <HourlyBar data={data.hourly} />
           }
           {data.todaySales > 0 && (() => {
@@ -527,8 +528,8 @@ export default function Dashboard({ activeUser, onTabChange, isMobile }) {
 
       {/* ── Low Stock ── */}
       <Section
-        title={<span>⚠️ <span style={{ color: '#f39c12' }}>ສິນຄ້າໃກ້ໝົດ / ໝົດສະຕັອກ</span></span>}
-        actions={<button type="button" className="btn btn-secondary" style={{ padding: '4px 12px', fontSize: '0.72rem' }} onClick={() => go('inventory')}>ຈັດການສະຕັອກ →</button>}
+        title={<span>⚠️ <span style={{ color: '#f39c12' }}>{db.getLabel('auto_ສິນຄ້າໃກ້ໝົດ___ໝົດສະຕັອກ_duzns4', `ສິນຄ້າໃກ້ໝົດ / ໝົດສະຕັອກ`)}</span></span>}
+        actions={<button type="button" className="btn btn-secondary" style={{ padding: '4px 12px', fontSize: '0.72rem' }} onClick={() => go('inventory')}>{db.getLabel('auto_ຈັດການສະຕັອກ___6qtopx', `ຈັດການສະຕັອກ →`)}</button>}
       >
         {data.lowStock.length === 0 ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#2ecc71', fontSize: '0.82rem', padding: '10px 0' }}>
@@ -564,8 +565,8 @@ export default function Dashboard({ activeUser, onTabChange, isMobile }) {
             </table>
             {data.lowStock.length > 15 && (
               <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.3)', marginTop: 8, paddingLeft: 10 }}>
-                + ອີກ {data.lowStock.length - 15} ລາຍການ —{' '}
-                <button type="button" style={{ background: 'none', border: 'none', color: '#D4AF37', cursor: 'pointer', fontSize: '0.7rem', padding: 0 }} onClick={() => go('inventory')}>ເບິ່ງທັງໝົດ →</button>
+                + ອີກ {data.lowStock.length - 15} {db.getLabel('auto_ລາຍການ___kzl2ho', `ລາຍການ —`)}{' '}
+                <button type="button" style={{ background: 'none', border: 'none', color: '#D4AF37', cursor: 'pointer', fontSize: '0.7rem', padding: 0 }} onClick={() => go('inventory')}>{db.getLabel('auto_ເບິ່ງທັງໝົດ___g2aglo', `ເບິ່ງທັງໝົດ →`)}</button>
               </div>
             )}
           </div>

@@ -321,7 +321,7 @@ export default function FramingBoard({
         </div>
       );
     }
-    return <div className="job-desc">ພຣະ: {job.amuletDescription}</div>;
+    return <div className="job-desc">{db.getLabel('auto_ພຣະ__1wl1cf', `ພຣະ:`)} {job.amuletDescription}</div>;
   };
 
   return (
@@ -331,7 +331,7 @@ export default function FramingBoard({
       <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
         <div>
           <h2 style={{ color: 'var(--gold-primary)', margin: 0 }}>{db.getLabel('framing_board_title', '🛠️ ບອດຈັດການງານອັດກອບ (Framing Dashboard)')}</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0' }}>ຕິດຕາມສະຖານະງານເລກບິນ, ເງິນມັດຈຳ, ສື່ສານກັບລູກຄ້າ ແລະ ອັບເດດສະຖານະການເລີຍ</p>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0' }}>{db.getLabel('auto_ຕິດຕາມສະຖານະງານເລກບິນ__ເງ_9h5bh4', `ຕິດຕາມສະຖານະງານເລກບິນ, ເງິນມັດຈຳ, ສື່ສານກັບລູກຄ້າ ແລະ ອັບເດດສະຖານະການເລີຍ`)}</p>
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <button
@@ -397,7 +397,7 @@ export default function FramingBoard({
                     className="job-id" 
                     onClick={() => onTrackJob && onTrackJob(group.jobs[0].id)}
                     style={{ cursor: 'pointer', textDecoration: 'underline' }}
-                    title="ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍການ (Click to track order)"
+                    title={db.getLabel('auto_ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍກ_fkufcb', `ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍການ (Click to track order)`)}
                   >
                     {group.displayId}
                   </span>
@@ -413,7 +413,7 @@ export default function FramingBoard({
                   </div>
                 )}
                 
-                <div className="job-deposit-pill">ມັດຈຳ: {group.deposit.toLocaleString()} ກີບ</div>
+                <div className="job-deposit-pill">{db.getLabel('auto_ມັດຈຳ__eauhkl', `ມັດຈຳ:`)} {group.deposit.toLocaleString()} {db.getLabel('auto_ກີບ_2726e', `ກີບ`)}</div>
                 
                 <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
                   {hasFramingPermission('framingPrintJob') && (
@@ -489,7 +489,7 @@ export default function FramingBoard({
                     className="job-id" 
                     onClick={() => onTrackJob && onTrackJob(group.jobs[0].id)}
                     style={{ color: 'var(--accent-amber)', cursor: 'pointer', textDecoration: 'underline' }}
-                    title="ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍການ (Click to track order)"
+                    title={db.getLabel('auto_ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍກ_fkufcb', `ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍການ (Click to track order)`)}
                   >
                     {group.displayId}
                   </span>
@@ -581,15 +581,15 @@ export default function FramingBoard({
                     className="job-id" 
                     onClick={() => onTrackJob && onTrackJob(group.jobs[0].id)}
                     style={{ color: 'var(--success-green)', cursor: 'pointer', textDecoration: 'underline' }}
-                    title="ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍການ (Click to track order)"
+                    title={db.getLabel('auto_ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍກ_fkufcb', `ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍການ (Click to track order)`)}
                   >
                     {group.displayId}
                   </span>
-                  <span className="job-date" style={{ color: 'var(--success-green)' }}>ພ້ອມຮັບພຣະ</span>
+                  <span className="job-date" style={{ color: 'var(--success-green)' }}>{db.getLabel('auto_ພ້ອມຮັບພຣະ_ebobcj', `ພ້ອມຮັບພຣະ`)}</span>
                 </div>
                 <div className="job-customer" style={{ fontWeight: 'bold' }}>{group.customerName}</div>
                 {renderAmuletsList(group)}
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ລາຄາລວມ: {group.totalPrice.toLocaleString()} ກີບ</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ລາຄາລວມ__hgyo3a', `ລາຄາລວມ:`)} {group.totalPrice.toLocaleString()} {db.getLabel('auto_ກີບ_2726e', `ກີບ`)}</div>
                 
                 {group.amuletImage && (
                   <div style={{ margin: '6px 0', borderRadius: '4px', overflow: 'hidden', height: '90px', display: 'flex', justifyContent: 'center', background: '#0e0d0b', border: '1px solid var(--border-color)' }}>
@@ -597,7 +597,7 @@ export default function FramingBoard({
                   </div>
                 )}
                 
-                <div style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>ຄ້າງຊຳລະ: <span style={{ color: 'var(--gold-primary)' }}>{group.balance.toLocaleString()} ກີບ</span></div>
+                <div style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{db.getLabel('auto_ຄ້າງຊຳລະ__4558y4', `ຄ້າງຊຳລະ:`)} <span style={{ color: 'var(--gold-primary)' }}>{group.balance.toLocaleString()} {db.getLabel('auto_ກີບ_2726e', `ກີບ`)}</span></div>
                 
                 <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
                   {hasFramingPermission('framingUpdateStatus') && (
@@ -620,7 +620,7 @@ export default function FramingBoard({
                       ມອບພຣະ ➔
                     </button>
                   ) : (
-                    <span style={{ flex: 1, textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-secondary)', alignSelf: 'center' }}>ລໍຖ້າແຄຊເຊຍ</span>
+                    <span style={{ flex: 1, textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-secondary)', alignSelf: 'center' }}>{db.getLabel('auto_ລໍຖ້າແຄຊເຊຍ_1j13yl', `ລໍຖ້າແຄຊເຊຍ`)}</span>
                   )}
                 </div>
               </div>
@@ -676,7 +676,7 @@ export default function FramingBoard({
                 className="btn btn-secondary"
                 style={{ padding: '2px 8px', fontSize: '0.7rem', color: 'rgba(231,76,60,0.85)', borderColor: 'rgba(231,76,60,0.4)', background: 'rgba(231,76,60,0.08)' }}
                 onClick={handleClearDelivered}
-                title="ລ້າງລາຍການທີ່ສົ່ງມອບແລ້ວທັງໝົດ (Clear all delivered)"
+                title={db.getLabel('auto_ລ້າງລາຍການທີ່ສົ່ງມອບແລ້ວທ_676273', `ລ້າງລາຍການທີ່ສົ່ງມອບແລ້ວທັງໝົດ (Clear all delivered)`)}
               >
                 🗑️ ລ້າງ
               </button>
@@ -703,11 +703,11 @@ export default function FramingBoard({
                     className="job-id" 
                     onClick={() => onTrackJob && onTrackJob(group.jobs[0].id)}
                     style={{ color: 'var(--text-secondary)', cursor: 'pointer', textDecoration: 'underline' }}
-                    title="ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍການ (Click to track order)"
+                    title={db.getLabel('auto_ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍກ_fkufcb', `ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍການ (Click to track order)`)}
                   >
                     {group.displayId}
                   </span>
-                  <span className="job-date" style={{ color: 'var(--text-secondary)' }}>ສຳເລັດ</span>
+                  <span className="job-date" style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ສຳເລັດ_9zjj4f', `ສຳເລັດ`)}</span>
                 </div>
                 <div className="job-customer">{group.customerName}</div>
                 {renderAmuletsList(group)}
@@ -718,7 +718,7 @@ export default function FramingBoard({
                   </div>
                 )}
                 
-                <div style={{ fontSize: '0.75rem', textDecoration: 'line-through' }}>ຍອດຊຳລະແລ້ວ: {group.totalPrice.toLocaleString()} ກີບ</div>
+                <div style={{ fontSize: '0.75rem', textDecoration: 'line-through' }}>{db.getLabel('auto_ຍອດຊຳລະແລ້ວ__xhfygg', `ຍອດຊຳລະແລ້ວ:`)} {group.totalPrice.toLocaleString()} {db.getLabel('auto_ກີບ_2726e', `ກີບ`)}</div>
               </div>
             ))}
           </div>
@@ -743,16 +743,16 @@ export default function FramingBoard({
               </div>
 
               <div>
-                <label className="form-label" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>ເລືອກພາສາຂໍ້ຄວາມ (Select Language):</label>
+                <label className="form-label" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ເລືອກພາສາຂໍ້ຄວາມ__Select__ktpsax', `ເລືອກພາສາຂໍ້ຄວາມ (Select Language):`)}</label>
                 <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                  <button type="button" className={`btn ${notifyLang === 'lao' ? 'btn-primary' : 'btn-secondary'}`} style={{ flex: 1, padding: '6px' }} onClick={() => setNotifyLang('lao')}>ລາວ (Lao)</button>
+                  <button type="button" className={`btn ${notifyLang === 'lao' ? 'btn-primary' : 'btn-secondary'}`} style={{ flex: 1, padding: '6px' }} onClick={() => setNotifyLang('lao')}>{db.getLabel('auto_ລາວ__Lao__c3aec1', `ລາວ (Lao)`)}</button>
                   <button type="button" className={`btn ${notifyLang === 'thai' ? 'btn-primary' : 'btn-secondary'}`} style={{ flex: 1, padding: '6px' }} onClick={() => setNotifyLang('thai')}>ไทย (Thai)</button>
                   <button type="button" className={`btn ${notifyLang === 'eng' ? 'btn-primary' : 'btn-secondary'}`} style={{ flex: 1, padding: '6px' }} onClick={() => setNotifyLang('eng')}>Eng</button>
                 </div>
               </div>
 
               <div>
-                <label className="form-label" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>ຕົວຢ່າງຂໍ້ຄວາມ:</label>
+                <label className="form-label" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຕົວຢ່າງຂໍ້ຄວາມ__wufu7a', `ຕົວຢ່າງຂໍ້ຄວາມ:`)}</label>
                 <textarea
                   className="form-control"
                   readOnly

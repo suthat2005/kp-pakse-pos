@@ -240,7 +240,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
         <div className="glass-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', height: '100%', overflowY: 'auto' }}>
         <div>
           <h3 style={{ color: 'var(--gold-primary)', margin: '0 0 4px', fontSize: isMobile ? '1.2rem' : '1.35rem' }}>🛒 ອໍເດີ້ອອນລາຍ (Online Orders)</h3>
-          {!isMobile && <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', margin: 0 }}>ຈັດການອໍເດີ້ ແລະ ກວດສອບສະລິບລູກຄ້າ</p>}
+          {!isMobile && <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', margin: 0 }}>{db.getLabel('auto_ຈັດການອໍເດີ້_ແລະ_ກວດສອບສະ_9ulacz', `ຈັດການອໍເດີ້ ແລະ ກວດສອບສະລິບລູກຄ້າ`)}</p>}
         </div>
 
         {/* Tab switcher active/archive/chat */}
@@ -325,12 +325,12 @@ export default function OnlineOrders({ activeUser, isMobile }) {
               </select>
               <select className="form-control" value={filterShipping} onChange={(e) => setFilterShipping(e.target.value)} style={{ fontSize: '0.75rem' }}>
                 <option value="all">🚚 ຂົນສົ່ງ (ທັງໝົດ)</option>
-                <option value="pending">ລໍຖ້າເຮັດ</option>
-                <option value="packing">ກຳລັງແພັກ</option>
-                <option value="ready_to_ship">ພ້ອມສົ່ງ</option>
-                <option value="shipped">ສົ່ງແລ້ວ</option>
-                <option value="delivered">ສຳເລັດ</option>
-                <option value="cancelled">ຍົກເລີກ</option>
+                <option value="pending">{db.getLabel('auto_ລໍຖ້າເຮັດ_wg2uko', `ລໍຖ້າເຮັດ`)}</option>
+                <option value="packing">{db.getLabel('auto_ກຳລັງແພັກ_xsmx6', `ກຳລັງແພັກ`)}</option>
+                <option value="ready_to_ship">{db.getLabel('auto_ພ້ອມສົ່ງ_ue3hfz', `ພ້ອມສົ່ງ`)}</option>
+                <option value="shipped">{db.getLabel('auto_ສົ່ງແລ້ວ_twzl7y', `ສົ່ງແລ້ວ`)}</option>
+                <option value="delivered">{db.getLabel('auto_ສຳເລັດ_9zjj4f', `ສຳເລັດ`)}</option>
+                <option value="cancelled">{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</option>
               </select>
             </div>
           )}
@@ -340,7 +340,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
         <div style={{ flexGrow: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {activeTab === 'chat' ? (
             filteredChatSessions.length === 0 ? (
-              <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '40px 0', fontSize: '0.85rem' }}>ບໍ່ພົບການສົນທະນາ</div>
+              <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '40px 0', fontSize: '0.85rem' }}>{db.getLabel('auto_ບໍ່ພົບການສົນທະນາ_23v5h6', `ບໍ່ພົບການສົນທະນາ`)}</div>
             ) : (
               filteredChatSessions.map(o => {
                 const unreadCount = o.messages ? o.messages.filter(m => m.sender === 'customer' && m.read === false).length : 0;
@@ -425,7 +425,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
             )
           ) : (
             filteredOrders.length === 0 ? (
-              <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '40px 0', fontSize: '0.85rem' }}>ບໍ່ພົບລາຍການອໍເດີ້</div>
+              <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '40px 0', fontSize: '0.85rem' }}>{db.getLabel('auto_ບໍ່ພົບລາຍການອໍເດີ້_7a1j60', `ບໍ່ພົບລາຍການອໍເດີ້`)}</div>
             ) : (
               filteredOrders.map(o => {
                 const unreadCount = o.messages ? o.messages.filter(m => m.sender === 'customer' && m.read === false).length : 0;
@@ -641,7 +641,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="ພິມຂໍ້ຄວາມຕອບກັບ... (Enter ເພື່ອສົ່ງ)"
+                  placeholder={db.getLabel('auto_ພິມຂໍ້ຄວາມຕອບກັບ_____Ente_ytwjl8', `ພິມຂໍ້ຄວາມຕອບກັບ... (Enter ເພື່ອສົ່ງ)`)}
                   value={chatReply}
                   onChange={(e) => setChatReply(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') handleSendAdminReply(); }}
@@ -663,7 +663,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
             {/* Header info */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1.5px solid var(--border-color)', paddingBottom: '16px' }}>
               <div>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ເລກທີອໍເດີ້:</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ເລກທີອໍເດີ້__x02ooo', `ເລກທີອໍເດີ້:`)}</span>
                 <h2 style={{ color: 'var(--gold-primary)', margin: 0 }}>{selectedOrder.id}</h2>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
                   📅 ສ້າງເມື່ອ: {new Date(selectedOrder.date).toLocaleString('lo-LA')}
@@ -673,7 +673,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
               {/* Status control buttons */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>ການຊຳລະ:</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{db.getLabel('auto_ການຊຳລະ__gdqf7m', `ການຊຳລະ:`)}</span>
                   <span style={{
                     fontWeight: 'bold',
                     color: selectedOrder.paymentStatus === 'paid' ? '#2ecc71' : selectedOrder.paymentStatus === 'pending_verification' ? '#f1c40f' : '#e74c3c'
@@ -682,7 +682,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                   </span>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>ສະຖານະຂົນສົ່ງ:</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{db.getLabel('auto_ສະຖານະຂົນສົ່ງ__hx1myr', `ສະຖານະຂົນສົ່ງ:`)}</span>
                   <span style={{ color: 'white', fontWeight: 'bold' }}>{getShippingStatusText(selectedOrder.shippingStatus)}</span>
                 </div>
               </div>
@@ -728,7 +728,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="ຕອບກັບລູກຄ້າ... (Enter ເພື່ອສົ່ງ)"
+                      placeholder={db.getLabel('auto_ຕອບກັບລູກຄ້າ_____Enter_ເພ_ycpywh', `ຕອບກັບລູກຄ້າ... (Enter ເພື່ອສົ່ງ)`)}
                       value={chatReply}
                       onChange={(e) => setChatReply(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') handleSendAdminReply(); }}
@@ -756,10 +756,10 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                   <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
                     <thead>
                       <tr style={{ borderBottom: '1.5px solid var(--border-color)', color: 'var(--text-secondary)' }}>
-                        <th style={{ textAlign: 'left', padding: '8px 4px' }}>ສິນຄ້າ</th>
-                        <th style={{ textAlign: 'right', padding: '8px 4px' }}>ລາຄາ</th>
-                        <th style={{ textAlign: 'center', padding: '8px 4px' }}>ຈຳນວນ</th>
-                        <th style={{ textAlign: 'right', padding: '8px 4px' }}>ລວມ</th>
+                        <th style={{ textAlign: 'left', padding: '8px 4px' }}>{db.getLabel('auto_ສິນຄ້າ_9zpaw2', `ສິນຄ້າ`)}</th>
+                        <th style={{ textAlign: 'right', padding: '8px 4px' }}>{db.getLabel('auto_ລາຄາ_1wpv6j', `ລາຄາ`)}</th>
+                        <th style={{ textAlign: 'center', padding: '8px 4px' }}>{db.getLabel('auto_ຈຳນວນ_car3ds', `ຈຳນວນ`)}</th>
+                        <th style={{ textAlign: 'right', padding: '8px 4px' }}>{db.getLabel('auto_ລວມ_27sjj', `ລວມ`)}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -772,7 +772,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                         </tr>
                       ))}
                       <tr style={{ fontSize: '1rem', fontWeight: 'bold' }}>
-                        <td colSpan="3" style={{ padding: '12px 4px', textAlign: 'right', color: 'var(--text-secondary)' }}>ຍອດລວມທັງໝົດ:</td>
+                        <td colSpan="3" style={{ padding: '12px 4px', textAlign: 'right', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຍອດລວມທັງໝົດ__l8gc2u', `ຍອດລວມທັງໝົດ:`)}</td>
                         <td style={{ padding: '12px 4px', textAlign: 'right', color: 'var(--gold-primary)' }}>{(selectedOrder.total || 0).toLocaleString()} LAK</td>
                       </tr>
                     </tbody>
@@ -790,20 +790,20 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                         </h4>
                         {selectedOrder.shippingAddress ? (
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem' }}>
-                            <div><b>ຊື່ຜູ້ຮັບ/ມາຮັບ:</b> {selectedOrder.shippingAddress.recipientName}</div>
-                            <div><b>ເບີໂທຕິດຕໍ່:</b> {selectedOrder.shippingAddress.phone}</div>
+                            <div><b>{db.getLabel('auto_ຊື່ຜູ້ຮັບ_ມາຮັບ__f8hjq5', `ຊື່ຜູ້ຮັບ/ມາຮັບ:`)}</b> {selectedOrder.shippingAddress.recipientName}</div>
+                            <div><b>{db.getLabel('auto_ເບີໂທຕິດຕໍ່__k3xudr', `ເບີໂທຕິດຕໍ່:`)}</b> {selectedOrder.shippingAddress.phone}</div>
                             {isPickup ? (
-                              <div><b>ວັນທີ/ເວລາ ທີ່ຈະມາຮັບ:</b> <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{selectedOrder.shippingAddress.addressLine || 'N/A'}</span></div>
+                              <div><b>{db.getLabel('auto_ວັນທີ_ເວລາ_ທີ່ຈະມາຮັບ__c9n1y4', `ວັນທີ/ເວລາ ທີ່ຈະມາຮັບ:`)}</b> <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{selectedOrder.shippingAddress.addressLine || 'N/A'}</span></div>
                             ) : (
                               <>
-                                <div><b>ທີ່ຢູ່:</b> ບ້ານ {selectedOrder.shippingAddress.village || 'N/A'}, ເມືອງ {selectedOrder.shippingAddress.city || 'N/A'}, ແຂວງ {selectedOrder.shippingAddress.province || 'N/A'} ({selectedOrder.shippingAddress.country || 'N/A'})</div>
-                                {selectedOrder.shippingAddress.addressLine && <div><b>ລາຍລະອຽດເພີ່ມເຕີມ:</b> {selectedOrder.shippingAddress.addressLine}</div>}
+                                <div><b>{db.getLabel('auto_ທີ່ຢູ່__j60jfx', `ທີ່ຢູ່:`)}</b> {db.getLabel('auto_ບ້ານ_1wjcgm', `ບ້ານ`)} {selectedOrder.shippingAddress.village || 'N/A'}, ເມືອງ {selectedOrder.shippingAddress.city || 'N/A'}, ແຂວງ {selectedOrder.shippingAddress.province || 'N/A'} ({selectedOrder.shippingAddress.country || 'N/A'})</div>
+                                {selectedOrder.shippingAddress.addressLine && <div><b>{db.getLabel('auto_ລາຍລະອຽດເພີ່ມເຕີມ__85xv4u', `ລາຍລະອຽດເພີ່ມເຕີມ:`)}</b> {selectedOrder.shippingAddress.addressLine}</div>}
                               </>
                             )}
                             {selectedOrder.shippingAddress.notes && <div style={{ color: 'var(--accent-amber)', marginTop: '4px' }}><b>📝 ໝາຍເຫດຈາກລູກຄ້າ:</b> {selectedOrder.shippingAddress.notes}</div>}
                           </div>
                         ) : (
-                          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>ບໍ່ມີຂໍ້ມູນການຈັດສົ່ງ</div>
+                          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ບໍ່ມີຂໍ້ມູນການຈັດສົ່ງ_1l8hun', `ບໍ່ມີຂໍ້ມູນການຈັດສົ່ງ`)}</div>
                         )}
                       </>
                     );
@@ -815,16 +815,16 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                   <h4 style={{ color: 'var(--gold-primary)', margin: '0 0 4px' }}>📦 ຈັດການຂໍ້ມູນການຈັດສົ່ງ:</h4>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.8rem' }}>ບໍລິສັດຂົນສົ່ງ (Carrier)</label>
+                      <label className="form-label" style={{ fontSize: '0.8rem' }}>{db.getLabel('auto_ບໍລິສັດຂົນສົ່ງ__Carrier__x1eojm', `ບໍລິສັດຂົນສົ່ງ (Carrier)`)}</label>
                       <input type="text" className="form-control" placeholder="Anousith, HAL,..." value={shippingCompany} onChange={(e) => setShippingCompany(e.target.value)} />
                     </div>
                     <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.8rem' }}>ເລກພັດສະດຸ (Tracking Number)</label>
+                      <label className="form-label" style={{ fontSize: '0.8rem' }}>{db.getLabel('auto_ເລກພັດສະດຸ__Tracking_Numb_e1mqc2', `ເລກພັດສະດຸ (Tracking Number)`)}</label>
                       <input type="text" className="form-control" placeholder="ANXXXXXXXX" value={trackingNumber} onChange={(e) => setTrackingNumber(e.target.value)} />
                     </div>
                   </div>
                   <div className="form-group">
-                    <label className="form-label" style={{ fontSize: '0.8rem' }}>ຮູບພາບໃບຝາກສົ່ງ / ກ່ອງພັດສະດຸ</label>
+                    <label className="form-label" style={{ fontSize: '0.8rem' }}>{db.getLabel('auto_ຮູບພາບໃບຝາກສົ່ງ___ກ່ອງພັດ_q6ipdz', `ຮູບພາບໃບຝາກສົ່ງ / ກ່ອງພັດສະດຸ`)}</label>
                     <input
                       type="file"
                       accept="image/*"
@@ -845,8 +845,8 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                     )}
                   </div>
                   <div className="form-group">
-                    <label className="form-label" style={{ fontSize: '0.8rem' }}>ໝາຍເຫດ / ຂໍ້ຄວາມອັບເດດສະຖານະ</label>
-                    <input type="text" className="form-control" placeholder="ກຳລັງດຳເນີນການຈັດສົ່ງ,..." value={shippingNote} onChange={(e) => setShippingNote(e.target.value)} />
+                    <label className="form-label" style={{ fontSize: '0.8rem' }}>{db.getLabel('auto_ໝາຍເຫດ___ຂໍ້ຄວາມອັບເດດສະຖ_6yrvrn', `ໝາຍເຫດ / ຂໍ້ຄວາມອັບເດດສະຖານະ`)}</label>
+                    <input type="text" className="form-control" placeholder={db.getLabel('auto_ກຳລັງດຳເນີນການຈັດສົ່ງ_____bjwjzu', `ກຳລັງດຳເນີນການຈັດສົ່ງ,...`)} value={shippingNote} onChange={(e) => setShippingNote(e.target.value)} />
                   </div>
                   <button type="submit" className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.8rem', alignSelf: 'flex-end' }}>💾 ບັນທຶກຂໍ້ມູນການສົ່ງ</button>
                 </form>
@@ -908,7 +908,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="ຕອບກັບລູກຄ້າ... (Enter ເພື່ອສົ່ງ)"
+                      placeholder={db.getLabel('auto_ຕອບກັບລູກຄ້າ_____Enter_ເພ_ycpywh', `ຕອບກັບລູກຄ້າ... (Enter ເພື່ອສົ່ງ)`)}
                       value={chatReply}
                       onChange={(e) => setChatReply(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') handleSendAdminReply(); }}

@@ -1270,7 +1270,7 @@ export default function App() {
               type="button"
               className="hamburger-menu-btn" 
               onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-              title="ເມນູ (Menu)"
+              title={db.getLabel('auto_ເມນູ__Menu__wthrb5', `ເມນູ (Menu)`)}
             >
               ☰
             </button>
@@ -1518,7 +1518,7 @@ export default function App() {
               )}
 
               {!isMobile && (
-                <button className="logout-btn" onClick={handleLogout} title="ອອກຈາກລະບົບ">
+                <button className="logout-btn" onClick={handleLogout} title={db.getLabel('auto_ອອກຈາກລະບົບ_9t08zc', `ອອກຈາກລະບົບ`)}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                     <polyline points="16 17 21 12 16 7" />
@@ -1688,7 +1688,7 @@ export default function App() {
               <div>
                 <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
                   {(db.getExpenses() || []).length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)' }}>ບໍ່ມີລາຍຈ່າຍ</div>
+                    <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ບໍ່ມີລາຍຈ່າຍ_kbp5aq', `ບໍ່ມີລາຍຈ່າຍ`)}</div>
                   ) : (db.getExpenses() || []).slice(0, 50).map(ex => (
                     <div key={ex.id} className="glass-card" style={{ padding: '12px 16px', marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid var(--border-color)' }}>
                       <div style={{ flex: 1 }}>
@@ -1779,7 +1779,7 @@ export default function App() {
                       type="text"
                       list="expense-categories-datalist"
                       required
-                      placeholder="ເລືອກ ຫຼື ປ້ອນປະເພດ..."
+                      placeholder={db.getLabel('auto_ເລືອກ_ຫຼື_ປ້ອນປະເພດ____sqs91', `ເລືອກ ຫຼື ປ້ອນປະເພດ...`)}
                       className="form-control"
                       style={{ width: '100%', background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px' }}
                       value={expenseFormData.categoryName}
@@ -1820,7 +1820,7 @@ export default function App() {
                     <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>🏢 ຜູ້ສະໜອງ / ຮ້ານ</label>
                     <input
                       type="text"
-                      placeholder="ຊື່ຮ້ານ/ຜູ້ສະໜອງ (ຖ້າມີ)"
+                      placeholder={db.getLabel('auto_ຊື່ຮ້ານ_ຜູ້ສະໜອງ__ຖ້າມີ__dq7klw', `ຊື່ຮ້ານ/ຜູ້ສະໜອງ (ຖ້າມີ)`)}
                       className="form-control"
                       style={{ width: '100%', background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px' }}
                       value={expenseFormData.supplier}
@@ -1836,7 +1836,7 @@ export default function App() {
                     <input
                       type="number"
                       required
-                      placeholder="ຈຳນວນເງິນ..."
+                      placeholder={db.getLabel('auto_ຈຳນວນເງິນ____dac86a', `ຈຳນວນເງິນ...`)}
                       className="form-control"
                       style={{ width: '100%', background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px', fontSize: '1rem', fontWeight: 'bold' }}
                       value={expenseFormData.amount}
@@ -1897,7 +1897,7 @@ export default function App() {
 
                 {/* Buttons */}
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                  <button type="button" className="btn btn-secondary" onClick={() => setShowExpenseModal(false)}>ຍົກເລີກ</button>
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowExpenseModal(false)}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
                   <button type="submit" className="btn btn-primary" style={{ padding: '10px 28px', fontSize: '0.95rem' }}>💾 ບັນທຶກລາຍຈ່າຍ</button>
                 </div>
               </form>
@@ -1912,16 +1912,16 @@ export default function App() {
                   <div style={{ textAlign: 'center', marginBottom: '8px' }}>
                     <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{settings.shopName || 'ຂອບພຣະຣັທເກຊ'}</div>
                     <div style={{ fontSize: '12px' }}>{settings.shopSubtitle}</div>
-                    <div style={{ fontSize: '14px', fontWeight: 'bold', marginTop: '6px' }}>ໃບບິນລາຍຈ່າຍ / Expense Receipt</div>
+                    <div style={{ fontSize: '14px', fontWeight: 'bold', marginTop: '6px' }}>{db.getLabel('auto_ໃບບິນລາຍຈ່າຍ___Expense_Re_llbioi', `ໃບບິນລາຍຈ່າຍ / Expense Receipt`)}</div>
                   </div>
                   <div className="dashed"></div>
                   <table>
                     <tbody>
-                      <tr><td><b>ເລກທີ:</b></td><td style={{ textAlign: 'right' }}>{ex.id}</td></tr>
-                      <tr><td><b>ວັນທີ:</b></td><td style={{ textAlign: 'right' }}>{new Date(ex.date).toLocaleString('lo-LA')}</td></tr>
-                      <tr><td><b>ປະເພດ:</b></td><td style={{ textAlign: 'right' }}>{ex.categoryName || ex.category}</td></tr>
-                      {ex.supplier && <tr><td><b>ຜູ້ສະໜອງ:</b></td><td style={{ textAlign: 'right' }}>{ex.supplier}</td></tr>}
-                      <tr><td><b>ວິທີຊຳລະ:</b></td><td style={{ textAlign: 'right' }}>{ex.paymentMethod === 'transfer' ? 'ໂອນທະນາຄານ' : 'ເງິນສົດ'}</td></tr>
+                      <tr><td><b>{db.getLabel('auto_ເລກທີ__6mfy8', `ເລກທີ:`)}</b></td><td style={{ textAlign: 'right' }}>{ex.id}</td></tr>
+                      <tr><td><b>{db.getLabel('auto_ວັນທີ__bgh93n', `ວັນທີ:`)}</b></td><td style={{ textAlign: 'right' }}>{new Date(ex.date).toLocaleString('lo-LA')}</td></tr>
+                      <tr><td><b>{db.getLabel('auto_ປະເພດ__h4vhjb', `ປະເພດ:`)}</b></td><td style={{ textAlign: 'right' }}>{ex.categoryName || ex.category}</td></tr>
+                      {ex.supplier && <tr><td><b>{db.getLabel('auto_ຜູ້ສະໜອງ__wp5lme', `ຜູ້ສະໜອງ:`)}</b></td><td style={{ textAlign: 'right' }}>{ex.supplier}</td></tr>}
+                      <tr><td><b>{db.getLabel('auto_ວິທີຊຳລະ__x0czj9', `ວິທີຊຳລະ:`)}</b></td><td style={{ textAlign: 'right' }}>{ex.paymentMethod === 'transfer' ? 'ໂອນທະນາຄານ' : 'ເງິນສົດ'}</td></tr>
                     </tbody>
                   </table>
                   <div className="dashed"></div>
@@ -1930,8 +1930,8 @@ export default function App() {
                     {ex.currency && ex.currency !== 'LAK' && ` (≈ ${ex.convertedAmount?.toLocaleString()} ₭)`}
                   </div>
                   <div className="dashed"></div>
-                  {ex.notes && <div><b>ໝາຍເຫດ:</b> {ex.notes}</div>}
-                  <div style={{ fontSize: '11px', marginTop: '6px' }}>ຜູ້ບັນທຶກ: {ex.createdByName || 'N/A'}</div>
+                  {ex.notes && <div><b>{db.getLabel('auto_ໝາຍເຫດ__bj4oax', `ໝາຍເຫດ:`)}</b> {ex.notes}</div>}
+                  <div style={{ fontSize: '11px', marginTop: '6px' }}>{db.getLabel('auto_ຜູ້ບັນທຶກ__32urrm', `ຜູ້ບັນທຶກ:`)} {ex.createdByName || 'N/A'}</div>
                 </div>
               );
             })()}
@@ -2054,22 +2054,22 @@ export default function App() {
                 {settings.shopLogo && <img src={settings.shopLogo} alt="Logo" style={{ maxHeight: '40px', marginBottom: '6px' }} />}
                 <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{settings.shopName || 'ຂອບພຣະຣັທເກຊ'}</div>
                 <div style={{ fontSize: '12px' }}>{settings.shopSubtitle}</div>
-                <div style={{ fontSize: '14px', fontWeight: 'bold', marginTop: '6px' }}>ໃບສະຫຼຸບຍອດປິດກະ (Shift Report)</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', marginTop: '6px' }}>{db.getLabel('auto_ໃບສະຫຼຸບຍອດປິດກະ__Shift_R_92ahh3', `ໃບສະຫຼຸບຍອດປິດກະ (Shift Report)`)}</div>
               </div>
               
               <div style={{ marginBottom: '10px', borderBottom: '1px dashed #000', paddingBottom: '8px' }}>
-                <div><b>ພະນັກງານ:</b> {shiftReportData.cashierName}</div>
-                <div><b>ເວລາເຂົ້າງານ:</b> {new Date(shiftReportData.clockIn).toLocaleString('lo-LA')}</div>
-                <div><b>ເວລາອອກງານ:</b> {shiftReportData.clockOut ? new Date(shiftReportData.clockOut).toLocaleString('lo-LA') : 'ຍັງບໍ່ທັນອອກກະ'}</div>
+                <div><b>{db.getLabel('auto_ພະນັກງານ__5ytakj', `ພະນັກງານ:`)}</b> {shiftReportData.cashierName}</div>
+                <div><b>{db.getLabel('auto_ເວລາເຂົ້າງານ__uw7u0q', `ເວລາເຂົ້າງານ:`)}</b> {new Date(shiftReportData.clockIn).toLocaleString('lo-LA')}</div>
+                <div><b>{db.getLabel('auto_ເວລາອອກງານ__rty413', `ເວລາອອກງານ:`)}</b> {shiftReportData.clockOut ? new Date(shiftReportData.clockOut).toLocaleString('lo-LA') : 'ຍັງບໍ່ທັນອອກກະ'}</div>
               </div>
 
               {shiftReportData.soldProducts && shiftReportData.soldProducts.length > 0 && (
                 <div style={{ marginBottom: '10px', borderBottom: '1px dashed #000', paddingBottom: '8px' }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>ລາຍການສິນຄ້າທີ່ຂາຍໄດ້ (Products Sold):</div>
+                  <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{db.getLabel('auto_ລາຍການສິນຄ້າທີ່ຂາຍໄດ້__Pr_s8a2iv', `ລາຍການສິນຄ້າທີ່ຂາຍໄດ້ (Products Sold):`)}</div>
                   {shiftReportData.soldProducts.map((p, idx) => (
                     <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', fontSize: '12px' }}>
                       <span>- {p.name}:</span>
-                      <b>{p.qty} ອັນ</b>
+                      <b>{p.qty} {db.getLabel('auto_ອັນ_27yph', `ອັນ`)}</b>
                     </div>
                   ))}
                 </div>
@@ -2077,17 +2077,17 @@ export default function App() {
 
               <div style={{ marginBottom: '10px', borderBottom: '1px dashed #000', paddingBottom: '8px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
-                  <span>ຈຳນວນບິນຂາຍ:</span>
-                  <span>{shiftReportData.ordersCount} ບິນ</span>
+                  <span>{db.getLabel('auto_ຈຳນວນບິນຂາຍ__qazbz8', `ຈຳນວນບິນຂາຍ:`)}</span>
+                  <span>{shiftReportData.ordersCount} {db.getLabel('auto_ບິນ_27kov', `ບິນ`)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '14px', marginTop: '4px' }}>
-                  <span>ຍອດຂາຍລວມ (LAK):</span>
+                  <span>{db.getLabel('auto_ຍອດຂາຍລວມ__LAK___17i9vb', `ຍອດຂາຍລວມ (LAK):`)}</span>
                   <span>{(shiftReportData.totalSalesLak || 0).toLocaleString()} ₭</span>
                 </div>
               </div>
 
               <div style={{ marginBottom: '10px', borderBottom: '1px dashed #000', paddingBottom: '8px' }}>
-                <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>ແຍກຕາມການຊຳລະ:</div>
+                <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{db.getLabel('auto_ແຍກຕາມການຊຳລະ__nq8x59', `ແຍກຕາມການຊຳລະ:`)}</div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', fontWeight: 'bold', color: '#2c3e50' }}>
                   <span>- ເງິນທອນເລີ່ມຕົ້ນ (Opening Cash):</span>
                   <span>{(shiftReportData.openingCash || 0).toLocaleString()} ₭</span>
@@ -2131,7 +2131,7 @@ export default function App() {
 
               <div style={{ marginBottom: '10px', borderBottom: '1px dashed #000', paddingBottom: '8px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#c0392b' }}>
-                  <span>ລາຍຈ່າຍໃນກະ (Expenses):</span>
+                  <span>{db.getLabel('auto_ລາຍຈ່າຍໃນກະ__Expenses___di2zv8', `ລາຍຈ່າຍໃນກະ (Expenses):`)}</span>
                   <span>-{(shiftReportData.totalExpenseLak || 0).toLocaleString()} ₭</span>
                 </div>
                 {shiftReportData.expenses && shiftReportData.expenses.length > 0 && (
@@ -2147,12 +2147,12 @@ export default function App() {
               </div>
 
               <div style={{ marginBottom: '15px', padding: '6px', background: '#f5f5f5', borderRadius: '4px', border: '1px solid #ddd' }}>
-                <div style={{ fontSize: '12px', fontWeight: 'bold' }}>ການຄິດໄລ່ເງິນສົດໃນລິ້ນຊັກ (LAK):</div>
+                <div style={{ fontSize: '12px', fontWeight: 'bold' }}>{db.getLabel('auto_ການຄິດໄລ່ເງິນສົດໃນລິ້ນຊັກ_cihwoq', `ການຄິດໄລ່ເງິນສົດໃນລິ້ນຊັກ (LAK):`)}</div>
                 <div style={{ fontSize: '11px', color: '#555', marginTop: '2px' }}>
                   ເງິນທອນເລີ່ມຕົ້ນ + ເງິນສົດ LAK + (ເງິນສົດ THB * {settings.exchangeRateThb || 750}) - ລາຍຈ່າຍ LAK
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '13px', marginTop: '6px', borderTop: '1px solid #ccc', paddingTop: '4px' }}>
-                  <span>ຍອດເງິນສົດທີ່ຕ້ອງມີ:</span>
+                  <span>{db.getLabel('auto_ຍອດເງິນສົດທີ່ຕ້ອງມີ__uy0kk1', `ຍອດເງິນສົດທີ່ຕ້ອງມີ:`)}</span>
                   <span>
                     {(
                       (shiftReportData.openingCash || 0) +
@@ -2167,17 +2167,17 @@ export default function App() {
               <div style={{ marginTop: '25px', display: 'flex', justifyContent: 'space-between', textAlign: 'center', fontSize: '11px' }}>
                 <div style={{ width: '45%' }}>
                   <div style={{ borderBottom: '1px solid #000', height: '30px' }}></div>
-                  <div style={{ marginTop: '4px' }}>ພະນັກງານລາຍງານ</div>
+                  <div style={{ marginTop: '4px' }}>{db.getLabel('auto_ພະນັກງານລາຍງານ_45tpqd', `ພະນັກງານລາຍງານ`)}</div>
                 </div>
                 <div style={{ width: '45%' }}>
                   <div style={{ borderBottom: '1px solid #000', height: '30px' }}></div>
-                  <div style={{ marginTop: '4px' }}>ເຈົ້າຂອງຮ້ານກວດສອບ</div>
+                  <div style={{ marginTop: '4px' }}>{db.getLabel('auto_ເຈົ້າຂອງຮ້ານກວດສອບ_etdcph', `ເຈົ້າຂອງຮ້ານກວດສອບ`)}</div>
                 </div>
               </div>
             </div>
 
             <div className="modal-footer no-print" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '16px' }}>
-              <button type="button" className="btn btn-secondary" onClick={() => setShowShiftReportModal(false)}>ປິດ</button>
+              <button type="button" className="btn btn-secondary" onClick={() => setShowShiftReportModal(false)}>{db.getLabel('auto_ປິດ_27lff', `ປິດ`)}</button>
               <button
                 type="button"
                 className="btn btn-primary"

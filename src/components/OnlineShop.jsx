@@ -727,18 +727,18 @@ export default function OnlineShop() {
                 {authError && <div style={{ color: '#e74c3c', fontSize: '0.8rem', textAlign: 'center', background: 'rgba(231,76,60,0.1)', padding: '6px', borderRadius: '4px' }}>{authError}</div>}
                 
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: '0.75rem' }}>ເບີໂທລະສັບ ຫຼື ອີເມວ (Phone or Email)</label>
-                  <input type="text" className="form-control" required placeholder="020XXXXXXXX ຫຼື email@gmail.com" value={authPhone} onChange={(e) => setAuthPhone(e.target.value)} style={{ background: '#1c1916' }} />
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ເບີໂທລະສັບ_ຫຼື_ອີເມວ__Pho_a012b0', `ເບີໂທລະສັບ ຫຼື ອີເມວ (Phone or Email)`)}</label>
+                  <input type="text" className="form-control" required placeholder={db.getLabel('auto_020XXXXXXXX_ຫຼື_email_gma_8hluxr', `020XXXXXXXX ຫຼື email@gmail.com`)} value={authPhone} onChange={(e) => setAuthPhone(e.target.value)} style={{ background: '#1c1916' }} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: '0.75rem' }}>ລະຫັດຜ່ານ (Password)</label>
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ລະຫັດຜ່ານ__Password__jpqgy8', `ລະຫັດຜ່ານ (Password)`)}</label>
                   <input type="password" className="form-control" required value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} style={{ background: '#1c1916' }} />
                 </div>
                 <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '10px', marginTop: '10px', fontWeight: 'bold' }}>🚀 ເຂົ້າສູ່ລະບົບ</button>
                 
                 <div style={{ textAlign: 'center', fontSize: '0.8rem', marginTop: '10px', color: '#888' }}>
                   ຍັງບໍ່ທັນມີບັນຊີແມ່ນບໍ່?{' '}
-                  <span onClick={() => { setAuthMode('register'); setAuthError(''); }} style={{ color: 'var(--gold-primary)', cursor: 'pointer', textDecoration: 'underline' }}>ສະໝັກສະມາຊິກໃໝ່</span>
+                  <span onClick={() => { setAuthMode('register'); setAuthError(''); }} style={{ color: 'var(--gold-primary)', cursor: 'pointer', textDecoration: 'underline' }}>{db.getLabel('auto_ສະໝັກສະມາຊິກໃໝ່_l508k5', `ສະໝັກສະມາຊິກໃໝ່`)}</span>
                 </div>
               </form>
             ) : (
@@ -748,11 +748,11 @@ export default function OnlineShop() {
                 {authError && <div style={{ color: '#e74c3c', fontSize: '0.8rem', textAlign: 'center', background: 'rgba(231,76,60,0.1)', padding: '6px', borderRadius: '4px' }}>{authError}</div>}
                 
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: '0.75rem' }}>ຊື່ລູກຄ້າ *</label>
-                  <input type="text" className="form-control" required placeholder="ປ້ອນຊື່ຂອງທ່ານ..." value={authName} onChange={(e) => setAuthName(e.target.value)} style={{ background: '#1c1916' }} />
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ຊື່ລູກຄ້າ___opit3v', `ຊື່ລູກຄ້າ *`)}</label>
+                  <input type="text" className="form-control" required placeholder={db.getLabel('auto_ປ້ອນຊື່ຂອງທ່ານ____esn5b9', `ປ້ອນຊື່ຂອງທ່ານ...`)} value={authName} onChange={(e) => setAuthName(e.target.value)} style={{ background: '#1c1916' }} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: '0.75rem' }}>ເບີໂທຕິດຕໍ່ *</label>
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ເບີໂທຕິດຕໍ່___fvvciz', `ເບີໂທຕິດຕໍ່ *`)}</label>
                   <input type="tel" className="form-control" required placeholder="020XXXXXXXX" value={authPhone} onChange={(e) => setAuthPhone(e.target.value)} style={{ background: '#1c1916' }} />
                 </div>
                 <div className="form-group">
@@ -760,36 +760,36 @@ export default function OnlineShop() {
                   <input type="email" className="form-control" placeholder="example@gmail.com" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} style={{ background: '#1c1916' }} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: '0.75rem' }}>ຕັ້ງລະຫັດຜ່ານ (Password) *</label>
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ຕັ້ງລະຫັດຜ່ານ__Password___ygoe4s', `ຕັ້ງລະຫັດຜ່ານ (Password) *`)}</label>
                   <input type="password" className="form-control" required value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} style={{ background: '#1c1916' }} />
                 </div>
                 <h4 style={{ color: 'var(--gold-primary)', margin: '10px 0 5px', fontSize: '0.8rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '4px' }}>📍 ທີ່ຢູ່ຈັດສົ່ງເລີ່ມຕົ້ນ (Default Address)</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                   <div className="form-group">
-                    <label className="form-label" style={{ fontSize: '0.75rem' }}>ແຂວງ *</label>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ແຂວງ___50pwr', `ແຂວງ *`)}</label>
                     <input type="text" className="form-control" required placeholder="ຕົວຢ່າງ: ຈຳປາສັກ" value={regProvince} onChange={(e) => setRegProvince(e.target.value)} style={{ background: '#1c1916' }} />
                   </div>
                   <div className="form-group">
-                    <label className="form-label" style={{ fontSize: '0.75rem' }}>ເມືອງ *</label>
-                    <input type="text" className="form-control" required placeholder="ຕົວຢ່າງ: ປາກເຊ" value={regCity} onChange={(e) => setRegCity(e.target.value)} style={{ background: '#1c1916' }} />
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ເມືອງ___4n77y2', `ເມືອງ *`)}</label>
+                    <input type="text" className="form-control" required placeholder={db.getLabel('auto_ຕົວຢ່າງ__ປາກເຊ_j0axbm', `ຕົວຢ່າງ: ປາກເຊ`)} value={regCity} onChange={(e) => setRegCity(e.target.value)} style={{ background: '#1c1916' }} />
                   </div>
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: '0.75rem' }}>ບ້ານ *</label>
-                  <input type="text" className="form-control" required placeholder="ຕົວຢ່າງ: ບ້ານພັດທະນາ" value={regVillage} onChange={(e) => setRegVillage(e.target.value)} style={{ background: '#1c1916' }} />
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ບ້ານ___h8hr4w', `ບ້ານ *`)}</label>
+                  <input type="text" className="form-control" required placeholder={db.getLabel('auto_ຕົວຢ່າງ__ບ້ານພັດທະນາ_3pm0ed', `ຕົວຢ່າງ: ບ້ານພັດທະນາ`)} value={regVillage} onChange={(e) => setRegVillage(e.target.value)} style={{ background: '#1c1916' }} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: '0.75rem' }}>ລາຍລະອຽດທີ່ຢູ່ເພີ່ມເຕີມ</label>
-                  <input type="text" className="form-control" placeholder="ຮ່ອມ, ເລກທີເຮືອນ..." value={regAddressLine} onChange={(e) => setRegAddressLine(e.target.value)} style={{ background: '#1c1916' }} />
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ລາຍລະອຽດທີ່ຢູ່ເພີ່ມເຕີມ_85nqhb', `ລາຍລະອຽດທີ່ຢູ່ເພີ່ມເຕີມ`)}</label>
+                  <input type="text" className="form-control" placeholder={db.getLabel('auto_ຮ່ອມ__ເລກທີເຮືອນ____qrunzj', `ຮ່ອມ, ເລກທີເຮືອນ...`)} value={regAddressLine} onChange={(e) => setRegAddressLine(e.target.value)} style={{ background: '#1c1916' }} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: '0.75rem' }}>ໝາຍເຫດເຖິງຂົນສົ່ງ</label>
-                  <input type="text" className="form-control" placeholder="ຝາກຂົນສົ່ງອະນຸສິດ, ຝາກ HAL..." value={regNotes} onChange={(e) => setRegNotes(e.target.value)} style={{ background: '#1c1916' }} />
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ໝາຍເຫດເຖິງຂົນສົ່ງ_hn885y', `ໝາຍເຫດເຖິງຂົນສົ່ງ`)}</label>
+                  <input type="text" className="form-control" placeholder={db.getLabel('auto_ຝາກຂົນສົ່ງອະນຸສິດ__ຝາກ_HA_vmqq87', `ຝາກຂົນສົ່ງອະນຸສິດ, ຝາກ HAL...`)} value={regNotes} onChange={(e) => setRegNotes(e.target.value)} style={{ background: '#1c1916' }} />
                 </div>
                 <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '10px', marginTop: '10px', fontWeight: 'bold' }}>💾 ຢືນຢັນການສະໝັກ</button>
                 <div style={{ textAlign: 'center', fontSize: '0.8rem', marginTop: '10px', color: '#888' }}>
                   ມີບັນຊີສະມາຊິກແລ້ວ?{' '}
-                  <span onClick={() => { setAuthMode('login'); setAuthError(''); }} style={{ color: 'var(--gold-primary)', cursor: 'pointer', textDecoration: 'underline' }}>ເຂົ້າສູ່ລະບົບ</span>
+                  <span onClick={() => { setAuthMode('login'); setAuthError(''); }} style={{ color: 'var(--gold-primary)', cursor: 'pointer', textDecoration: 'underline' }}>{db.getLabel('auto_ເຂົ້າສູ່ລະບົບ_gl5wix', `ເຂົ້າສູ່ລະບົບ`)}</span>
                 </div>
               </form>
             )}
@@ -831,7 +831,7 @@ export default function OnlineShop() {
                 {/* Search Input */}
                 <input
                   type="text"
-                  placeholder="🔍 ຄົ້ນຫາສິນຄ້າ ຫຼື ບາໂຄ້ດ..."
+                  placeholder={db.getLabel('auto____ຄົ້ນຫາສິນຄ້າ_ຫຼື_ບາໂຄ້_ihvnuz', `🔍 ຄົ້ນຫາສິນຄ້າ ຫຼື ບາໂຄ້ດ...`)}
                   className="form-control"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -968,7 +968,7 @@ export default function OnlineShop() {
                           <h4 
                             style={{ fontSize: '0.8rem', margin: 0, fontWeight: 'bold', height: '36px', overflow: 'hidden', textOverflow: 'ellipsis', color: 'white', cursor: 'pointer' }}
                             onClick={() => setSelectedDetailProduct(p)}
-                            title="ຄລິກເພື່ອເບິ່ງລາຍລະອຽດ (Click to view details)"
+                            title={db.getLabel('auto_ຄລິກເພື່ອເບິ່ງລາຍລະອຽດ__C_llxi4h', `ຄລິກເພື່ອເບິ່ງລາຍລະອຽດ (Click to view details)`)}
                           >
                             {p.name}
                           </h4>
@@ -989,7 +989,7 @@ export default function OnlineShop() {
                           </div>
 
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.65rem', color: '#888', marginTop: '6px' }}>
-                            <span>ຄົງເຫຼືອ: <b>{p.stock} {p.unit || 'ອັນ'}</b></span>
+                            <span>{db.getLabel('auto_ຄົງເຫຼືອ__8l71ml', `ຄົງເຫຼືອ:`)} <b>{p.stock} {p.unit || 'ອັນ'}</b></span>
                           </div>
 
                           <button
@@ -1031,13 +1031,13 @@ export default function OnlineShop() {
         {/* TABS CART & CHECKOUT */}
         {activeTab === 'cart' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>🛒 ຕະກ່າສິນຄ້າ ({cart.length} ລາຍການ)</h3>
+            <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>🛒 ຕະກ່າສິນຄ້າ ({cart.length} {db.getLabel('auto_ລາຍການ__t3ypbz', `ລາຍການ)`)}</h3>
             
             {cart.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px 0', color: '#888' }}>
                 <span style={{ fontSize: '3rem' }}>🛒</span>
-                <p style={{ marginTop: '12px' }}>ບໍ່ມີສິນຄ້າໃນຕະກ່າຂອງທ່ານ</p>
-                <button className="btn btn-primary" onClick={() => setActiveTab('catalog')}>ໄປຊື້ສິນຄ້າ</button>
+                <p style={{ marginTop: '12px' }}>{db.getLabel('auto_ບໍ່ມີສິນຄ້າໃນຕະກ່າຂອງທ່ານ_5npb4v', `ບໍ່ມີສິນຄ້າໃນຕະກ່າຂອງທ່ານ`)}</p>
+                <button className="btn btn-primary" onClick={() => setActiveTab('catalog')}>{db.getLabel('auto_ໄປຊື້ສິນຄ້າ_opywnx', `ໄປຊື້ສິນຄ້າ`)}</button>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -1063,35 +1063,35 @@ export default function OnlineShop() {
                 {/* Subtotals & Member Discounts breakdown */}
                 <div className="glass-card" style={{ padding: '14px', background: '#141210', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.85rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: '#888' }}>ຍອດລວມສິນຄ້າ:</span>
+                    <span style={{ color: '#888' }}>{db.getLabel('auto_ຍອດລວມສິນຄ້າ__hn05jl', `ຍອດລວມສິນຄ້າ:`)}</span>
                     <span>{cartSubtotal.toLocaleString()} ₭</span>
                   </div>
                   {customer && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: '#3498db' }}>
-                      <span>ສ່ວນຫຼຸດສະມາຊິກ ({customer.tier} - {discountPercent}%):</span>
+                      <span>{db.getLabel('auto_ສ່ວນຫຼຸດສະມາຊິກ___7qua5n', `ສ່ວນຫຼຸດສະມາຊິກ (`)}{customer.tier} - {discountPercent}%):</span>
                       <span>-{discountAmount.toLocaleString()} ₭</span>
                     </div>
                   )}
                   {appliedCoupon && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--success-green)' }}>
-                      <span>ສ່ວນຫຼຸດຄູປອງ ({appliedCoupon.code}):</span>
+                      <span>{db.getLabel('auto_ສ່ວນຫຼຸດຄູປອງ___elebl7', `ສ່ວນຫຼຸດຄູປອງ (`)}{appliedCoupon.code}):</span>
                       <span>-{couponDiscount.toLocaleString()} ₭</span>
                     </div>
                   )}
                   {redeemPoints > 0 && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--gold-primary)' }}>
-                      <span>ສ່ວນຫຼຸດຄະແນນສະສົມ ({redeemPoints} points):</span>
+                      <span>{db.getLabel('auto_ສ່ວນຫຼຸດຄະແນນສະສົມ___p9cgyu', `ສ່ວນຫຼຸດຄະແນນສະສົມ (`)}{redeemPoints} points):</span>
                       <span>-{pointsDiscount.toLocaleString()} ₭</span>
                     </div>
                   )}
                   {shippingMethod !== 'pickup' && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ccc' }}>
-                      <span>ຄ່າຈັດສົ່ງສິນຄ້າ:</span>
+                      <span>{db.getLabel('auto_ຄ່າຈັດສົ່ງສິນຄ້າ__55wbv3', `ຄ່າຈັດສົ່ງສິນຄ້າ:`)}</span>
                       <span>{isFreeShipping ? 'ສົ່ງຟຣີ' : `${shippingFee.toLocaleString()} ₭`}</span>
                     </div>
                   )}
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '6px', color: 'var(--gold-primary)', marginTop: '4px' }}>
-                    <span>ຍອດຊຳລະສຸດທິ:</span>
+                    <span>{db.getLabel('auto_ຍອດຊຳລະສຸດທິ__gth873', `ຍອດຊຳລະສຸດທິ:`)}</span>
                     <span>{cartTotal.toLocaleString()} ₭</span>
                   </div>
                 </div>
@@ -1140,7 +1140,7 @@ export default function OnlineShop() {
                           alert(`✓ ນຳໃຊ້ຄູປອງສຳເລັດ: ${promo.name}`);
                         }}
                         style={{ padding: '8px 16px', cursor: 'pointer' }}
-                      >ນຳໃຊ້</button>
+                      >{db.getLabel('auto_ນຳໃຊ້_c1dqt4', `ນຳໃຊ້`)}</button>
                     )}
                   </div>
                   {appliedCoupon && (
@@ -1153,14 +1153,14 @@ export default function OnlineShop() {
                   {customer && customer.points > 0 && (
                     <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
-                        <span style={{ color: '#888' }}>ຄະແນນສະສົມຂອງທ່ານ:</span>
+                        <span style={{ color: '#888' }}>{db.getLabel('auto_ຄະແນນສະສົມຂອງທ່ານ__ovguvv', `ຄະແນນສະສົມຂອງທ່ານ:`)}</span>
                         <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{(customer.points || 0)} Points</span>
                       </div>
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                         <input
                           type="number"
                           className="form-control"
-                          placeholder="ຈຳນວນຄະແນນທີ່ຈະໃຊ້"
+                          placeholder={db.getLabel('auto_ຈຳນວນຄະແນນທີ່ຈະໃຊ້_x06emz', `ຈຳນວນຄະແນນທີ່ຈະໃຊ້`)}
                           value={redeemPoints || ''}
                           onChange={(e) => {
                             const val = Math.max(0, Number(e.target.value));
@@ -1178,11 +1178,11 @@ export default function OnlineShop() {
                             setRedeemPoints(Math.min((customer.points || 0), maxRedeem));
                           }}
                           style={{ whiteSpace: 'nowrap', fontSize: '0.72rem', padding: '8px 12px', cursor: 'pointer' }}
-                        >ໃຊ້ທັງໝົດ</button>
+                        >{db.getLabel('auto_ໃຊ້ທັງໝົດ_apdt05', `ໃຊ້ທັງໝົດ`)}</button>
                       </div>
                       {redeemPoints > 0 && (
                         <span style={{ fontSize: '0.72rem', color: 'var(--gold-primary)' }}>
-                          ✓ ໃຊ້ {redeemPoints} ຄະແນນ ແທນສ່ວນຫຼຸດ: <b>-{pointsDiscount.toLocaleString()} ₭</b>
+                          ✓ ໃຊ້ {redeemPoints} {db.getLabel('auto_ຄະແນນ_ແທນສ່ວນຫຼຸດ__96p7fp', `ຄະແນນ ແທນສ່ວນຫຼຸດ:`)} <b>-{pointsDiscount.toLocaleString()} ₭</b>
                         </span>
                       )}
                     </div>
@@ -1285,11 +1285,11 @@ export default function OnlineShop() {
                   )}
 
                   <div className="form-group">
-                    <label className="form-label" style={{ fontSize: '0.75rem' }}>ຊື່ຜູ້ຮັບສິນຄ້າ *</label>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ຊື່ຜູ້ຮັບສິນຄ້າ___qml1rm', `ຊື່ຜູ້ຮັບສິນຄ້າ *`)}</label>
                     <input type="text" className="form-control" required value={recipientName} onChange={(e) => setRecipientName(e.target.value)} style={{ background: '#1c1916' }} />
                   </div>
                   <div className="form-group">
-                    <label className="form-label" style={{ fontSize: '0.75rem' }}>ເບີໂທລະສັບຕິດຕໍ່ *</label>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ເບີໂທລະສັບຕິດຕໍ່___xeo5er', `ເບີໂທລະສັບຕິດຕໍ່ *`)}</label>
                     <input type="tel" className="form-control" required value={phone} onChange={(e) => setPhone(e.target.value)} style={{ background: '#1c1916' }} />
                   </div>
 
@@ -1297,33 +1297,33 @@ export default function OnlineShop() {
                     <>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                         <div className="form-group">
-                          <label className="form-label" style={{ fontSize: '0.75rem' }}>ແຂວງ *</label>
-                          <input type="text" className="form-control" placeholder="ຈຳປາສັກ" required value={province} onChange={(e) => setProvince(e.target.value)} style={{ background: '#1c1916' }} />
+                          <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ແຂວງ___50pwr', `ແຂວງ *`)}</label>
+                          <input type="text" className="form-control" placeholder={db.getLabel('auto_ຈຳປາສັກ_rv6new', `ຈຳປາສັກ`)} required value={province} onChange={(e) => setProvince(e.target.value)} style={{ background: '#1c1916' }} />
                         </div>
                         <div className="form-group">
-                          <label className="form-label" style={{ fontSize: '0.75rem' }}>ເມືອງ *</label>
-                          <input type="text" className="form-control" placeholder="ປາກເຊ" required value={city} onChange={(e) => setCity(e.target.value)} style={{ background: '#1c1916' }} />
+                          <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ເມືອງ___4n77y2', `ເມືອງ *`)}</label>
+                          <input type="text" className="form-control" placeholder={db.getLabel('auto_ປາກເຊ_c0c4b0', `ປາກເຊ`)} required value={city} onChange={(e) => setCity(e.target.value)} style={{ background: '#1c1916' }} />
                         </div>
                       </div>
                       <div className="form-group">
-                        <label className="form-label" style={{ fontSize: '0.75rem' }}>ບ້ານ *</label>
+                        <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ບ້ານ___h8hr4w', `ບ້ານ *`)}</label>
                         <input type="text" className="form-control" required value={village} onChange={(e) => setVillage(e.target.value)} style={{ background: '#1c1916' }} />
                       </div>
                       <div className="form-group">
-                        <label className="form-label" style={{ fontSize: '0.75rem' }}>ລາຍລະອຽດທີ່ຢູ່ເພີ່ມເຕີມ</label>
-                        <input type="text" className="form-control" placeholder="ຮ່ອມ, ເລກທີເຮືອນ,..." value={addressLine} onChange={(e) => setAddressLine(e.target.value)} style={{ background: '#1c1916' }} />
+                        <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ລາຍລະອຽດທີ່ຢູ່ເພີ່ມເຕີມ_85nqhb', `ລາຍລະອຽດທີ່ຢູ່ເພີ່ມເຕີມ`)}</label>
+                        <input type="text" className="form-control" placeholder={db.getLabel('auto_ຮ່ອມ__ເລກທີເຮືອນ_____mdwq67', `ຮ່ອມ, ເລກທີເຮືອນ,...`)} value={addressLine} onChange={(e) => setAddressLine(e.target.value)} style={{ background: '#1c1916' }} />
                       </div>
                     </>
                   ) : (
                     <div className="form-group">
                       <label className="form-label" style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>📅 ວັນທີ ແລະ ເວລາທີ່ຈະມາຮັບສິນຄ້າ *</label>
-                      <input type="text" className="form-control" required placeholder="ຕົວຢ່າງ: ວັນເສົາ 10:00 ໂມງເຊົ້າ" value={addressLine} onChange={(e) => setAddressLine(e.target.value)} style={{ background: '#1c1916' }} />
+                      <input type="text" className="form-control" required placeholder={db.getLabel('auto_ຕົວຢ່າງ__ວັນເສົາ_10_00_ໂມ_n6gjvt', `ຕົວຢ່າງ: ວັນເສົາ 10:00 ໂມງເຊົ້າ`)} value={addressLine} onChange={(e) => setAddressLine(e.target.value)} style={{ background: '#1c1916' }} />
                     </div>
                   )}
 
                   <div className="form-group">
-                    <label className="form-label" style={{ fontSize: '0.75rem' }}>ໝາຍເຫດເຖິງຮ້ານ</label>
-                    <input type="text" className="form-control" placeholder="ຝากຂົນສົ່ງອະນຸສິດ, ຝາກ HAL,..." value={notes} onChange={(e) => setNotes(e.target.value)} style={{ background: '#1c1916' }} />
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ໝາຍເຫດເຖິງຮ້ານ_qbu7gk', `ໝາຍເຫດເຖິງຮ້ານ`)}</label>
+                    <input type="text" className="form-control" placeholder={db.getLabel('auto_ຝ__ຂົນສົ່ງອະນຸສິດ__ຝາກ_HA_if0mif', `ຝากຂົນສົ່ງອະນຸສິດ, ຝາກ HAL,...`)} value={notes} onChange={(e) => setNotes(e.target.value)} style={{ background: '#1c1916' }} />
                   </div>
 
                   {/* BCEL ONE QR CODE DISPLAY */}
@@ -1347,16 +1347,16 @@ export default function OnlineShop() {
                         {settings.onlineShopBankAccounts && settings.onlineShopBankAccounts.length > 0 ? (
                           settings.onlineShopBankAccounts.map((acc, idx) => (
                             <div key={acc.id} style={{ borderBottom: idx < settings.onlineShopBankAccounts.length - 1 ? '1px dashed rgba(255,255,255,0.05)' : 'none', paddingBottom: '6px', marginTop: idx > 0 ? '6px' : '0' }}>
-                              <div><b>ທະນາຄານ:</b> {acc.bankName}</div>
-                              <div><b>ຊື່ບັນຊີ:</b> {acc.accName}</div>
-                              <div><b>ເລກບັນຊີ:</b> <span style={{ fontFamily: 'monospace', color: 'var(--gold-primary)' }}>{acc.accNum}</span></div>
+                              <div><b>{db.getLabel('auto_ທະນາຄານ__kph0bl', `ທະນາຄານ:`)}</b> {acc.bankName}</div>
+                              <div><b>{db.getLabel('auto_ຊື່ບັນຊີ__6dn914', `ຊື່ບັນຊີ:`)}</b> {acc.accName}</div>
+                              <div><b>{db.getLabel('auto_ເລກບັນຊີ__ewzcax', `ເລກບັນຊີ:`)}</b> <span style={{ fontFamily: 'monospace', color: 'var(--gold-primary)' }}>{acc.accNum}</span></div>
                             </div>
                           ))
                         ) : (
                           <div>
-                            <div><b>ທະນາຄານ:</b> {settings.bankName || 'BCEL One'}</div>
-                            <div><b>ຊື່ບັນຊີ:</b> {settings.bankAccountName || 'ຮ້ານຂອບພຣະ'}</div>
-                            <div><b>ເລກບັນຊີ:</b> <span style={{ fontFamily: 'monospace', color: 'var(--gold-primary)' }}>{settings.bankAccountNumber || '010XXXXXXXXXXXX'}</span></div>
+                            <div><b>{db.getLabel('auto_ທະນາຄານ__kph0bl', `ທະນາຄານ:`)}</b> {settings.bankName || 'BCEL One'}</div>
+                            <div><b>{db.getLabel('auto_ຊື່ບັນຊີ__6dn914', `ຊື່ບັນຊີ:`)}</b> {settings.bankAccountName || 'ຮ້ານຂອບພຣະ'}</div>
+                            <div><b>{db.getLabel('auto_ເລກບັນຊີ__ewzcax', `ເລກບັນຊີ:`)}</b> <span style={{ fontFamily: 'monospace', color: 'var(--gold-primary)' }}>{settings.bankAccountNumber || '010XXXXXXXXXXXX'}</span></div>
                           </div>
                         )}
                       </div>
@@ -1474,48 +1474,48 @@ export default function OnlineShop() {
                       }
                     }} style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
                       <div className="form-group">
-                        <label className="form-label" style={{ fontSize: '0.7rem' }}>ຊື່ຜູ້ຮັບ</label>
+                        <label className="form-label" style={{ fontSize: '0.7rem' }}>{db.getLabel('auto_ຊື່ຜູ້ຮັບ_5aa6oq', `ຊື່ຜູ້ຮັບ`)}</label>
                         <input type="text" className="form-control" placeholder={customer.name} value={newRecipientName} onChange={(e) => setNewRecipientName(e.target.value)} style={{ background: '#1c1916' }} />
                       </div>
                       <div className="form-group">
-                        <label className="form-label" style={{ fontSize: '0.7rem' }}>ເບີໂທລະສັບ</label>
+                        <label className="form-label" style={{ fontSize: '0.7rem' }}>{db.getLabel('auto_ເບີໂທລະສັບ_nrnku0', `ເບີໂທລະສັບ`)}</label>
                         <input type="tel" className="form-control" placeholder={customer.phone} value={newPhone} onChange={(e) => setNewPhone(e.target.value)} style={{ background: '#1c1916' }} />
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                         <div className="form-group">
-                          <label className="form-label" style={{ fontSize: '0.7rem' }}>ແຂວງ *</label>
-                          <input type="text" className="form-control" required placeholder="ຈຳປາສັກ" value={newProvince} onChange={(e) => setNewProvince(e.target.value)} style={{ background: '#1c1916' }} />
+                          <label className="form-label" style={{ fontSize: '0.7rem' }}>{db.getLabel('auto_ແຂວງ___50pwr', `ແຂວງ *`)}</label>
+                          <input type="text" className="form-control" required placeholder={db.getLabel('auto_ຈຳປາສັກ_rv6new', `ຈຳປາສັກ`)} value={newProvince} onChange={(e) => setNewProvince(e.target.value)} style={{ background: '#1c1916' }} />
                         </div>
                         <div className="form-group">
-                          <label className="form-label" style={{ fontSize: '0.7rem' }}>ເມືອງ *</label>
-                          <input type="text" className="form-control" required placeholder="ປາກເຊ" value={newCity} onChange={(e) => setNewCity(e.target.value)} style={{ background: '#1c1916' }} />
+                          <label className="form-label" style={{ fontSize: '0.7rem' }}>{db.getLabel('auto_ເມືອງ___4n77y2', `ເມືອງ *`)}</label>
+                          <input type="text" className="form-control" required placeholder={db.getLabel('auto_ປາກເຊ_c0c4b0', `ປາກເຊ`)} value={newCity} onChange={(e) => setNewCity(e.target.value)} style={{ background: '#1c1916' }} />
                         </div>
                       </div>
                       <div className="form-group">
-                        <label className="form-label" style={{ fontSize: '0.7rem' }}>ບ້ານ *</label>
-                        <input type="text" className="form-control" required placeholder="ບ້ານ..." value={newVillage} onChange={(e) => setNewVillage(e.target.value)} style={{ background: '#1c1916' }} />
+                        <label className="form-label" style={{ fontSize: '0.7rem' }}>{db.getLabel('auto_ບ້ານ___h8hr4w', `ບ້ານ *`)}</label>
+                        <input type="text" className="form-control" required placeholder={db.getLabel('auto_ບ້ານ____xxmd3s', `ບ້ານ...`)} value={newVillage} onChange={(e) => setNewVillage(e.target.value)} style={{ background: '#1c1916' }} />
                       </div>
                       <div className="form-group">
-                        <label className="form-label" style={{ fontSize: '0.7rem' }}>ລາຍລະອຽດທີ່ຢູ່ເພີ່ມເຕີມ</label>
-                        <input type="text" className="form-control" placeholder="ຮ່ອມ, ເລກທີເຮືອນ..." value={newAddressLine} onChange={(e) => setNewAddressLine(e.target.value)} style={{ background: '#1c1916' }} />
+                        <label className="form-label" style={{ fontSize: '0.7rem' }}>{db.getLabel('auto_ລາຍລະອຽດທີ່ຢູ່ເພີ່ມເຕີມ_85nqhb', `ລາຍລະອຽດທີ່ຢູ່ເພີ່ມເຕີມ`)}</label>
+                        <input type="text" className="form-control" placeholder={db.getLabel('auto_ຮ່ອມ__ເລກທີເຮືອນ____qrunzj', `ຮ່ອມ, ເລກທີເຮືອນ...`)} value={newAddressLine} onChange={(e) => setNewAddressLine(e.target.value)} style={{ background: '#1c1916' }} />
                       </div>
                       <div className="form-group">
-                        <label className="form-label" style={{ fontSize: '0.7rem' }}>ໝາຍເຫດຂົນສົ່ງ</label>
-                        <input type="text" className="form-control" placeholder="ຝາກຂົນສົ່ງ..." value={newNotes} onChange={(e) => setNewNotes(e.target.value)} style={{ background: '#1c1916' }} />
+                        <label className="form-label" style={{ fontSize: '0.7rem' }}>{db.getLabel('auto_ໝາຍເຫດຂົນສົ່ງ_vy84gv', `ໝາຍເຫດຂົນສົ່ງ`)}</label>
+                        <input type="text" className="form-control" placeholder={db.getLabel('auto_ຝາກຂົນສົ່ງ____hppccq', `ຝາກຂົນສົ່ງ...`)} value={newNotes} onChange={(e) => setNewNotes(e.target.value)} style={{ background: '#1c1916' }} />
                       </div>
                       <button type="submit" className="btn btn-primary" style={{ padding: '8px', fontSize: '0.8rem', fontWeight: 'bold', marginTop: '4px' }}>💾 ບັນທຶກທີ່ຢູ່ໃໝ່</button>
                     </form>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {!customer.addresses || customer.addresses.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '10px 0', fontSize: '0.75rem', color: '#888' }}>ບໍ່ມີຂໍ້ມູນທີ່ຢູ່ຈັດສົ່ງ</div>
+                        <div style={{ textAlign: 'center', padding: '10px 0', fontSize: '0.75rem', color: '#888' }}>{db.getLabel('auto_ບໍ່ມີຂໍ້ມູນທີ່ຢູ່ຈັດສົ່ງ_couia0', `ບໍ່ມີຂໍ້ມູນທີ່ຢູ່ຈັດສົ່ງ`)}</div>
                       ) : (
                         customer.addresses.map((addr, idx) => (
                           <div key={idx} style={{ padding: '10px', background: '#0e0c0a', borderRadius: '8px', border: addr.isDefault ? '1px solid var(--gold-primary)' : '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
                             <div style={{ fontSize: '0.75rem', flexGrow: 1 }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold' }}>
                                 👤 {addr.recipientName || customer.name} ({addr.phone || customer.phone})
-                                {addr.isDefault && <span style={{ fontSize: '0.6rem', padding: '1px 6px', background: 'var(--gold-primary)', color: '#000', borderRadius: '4px', fontWeight: 'bold' }}>ຫຼັກ</span>}
+                                {addr.isDefault && <span style={{ fontSize: '0.6rem', padding: '1px 6px', background: 'var(--gold-primary)', color: '#000', borderRadius: '4px', fontWeight: 'bold' }}>{db.getLabel('auto_ຫຼັກ_1wtxk1', `ຫຼັກ`)}</span>}
                               </div>
                               <div style={{ color: '#ccc', marginTop: '2px' }}>
                                 {addr.village}, {addr.city}, {addr.province}
@@ -1664,13 +1664,13 @@ export default function OnlineShop() {
               <input
                 type="text"
                 className="form-control"
-                placeholder="ป້ອນເລກອໍເດີ້ ຫຼື ບັດຕິດຕາມ (ຕົວຢ່າງ: JOB10001)..."
+                placeholder={db.getLabel('auto__້ອນເລກອໍເດີ້_ຫຼື_ບັດຕິດຕ_o82k08', `ป້ອນເລກອໍເດີ້ ຫຼື ບັດຕິດຕາມ (ຕົວຢ່າງ: JOB10001)...`)}
                 value={trackingOrderId}
                 onChange={(e) => setTrackingOrderId(e.target.value)}
                 style={{ background: '#1c1916', margin: 0 }}
                 required
               />
-              <button type="submit" className="btn btn-primary" style={{ padding: '0 20px', whiteSpace: 'nowrap', margin: 0 }}>ຄົ້ນຫາ</button>
+              <button type="submit" className="btn btn-primary" style={{ padding: '0 20px', whiteSpace: 'nowrap', margin: 0 }}>{db.getLabel('auto_ຄົ້ນຫາ_rupbhu', `ຄົ້ນຫາ`)}</button>
             </form>
 
             {/* Tracking Result View */}
@@ -1683,7 +1683,7 @@ export default function OnlineShop() {
                 <div className="glass-card" style={{ padding: '20px', background: '#141210', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px' }}>
                     <div>
-                      <span style={{ fontSize: '0.75rem', color: '#888' }}>ອໍເດີ້ເລກທີ:</span>
+                      <span style={{ fontSize: '0.75rem', color: '#888' }}>{db.getLabel('auto_ອໍເດີ້ເລກທີ__gfpyfc', `ອໍເດີ້ເລກທີ:`)}</span>
                       <h4 style={{ color: 'var(--gold-primary)', margin: 0 }}>{trackedOrder.id}</h4>
                     </div>
                     <span style={{
@@ -1696,10 +1696,10 @@ export default function OnlineShop() {
                   </div>
 
                   <div style={{ fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <div><b>ຜູ້ຮັບ:</b> {trackedOrder.customerName} ({trackedOrder.customerPhone})</div>
-                    <div><b>ຍອດລວມ:</b> {trackedOrder.total.toLocaleString()} LAK</div>
-                    {trackedOrder.shippingCompany && <div><b>ຂົນສົ່ງ:</b> {trackedOrder.shippingCompany}</div>}
-                    {trackedOrder.trackingNumber && <div><b>ເລກພັດສະດຸ:</b> <b style={{ color: 'var(--gold-primary)' }}>{trackedOrder.trackingNumber}</b></div>}
+                    <div><b>{db.getLabel('auto_ຜູ້ຮັບ__ew7fbl', `ຜູ້ຮັບ:`)}</b> {trackedOrder.customerName} ({trackedOrder.customerPhone})</div>
+                    <div><b>{db.getLabel('auto_ຍອດລວມ__sgo11t', `ຍອດລວມ:`)}</b> {trackedOrder.total.toLocaleString()} LAK</div>
+                    {trackedOrder.shippingCompany && <div><b>{db.getLabel('auto_ຂົນສົ່ງ__2yzpre', `ຂົນສົ່ງ:`)}</b> {trackedOrder.shippingCompany}</div>}
+                    {trackedOrder.trackingNumber && <div><b>{db.getLabel('auto_ເລກພັດສະດຸ__smih8r', `ເລກພັດສະດຸ:`)}</b> <b style={{ color: 'var(--gold-primary)' }}>{trackedOrder.trackingNumber}</b></div>}
                   </div>
 
                   {/* Parcel photo if available */}
@@ -1744,8 +1744,8 @@ export default function OnlineShop() {
           {!customer ? (
             <div style={{ padding: '32px 20px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '14px', alignItems: 'center', background: '#141210', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px' }}>
               <div style={{ fontSize: '2.5rem' }}>🔒</div>
-              <div style={{ color: 'var(--gold-primary)', fontWeight: 'bold', fontSize: '1rem' }}>ກະລຸນາ Login ກ່ອນ</div>
-              <div style={{ color: '#aaa', fontSize: '0.82rem' }}>ເພື່ອສົ່ງຂໍ້ຄວາມຫາທາງຮ້ານ ກະລຸນາ Login ເຂົ້າສູ່ລະບົບກ່ອນ</div>
+              <div style={{ color: 'var(--gold-primary)', fontWeight: 'bold', fontSize: '1rem' }}>{db.getLabel('auto_ກະລຸນາ_Login_ກ່ອນ_bj9te9', `ກະລຸນາ Login ກ່ອນ`)}</div>
+              <div style={{ color: '#aaa', fontSize: '0.82rem' }}>{db.getLabel('auto_ເພື່ອສົ່ງຂໍ້ຄວາມຫາທາງຮ້ານ_2zeqx5', `ເພື່ອສົ່ງຂໍ້ຄວາມຫາທາງຮ້ານ ກະລຸນາ Login ເຂົ້າສູ່ລະບົບກ່ອນ`)}</div>
               <button type="button" className="btn btn-primary" onClick={() => setActiveTab('profile')} style={{ padding: '10px 28px', fontSize: '0.85rem' }}>
                 👤 ໄປຫນ້າ Login
               </button>
@@ -1968,7 +1968,7 @@ export default function OnlineShop() {
           }}
         >
           <span style={{ fontSize: '1.25rem' }}>👤</span>
-          <span>ໂປຣໄຟລ໌</span>
+          <span>{db.getLabel('auto_ໂປຣໄຟລ໌_uv7wgc', `ໂປຣໄຟລ໌`)}</span>
         </button>
       </nav>
 
@@ -2056,8 +2056,8 @@ export default function OnlineShop() {
               </div>
 
               <div style={{ fontSize: '0.8rem', color: '#aaa', display: 'flex', gap: '15px' }}>
-                <span>ຄົງເຫຼືອໃນສາງ: <b style={{ color: selectedDetailProduct.stock > 0 ? '#2ecc71' : '#e74c3c' }}>{selectedDetailProduct.stock} {selectedDetailProduct.unit || 'ອັນ'}</b></span>
-                <span>ໝວດໝູ່: <b>{categories.find(c => c.id === selectedDetailProduct.category)?.name || 'ທົ່ວໄປ'}</b></span>
+                <span>{db.getLabel('auto_ຄົງເຫຼືອໃນສາງ__mm7zmg', `ຄົງເຫຼືອໃນສາງ:`)} <b style={{ color: selectedDetailProduct.stock > 0 ? '#2ecc71' : '#e74c3c' }}>{selectedDetailProduct.stock} {selectedDetailProduct.unit || 'ອັນ'}</b></span>
+                <span>{db.getLabel('auto_ໝວດໝູ່__6g08d4', `ໝວດໝູ່:`)} <b>{categories.find(c => c.id === selectedDetailProduct.category)?.name || 'ທົ່ວໄປ'}</b></span>
               </div>
 
               {/* Divider */}

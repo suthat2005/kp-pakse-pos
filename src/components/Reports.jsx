@@ -3969,13 +3969,13 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
                   <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '780px' }}>
                     <thead>
                       <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
-                        <th style={{ padding: '12px' }}>ເລກບິນ (ID)</th>
-                        <th style={{ padding: '12px' }}>ວັນທີ / ເວລາ</th>
-                        <th style={{ padding: '12px' }}>ຜູ້ອະນຸມັດ (Treated By)</th>
-                        <th style={{ padding: '12px' }}>ລາຍການສິນຄ້າ</th>
-                        <th style={{ padding: '12px', textAlign: 'right' }}>ມູນຄ່າ (Value)</th>
-                        <th style={{ padding: '12px' }}>ໝາຍເຫດ (Remark)</th>
-                        <th style={{ padding: '12px', textAlign: 'center' }}>ຈັດການ</th>
+                        <th style={{ padding: '12px' }}>{db.getLabel(db.getLabel('auto_auto_ເລກບິນ__ID__rz3rst_f2xlx2', 'auto_ເລກບິນ__ID__rz3rst'), `ເລກບິນ (ID)`)}</th>
+                        <th style={{ padding: '12px' }}>{db.getLabel(db.getLabel('auto_auto_ວັນທີ___ເວລາ_8idz7c_dk0q5g', 'auto_ວັນທີ___ເວລາ_8idz7c'), `ວັນທີ / ເວລາ`)}</th>
+                        <th style={{ padding: '12px' }}>{db.getLabel(db.getLabel('auto_auto_ຜູ້ອະນຸມັດ__Treated__lrioy0', 'auto_ຜູ້ອະນຸມັດ__Treated_By__r0ywp9'), `ຜູ້ອະນຸມັດ (Treated By)`)}</th>
+                        <th style={{ padding: '12px' }}>{db.getLabel(db.getLabel('auto_auto_ລາຍການສິນຄ້າ_nys70m_za29kl', 'auto_ລາຍການສິນຄ້າ_nys70m'), `ລາຍການສິນຄ້າ`)}</th>
+                        <th style={{ padding: '12px', textAlign: 'right' }}>{db.getLabel(db.getLabel('auto_auto_ມູນຄ່າ__Value__b2mg0_qmtzag', 'auto_ມູນຄ່າ__Value__b2mg0j'), `ມູນຄ່າ (Value)`)}</th>
+                        <th style={{ padding: '12px' }}>{db.getLabel(db.getLabel('auto_auto_ໝາຍເຫດ__Remark__r1io_50s6ww', 'auto_ໝາຍເຫດ__Remark__r1iouo'), `ໝາຍເຫດ (Remark)`)}</th>
+                        <th style={{ padding: '12px', textAlign: 'center' }}>{db.getLabel(db.getLabel('auto_auto_ຈັດການ_q4z3sz_u3t7kb', 'auto_ຈັດການ_q4z3sz'), `ຈັດການ`)}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -3983,7 +3983,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
                         <tr key={order.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', fontSize: '0.85rem', borderLeft: '3px solid #e67e22' }}>
                           <td style={{ padding: '12px', fontWeight: 'bold', color: 'var(--gold-primary)' }}>{order.id}</td>
                           <td style={{ padding: '12px', fontSize: '0.78rem' }}>{new Date(order.date).toLocaleString('lo-LA')}</td>
-                          <td style={{ padding: '12px', fontWeight: 'bold', color: '#e67e22' }}>{order.cashierName || 'ເຈົ້າຂອງຮ້ານ'}</td>
+                          <td style={{ padding: '12px', fontWeight: 'bold', color: '#e67e22' }}>{order.cashierName || db.getLabel('auto_ເຈົ້າຂອງຮ້ານ_u8ftvi', 'ເຈົ້າຂອງຮ້ານ')}</td>
                           <td style={{ padding: '12px', maxWidth: '220px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {(order.items || []).map(i => `${i.name} (x${i.qty})`).join(', ')}
                           </td>
