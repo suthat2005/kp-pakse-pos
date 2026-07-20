@@ -3077,7 +3077,7 @@ export default function POS({
 
 
       {viewMode === 'slots' ? (
-        <div className="glass-card animate-fade-in" style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '16px', background: 'none', border: 'none', padding: 0 } : { height: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div className="animate-fade-in" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: isMobile ? '16px' : '20px', background: 'transparent', border: 'none', boxShadow: 'none', padding: 0 }}>
           {/* Queue Board Header */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', paddingBottom: '4px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: '10px' }}>
