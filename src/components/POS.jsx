@@ -3100,38 +3100,29 @@ export default function POS({
                   type="button"
                   className="btn btn-secondary"
                   onClick={openReturnModal}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.78rem', padding: '0 12px', height: '32px', borderRadius: '8px', fontWeight: 'bold', margin: 0, boxSizing: 'border-box' }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', padding: '9px 16px', borderRadius: '10px', fontWeight: 'bold', margin: 0 }}
                   title={db.getLabel('auto_ຄືນສິນຄ້າ___ຄືນເງິນ_63o73v', `ຄືນສິນຄ້າ / ຄືນເງິນ`)}
                 >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
                   {db.getLabel('pos_return_refund', 'ຄືນສິນຄ້າ')}
                 </button>
                 <button
                   type="button"
+                  className="btn btn-primary"
                   onClick={() => setShowAddSlotModal(true)}
                   title={db.getLabel('pos_add_queue', 'ເພີ່ມບັດຄິວ (Add Queue)')}
                   style={{
-                    width: 32, height: 32,
-                    borderRadius: '8px',
-                    background: 'rgba(52, 152, 219, 0.08)',
-                    border: '1.5px solid rgba(52, 152, 219, 0.4)',
-                    color: '#3498db',
                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer', flexShrink: 0, margin: 0,
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(52, 152, 219, 0.18)';
-                    e.currentTarget.style.borderColor = '#3498db';
-                    e.currentTarget.style.boxShadow = '0 0 12px rgba(52, 152, 219, 0.3)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(52, 152, 219, 0.08)';
-                    e.currentTarget.style.borderColor = 'rgba(52, 152, 219, 0.4)';
-                    e.currentTarget.style.boxShadow = 'none';
+                    width: '36px', height: '36px',
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
+                    border: 'none', color: '#ffffff',
+                    fontWeight: 'bold',
+                    boxShadow: '0 4px 15px rgba(52,152,219,0.35)',
+                    cursor: 'pointer', flexShrink: 0, margin: 0
                   }}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3" style={{ flexShrink: 0 }}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 </button>
               </div>
             </div>
