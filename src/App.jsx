@@ -1485,28 +1485,7 @@ export default function App() {
           </div>
 
           <div className="topbar-actions">
-                        {!isMobile && (
-              <button
-                type="button"
-                onClick={() => { setShowCommandPalette(true); setCommandQuery(''); }}
-                title="ຄົ້ນຫາ (Ctrl+K)"
-                style={{
-                  width: 34, height: 34,
-                  borderRadius: '10px',
-                  background: 'rgba(255, 255, 255, 0.04)',
-                  border: '1.5px solid rgba(255, 255, 255, 0.09)',
-                  color: 'rgba(255, 255, 255, 0.38)',
-                  cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  transition: 'all 0.18s',
-                  flexShrink: 0,
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.65)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = 'rgba(255,255,255,0.38)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)'; }}
-              >
-                <Icons.search style={{ width: 16, height: 16 }} />
-              </button>
-            )}
+            
 
 
 
