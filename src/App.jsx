@@ -1522,81 +1522,79 @@ export default function App() {
             )}
 
             {lowStockWarning && activeUser.role === 'owner' && (
-              <div
+              <button
+                type="button"
+                title="ສະຕັອກໃກ້ໝົດ! (Low Stock Warning)"
                 onClick={() => {
                   setActiveTab('inventory');
                   setInventoryFilter('low_stock');
                 }}
                 style={{
-                  background: 'rgba(239,68,68,0.12)',
+                  width: 34, height: 34,
+                  borderRadius: '10px',
+                  background: 'rgba(231, 76, 60, 0.08)',
+                  border: '1.5px solid var(--alert-red)',
                   color: 'var(--alert-red)',
-                  border: '1px solid rgba(239,68,68,0.3)',
-                  padding: '6px 12px',
-                  borderRadius: '12px',
-                  fontSize: '0.75rem',
-                  fontWeight: 'bold',
-                  animation: 'pulse-gold 1.5s infinite',
                   cursor: 'pointer',
-                  display: 'inline-flex', alignItems: 'center', gap: '6px',
-                  whiteSpace: 'nowrap'
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 0.18s',
+                  flexShrink: 0,
+                  marginRight: '8px',
+                  animation: 'pulse-gold 1.5s infinite'
                 }}
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                {isMobile ? 'ສະຕັອກ' : 'ສະຕັອກໃກ້ໝົດ!'}
-              </div>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </button>
             )}
 
             {/* Online Shop QR Code Button */}
             <button
               type="button"
-              className="btn btn-secondary"
+              title="QR ເບິ່ງສິນຄ້າ (Online Shop QR Code)"
               style={{
-                padding: '6px 12px',
-                fontSize: '0.75rem',
-                borderRadius: '12px',
+                width: 34, height: 34,
+                borderRadius: '10px',
                 cursor: 'pointer',
-                background: 'rgba(52, 152, 219, 0.12)',
+                background: 'rgba(52, 152, 219, 0.08)',
                 color: '#3498db',
-                borderColor: 'rgba(52, 152, 219, 0.3)',
-                whiteSpace: 'nowrap',
-                fontWeight: 'bold',
+                border: '1.5px solid rgba(52, 152, 219, 0.4)',
                 marginRight: '8px',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '6px'
+                justifyContent: 'center',
+                transition: 'all 0.18s',
+                flexShrink: 0
               }}
               onClick={() => setShowOnlineShopQrModal(true)}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><line x1="7" y1="7" x2="7" y2="7.01"/><line x1="17" y1="7" x2="17" y2="7.01"/><line x1="7" y1="17" x2="7" y2="17.01"/><line x1="17" y1="17" x2="17" y2="17.01"/></svg>
-              {isMobile ? 'QR' : 'QR ເບິ່ງສິນຄ້າ'}
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><line x1="7" y1="7" x2="7" y2="7.01"/><line x1="17" y1="7" x2="17" y2="7.01"/><line x1="7" y1="17" x2="7" y2="17.01"/><line x1="17" y1="17" x2="17" y2="17.01"/></svg>
             </button>
 
             {/* Quick-action Expense Logger */}
             {!isMobile && (
               <button
                 type="button"
-                className="btn btn-secondary"
+                title="ບັນທຶກລາຍຈ່າຍ (Record Expense)"
                 style={{
-                  padding: '6px 12px',
-                  fontSize: '0.75rem',
-                  borderRadius: '12px',
+                  width: 34, height: 34,
+                  borderRadius: '10px',
                   cursor: 'pointer',
-                  background: 'rgba(46, 204, 113, 0.12)',
+                  background: 'rgba(46, 204, 113, 0.08)',
                   color: '#2ecc71',
-                  borderColor: 'rgba(46, 204, 113, 0.3)',
-                  whiteSpace: 'nowrap',
-                  fontWeight: 'bold',
+                  border: '1.5px solid rgba(46, 204, 113, 0.4)',
+                  marginRight: '8px',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '6px'
+                  justifyContent: 'center',
+                  transition: 'all 0.18s',
+                  flexShrink: 0
                 }}
                 onClick={() => {
                   setExpenseFormData({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '', currency: 'LAK' });
                   setShowExpenseModal(true);
                 }}
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><path d="M6 14h.01M10 14h.01M14 14h.01M18 14h.01"/></svg>
-                ບັນທຶກລາຍຈ່າຍ
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><path d="M6 14h.01M10 14h.01M14 14h.01M18 14h.01"/></svg>
               </button>
             )}
 
