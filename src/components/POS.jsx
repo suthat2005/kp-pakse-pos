@@ -3106,20 +3106,30 @@ export default function POS({
                 </button>
                 <button
                   type="button"
-                  className="btn btn-primary"
                   onClick={() => setShowAddSlotModal(true)}
                   title={db.getLabel('pos_add_queue', 'ເພີ່ມບັດຄິວ (Add Queue)')}
                   style={{
                     width: 34, height: 34,
                     borderRadius: '10px',
-                    background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
-                    border: 'none', color: '#ffffff',
+                    background: 'rgba(52, 152, 219, 0.08)',
+                    border: '1.5px solid rgba(52, 152, 219, 0.4)',
+                    color: '#3498db',
                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 4px 15px rgba(52,152,219,0.35)',
-                    cursor: 'pointer', flexShrink: 0, margin: 0
+                    cursor: 'pointer', flexShrink: 0, margin: 0,
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(52, 152, 219, 0.18)';
+                    e.currentTarget.style.borderColor = '#3498db';
+                    e.currentTarget.style.boxShadow = '0 0 12px rgba(52, 152, 219, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(52, 152, 219, 0.08)';
+                    e.currentTarget.style.borderColor = 'rgba(52, 152, 219, 0.4)';
+                    e.currentTarget.style.boxShadow = 'none';
                   }}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ flexShrink: 0 }}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 </button>
               </div>
             </div>
