@@ -231,7 +231,7 @@ export default function App() {
       const day = String(n.getDate()).padStart(2, '0');
       const month = String(n.getMonth() + 1).padStart(2, '0');
       const year = n.getFullYear();
-      const d = `${day}-${month}-${year}`;
+      const d = `${day}/${month}/${year}`;
       const t = n.toLocaleTimeString('lo-LA', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
       setClockStr(`${d} • ${t}`);
     };
@@ -1460,7 +1460,7 @@ export default function App() {
               boxShadow: '0 2px 10px rgba(0, 0, 0, 0.3), 0 0 12px rgba(212, 175, 55, 0.08)',
               whiteSpace: 'nowrap'
             }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, filter: 'drop-shadow(0 0 4px rgba(212,175,55,0.4))' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3498db" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, filter: 'drop-shadow(0 0 4px rgba(52,152,219,0.4))' }}>
                 <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
               </svg>
               {(() => {
@@ -1468,7 +1468,7 @@ export default function App() {
                 if (parts.length >= 2) {
                   return (
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem' }}>
-                      <span style={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 600, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.5px' }}>{parts[0].trim()}</span>
+                      <span style={{ color: '#3498db', fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", fontSize: '0.78rem', letterSpacing: '0.5px' }}>{parts[0].trim()}</span>
                       <span style={{ color: 'rgba(212, 175, 55, 0.45)', fontWeight: 'bold' }}>•</span>
                       <span style={{ color: 'var(--gold-primary)', fontWeight: 700, fontFamily: 'monospace', fontSize: '0.78rem', letterSpacing: '0.5px' }}>{parts[1].trim()}</span>
                     </span>
