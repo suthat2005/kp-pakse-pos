@@ -4277,17 +4277,18 @@ export default function POS({
       {showSlotEntryModal && slotEntryTarget && (
         <Portal>
         <div className="modal-overlay" style={{ zIndex: 1300, backdropFilter: 'blur(6px)', background: 'rgba(0,0,0,0.7)' }}>
-          <div className="modal-content animate-fade-in" style={{
-            maxWidth: '440px',
-            width: '95%',
+          <div className="modal-content glass-card animate-scale-in" style={{
+            maxWidth: '460px',
+            width: '92%',
             padding: 0,
-            borderRadius: '0',
-            border: '1px solid rgba(212,175,55,0.3)',
-            background: 'linear-gradient(145deg, rgba(25, 20, 15, 0.95) 0%, rgba(12, 10, 8, 0.98) 100%)',
-            boxShadow: '0 20px 50px rgba(0,0,0,0.7), 0 0 30px rgba(212,175,55,0.1)',
+            borderRadius: '20px',
+            border: '1px solid rgba(212,175,55,0.25)',
+            background: 'linear-gradient(145deg, rgba(24, 19, 13, 0.92) 0%, rgba(12, 9, 6, 0.96) 100%)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            boxShadow: '0 25px 60px rgba(0,0,0,0.8), 0 0 35px rgba(212,175,55,0.15)',
             overflow: 'hidden',
-            height: '100dvh',
-            maxHeight: '100dvh',
+            maxHeight: '90vh',
             display: 'flex',
             flexDirection: 'column'
           }}>
