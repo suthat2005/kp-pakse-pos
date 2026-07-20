@@ -1115,10 +1115,10 @@ export default function OnlineShop() {
                           </div>
 
                           <div style={{ display: 'flex', flexDirection: 'column', marginTop: '2px' }}>
-                            <span style={{ fontSize: '0.95rem', color: 'var(--shop-brand)', fontWeight: 'bold' }}>{basePrice.toLocaleString()} ₭</span>
+                            <span style={{ fontSize: '0.95rem', color: 'var(--shop-brand)', fontWeight: 'bold' }}>{(basePrice || 0).toLocaleString()} ₭</span>
                             {showVipPrice && (
                               <span style={{ fontSize: '0.65rem', color: '#888' }}>
-                                💎 VIP: <b style={{ color: '#3498db' }}>{p.priceVip.toLocaleString()} ₭</b>
+                                💎 VIP: <b style={{ color: '#3498db' }}>{(p.priceVip || 0).toLocaleString()} ₭</b>
                               </span>
                             )}
                           </div>
@@ -1188,7 +1188,7 @@ export default function OnlineShop() {
                       <img src={item.image} alt={item.name} style={{ width: '52px', height: '52px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--shop-border)' }} />
                       <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '3px' }}>
                         <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--shop-text)', lineHeight: 1.3 }}>{item.name}</span>
-                        <span style={{ fontSize: '0.78rem', color: 'var(--shop-brand)', fontWeight: 700 }}>{item.price.toLocaleString()} ₭</span>
+                        <span style={{ fontSize: '0.78rem', color: 'var(--shop-brand)', fontWeight: 700 }}>{(item.price || 0).toLocaleString()} ₭</span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
                           <button onClick={() => updateCartQty(item.productId, item.qty - 1)} style={{ width: '26px', height: '26px', borderRadius: '8px', border: '1.5px solid var(--shop-border)', background: '#f3f0eb', color: 'var(--shop-text)', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
                           <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--shop-text)', minWidth: '20px', textAlign: 'center' }}>{item.qty}</span>
@@ -1204,24 +1204,24 @@ export default function OnlineShop() {
                 <div style={{ background: '#fff', borderRadius: 'var(--shop-radius-s)', border: '1px solid var(--shop-border)', padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.85rem', boxShadow: 'var(--shop-shadow)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ color: 'var(--shop-muted)' }}>{db.getLabel('auto_ຍອດລວມສິນຄ້າ__hn05jl', `ຍອດລວມ:`)}</span>
-                    <span style={{ color: 'var(--shop-text)', fontWeight: 600 }}>{cartSubtotal.toLocaleString()} ₭</span>
+                    <span style={{ color: 'var(--shop-text)', fontWeight: 600 }}>{(cartSubtotal || 0).toLocaleString()} ₭</span>
                   </div>
                   {customer && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: '#3b82f6' }}>
                       <span>{db.getLabel('auto_ສ່ວນຫຼຸດສະມາຊິກ___7qua5n', `ສ່ວນຫຼຸດສະມາຊິກ (`)}{customer.tier} - {discountPercent}%):</span>
-                      <span>-{discountAmount.toLocaleString()} ₭</span>
+                      <span>-{(discountAmount || 0).toLocaleString()} ₭</span>
                     </div>
                   )}
                   {appliedCoupon && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--shop-success)' }}>
                       <span>{db.getLabel('auto_ສ່ວນຫຼຸດຄູປອງ___elebl7', `ສ່ວນຫຼຸດຄູປອງ (`)}{appliedCoupon.code}):</span>
-                      <span>-{couponDiscount.toLocaleString()} ₭</span>
+                      <span>-{(couponDiscount || 0).toLocaleString()} ₭</span>
                     </div>
                   )}
                   {redeemPoints > 0 && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--shop-brand)' }}>
                       <span>{db.getLabel('auto_ສ່ວນຫຼຸດຄະແນນສະສົມ___p9cgyu', `ສ່ວນຫຼຸດຄະແນນສະສົມ (`)}{redeemPoints} points):</span>
-                      <span>-{pointsDiscount.toLocaleString()} ₭</span>
+                      <span>-{(pointsDiscount || 0).toLocaleString()} ₭</span>
                     </div>
                   )}
                   {shippingMethod !== 'pickup' && (
@@ -1232,7 +1232,7 @@ export default function OnlineShop() {
                   )}
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '1.05rem', borderTop: '2px solid var(--shop-border)', paddingTop: '8px', color: 'var(--shop-brand)', marginTop: '4px' }}>
                     <span>{db.getLabel('auto_ຍອດຊຳລະສຸດທິ__gth873', `ຍອດຊຳລະສຸດທິ:`)}</span>
-                    <span>{cartTotal.toLocaleString()} ₭</span>
+                    <span>{(cartTotal || 0).toLocaleString()} ₭</span>
                   </div>
                 </div>
 
@@ -1729,7 +1729,7 @@ export default function OnlineShop() {
                               <div style={{ fontSize: '0.7rem', color: '#888' }}>{new Date(o.date).toLocaleDateString('lo-LA')}</div>
                             </div>
                             <div style={{ textAlign: 'right' }}>
-                              <div style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>{o.total.toLocaleString()} ₭</div>
+                              <div style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>{(o.total || 0).toLocaleString()} ₭</div>
                               <div style={{ fontSize: '0.7rem', color: getOrderStatusColor(o.paymentStatus), fontWeight: 'bold' }}>
                                 {o.paymentStatus === 'paid' ? 'ຊຳລະແລ້ວ' : o.paymentStatus === 'pending_verification' ? 'ລໍຖ້າກວດສອບ' : 'ປະຕິເສດ'}
                               </div>
@@ -1834,7 +1834,7 @@ export default function OnlineShop() {
 
                   <div style={{ fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     <div><b>{db.getLabel('auto_ຜູ້ຮັບ__ew7fbl', `ຜູ້ຮັບ:`)}</b> {trackedOrder.customerName} ({trackedOrder.customerPhone})</div>
-                    <div><b>{db.getLabel('auto_ຍອດລວມ__sgo11t', `ຍອດລວມ:`)}</b> {trackedOrder.total.toLocaleString()} LAK</div>
+                    <div><b>{db.getLabel('auto_ຍອດລວມ__sgo11t', `ຍອດລວມ:`)}</b> {(trackedOrder.total || 0).toLocaleString()} LAK</div>
                     {trackedOrder.shippingCompany && <div><b>{db.getLabel('auto_ຂົນສົ່ງ__2yzpre', `ຂົນສົ່ງ:`)}</b> {trackedOrder.shippingCompany}</div>}
                     {trackedOrder.trackingNumber && <div><b>{db.getLabel('auto_ເລກພັດສະດຸ__smih8r', `ເລກພັດສະດຸ:`)}</b> <b style={{ color: 'var(--shop-brand)', fontFamily: 'monospace' }}>{trackedOrder.trackingNumber}</b></div>}
                   </div>
@@ -2106,11 +2106,11 @@ export default function OnlineShop() {
               
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <span style={{ fontSize: '1.3rem', color: 'var(--shop-brand)', fontWeight: 800 }}>
-                  {(selectedDetailProduct.priceOnline || selectedDetailProduct.price).toLocaleString()} ₭
+                  {(selectedDetailProduct.priceOnline || selectedDetailProduct.price || 0).toLocaleString()} ₭
                 </span>
                 {selectedDetailProduct.priceVip && selectedDetailProduct.priceVip !== (selectedDetailProduct.priceOnline || selectedDetailProduct.price) && (
                   <span style={{ fontSize: '0.8rem', color: 'var(--shop-muted)', background: 'rgba(59,130,246,0.1)', padding: '2px 8px', borderRadius: '20px' }}>
-                    VIP: <b style={{ color: '#3b82f6' }}>{selectedDetailProduct.priceVip.toLocaleString()} ₭</b>
+                    VIP: <b style={{ color: '#3b82f6' }}>{(selectedDetailProduct.priceVip || 0).toLocaleString()} ₭</b>
                   </span>
                 )}
               </div>
