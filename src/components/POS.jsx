@@ -3093,7 +3093,7 @@ export default function POS({
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text'
                 }}>{db.getLabel('pos_board_title', '📿 ບັດຄິວອັດກອບພຣະເຄື່ອງ')}</h2>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', margin: '4px 0 0' }}>{db.getLabel('pos_board_subtitle', 'ແຕະບັດຄິວເພື່ອເລີ່ມລາຍການ • ຄລິກ ✏️ ເພື່ອແກ້ໄຂລູກຄ້າ')}</p>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', margin: '4px 0 0' }}>{db.getLabel('pos_board_subtitle', 'ແຕະບັດຄິວເພື່ອເລີ່ມລາຍການ • ຄລິກແກ້ໄຂລູກຄ້າ')}</p>
               </div>
               <div style={{ display: 'inline-flex', gap: '8px', flexWrap: 'wrap' }}>
                 <button
@@ -3298,14 +3298,14 @@ export default function POS({
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              fontSize: '1rem',
-                              border: '1px solid rgba(212,175,55,0.3)',
-                              background: 'rgba(212,175,55,0.05)',
+                              border: '1px solid rgba(212,175,55,0.4)',
+                              background: 'rgba(212,175,55,0.08)',
                               color: 'var(--gold-primary)'
                             }}
                             onClick={(e) => { e.stopPropagation(); handleRenameClick(e, slot); }}
+                            title={db.getLabel('auto_ແກ້ໄຂຊື່ຄິວ_1pn41p', 'ແກ້ໄຂຊື່ຄິວ')}
                           >
-                            ✏️
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                           </button>
                         )}
 
@@ -3461,25 +3461,24 @@ export default function POS({
                             position: 'absolute',
                             top: '8px',
                             left: '8px',
-                            width: '24px',
-                            height: '24px',
+                            width: '26px',
+                            height: '26px',
                             borderRadius: '50%',
-                            background: 'rgba(0,0,0,0.7)',
-                            border: '1.5px solid rgba(212,175,55,0.5)',
-                            color: 'rgba(212,175,55,0.8)',
+                            background: 'rgba(212,175,55,0.08)',
+                            border: '1.5px solid rgba(212,175,55,0.4)',
+                            color: 'var(--gold-primary)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             cursor: 'pointer',
-                            fontSize: '0.7rem',
                             zIndex: 10,
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
                             transition: 'all 0.2s'
                           }}
                           onClick={(e) => { e.stopPropagation(); handleRenameClick(e, slot); }}
-                          title={db.getLabel('auto_ແກ້ໄຂຊື່ຄິວ_1pn41p', `ແກ້ໄຂຊື່ຄິວ`)}
+                          title={db.getLabel('auto_ແກ້ໄຂຊື່ຄິວ_1pn41p', 'ແກ້ໄຂຊື່ຄິວ')}
                         >
-                          ✏️
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                         </button>
                       )}
 
@@ -3841,7 +3840,7 @@ export default function POS({
                       onClick={(e) => handleRenameClick(e, activeSlot)}
                       title={db.getLabel('auto_ແກ້ໄຂຊື່ຄິວ_1pn41p', `ແກ້ໄຂຊື່ຄິວ`)}
                     >
-                      ✏️ ແກ້ໄຂຊື່
+                      ແກ້ໄຂຊື່
                     </button>
                   )}
 
@@ -4918,7 +4917,7 @@ export default function POS({
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content modal-sm animate-fade-in" style={{ padding: '24px' }}>
             <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>{db.getLabel('auto____ແກ້ໄຂຂໍ້ມູນບັດຄິວ___Ed_3nfqk6', `✏️ ແກ້ໄຂຂໍ້ມູນບັດຄິວ / Edit Queue Slot`)}</h3>
+              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>{db.getLabel('auto____ແກ້ໄຂຂໍ້ມູນບັດຄິວ___Ed_3nfqk6', 'ແກ້ໄຂຂໍ້ມູນບັດຄິວ (Edit Queue Slot)')}</h3>
               <button style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowRenameModal(false)}>✕</button>
             </div>
             
