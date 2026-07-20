@@ -3124,10 +3124,22 @@ export default function POS({
                 style={{ maxWidth: '240px', background: 'rgba(0,0,0,0.4)', color: 'white', border: '1px solid var(--border-color)', height: '36px', borderRadius: '10px', fontSize: '0.85rem', padding: '0 12px', margin: 0 }}
               />
               <div style={{ display: 'flex', gap: '6px', fontSize: '0.72rem', flexWrap: 'wrap' }}>
-                <span style={{ padding: '3px 8px', borderRadius: '20px', background: 'rgba(39,174,96,0.12)', border: '1px solid rgba(39,174,96,0.3)', color: '#2ecc71' }}>{db.getLabel('auto____ມີສິນຄ້າ_7kxzd9', `🟢 ມີສິນຄ້າ`)}</span>
-                <span style={{ padding: '3px 8px', borderRadius: '20px', background: 'rgba(52,152,219,0.12)', border: '1px solid rgba(52,152,219,0.3)', color: '#3498db' }}>{db.getLabel('auto____ມັດຈຳແລ້ວ_vpkkuh', `🔵 ມັດຈຳແລ້ວ`)}</span>
-                <span style={{ padding: '3px 8px', borderRadius: '20px', background: 'rgba(231,76,60,0.12)', border: '1px solid rgba(231,76,60,0.3)', color: '#e74c3c' }}>{db.getLabel('auto____ຕິດໜີ້_7nzi58', `🔴 ຕິດໜີ້`)}</span>
-                <span style={{ padding: '3px 8px', borderRadius: '20px', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)', color: 'var(--gold-primary)' }}>{db.getLabel('auto___ວ່າງ_swlu4', `⚪ ວ່າງ`)}</span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', borderRadius: '20px', background: 'rgba(39,174,96,0.12)', border: '1px solid rgba(39,174,96,0.3)', color: '#2ecc71' }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                  {db.getLabel('pos_legend_has_items', 'ມີສິນຄ້າ')}
+                </span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', borderRadius: '20px', background: 'rgba(52,152,219,0.12)', border: '1px solid rgba(52,152,219,0.3)', color: '#3498db' }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ flexShrink: 0 }}><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                  {db.getLabel('pos_legend_deposit', 'ມັດຈຳແລ້ວ')}
+                </span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', borderRadius: '20px', background: 'rgba(231,76,60,0.12)', border: '1px solid rgba(231,76,60,0.3)', color: '#e74c3c' }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ flexShrink: 0 }}><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                  {db.getLabel('pos_legend_debt', 'ຕິດໜີ້')}
+                </span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', borderRadius: '20px', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)', color: 'var(--gold-primary)' }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#3498db" strokeWidth="3.5" style={{ flexShrink: 0 }}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  {db.getLabel('pos_legend_empty', 'ວ່າງ')}
+                </span>
               </div>
             </div>
           </div>
