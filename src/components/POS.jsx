@@ -3502,7 +3502,7 @@ export default function POS({
                           <div style={{
                             width: '42px',
                             height: '42px',
-                            borderRadius: !hasCustomer ? '50%' : '10px',
+                            borderRadius: '10px',
                             background: 'rgba(255, 255, 255, 0.03)',
                             border: `2px solid ${cardBorder}`,
                             display: 'flex',
