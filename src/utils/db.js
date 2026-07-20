@@ -3901,10 +3901,14 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       
       // Update session if needed
       const saved = localStorage.getItem('online_customer');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.id === customerId) {
-          localStorage.setItem('online_customer', JSON.stringify(list[idx]));
+      if (saved && saved !== 'null' && saved !== 'undefined') {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.id === customerId) {
+            localStorage.setItem('online_customer', JSON.stringify(list[idx]));
+          }
+        } catch (e) {
+          console.error('Failed to parse customer session in saveCustomerAddresses:', e);
         }
       }
       return list[idx];

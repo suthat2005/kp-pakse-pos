@@ -209,16 +209,21 @@ export default function OnlineShop() {
   useEffect(() => {
     // Restore customer session from localStorage if it exists
     const savedCustomer = localStorage.getItem('online_customer');
-    if (savedCustomer) {
+    if (savedCustomer && savedCustomer !== 'null' && savedCustomer !== 'undefined') {
       try {
         const parsed = JSON.parse(savedCustomer);
-        queueMicrotask(() => {
-          setCustomer(parsed);
-          setRecipientName(parsed.name || '');
-          setPhone(parsed.phone || '');
-        });
+        if (parsed && typeof parsed === 'object') {
+          queueMicrotask(() => {
+            setCustomer(parsed);
+            setRecipientName(parsed.name || '');
+            setPhone(parsed.phone || '');
+          });
+        } else {
+          localStorage.removeItem('online_customer');
+        }
       } catch (e) {
         console.error('Failed to restore customer session:', e);
+        localStorage.removeItem('online_customer');
       }
     }
     
