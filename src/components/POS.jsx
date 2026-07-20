@@ -4321,16 +4321,18 @@ export default function POS({
               
               {/* Option A: Customer with stored item (ລູກຄ້າຝາກ) */}
               <div style={{
-                background: 'rgba(212,175,55,0.07)',
-                border: '1.5px solid rgba(212,175,55,0.25)',
+                background: 'linear-gradient(145deg, rgba(52, 152, 219, 0.08) 0%, rgba(52, 152, 219, 0.02) 100%)',
+                border: '1.5px solid rgba(52, 152, 219, 0.3)',
                 borderRadius: '14px',
                 padding: '14px 16px',
                 display: 'flex', flexDirection: 'column', gap: '10px'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold-primary)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 10, background: 'rgba(52, 152, 219, 0.15)', border: '1.5px solid rgba(52, 152, 219, 0.3)', color: '#3498db', flexShrink: 0 }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>
+                  </div>
                   <div>
-                    <div style={{ fontSize: '0.88rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>{db.getLabel('slot_entry_with_info', 'ລູກຄ້າຝາກ / ລົງທະບຽນ')}</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 'bold', color: '#3498db' }}>{db.getLabel('slot_entry_with_info', 'ລູກຄ້າຝາກ / ລົງທະບຽນ')}</div>
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{db.getLabel('slot_entry_with_info_desc', 'ໃສ່ຊື່ + ເບີໂທ ເພື່ອບັນທຶກຂໍ້ມູນໄວ້ດຶງຄືນໃນພາຍຫຼັງ')}</div>
                   </div>
                 </div>
@@ -4469,9 +4471,9 @@ export default function POS({
                     type="submit"
                     style={{
                       padding: '10px', borderRadius: '10px', fontSize: '0.88rem', fontWeight: 'bold',
-                      background: 'linear-gradient(135deg, #d4af37, #b8960c)',
-                      border: 'none', color: '#000', cursor: 'pointer',
-                      boxShadow: '0 4px 15px rgba(212,175,55,0.3)',
+                      background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
+                      border: 'none', color: '#ffffff', cursor: 'pointer',
+                      boxShadow: '0 4px 15px rgba(52, 152, 219, 0.35)',
                       marginTop: '4px'
                     }}
                   >
@@ -4498,7 +4500,7 @@ export default function POS({
                   padding: '14px 16px',
                   borderRadius: '14px',
                   border: '1.5px solid rgba(39,174,96,0.3)',
-                  background: 'rgba(39,174,96,0.08)',
+                  background: 'linear-gradient(145deg, rgba(39, 174, 96, 0.08) 0%, rgba(39, 174, 96, 0.02) 100%)',
                   color: '#2ecc71',
                   cursor: 'pointer',
                   display: 'flex', alignItems: 'center', gap: '12px',
