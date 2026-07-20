@@ -4247,7 +4247,7 @@ export default function POS({
             padding: 0,
             borderRadius: '0',
             border: '1px solid rgba(212,175,55,0.3)',
-            background: 'linear-gradient(145deg, #1a1614 0%, #0f0d0b 100%)',
+            background: 'linear-gradient(145deg, rgba(25, 20, 15, 0.95) 0%, rgba(12, 10, 8, 0.98) 100%)',
             boxShadow: '0 20px 50px rgba(0,0,0,0.7), 0 0 30px rgba(212,175,55,0.1)',
             overflow: 'hidden',
             height: '100dvh',
@@ -4309,7 +4309,7 @@ export default function POS({
                       }}
                       style={{
                         fontSize: '0.85rem', padding: '9px 12px',
-                        background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(212,175,55,0.15)',
+                        background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-color)',
                         borderRadius: '8px', color: 'white', width: '100%'
                       }}
                     />
@@ -4358,7 +4358,7 @@ export default function POS({
                     required
                     style={{
                       fontSize: '0.9rem', padding: '9px 12px',
-                      background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(212,175,55,0.25)',
+                      background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-color)',
                       borderRadius: '8px', color: 'white', width: '100%'
                     }}
                   />
@@ -4370,7 +4370,7 @@ export default function POS({
                     onChange={(e) => setSlotEntryPhone(e.target.value)}
                     style={{
                       fontSize: '0.9rem', padding: '9px 12px',
-                      background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)',
+                      background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-color)',
                       borderRadius: '8px', color: 'white', width: '100%'
                     }}
                   />
@@ -4404,7 +4404,7 @@ export default function POS({
                                 value={entryNewDiscountType}
                                 onChange={(e) => setEntryNewDiscountType(e.target.value)}
                                 className="form-control"
-                                style={{ background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', padding: '3px 6px', fontSize: '0.7rem', borderRadius: '4px', height: '26px' }}
+                                style={{ background: 'rgba(255, 255, 255, 0.03)', color: 'white', border: '1px solid var(--border-color)', padding: '3px 6px', fontSize: '0.7rem', borderRadius: '4px', height: '26px' }}
                               >
                                 <option value="percent">% (Percent)</option>
                                 <option value="fixed">₭ (Fixed)</option>
@@ -4417,7 +4417,7 @@ export default function POS({
                                 onChange={(e) => setEntryNewDiscountValue(e.target.value)}
                                 placeholder={db.getLabel('auto_ສ່ວນຫຼຸດ____10qys1', `ສ່ວນຫຼຸດ...`)}
                                 className="form-control"
-                                style={{ background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', padding: '3px 6px', fontSize: '0.7rem', borderRadius: '4px', width: '100%', height: '26px' }}
+                                style={{ background: 'rgba(255, 255, 255, 0.03)', color: 'white', border: '1px solid var(--border-color)', padding: '3px 6px', fontSize: '0.7rem', borderRadius: '4px', width: '100%', height: '26px' }}
                               />
                             </div>
                           </div>
@@ -4725,7 +4725,7 @@ export default function POS({
                               width: '50px',
                               height: '50px',
                               borderRadius: '6px',
-                              background: 'rgba(25, 20, 15, 0.45)',
+                              background: 'rgba(255, 255, 255, 0.03)',
                               border: '1.5px dashed var(--border-color)',
                               display: 'flex',
                               alignItems: 'center',
@@ -4778,7 +4778,7 @@ export default function POS({
                                 return copy;
                               });
                             }}
-                            style={{ width: '100%', background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '6px 10px', fontSize: '0.85rem' }}
+                            style={{ width: '100%', background: 'rgba(255, 255, 255, 0.03)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '6px 10px', fontSize: '0.85rem' }}
                           />
                         </div>
                       </div>
@@ -4797,7 +4797,7 @@ export default function POS({
                               return copy;
                             });
                           }}
-                          style={{ width: '100%', background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '6px 10px', fontSize: '0.85rem' }}
+                          style={{ width: '100%', background: 'rgba(255, 255, 255, 0.03)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '6px 10px', fontSize: '0.85rem' }}
                         />
                       </div>
                     </div>
@@ -4810,7 +4810,7 @@ export default function POS({
                     type="datetime-local"
                     className="form-input"
                     required
-                    style={{ width: '100%', background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px', fontSize: '0.85rem' }}
+                    style={{ width: '100%', background: 'rgba(255, 255, 255, 0.03)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px', fontSize: '0.85rem' }}
                     value={serviceConfigPickupDate}
                     onChange={(e) => setServiceConfigPickupDate(e.target.value)}
                   />
@@ -4856,7 +4856,7 @@ export default function POS({
                     value={renameValue}
                     onChange={(e) => setRenameValue(e.target.value)}
                     placeholder={db.getLabel('auto_ປ້ອນຊື່ຄິວໃໝ່__ເຊັ່ນ__VIP_j3gtvn', `ປ້ອນຊື່ຄິວໃໝ່ (ເຊັ່ນ: VIP-1, ຊ່າງຍົມ, 01)...`)}
-                    style={{ width: '100%', background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
+                    style={{ width: '100%', background: 'rgba(255, 255, 255, 0.03)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
                   />
                 </div>
 
@@ -4874,7 +4874,7 @@ export default function POS({
                       setMemberSearchVal(e.target.value);
                       setShowMemberDropdown(true);
                     }}
-                    style={{ width: '100%', background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
+                    style={{ width: '100%', background: 'rgba(255, 255, 255, 0.03)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
                   />
                   {showMemberDropdown && memberSearchVal.trim() && (
                     <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'rgba(26, 22, 19, 0.95)', border: '1px solid var(--border-color)', borderRadius: '6px', zIndex: 100, maxHeight: '140px', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
@@ -4920,7 +4920,7 @@ export default function POS({
                     value={renameCustomerName}
                     onChange={(e) => setRenameCustomerName(e.target.value)}
                     placeholder={db.getLabel('auto_ປ້ອນຊື່ລູກຄ້າ____eao8fn', `ປ້ອນຊື່ລູກຄ້າ...`)}
-                    style={{ width: '100%', background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
+                    style={{ width: '100%', background: 'rgba(255, 255, 255, 0.03)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
                   />
                 </div>
 
@@ -4932,7 +4932,7 @@ export default function POS({
                     value={renameCustomerPhone}
                     onChange={(e) => setRenameCustomerPhone(e.target.value)}
                     placeholder={db.getLabel('auto_ປ້ອນເບີໂທລູກຄ້າ____3zmgvs', `ປ້ອນເບີໂທລູກຄ້າ...`)}
-                    style={{ width: '100%', background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
+                    style={{ width: '100%', background: 'rgba(255, 255, 255, 0.03)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
                   />
                 </div>
 
@@ -4966,7 +4966,7 @@ export default function POS({
                               value={newMemberDiscountType}
                               onChange={(e) => setNewMemberDiscountType(e.target.value)}
                               className="form-control"
-                              style={{ background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', padding: '4px 6px', fontSize: '0.75rem', borderRadius: '4px' }}
+                              style={{ background: 'rgba(255, 255, 255, 0.03)', color: 'white', border: '1px solid var(--border-color)', padding: '4px 6px', fontSize: '0.75rem', borderRadius: '4px' }}
                             >
                               <option value="percent">% (Percent)</option>
                               <option value="fixed">₭ (Fixed LAK)</option>
@@ -4980,7 +4980,7 @@ export default function POS({
                               onChange={(e) => setNewMemberDiscountValue(e.target.value)}
                               placeholder={db.getLabel('auto_ປ້ອນຈຳນວນ____4gla08', `ປ້ອນຈຳນວນ...`)}
                               className="form-control"
-                              style={{ background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', padding: '4px 6px', fontSize: '0.75rem', borderRadius: '4px', width: '100%' }}
+                              style={{ background: 'rgba(255, 255, 255, 0.03)', color: 'white', border: '1px solid var(--border-color)', padding: '4px 6px', fontSize: '0.75rem', borderRadius: '4px', width: '100%' }}
                             />
                           </div>
                         </div>
@@ -4990,7 +4990,7 @@ export default function POS({
                             value={newMemberTier}
                             onChange={(e) => setNewMemberTier(e.target.value)}
                             className="form-control"
-                            style={{ background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', padding: '4px 6px', fontSize: '0.75rem', borderRadius: '4px', width: '100%' }}
+                            style={{ background: 'rgba(255, 255, 255, 0.03)', color: 'white', border: '1px solid var(--border-color)', padding: '4px 6px', fontSize: '0.75rem', borderRadius: '4px', width: '100%' }}
                           >
                             <option value="Regular">Regular</option>
                             <option value="VIP">VIP</option>
@@ -5180,7 +5180,7 @@ export default function POS({
                       placeholder="DISCOUNT10"
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                      style={{ textTransform: 'uppercase', fontSize: '0.9rem', padding: '8px 12px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white', flex: 1 }}
+                      style={{ textTransform: 'uppercase', fontSize: '0.9rem', padding: '8px 12px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'white', flex: 1 }}
                     />
                     {couponCode.trim() && (
                       <span style={{
@@ -5382,7 +5382,7 @@ export default function POS({
                         placeholder="0"
                         style={{
                           fontSize: '2.8rem', fontWeight: '900', color: '#ffffff',
-                          background: 'rgba(0,0,0,0.4)', border: '2px solid rgba(212,175,55,0.4)',
+                          background: 'rgba(255, 255, 255, 0.03)', border: '2px solid var(--gold-primary)',
                           padding: '12px 16px', textAlign: 'center', width: '100%',
                           borderRadius: '14px', outline: 'none', transition: 'border-color 0.2s',
                           boxShadow: '0 4px 20px rgba(212,175,55,0.1)'
@@ -5893,7 +5893,7 @@ export default function POS({
                       setMemberSearchVal(e.target.value);
                       setShowMemberDropdown(true);
                     }}
-                    style={{ width: '100%', background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
+                    style={{ width: '100%', background: 'rgba(255, 255, 255, 0.03)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
                   />
                   {showMemberDropdown && memberSearchVal.trim() && (
                     <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'rgba(26, 22, 19, 0.95)', border: '1px solid var(--border-color)', borderRadius: '6px', zIndex: 100, maxHeight: '140px', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
