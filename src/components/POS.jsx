@@ -3866,25 +3866,40 @@ export default function POS({
                 <span>{grandTotal.toLocaleString()} {db.getLabel('auto_ກີບ_2726e', `ກີບ`)}</span>
               </div>
 
-              {/* Bottom Actions under cart (Image 2 style) */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '4px', marginTop: '10px' }}>
+                            {/* Bottom Actions under cart (Image 2 style) */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '6px', marginTop: '10px' }}>
 
                 {hasPosPermission('posOpenDrawer') && (
                 <button
-                  className="btn btn-secondary"
-                  style={{ padding: '8px 1px', fontSize: '0.7rem', background: '#34495e', borderColor: '#2c3e50', color: 'white' }}
+                  className="btn"
+                  style={{
+                    padding: '8px 1px', fontSize: '0.62rem', fontWeight: '700', borderRadius: '8px',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '5px',
+                    background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)',
+                    color: 'rgba(255, 255, 255, 0.9)', transition: 'all 0.18s ease', cursor: 'pointer'
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)'; e.currentTarget.style.transform = ''; }}
                   onClick={() => {
                     handleOpenDrawer();
                     db.addAuditLog('open_drawer', `ເປີດລິ້ນຊັກເກັບເງິນດ້ວຍມື (Manual Release) ໂດຍພະນັກງານ ${activeUser.name}`, 'danger');
                   }}
                 >
-                  💸 ເປີດລິ້ນຊັກ
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 4v16M2 10h20M2 14h20"/></svg>
+                  ເປີດລິ້ນຊັກ
                 </button>
                 )}
                 {hasPosPermission('posDiscount') && (
                 <button
-                  className="btn btn-secondary"
-                  style={{ padding: '8px 1px', fontSize: '0.7rem', background: '#d35400', borderColor: '#e67e22', color: 'white' }}
+                  className="btn"
+                  style={{
+                    padding: '8px 1px', fontSize: '0.62rem', fontWeight: '700', borderRadius: '8px',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '5px',
+                    background: 'rgba(211, 84, 0, 0.08)', border: '1px solid rgba(211, 84, 0, 0.25)',
+                    color: '#e67e22', transition: 'all 0.18s ease', cursor: 'pointer'
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(211, 84, 0, 0.14)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(211, 84, 0, 0.08)'; e.currentTarget.style.transform = ''; }}
                   onClick={() => {
                     const dType = activeSlot.discountType || 'percent';
                     setDiscountTypeInput(dType);
@@ -3897,14 +3912,22 @@ export default function POS({
                   }}
                   disabled={activeSlot.items.length === 0}
                 >
-                  🏷️ ສ່ວນຫຼຸດ: {activeSlot.discountType === 'fixed' ? `${(activeSlot.discountAmount || 0).toLocaleString()} ₭` : `${activeSlot.discountPercent || 0}%`}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                  ສ່ວນຫຼຸດ: {activeSlot.discountType === 'fixed' ? `${(activeSlot.discountAmount || 0).toLocaleString()} ₭` : `${activeSlot.discountPercent || 0}%`}
                 </button>
                 )}
                 {hasPosPermission('posDeposit') && (
                 <button
                   type="button"
-                  className="btn btn-secondary"
-                  style={{ padding: '8px 1px', fontSize: '0.68rem', background: '#27ae60', borderColor: '#2196f3', color: 'white' }}
+                  className="btn"
+                  style={{
+                    padding: '8px 1px', fontSize: '0.62rem', fontWeight: '700', borderRadius: '8px',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '5px',
+                    background: 'rgba(46, 204, 113, 0.08)', border: '1px solid rgba(46, 204, 113, 0.25)',
+                    color: '#2ecc71', transition: 'all 0.18s ease', cursor: 'pointer'
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(46, 204, 113, 0.14)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(46, 204, 113, 0.08)'; e.currentTarget.style.transform = ''; }}
                   onClick={() => {
                     if (activeSlot.items.length === 0) {
                       alert('ກະລຸນາເລືອກສິນຄ້າໃສ່ກະຕ່າກ່ອນ!');
@@ -3931,32 +3954,57 @@ export default function POS({
                   }}
                   disabled={activeSlot.items.length === 0}
                 >
-                  💰 ມັດຈຳ
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                  ມັດຈຳ
                 </button>
                 )}
                 <button
-                  className="btn btn-secondary"
-                  style={{ padding: '8px 1px', fontSize: '0.7rem', background: '#34495e', borderColor: '#5d6d7e', color: 'white' }}
+                  className="btn"
+                  style={{
+                    padding: '8px 1px', fontSize: '0.62rem', fontWeight: '700', borderRadius: '8px',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '5px',
+                    background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)',
+                    color: 'rgba(255, 255, 255, 0.9)', transition: 'all 0.18s ease', cursor: 'pointer'
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)'; e.currentTarget.style.transform = ''; }}
                   onClick={handlePrintWorkOrder}
                   disabled={activeSlot.items.length === 0}
                 >
-                  {db.getLabel('cart_work_order_btn', '🖨️ ພิມບິນ')}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                  ພິມບິນ
                 </button>
                 <button
-                  className="btn btn-secondary"
-                  style={{ padding: '8px 1px', fontSize: '0.7rem', background: '#7b241c', borderColor: 'var(--alert-red)', color: 'white' }}
+                  className="btn"
+                  style={{
+                    padding: '8px 1px', fontSize: '0.62rem', fontWeight: '700', borderRadius: '8px',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '5px',
+                    background: 'rgba(231, 76, 60, 0.08)', border: '1px solid rgba(231, 76, 60, 0.25)',
+                    color: '#e74c3c', transition: 'all 0.18s ease', cursor: 'pointer'
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(231, 76, 60, 0.14)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(231, 76, 60, 0.08)'; e.currentTarget.style.transform = ''; }}
                   onClick={handleOpenDebtClick}
                   disabled={activeSlot.items.length === 0}
                 >
-                  {db.getLabel('cart_debt_btn', '📒 ຕິດໜີ້')}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                  ຕິດໜີ້
                 </button>
                 <button
-                  className="btn btn-primary"
-                  style={{ padding: '8px 1px', fontSize: '0.7rem', fontWeight: 'bold' }}
+                  className="btn"
+                  style={{
+                    padding: '8px 1px', fontSize: '0.62rem', fontWeight: '700', borderRadius: '8px',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '5px',
+                    background: 'rgba(52, 152, 219, 0.12)', border: '1px solid rgba(52, 152, 219, 0.35)',
+                    color: '#3498db', transition: 'all 0.18s ease', cursor: 'pointer'
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(52, 152, 219, 0.22)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(52, 152, 219, 0.12)'; e.currentTarget.style.transform = ''; }}
                   onClick={handlePayClick}
                   disabled={activeSlot.items.length === 0}
                 >
-                  {db.getLabel('cart_pay_btn', '💵 ຊຳລະເງິນ')}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                  ຊຳລະເງິນ
                 </button>
               </div>
             </div>
@@ -4266,7 +4314,7 @@ export default function POS({
                       }}
                     />
                     {showEntryMemberDropdown && entryMemberSearchVal.trim() && (
-                      <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#1c1815', border: '1px solid var(--border-color)', borderRadius: '6px', zIndex: 100, maxHeight: '140px', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                      <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'rgba(26, 22, 19, 0.95)', border: '1px solid var(--border-color)', borderRadius: '6px', zIndex: 100, maxHeight: '140px', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
                         {customerMembers.filter(m => m.name.toLowerCase().includes(entryMemberSearchVal.toLowerCase()) || m.phone.includes(entryMemberSearchVal)).map(m => (
                           <div
                             key={m.id}
@@ -4356,7 +4404,7 @@ export default function POS({
                                 value={entryNewDiscountType}
                                 onChange={(e) => setEntryNewDiscountType(e.target.value)}
                                 className="form-control"
-                                style={{ background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', padding: '3px 6px', fontSize: '0.7rem', borderRadius: '4px', height: '26px' }}
+                                style={{ background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', padding: '3px 6px', fontSize: '0.7rem', borderRadius: '4px', height: '26px' }}
                               >
                                 <option value="percent">% (Percent)</option>
                                 <option value="fixed">₭ (Fixed)</option>
@@ -4369,7 +4417,7 @@ export default function POS({
                                 onChange={(e) => setEntryNewDiscountValue(e.target.value)}
                                 placeholder={db.getLabel('auto_ສ່ວນຫຼຸດ____10qys1', `ສ່ວນຫຼຸດ...`)}
                                 className="form-control"
-                                style={{ background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', padding: '3px 6px', fontSize: '0.7rem', borderRadius: '4px', width: '100%', height: '26px' }}
+                                style={{ background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', padding: '3px 6px', fontSize: '0.7rem', borderRadius: '4px', width: '100%', height: '26px' }}
                               />
                             </div>
                           </div>
@@ -4677,7 +4725,7 @@ export default function POS({
                               width: '50px',
                               height: '50px',
                               borderRadius: '6px',
-                              background: '#221e1a',
+                              background: 'rgba(25, 20, 15, 0.45)',
                               border: '1.5px dashed var(--border-color)',
                               display: 'flex',
                               alignItems: 'center',
@@ -4730,7 +4778,7 @@ export default function POS({
                                 return copy;
                               });
                             }}
-                            style={{ width: '100%', background: '#191613', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '6px 10px', fontSize: '0.85rem' }}
+                            style={{ width: '100%', background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '6px 10px', fontSize: '0.85rem' }}
                           />
                         </div>
                       </div>
@@ -4749,7 +4797,7 @@ export default function POS({
                               return copy;
                             });
                           }}
-                          style={{ width: '100%', background: '#191613', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '6px 10px', fontSize: '0.85rem' }}
+                          style={{ width: '100%', background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '6px 10px', fontSize: '0.85rem' }}
                         />
                       </div>
                     </div>
@@ -4762,7 +4810,7 @@ export default function POS({
                     type="datetime-local"
                     className="form-input"
                     required
-                    style={{ width: '100%', background: '#191613', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px', fontSize: '0.85rem' }}
+                    style={{ width: '100%', background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px', fontSize: '0.85rem' }}
                     value={serviceConfigPickupDate}
                     onChange={(e) => setServiceConfigPickupDate(e.target.value)}
                   />
@@ -4774,7 +4822,7 @@ export default function POS({
                 </div>
               </div>
 
-              <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', padding: '16px 20px', borderTop: '1px solid var(--border-color)', background: '#12100e' }}>
+              <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', padding: '16px 20px', borderTop: '1px solid var(--border-color)', background: 'rgba(18, 16, 14, 0.95)' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => { setShowServiceConfigModal(false); setServiceConfigProduct(null); }}>{db.getLabel('auto_ຍົກເລີກ___Cancel_74yvyf', `ຍົກເລີກ / Cancel`)}</button>
                 <button type="submit" className="btn btn-primary">{db.getLabel('auto_ຕົກລົງ___Confirm_w3peth', `ຕົກລົງ / Confirm`)}</button>
               </div>
@@ -4808,7 +4856,7 @@ export default function POS({
                     value={renameValue}
                     onChange={(e) => setRenameValue(e.target.value)}
                     placeholder={db.getLabel('auto_ປ້ອນຊື່ຄິວໃໝ່__ເຊັ່ນ__VIP_j3gtvn', `ປ້ອນຊື່ຄິວໃໝ່ (ເຊັ່ນ: VIP-1, ຊ່າງຍົມ, 01)...`)}
-                    style={{ width: '100%', background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
+                    style={{ width: '100%', background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
                   />
                 </div>
 
@@ -4826,10 +4874,10 @@ export default function POS({
                       setMemberSearchVal(e.target.value);
                       setShowMemberDropdown(true);
                     }}
-                    style={{ width: '100%', background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
+                    style={{ width: '100%', background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
                   />
                   {showMemberDropdown && memberSearchVal.trim() && (
-                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#1c1815', border: '1px solid var(--border-color)', borderRadius: '6px', zIndex: 100, maxHeight: '140px', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'rgba(26, 22, 19, 0.95)', border: '1px solid var(--border-color)', borderRadius: '6px', zIndex: 100, maxHeight: '140px', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
                       {customerMembers.filter(m => m.name.toLowerCase().includes(memberSearchVal.toLowerCase()) || m.phone.includes(memberSearchVal)).map(m => (
                         <div
                           key={m.id}
@@ -4872,7 +4920,7 @@ export default function POS({
                     value={renameCustomerName}
                     onChange={(e) => setRenameCustomerName(e.target.value)}
                     placeholder={db.getLabel('auto_ປ້ອນຊື່ລູກຄ້າ____eao8fn', `ປ້ອນຊື່ລູກຄ້າ...`)}
-                    style={{ width: '100%', background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
+                    style={{ width: '100%', background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
                   />
                 </div>
 
@@ -4884,7 +4932,7 @@ export default function POS({
                     value={renameCustomerPhone}
                     onChange={(e) => setRenameCustomerPhone(e.target.value)}
                     placeholder={db.getLabel('auto_ປ້ອນເບີໂທລູກຄ້າ____3zmgvs', `ປ້ອນເບີໂທລູກຄ້າ...`)}
-                    style={{ width: '100%', background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
+                    style={{ width: '100%', background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
                   />
                 </div>
 
@@ -4918,7 +4966,7 @@ export default function POS({
                               value={newMemberDiscountType}
                               onChange={(e) => setNewMemberDiscountType(e.target.value)}
                               className="form-control"
-                              style={{ background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', padding: '4px 6px', fontSize: '0.75rem', borderRadius: '4px' }}
+                              style={{ background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', padding: '4px 6px', fontSize: '0.75rem', borderRadius: '4px' }}
                             >
                               <option value="percent">% (Percent)</option>
                               <option value="fixed">₭ (Fixed LAK)</option>
@@ -4932,7 +4980,7 @@ export default function POS({
                               onChange={(e) => setNewMemberDiscountValue(e.target.value)}
                               placeholder={db.getLabel('auto_ປ້ອນຈຳນວນ____4gla08', `ປ້ອນຈຳນວນ...`)}
                               className="form-control"
-                              style={{ background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', padding: '4px 6px', fontSize: '0.75rem', borderRadius: '4px', width: '100%' }}
+                              style={{ background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', padding: '4px 6px', fontSize: '0.75rem', borderRadius: '4px', width: '100%' }}
                             />
                           </div>
                         </div>
@@ -4942,7 +4990,7 @@ export default function POS({
                             value={newMemberTier}
                             onChange={(e) => setNewMemberTier(e.target.value)}
                             className="form-control"
-                            style={{ background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', padding: '4px 6px', fontSize: '0.75rem', borderRadius: '4px', width: '100%' }}
+                            style={{ background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', padding: '4px 6px', fontSize: '0.75rem', borderRadius: '4px', width: '100%' }}
                           >
                             <option value="Regular">Regular</option>
                             <option value="VIP">VIP</option>
@@ -5845,10 +5893,10 @@ export default function POS({
                       setMemberSearchVal(e.target.value);
                       setShowMemberDropdown(true);
                     }}
-                    style={{ width: '100%', background: '#221e1a', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
+                    style={{ width: '100%', background: 'rgba(25, 20, 15, 0.45)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
                   />
                   {showMemberDropdown && memberSearchVal.trim() && (
-                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#1c1815', border: '1px solid var(--border-color)', borderRadius: '6px', zIndex: 100, maxHeight: '140px', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'rgba(26, 22, 19, 0.95)', border: '1px solid var(--border-color)', borderRadius: '6px', zIndex: 100, maxHeight: '140px', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
                       {customerMembers.filter(m => m.name.toLowerCase().includes(memberSearchVal.toLowerCase()) || m.phone.includes(memberSearchVal)).map(m => (
                         <div
                           key={m.id}

@@ -1550,7 +1550,7 @@ select:-webkit-autofill:focus {
 
 .qty-input {
   width: 65px;
-  background: #0c0b09;
+  background: rgba(25, 20, 15, 0.45);
   border: 1.5px solid var(--border-color);
   border-radius: var(--radius-md);
   color: var(--text-primary);
