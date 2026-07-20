@@ -1447,19 +1447,17 @@ export default function App() {
             >
               <Icons.menu />
             </button>
-            <span className="active-route-name" style={isMobile ? { fontSize: '0.85rem', whiteSpace: 'nowrap', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis' } : {}}>
-              {activeTab === 'dashboard' && db.getLabel('tab_dashboard', '🏠 ພາບລວມ (Dashboard)')}
-              {activeTab === 'pos' && db.getLabel('tab_pos', '💵 ຂາຍໜ້າຮ້ານ (POS)')}
-              {activeTab === 'framing_board' && db.getLabel('tab_framing', '🛠️ ບອດງານອັດກອບ (Framing Board)')}
-              {activeTab === 'inventory' && db.getLabel('tab_inventory', '📦 ສະຕັອກ (Inventory)')}
-              {activeTab === 'hrm' && db.getLabel('tab_hrm', '👥 ຈັດການບຸກຄະລາກອນ (HRM)')}
-              {activeTab === 'reports' && db.getLabel('tab_reports', '📊 ລາຍງານ (Reports)')}
-              {activeTab === 'debts' && db.getLabel('tab_debts', '📒 ບັນຊີຕິດໜີ້ (Debts)')}
-              {activeTab === 'online_orders' && db.getLabel('tab_online_orders', '🛒 ອໍເດີ້ອອນລາຍ (Online Orders)')}
-              {activeTab === 'customers' && db.getLabel('tab_customers', '💳 ສະມາຊິກ (Members)')}
-              {activeTab === 'ai' && db.getLabel('tab_ai', '🤖 ລະບົບ AI')}
-              {activeTab === 'settings' && db.getLabel('tab_settings', '⚙️ ຕັ້ງຄ່າ (Settings)')}
-            </span>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              padding: '4px 11px', borderRadius: '9px',
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.07)',
+              fontSize: '0.72rem', color: 'rgba(255,255,255,0.55)',
+              fontWeight: 600, letterSpacing: '0.3px',
+              whiteSpace: 'nowrap'
+            }}>
+              <Icons.clock /><span>{clockStr}</span>
+            </div>
 
             {/* Connection Status Badge */}
             <div style={{
@@ -1507,19 +1505,7 @@ export default function App() {
               </button>
             )}
 
-            {/* Real-time Clock */}
-            {!isMobile && (
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 5,
-                padding: '4px 11px', borderRadius: 9,
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.07)',
-                fontSize: '0.68rem', color: 'rgba(255,255,255,0.45)',
-                fontWeight: 600, letterSpacing: '0.3px',
-              }}>
-                <Icons.clock /><span>{clockStr}</span>
-              </div>
-            )}
+
 
             {lowStockWarning && activeUser.role === 'owner' && (
               <button
