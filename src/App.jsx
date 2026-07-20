@@ -1798,7 +1798,7 @@ export default function App() {
                 onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(34,197,94,0.4)'; }}
                 onClick={() => { setOpeningCashInput(''); setShowClockInModal(true); }}
               >
-                ⏰ ເຂົ້າງານດຽວນີ້ (Clock In)
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0, marginRight: 2 }}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ເຂົ້າງານດຽວນີ້ (Clock In)
               </button>
 
               <p style={{ marginTop: 18, fontSize: '0.7rem', color: 'rgba(255,255,255,0.2)' }}>
