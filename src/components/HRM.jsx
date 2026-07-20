@@ -92,6 +92,7 @@ export default function HRM({ activeUser, onUpdate, isMobile }) {
     return !!activeUser.permissions?.[subKey];
   };
   const [activeSubTab, setActiveSubTab] = useState('employees'); // employees | shifts | attendance | leaves | payroll
+  const [revealedUsers, setRevealedUsers] = useState({});
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -801,9 +802,18 @@ export default function HRM({ activeUser, onUpdate, isMobile }) {
                       <span>Gmail / Email:</span>
                       <span style={{ color: 'white', wordBreak: 'break-all' }}>{u.email}</span>
                       <span>{db.getLabel('auto_ລະຫັດ_PIN_4_ຫຼັກ__dghrbv', `ລະຫັດ PIN 4 ຫຼັກ:`)}</span>
-                      <span style={{ color: 'var(--accent-amber)', fontWeight: 'bold' }}>{u.passcode}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ color: 'var(--accent-amber)', fontWeight: 'bold' }}>{revealedUsers[u.id] ? u.passcode : '••••'}</span>
+                        <button 
+                          type="button" 
+                          onClick={() => setRevealedUsers(prev => ({ ...prev, [u.id]: !prev[u.id] }))}
+                          style={{ background: 'none', border: 'none', color: 'var(--gold-primary)', cursor: 'pointer', padding: '0 4px', fontSize: '0.85rem', display: 'flex', alignItems: 'center' }}
+                        >
+                          {revealedUsers[u.id] ? '👁️' : '👁️‍🗨️'}
+                        </button>
+                      </div>
                       <span>{db.getLabel('auto_ລະຫັດຜ່ານ__Pass___1xi59c', `ລະຫັດຜ່ານ (Pass):`)}</span>
-                      <span style={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>{u.password}</span>
+                      <span style={{ fontFamily: 'monospace', wordBreak: 'break-all', color: revealedUsers[u.id] ? 'white' : 'rgba(255,255,255,0.3)' }}>{revealedUsers[u.id] ? u.password : '••••••••'}</span>
                       <span>{db.getLabel('auto_ຮູບແບບການຈ່າຍ__3hs4qf', `ຮູບແບບການຈ່າຍ:`)}</span>
                       <span style={{ color: 'white' }}>{u.payType === 'monthly' ? 'ເງິນເດືອນລາຍເດືອນ (Monthly)' : 'ຄ່າຈ້າງລາຍວັນ (Daily)'}</span>
                       <span>{db.getLabel('auto_ຄ່າຈ້າງ___ເງິນເດືອນ__v5jf2c', `ຄ່າຈ້າງ / ເງິນເດືອນ:`)}</span>
