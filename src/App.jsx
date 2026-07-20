@@ -231,7 +231,7 @@ export default function App() {
       const day = String(n.getDate()).padStart(2, '0');
       const month = String(n.getMonth() + 1).padStart(2, '0');
       const year = n.getFullYear();
-      const d = `${day}/${month}/${year}`;
+      const d = `${day}-${month}-${year}`;
       const t = n.toLocaleTimeString('lo-LA', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
       setClockStr(`${d} • ${t}`);
     };
@@ -1468,7 +1468,7 @@ export default function App() {
                 if (parts.length >= 2) {
                   return (
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem' }}>
-                      <span style={{ color: 'rgba(255, 255, 255, 0.65)', fontWeight: 600 }}>{parts[0].trim()}</span>
+                      <span style={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 600, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.5px' }}>{parts[0].trim()}</span>
                       <span style={{ color: 'rgba(212, 175, 55, 0.45)', fontWeight: 'bold' }}>•</span>
                       <span style={{ color: 'var(--gold-primary)', fontWeight: 700, fontFamily: 'monospace', fontSize: '0.78rem', letterSpacing: '0.5px' }}>{parts[1].trim()}</span>
                     </span>
