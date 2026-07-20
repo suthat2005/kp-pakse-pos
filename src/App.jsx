@@ -1638,34 +1638,7 @@ export default function App() {
               </button>
             )}
 
-            {/* ── Quick Actions ($) ── */}
-            {!isMobile && (activeUser.role === 'owner' || activeUser.role === 'manager') && (
-              <button
-                type="button"
-                title="ບັນທຶກລາຍຈ່າຍ (Record Expense)"
-                onClick={() => {
-                  setExpenseFormData({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '', currency: 'LAK' });
-                  setShowExpenseModal(true);
-                }}
-                style={{
-                  width: 34, height: 34,
-                  borderRadius: '10px',
-                  background: 'rgba(212, 175, 55, 0.08)',
-                  border: '1.5px solid var(--gold-primary)',
-                  color: 'var(--gold-primary)',
-                  fontSize: '1.1rem', fontWeight: 'bold',
-                  fontFamily: 'monospace',
-                  cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  transition: 'all 0.18s',
-                  flexShrink: 0,
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(212, 175, 55, 0.18)'; e.currentTarget.style.boxShadow = '0 0 10px rgba(212, 175, 55, 0.2)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(212, 175, 55, 0.08)'; e.currentTarget.style.boxShadow = 'none'; }}
-              >
-                $
-              </button>
-            )}
+
 
             {/* ── User Pill ── */}
             <div style={{
