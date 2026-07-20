@@ -160,9 +160,9 @@ export default function OrderTracking({ jobId, onClose, isInline = false, mockJo
         {(job.status === 'pending' || job.status === 'framing') && settings.trackingShowQueue !== false && (
           <div className={`m-queue-card ${queuePosition === 0 ? 'm-queue-next' : 'm-queue-waiting'}`}>
             {queuePosition === 0 ? (
-              <span>🔥 {db.getLabel('track_queue_ahead', 'ຄິວຖັດໄປ / ພວມດຳເນີນການ')}</span>
+              <span>{db.getLabel('track_queue_ahead', 'ຄິວຖັດໄປ / ພວມດຳເນີນການ')}</span>
             ) : (
-              <span>⏳ {db.getLabel('track_queues_remaining', 'ຍັງເຫຼືອອີກ {count} ຄິວ ກ່ອນໜ້າຄິວຂອງທ່ານ').replace('{count}', String(queuePosition))}</span>
+              <span>{db.getLabel('track_queues_remaining', 'ຍັງເຫຼືອອີກ {count} ຄິວ ກ່ອນໜ້າຄິວຂອງທ່ານ').replace('{count}', String(queuePosition))}</span>
             )}
           </div>
         )}
@@ -235,11 +235,11 @@ export default function OrderTracking({ jobId, onClose, isInline = false, mockJo
                   <span style={{ color: '#d4af37' }}>x1</span>
                 </div>
                 <div className="m-amulet-desc">
-                  ⚙️ {amulet.frameTypeName} {amulet.frameStyle && `• ${amulet.frameStyle}`}
+                  {amulet.frameTypeName} {amulet.frameStyle && `• ${amulet.frameStyle}`}
                 </div>
                 {amulet.specialNotes && (
                   <div className="m-amulet-note">
-                    💡 {db.getLabel('track_notes_prefix', 'ໝາຍເຫດ:')} {amulet.specialNotes}
+                    {db.getLabel('track_notes_prefix', 'ໝາຍເຫດ:')} {amulet.specialNotes}
                   </div>
                 )}
               </div>
@@ -308,9 +308,9 @@ export default function OrderTracking({ jobId, onClose, isInline = false, mockJo
           {(job.status === 'pending' || job.status === 'framing') && settings.trackingShowQueue !== false && (
             <div className={`queue-position-card ${queuePosition === 0 ? 'queue-next' : 'queue-waiting'}`}>
               {queuePosition === 0 ? (
-                <span>🔥 {db.getLabel('track_queue_ahead', 'ຄິວຖັດໄປ / ພວມດຳເນີນການ')}</span>
+                <span>{db.getLabel('track_queue_ahead', 'ຄິວຖັດໄປ / ພວມດຳເນີນການ')}</span>
               ) : (
-                <span>⏳ {db.getLabel('track_queues_remaining', 'ຍັງເຫຼືອອີກ {count} ຄິວ ກ່ອນໜ້າຄິວຂອງທ່ານ').replace('{count}', String(queuePosition))}</span>
+                <span>{db.getLabel('track_queues_remaining', 'ຍັງເຫຼືອອີກ {count} ຄິວ ກ່ອນໜ້າຄິວຂອງທ່ານ').replace('{count}', String(queuePosition))}</span>
               )}
             </div>
           )}
@@ -389,11 +389,11 @@ export default function OrderTracking({ jobId, onClose, isInline = false, mockJo
                   <span style={{ color: '#d4af37' }}>x1</span>
                 </div>
                 <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.78rem', marginTop: '4px', lineHeight: '1.4' }}>
-                  ⚙️ {amulet.frameTypeName} {amulet.frameStyle && `• ${amulet.frameStyle}`}
+                  {amulet.frameTypeName} {amulet.frameStyle && `• ${amulet.frameStyle}`}
                 </div>
                 {amulet.specialNotes && (
                   <div style={{ color: '#f1c40f', fontSize: '0.75rem', marginTop: '4px', background: 'rgba(241,196,15,0.06)', padding: '4px 8px', borderRadius: '6px' }}>
-                    💡 {db.getLabel('track_notes_prefix', 'ໝາຍເຫດ:')} {amulet.specialNotes}
+                    {db.getLabel('track_notes_prefix', 'ໝາຍເຫດ:')} {amulet.specialNotes}
                   </div>
                 )}
               </div>

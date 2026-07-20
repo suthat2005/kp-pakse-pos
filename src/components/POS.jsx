@@ -6,7 +6,7 @@ import QRCode from 'qrcode';
 import jsQR from 'jsqr';
 import Portal from './Portal';
 
-const accountConfig = {
+const _accountConfig = {
   LAK: { mid: 'mch64f01defcb310', code: '418' },
   THB: { mid: 'mch64f01defcb310', code: '764' },
   USD: { mid: 'mch64f01defcb310', code: '840' }
@@ -65,9 +65,13 @@ const ProductCard = React.memo(({ p, categories, handleProductSelect }) => {
   const isLowStock = !isService && p.stock <= p.minStock;
   const cardStyle = {
     padding: '10px',
-    border: isService ? '1px solid rgba(229,169,59,0.22)' : '1px solid rgba(39,174,96,0.18)',
-    background: isService ? 'linear-gradient(180deg, rgba(229,169,59,0.10), rgba(255,255,255,0.03))' : 'linear-gradient(180deg, rgba(39,174,96,0.08), rgba(255,255,255,0.03))',
-    boxShadow: isService ? '0 10px 28px rgba(229,169,59,0.08)' : '0 10px 28px rgba(39,174,96,0.06)'
+    borderColor: isService ? 'rgba(229,169,59,0.28)' : 'rgba(39,174,96,0.2)',
+    height: '195px',
+    minHeight: '195px',
+    display: 'flex',
+    flexDirection: 'column',
+    boxSizing: 'border-box',
+    justifyContent: 'space-between'
   };
   return (
     <div
@@ -80,32 +84,39 @@ const ProductCard = React.memo(({ p, categories, handleProductSelect }) => {
           {p.stock === 0 ? 'ໝົດ' : `ໃກ້ໝົດ (${p.stock})`}
         </span>
       )}
-      <img src={p.image} alt={p.name} className="product-card-img" style={{ height: '90px' }} />
-      <div className="product-card-name" style={{ fontSize: '0.8rem', height: '32px' }}>{p.name}</div>
+      <img src={p.image} alt={p.name} className="product-card-img" style={{ height: '88px' }} />
+      <div className="product-card-name" style={{ fontSize: '0.8rem', height: '34px' }}>{p.name}</div>
       <div style={{ marginTop: '4px' }}>
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.68rem', padding: '2px 8px', borderRadius: '999px', color: isService ? 'var(--accent-amber)' : 'var(--success-green)', border: `1px solid ${isService ? 'rgba(229,169,59,0.25)' : 'rgba(39,174,96,0.25)'}`, background: isService ? 'rgba(229,169,59,0.08)' : 'rgba(39,174,96,0.08)' }}>
+        <span style={{
+          display: 'inline-flex', alignItems: 'center', gap: '4px',
+          fontSize: '0.65rem', padding: '2px 8px', borderRadius: '999px',
+          color: isService ? 'var(--accent-amber)' : 'var(--success-green)',
+          border: `1px solid ${isService ? 'rgba(229,169,59,0.22)' : 'rgba(39,174,96,0.22)'}`,
+          background: isService ? 'rgba(229,169,59,0.07)' : 'rgba(39,174,96,0.07)',
+          fontWeight: 600,
+        }}>
           {(() => {
             const cat = categories.find(c => c.id === p.category || c.name === p.category);
             const catName = cat ? db.getLabel('cat_' + cat.id, cat.name) : p.category;
-            return isService ? `🛠️ ${catName || 'ບໍລິການ'}` : `📦 ${catName || 'ສິນຄ້າ'}`;
+            return catName || (isService ? 'ບໍລິການ' : 'ສິນຄ້າ');
           })()}
         </span>
       </div>
-      <div className="product-card-price" style={{ fontSize: '0.9rem' }}>{(p.price || 0).toLocaleString()} {db.getLabel('auto_ກີບ_2726e', `ກີບ`)}</div>
+      <div className="product-card-price" style={{ fontSize: '0.88rem', marginTop: '6px' }}>{(p.price || 0).toLocaleString()} {db.getLabel('auto_ກີບ_2726e', `ກີບ`)}</div>
       <div className="product-card-stock" style={{ marginTop: '4px' }}>
         {isService ? (
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ບໍ່ຕ້ອງໃຊ້ສະຕັອກ_78vt7v', `ບໍ່ຕ້ອງໃຊ້ສະຕັອກ`)}</span>
+          <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', opacity: 0.7 }}>{db.getLabel('auto_ບໍ່ຕ້ອງໃຊ້ສະຕັອກ_78vt7v', `ບໍ່ຕ້ອງໃຊ້ສະຕັອກ`)}</span>
         ) : (
           <span style={{
-            fontSize: '0.7rem',
-            border: '1.5px solid var(--alert-red)',
+            fontSize: '0.65rem',
+            border: '1px solid rgba(231,76,60,0.4)',
             borderRadius: '6px',
-            padding: '2px 8px',
+            padding: '2px 7px',
             color: 'var(--alert-red)',
-            fontWeight: 'bold',
-            background: 'rgba(231, 76, 60, 0.08)',
+            fontWeight: 700,
+            background: 'rgba(231, 76, 60, 0.07)',
             display: 'inline-block',
-            whiteSpace: 'nowrap'
+            whiteSpace: 'nowrap',
           }}>
             ຄົງເຫຼືອ: {p.stock} {p.unit}
           </span>
@@ -114,6 +125,7 @@ const ProductCard = React.memo(({ p, categories, handleProductSelect }) => {
     </div>
   );
 });
+
 
 export default function POS({ 
   activeUser, 
@@ -203,6 +215,8 @@ export default function POS({
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
+  const [pinError, setPinError] = useState('');
+
   useEffect(() => {
     if (!lockoutUntil) return;
     const interval = setInterval(() => {
@@ -225,7 +239,7 @@ export default function POS({
   const [showFramingEditModal, setShowFramingEditModal] = useState(false);
   const [showFramingPrintModal, setShowFramingPrintModal] = useState(false);
   const [currentFramingJob, setCurrentFramingJob] = useState(null);
-  const [framingError, setFramingError] = useState('');
+  const [_framingError, setFramingError] = useState('');
   const [framingFormData, setFramingFormData] = useState({
     customerName: '',
     customerPhone: '',
@@ -250,7 +264,7 @@ export default function POS({
   const [showAdminPinModal, setShowAdminPinModal] = useState(false);
   const [adminPinInput, setAdminPinInput] = useState('');
   const [pendingDeleteIndex, setPendingDeleteIndex] = useState(-1);
-  const [pinError, setPinError] = useState('');
+  // pinError/setPinError moved above the useEffect that uses it (line ~206)
 
   // Rename Slot Modal (แก้ไขชื่อคิว)
   const [showRenameModal, setShowRenameModal] = useState(false);
@@ -298,7 +312,7 @@ export default function POS({
   const [discountError, setDiscountError] = useState('');
 
   // Debt Slot Selection Popup
-  const [showDebtActionModal, setShowDebtActionModal] = useState(false);
+  const [_showDebtActionModal, _setShowDebtActionModal] = useState(false);
   const [debtActionTargetSlot, setDebtActionTargetSlot] = useState(null);
 
   // Checkout & Debt registration modals
@@ -314,18 +328,18 @@ export default function POS({
   const [transferAmount, setTransferAmount] = useState('');
   const [bankTxRef, setBankTxRef] = useState('');
   const [couponCode, setCouponCode] = useState('');
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [_drawerOpen, setDrawerOpen] = useState(false);
   const [checkoutAmountPaid, setCheckoutAmountPaid] = useState('');
   const [showDepositInputModal, setShowDepositInputModal] = useState(false);
   const [checkoutIsDepositMode, setCheckoutIsDepositMode] = useState(false);
   const [depositInputVal, setDepositInputVal] = useState('');
-  const [depositPayMethod, setDepositPayMethod] = useState('cash');
-  const [depositPayCurrency, setDepositPayCurrency] = useState('LAK');
-  const [depositCashReceived, setDepositCashReceived] = useState('');
-  const [depositBankTxRef, setDepositBankTxRef] = useState('');
-  const [depositTransferAmount, setDepositTransferAmount] = useState('');
+  const [_depositPayMethod, _setDepositPayMethod] = useState('cash');
+  const [_depositPayCurrency, _setDepositPayCurrency] = useState('LAK');
+  const [_depositCashReceived, _setDepositCashReceived] = useState('');
+  const [_depositBankTxRef, _setDepositBankTxRef] = useState('');
+  const [_depositTransferAmount, _setDepositTransferAmount] = useState('');
   // QR that updates with transferAmount (not grandTotal)
-  const [checkoutTransferQrUrl, setCheckoutTransferQrUrl] = useState('');
+  const [_checkoutTransferQrUrl, setCheckoutTransferQrUrl] = useState('');
   const [depositModalQrUrl, setDepositModalQrUrl] = useState('');
   
   // BCEL One QR status states
@@ -354,7 +368,7 @@ export default function POS({
   }, []);
 
   const [showWorkOrder, setShowWorkOrder] = useState(false);
-  const [currentWorkOrder, setCurrentWorkOrder] = useState(null);
+  const [currentWorkOrder, _setCurrentWorkOrder] = useState(null);
 
   // Search & Membership Autocomplete States
   const [queueSearchQuery, setQueueSearchQuery] = useState('');
@@ -406,13 +420,15 @@ export default function POS({
   };
 
   useEffect(() => {
-    setProducts(db.getProducts());
-    setPromotions(db.getPromotions());
-    setSettings(db.getSettings());
-    setSlots(db.getSlots());
-    setCategories(db.getCategories());
-    setFramingJobs(db.getFramingJobs());
-    setCustomerMembers(db.getCustomers());
+    queueMicrotask(() => {
+      setProducts(db.getProducts());
+      setPromotions(db.getPromotions());
+      setSettings(db.getSettings());
+      setSlots(db.getSlots());
+      setCategories(db.getCategories());
+      setFramingJobs(db.getFramingJobs());
+      setCustomerMembers(db.getCustomers());
+    });
   }, [showReceipt, showCheckout, showWorkOrder, showDebtModal, showRenameModal, viewMode, showFramingAddModal, showFramingEditModal, showFramingPrintModal]);
 
   useEffect(() => {
@@ -461,24 +477,27 @@ export default function POS({
         }
 
         db.saveSlots(updatedSlots);
-        setSlots(updatedSlots);
+        queueMicrotask(() => setSlots(updatedSlots));
         
         // Open POS workspace menu directly
-        setViewMode('menu');
-        
-        // Auto open checkout modal
-        setCashReceived('');
-        setPaymentMethod('cash');
-        setShowCheckout(true);
+        queueMicrotask(() => {
+          setViewMode('menu');
+          
+          // Auto open checkout modal
+          setCashReceived('');
+          setPaymentMethod('cash');
+          setShowCheckout(true);
+        });
       }
       clearRedirectedCartItem();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [redirectedCartItem, slots]);
 
   const barcodeBufferRef = useRef('');
   const lastKeyTimeRef = useRef(0);
   const scannerLogRef = useRef([]);
-  const lastProcessedKickTimeRef = useRef(Date.now());
+  const lastProcessedKickTimeRef = useRef(0);
 
   // WebUSB / WebSerial references for physical Cash Drawer trigger
   const usbDeviceRef = useRef(null);
@@ -579,6 +598,7 @@ export default function POS({
       }
     ]);
     setShowServiceConfigModal(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSlotId, slots]);
 
   const handleBarcodeScanned = (product) => {
@@ -757,9 +777,10 @@ export default function POS({
     return () => {
       window.removeEventListener('keydown', handleGlobalKeyDown);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [products, slots, selectedSlotId, showQtyModal, qtyTargetProd, settings, inputQty, searchQuery, promotions]);
 
-  const activeSlot = slots[selectedSlotId] || { items: [], label: selectedSlotId };
+  const activeSlot = useMemo(() => slots[selectedSlotId] || { items: [], label: selectedSlotId }, [slots, selectedSlotId]);
 
   // 1. Open select qty dialog modal when adding product (Image 3)
   const handleProductSelect = useCallback((product) => {
@@ -1171,7 +1192,7 @@ export default function POS({
     // If it's a debt slot (Red), show outstanding options modal
     if (slot.isDebt) {
       setDebtActionTargetSlot(slot);
-      setShowDebtActionModal(true);
+      _setShowDebtActionModal(true);
     } else if (activeJob && (!slot.items || slot.items.length === 0)) {
       // Automatically load the balance payment for the active framing job into the cart!
       handleCollectPayment(activeJob);
@@ -1280,7 +1301,7 @@ export default function POS({
   };
 
   const discount = calculateDiscount();
-  const getJobDeductions = () => {
+  const _getJobDeductions = () => {
     let totalDeduction = 0;
     activeSlot.items.forEach(item => {
       if (item.productId && item.productId.startsWith('JOB')) {
@@ -1305,7 +1326,7 @@ export default function POS({
                                : payCurrency === 'THB' ? Math.ceil(grandTotal / payRate) 
                                : Math.ceil((grandTotal / payRate) * 100) / 100;
 
-  const hasJobBalanceItem = activeSlot.items.some(item => 
+  const _hasJobBalanceItem = activeSlot.items.some(item => 
     item.productId && 
     item.productId.startsWith('JOB') && 
     !(item.name && item.name.startsWith('ມັດຈຳ:'))
@@ -1325,17 +1346,19 @@ export default function POS({
 
   useEffect(() => {
     if (showCheckout) {
-      setPayCurrency('LAK');
-      setPaymentMethod('cash');
-      setBankTxRef('');
-      if (checkoutIsDepositMode) {
-        setCashReceived('');
-        setTransferAmount('');
-      } else {
-        const targetLAK = Math.max(0, grandTotal - (activeSlot.depositAmount || 0));
-        setCashReceived(String(targetLAK));
-        setTransferAmount('');
-      }
+      queueMicrotask(() => {
+        setPayCurrency('LAK');
+        setPaymentMethod('cash');
+        setBankTxRef('');
+        if (checkoutIsDepositMode) {
+          setCashReceived('');
+          setTransferAmount('');
+        } else {
+          const targetLAK = Math.max(0, grandTotal - (activeSlot.depositAmount || 0));
+          setCashReceived(String(targetLAK));
+          setTransferAmount('');
+        }
+      });
     }
   }, [grandTotal, showCheckout, activeSlot, checkoutIsDepositMode]);
 
@@ -1345,30 +1368,33 @@ export default function POS({
       ? 0
       : Math.max(0, grandTotal - (activeSlot.depositAmount || 0));
     
-    if (paymentMethod === 'treat') {
-      setCheckoutAmountPaid('0');
-      return;
-    }
-    if (checkoutIsDepositMode) {
-      // In deposit mode, they define the deposit amount on the fly
-      let computedLAK = 0;
-      const rate = payCurrency === 'THB' ? (settings.exchangeRateThb || 750) : payCurrency === 'USD' ? (settings.exchangeRateUsd || 26000) : 1;
+    queueMicrotask(() => {
       if (paymentMethod === 'treat') {
-      if (!treatRemark.trim()) {
-        alert('ກະລຸນາປ້ອນໝາຍເຫດ/ເຫດຜົນການລ້ຽງແຂກ!');
+        setCheckoutAmountPaid('0');
         return;
       }
-    } else if (paymentMethod === 'cash') {
-        computedLAK = Math.round(Number(cashReceived || 0) * rate);
-      } else if (paymentMethod === 'transfer') {
-        computedLAK = Math.round(Number(transferAmount || 0) * rate);
-      } else { // split
-        computedLAK = Number(cashReceived || 0) + Number(transferAmount || 0);
+      if (checkoutIsDepositMode) {
+        // In deposit mode, they define the deposit amount on the fly
+        let computedLAK = 0;
+        const rate = payCurrency === 'THB' ? (settings.exchangeRateThb || 750) : payCurrency === 'USD' ? (settings.exchangeRateUsd || 26000) : 1;
+        if (paymentMethod === 'treat') {
+        if (!treatRemark.trim()) {
+          alert('ກະລຸນາປ້ອນຫມາຍເຫດ/ເຫດຜົນການລ້ຽງແຂກ!');
+          return;
+        }
+      } else if (paymentMethod === 'cash') {
+          computedLAK = Math.round(Number(cashReceived || 0) * rate);
+        } else if (paymentMethod === 'transfer') {
+          computedLAK = Math.round(Number(transferAmount || 0) * rate);
+        } else { // split
+          computedLAK = Number(cashReceived || 0) + Number(transferAmount || 0);
+        }
+        setCheckoutAmountPaid(String(computedLAK));
+      } else {
+        setCheckoutAmountPaid(String(targetLAK));
       }
-      setCheckoutAmountPaid(String(computedLAK));
-    } else {
-      setCheckoutAmountPaid(String(targetLAK));
-    }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cashReceived, transferAmount, paymentMethod, payCurrency, grandTotal, activeSlot, settings, checkoutIsDepositMode]);
   const isCheckoutDisabled = (() => {
     if (paymentMethod === 'treat') {
@@ -1545,7 +1571,7 @@ export default function POS({
     const depAmt = Number(depositInputVal) || 0;
     generateQr(activeQrTemplate, depAmt > 0 ? depAmt : activeAmount, setDepositModalQrUrl);
 
-    setCheckoutTransferQrUrl('');
+    queueMicrotask(() => setCheckoutTransferQrUrl(''));
 
     if (currentReceipt) {
       generateQr(settings.bankQrTemplate, currentReceipt.paidAmount || currentReceipt.total, setReceiptQrUrl);
@@ -1559,17 +1585,19 @@ export default function POS({
         const trackUrl = `${baseOrigin}/?track=${jobItem.productId}`;
         generateQr(trackUrl, '', setTrackingQrUrl);
       } else {
-        setTrackingQrUrl('');
+        queueMicrotask(() => setTrackingQrUrl(''));
       }
     } else {
-      setReceiptQrUrl('');
-      setTrackingQrUrl('');
+      queueMicrotask(() => {
+        setReceiptQrUrl('');
+        setTrackingQrUrl('');
+      });
     }
 
     if (currentFramingJob) {
       generateQr(settings.bankQrTemplate, currentFramingJob.balance, setDepositQrUrl);
     } else {
-      setDepositQrUrl('');
+      queueMicrotask(() => setDepositQrUrl(''));
     }
   }, [settings.bankQrTemplate, settings.bankQrTemplateThb, settings.bankQrTemplateUsd, settings.trackingBaseUrl, serverIp, grandTotal, currentReceipt, currentFramingJob, transferAmount, depositInputVal, payCurrency, targetRoundTotalLAK, targetRoundTotalInCurrency]);
 
@@ -1632,7 +1660,7 @@ export default function POS({
     setShowCheckout(true);
   };
 
-  const kickPhysicalDrawer = async () => {
+  const _kickPhysicalDrawer = async () => {
     const method = localStorage.getItem('drawer_connect_method') || 'print';
     if (method === 'print') return false;
 
@@ -1771,6 +1799,7 @@ export default function POS({
     return () => {
       window.removeEventListener('db-updated', checkRemoteKick);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings]);
 
   const handleProcessPayment = () => {
@@ -2164,7 +2193,7 @@ export default function POS({
   };
 
   // Pay slot outstanding debt (collect money, clear debt status)
-  const handleCollectDebtPayment = () => {
+  const _handleCollectDebtPayment = () => {
     const debts = db.getDebts();
     const debtObj = debts.find(d => d.id === debtActionTargetSlot.debtId);
 
@@ -2185,7 +2214,7 @@ export default function POS({
       setSlots(updatedSlots);
 
       // Close debt actions modal
-      setShowDebtActionModal(false);
+      _setShowDebtActionModal(false);
       setDebtActionTargetSlot(null);
 
       // Launch payment checkout
@@ -2195,7 +2224,7 @@ export default function POS({
     }
   };
 
-  const handleViewDebtItems = () => {
+  const _handleViewDebtItems = () => {
     const debts = db.getDebts();
     const debtObj = debts.find(d => d.id === debtActionTargetSlot.debtId);
 
@@ -2211,7 +2240,7 @@ export default function POS({
       db.saveSlots(updatedSlots);
       setSlots(updatedSlots);
 
-      setShowDebtActionModal(false);
+      _setShowDebtActionModal(false);
       setDebtActionTargetSlot(null);
       
       // Switch view mode
@@ -2270,7 +2299,7 @@ export default function POS({
   }, [showWorkOrder, currentWorkOrder]);
 
   // BCEL One QR Simulation Handlers
-  const handleCheckoutPaymentSuccess = () => {
+  const _handleCheckoutPaymentSuccess = () => {
     playSound('cash');
     setBcelPaymentStatus('success');
     
@@ -2293,7 +2322,7 @@ export default function POS({
     }, 1500);
   };
 
-  const handleDepositPaymentSuccess = (val) => {
+  const _handleDepositPaymentSuccess = (val) => {
     playSound('cash');
     
     // Save to database deposits
@@ -2353,12 +2382,12 @@ export default function POS({
 
 
 
-  const getLocalDatetimeString = (date) => {
+  function getLocalDatetimeString(date) {
     const tzOffset = date.getTimezoneOffset() * 60000;
     return new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
-  };
+  }
 
-  const generateCode39 = (canvas, text) => {
+  function generateCode39(canvas, text) {
     try {
       JsBarcode(canvas, text, {
         format: 'CODE128',
@@ -2381,7 +2410,7 @@ export default function POS({
       ctx.textAlign = 'center';
       ctx.fillText('❌ error generating barcode', canvas.width / 2, canvas.height / 2);
     }
-  };
+  }
 
   const handleServiceQtyChange = (newQty) => {
     const qtyVal = parseInt(newQty) || 0;
@@ -2421,7 +2450,7 @@ export default function POS({
     // Create a framing job with the configured list of amulets
     const totalPrice = Number(serviceConfigProduct.price) * serviceConfigQty;
     const depositAmount = Number(serviceConfigDeposit || 0);
-    const balanceAmount = totalPrice - depositAmount;
+    const _balanceAmount = totalPrice - depositAmount;
 
     const serviceName = serviceConfigProduct.name || 'ບໍລິການອັດກອບພຣະ';
     const serviceCat = db.getCategories().find(c => c.type === 'service') || { id: 'services' };
@@ -2632,7 +2661,7 @@ export default function POS({
     if (updatedSlots[targetSlotId]) {
       const depositAmount = Number(framingFormData.deposit || 0);
       const isDeposit = depositAmount > 0;
-      const initialCharge = isDeposit ? depositAmount : totalPrice;
+      const _initialCharge = isDeposit ? depositAmount : totalPrice;
       
       // Clear any previous JOB items from the slot cart first to avoid duplicate jobs linked to same slot
       updatedSlots[targetSlotId].items = updatedSlots[targetSlotId].items.filter(item => !item.productId.startsWith('JOB'));
@@ -2671,11 +2700,11 @@ export default function POS({
   const handleEditFramingClick = (job) => {
     setCurrentFramingJob(job);
     
-    let amuletsList = [];
+    let _amuletsList;
     if (job.amulets && job.amulets.length > 0) {
-      amuletsList = job.amulets.map(a => ({ ...a }));
+      _amuletsList = job.amulets.map(a => ({ ...a }));
     } else {
-      amuletsList = [
+      _amuletsList = [
         {
           id: Date.now() + Math.random(),
           description: job.amuletDescription || '',
@@ -2695,7 +2724,7 @@ export default function POS({
       pickupDate: getLocalDatetimeString(new Date(job.pickupDate)),
       status: job.status,
       slotId: job.slotId || 'VIP1',
-      amulets: amuletsList,
+      amulets: _amuletsList,
       totalPrice: job.totalPrice
     });
     setFramingError('');
@@ -2778,7 +2807,7 @@ export default function POS({
       const updatedSlots = { ...slots };
       const targetSlotId = currentFramingJob.slotId || 'VIP1';
       if (updatedSlots[targetSlotId]) {
-        const balanceToPay = Number(totalPrice) - Number(framingFormData.deposit || 0);
+        const _balanceToPay = Number(totalPrice) - Number(framingFormData.deposit || 0);
         const itemIdx = updatedSlots[targetSlotId].items.findIndex(item => item.productId === currentFramingJob.id);
         if (itemIdx !== -1) {
           const serviceName = updatedJob.frameTypeName || 'ບໍລິການອັດກອບພຣະ';
@@ -2850,13 +2879,24 @@ export default function POS({
     const match = String(label || '').match(/\d+/);
     return match ? parseInt(match[0], 10) : 999;
   };
-  const slotList = Object.values(slots).sort((a, b) => {
-    return getSlotNumber(a.label) - getSlotNumber(b.label);
-  });
+  const slotList = Object.values(slots)
+    .filter(slot => {
+      const slotNum = getSlotNumber(slot.label);
+      if (slotNum >= 1 && slotNum <= 9) {
+        return hasPosPermission('posZoneA');
+      }
+      if (slotNum >= 10 && slotNum !== 999) {
+        return hasPosPermission('posZoneB');
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      return getSlotNumber(a.label) - getSlotNumber(b.label);
+    });
 
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
-      const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
+      const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory || (selectedCategory === 'amulet_frames' && p.category === 'frames') || (selectedCategory === 'frames' && p.category === 'amulet_frames');
       const matchesSearch = p.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) || 
                             p.barcode.includes(debouncedSearchQuery);
       return matchesCategory && matchesSearch;
@@ -3037,7 +3077,7 @@ export default function POS({
 
 
       {viewMode === 'slots' ? (
-        <div className="glass-card animate-fade-in" style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '16px', background: 'none', border: 'none', padding: 0 } : { height: '100%', display: 'flex', flexDirection: 'column', gap: '20px', border: 'none', background: 'none', boxShadow: 'none' }}>
+        <div className="glass-card animate-fade-in" style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '16px', background: 'none', border: 'none', padding: 0 } : { height: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* Queue Board Header */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', paddingBottom: '4px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: '10px' }}>
@@ -3282,27 +3322,27 @@ export default function POS({
                   const hasDeposit = slot.depositAmount > 0 || (activeJob && parseFloat(activeJob.deposit) > 0);
 
                   // Determine card style
-                  let cardBg, cardBorder, cardGlow, statusColor;
+                  let cardBg, cardBorder, cardGlow, _statusColor;
                   if (isDebt) {
                     cardBg = 'linear-gradient(145deg, rgba(231,76,60,0.18) 0%, rgba(192,57,43,0.08) 100%)';
                     cardBorder = 'rgba(231,76,60,0.6)';
                     cardGlow = '0 0 20px rgba(231,76,60,0.2), 0 4px 20px rgba(0,0,0,0.4)';
-                    statusColor = 'var(--alert-red)';
+                    _statusColor = 'var(--alert-red)';
                   } else if (hasCustomer && hasDeposit) {
                     cardBg = 'linear-gradient(145deg, rgba(52,152,219,0.18) 0%, rgba(41,128,185,0.08) 100%)';
                     cardBorder = 'rgba(52,152,219,0.6)';
                     cardGlow = '0 0 20px rgba(52,152,219,0.2), 0 4px 20px rgba(0,0,0,0.4)';
-                    statusColor = '#3498db';
+                    _statusColor = '#3498db';
                   } else if (hasCustomer) {
                     cardBg = 'linear-gradient(145deg, rgba(39,174,96,0.18) 0%, rgba(27,120,66,0.08) 100%)';
                     cardBorder = 'rgba(46,204,113,0.6)';
                     cardGlow = '0 0 20px rgba(46,204,113,0.2), 0 4px 20px rgba(0,0,0,0.4)';
-                    statusColor = 'var(--success-green)';
+                    _statusColor = 'var(--success-green)';
                   } else {
                     cardBg = 'linear-gradient(145deg, rgba(212,175,55,0.06) 0%, rgba(18,16,13,0.95) 100%)';
                     cardBorder = 'rgba(212,175,55,0.2)';
                     cardGlow = '0 4px 15px rgba(0,0,0,0.3)';
-                    statusColor = 'rgba(212,175,55,0.5)';
+                    _statusColor = 'rgba(212,175,55,0.5)';
                   }
 
                   return (
@@ -3571,35 +3611,57 @@ export default function POS({
           {/* Left Panel: Category selection list + Product cards grid (Image 1 style) */}
           <div className="products-panel" style={{ height: '100%' }}>
             
-            <div className="pos-search-bar" style={{ padding: isMobile ? '8px 10px' : '12px 16px', alignItems: 'center', gap: '8px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', display: 'flex' }}>
-              
+            <div className="glass-card" style={{
+              padding: isMobile ? '8px 10px' : '10px 14px',
+              alignItems: 'center', gap: '8px',
+              display: 'flex', borderRadius: 16,
+            }}>
               {/* Back to Queue Grid button */}
               <button
                 type="button"
-                className="btn"
-                style={{ background: 'var(--accent-amber)', color: 'black', padding: isMobile ? '8px 10px' : '8px 16px', fontSize: '0.82rem', fontWeight: 'bold', border: 'none', borderRadius: 'var(--radius-sm)', whiteSpace: 'nowrap' }}
+                style={{
+                  background: 'linear-gradient(135deg,rgba(212,175,55,0.18),rgba(212,175,55,0.08))',
+                  color: 'var(--gold-primary)', padding: isMobile ? '7px 10px' : '7px 14px',
+                  fontSize: '0.8rem', fontWeight: 800, border: '1px solid rgba(212,175,55,0.3)',
+                  borderRadius: 10, whiteSpace: 'nowrap', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.18s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(212,175,55,0.25)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(135deg,rgba(212,175,55,0.18),rgba(212,175,55,0.08))'; }}
                 onClick={() => setViewMode('slots')}
               >
-                {isMobile ? '⬅️ ຄິວ' : '⬅️ ບັດຄິວ (Queue)'}
+                {isMobile ? '← ຄິວ' : '← ບັດຄິວ'}
               </button>
 
               <div style={{ position: 'relative', flex: 1 }}>
                 <input
                   type="text"
-                  className="form-control"
-                  placeholder={isMobile ? "ຄົ້ນຫາ..." : "ຄົ້ນຫາສິນຄ້າ ຫຼື ສະແກນບາໂຄດ..."}
+                  placeholder={isMobile ? 'ຄົ້ນຫາ...' : 'ຄົ້ນຫາສິນຄ້າ ຫຼື ສະແກນບາໂຄດ...'}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{ width: '100%', paddingLeft: '32px', height: '36px', background: 'var(--bg-main)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem' }}
+                  style={{
+                    width: '100%', paddingLeft: '34px', height: '36px',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    color: 'white', borderRadius: 10, fontSize: '0.85rem',
+                    outline: 'none', transition: 'border-color 0.18s', boxSizing: 'border-box',
+                  }}
+                  onFocus={e => { e.target.style.borderColor = 'rgba(212,175,55,0.5)'; e.target.style.boxShadow = '0 0 0 3px rgba(212,175,55,0.1)'; }}
+                  onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; e.target.style.boxShadow = 'none'; }}
                 />
-                <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>🔍</span>
+                <span style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.28)', fontSize: '0.82rem', pointerEvents: 'none' }}>🔍</span>
               </div>
-              
-              {/* Barcode scanner status indicator */}
+
               {!isMobile && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '20px', background: 'rgba(46, 204, 113, 0.08)', border: '1px solid rgba(46, 204, 113, 0.2)', fontSize: '0.72rem', color: 'var(--success-green)', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                  <span className="pulse-dot-online" style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--success-green)', display: 'inline-block' }} />
-                  <span>{db.getLabel('auto_ສະແກນເນີພ້ອມແລ້ວ__Scanner_ezy3ro', `ສະແກນເນີພ້ອມແລ້ວ (Scanner Connected)`)}</span>
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  padding: '6px 11px', borderRadius: 20,
+                  background: 'rgba(34,197,94,0.08)',
+                  border: '1px solid rgba(34,197,94,0.22)',
+                  fontSize: '0.7rem', color: '#22c55e', fontWeight: 700, whiteSpace: 'nowrap',
+                }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', display: 'inline-block', boxShadow: '0 0 5px #22c55e', animation: 'pulse-blue 2s infinite' }} />
+                  {db.getLabel('auto_ສະແກນເນີພ້ອມແລ້ວ__Scanner_ezy3ro', 'Scanner Ready')}
                 </div>
               )}
             </div>
@@ -4911,7 +4973,7 @@ export default function POS({
 
       {/* Checkout Modal - Premium Enterprise Redesign */}
       {showCheckout && (() => {
-        const activeBank = getActiveBankInfo();
+        const _activeBank = getActiveBankInfo();
         return (
         <Portal>
         <div className="modal-overlay" style={{ backdropFilter: 'blur(8px)', background: 'rgba(0,0,0,0.75)' }}>
@@ -6024,7 +6086,7 @@ export default function POS({
                       const linkedJob = item.productId && item.productId.startsWith('JOB') 
                         ? db.getFramingJobs().find(j => j.id === item.productId) 
                         : null;
-                      const amuletsList = (linkedJob && linkedJob.amulets) || item.amulets || [];
+                      const _amuletsList = (linkedJob && linkedJob.amulets) || item.amulets || [];
                       return (
                         <tr key={idx} style={{ borderBottom: '1px dotted rgba(0,0,0,0.05)' }}>
                           <td style={{ paddingTop: '4px', paddingBottom: '6px', lineHeight: '1.2' }}>

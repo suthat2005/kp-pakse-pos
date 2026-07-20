@@ -10,7 +10,8 @@ export default function FramingBoard({
   onPrintJobClick, 
   onCollectPayment,
   onTrackJob,
-  onJobsUpdated
+  onJobsUpdated,
+  isMobile = false,
 }) {
   // Notification Modal States
   const [showNotifyModal, setShowNotifyModal] = useState(false);
@@ -62,7 +63,7 @@ export default function FramingBoard({
       jobs.some(j => j.id === id && j.status === 'pending')
     );
     if (stillPending.length !== alarmJobIds.length) {
-      setAlarmJobIds(stillPending);
+      queueMicrotask(() => setAlarmJobIds(stillPending));
     }
   }, [jobs, alarmJobIds]);
 
@@ -136,7 +137,7 @@ export default function FramingBoard({
       .catch(err => console.error('Error fetching server IP:', err));
   }, []);
 
-  // 🗓️ Auto-clear delivered jobs once per day on mount
+  // Auto-clear delivered jobs once per day on mount
   useEffect(() => {
     const wasCleared = db.autoClearDeliveredIfNewDay();
     if (wasCleared && onJobsUpdated) {
@@ -290,7 +291,7 @@ export default function FramingBoard({
               <div key={gIdx} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 {/* Header for framing type */}
                 <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--gold-primary)', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '2px', marginBottom: '2px' }}>
-                  🛠️ {groupName} ({list.length} ອົງ)
+                  {groupName} ({list.length} ອົງ)
                 </div>
                 {/* List of amulets under this header */}
                 {list.map((a, idx) => {
@@ -301,7 +302,7 @@ export default function FramingBoard({
                         {a.image ? (
                           <img src={a.image} style={{ width: '18px', height: '18px', objectFit: 'cover', borderRadius: '3px', border: '1px solid rgba(255,255,255,0.1)', flexShrink: 0 }} alt="" />
                         ) : (
-                          <span style={{ fontSize: '0.75rem', flexShrink: 0 }}>📿</span>
+                          <span style={{ fontSize: '0.75rem', flexShrink: 0 }}></span>
                         )}
                         <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1, color: 'white' }}>
                           {idx + 1}. {a.description || 'ພຣະເຄື່ອງ'}
@@ -327,20 +328,30 @@ export default function FramingBoard({
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       
-      {/* Header */}
-      <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-        <div>
-          <h2 style={{ color: 'var(--gold-primary)', margin: 0 }}>{db.getLabel('framing_board_title', '🛠️ ບອດຈັດການງານອັດກອບ (Framing Dashboard)')}</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0' }}>{db.getLabel('auto_ຕິດຕາມສະຖານະງານເລກບິນ__ເງ_9h5bh4', `ຕິດຕາມສະຖານະງານເລກບິນ, ເງິນມັດຈຳ, ສື່ສານກັບລູກຄ້າ ແລະ ອັບເດດສະຖານະການເລີຍ`)}</p>
+      {/* ── Header ── */}
+      <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 13, background: 'linear-gradient(135deg,rgba(251,146,60,0.18),rgba(251,146,60,0.06))', border: '1px solid rgba(251,146,60,0.28)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.15rem', flexShrink: 0 }}></div>
+          <div>
+            <h2 style={{ background: 'linear-gradient(135deg,#fb923c,#fcd34d,#f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', margin: 0, fontSize: isMobile ? '1.1rem' : '1.35rem', fontWeight: 900, letterSpacing: '-0.3px' }}>
+              {db.getLabel('framing_board_title', 'ບອດຈັດການງານອັດກອບ')}
+            </h2>
+            {!isMobile && <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.78rem', margin: '2px 0 0', fontWeight: 500 }}>{db.getLabel('auto_ຕິດຕາມສະຖານະງານເລກບິນ__ເງ_9h5bh4', 'ຕິດຕາມສະຖານະ, ເງິນມັດຈຳ, ສື່ສານກັບລູກຄ້າ ແລະ ອັບເດດສະຖານະ')}</p>}
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <button
             type="button"
-            className="btn btn-secondary btn-sm"
             onClick={() => setSoundEnabled(!soundEnabled)}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', padding: '6px 12px', background: soundEnabled ? 'rgba(46,204,113,0.15)' : 'rgba(231,76,60,0.15)', borderColor: soundEnabled ? '#2ecc71' : '#e74c3c', color: soundEnabled ? '#2ecc71' : '#e74c3c' }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.78rem',
+              padding: '7px 13px', borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700,
+              background: soundEnabled ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.1)',
+              border: soundEnabled ? '1px solid rgba(34,197,94,0.3)' : '1px solid rgba(239,68,68,0.3)',
+              color: soundEnabled ? '#22c55e' : '#ef4444', transition: 'all 0.18s',
+            }}
           >
-            {soundEnabled ? '🔔 ເປີດສຽງງານເຂົ້າ (Sound ON)' : '🔕 ປິດສຽງງານເຂົ້າ (Sound OFF)'}
+            {soundEnabled ? 'ສຽງເປີດ' : 'ສຽງປິດ'}
           </button>
         </div>
       </div>
@@ -367,16 +378,16 @@ export default function FramingBoard({
             }
           }}
           style={{
-            border: dragOverCol === 'pending' ? '2px dashed var(--gold-primary)' : '1px solid rgba(255,255,255,0.05)',
-            background: dragOverCol === 'pending' ? 'rgba(212,175,55,0.05)' : '',
+            border: dragOverCol === 'pending' ? '2px dashed #3498db' : '1px solid rgba(52, 152, 219, 0.15)',
+            background: dragOverCol === 'pending' ? 'rgba(52, 152, 219, 0.05)' : '',
             borderRadius: '12px',
             padding: '12px',
             transition: 'all 0.2s'
           }}
         >
-          <div className="kanban-col-title">
-            <span>{db.getLabel('framing_board_pending', '🔴 ຮັບງານເຂົ້າ (Received)')}</span>
-            <span style={{ background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem' }}>
+          <div className="kanban-col-title" style={{ color: '#3498db', borderBottom: '1.5px solid rgba(52, 152, 219, 0.3)' }}>
+            <span>{db.getLabel('framing_board_pending', 'ຮັບງານເຂົ້າ (Received)')}</span>
+            <span style={{ background: 'rgba(52,152,219,0.12)', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem', color: '#3498db' }}>
               {groupedPending.length}
             </span>
           </div>
@@ -390,13 +401,19 @@ export default function FramingBoard({
                   e.dataTransfer.setData("jobId", group.jobs.map(j => j.id).join(','));
                   e.dataTransfer.effectAllowed = "move";
                 }}
-                style={{ cursor: hasFramingPermission('framingUpdateStatus') ? 'grab' : 'default' }}
+                style={{ 
+                  border: '1px solid rgba(52, 152, 219, 0.35)',
+                  borderLeft: '4px solid #3498db',
+                  background: 'rgba(52, 152, 219, 0.03)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15), inset 0 0 10px rgba(52, 152, 219, 0.02)',
+                  cursor: hasFramingPermission('framingUpdateStatus') ? 'grab' : 'default' 
+                }}
               >
                 <div className="job-card-header">
                   <span 
                     className="job-id" 
                     onClick={() => onTrackJob && onTrackJob(group.jobs[0].id)}
-                    style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                    style={{ color: '#3498db', cursor: 'pointer', textDecoration: 'underline' }}
                     title={db.getLabel('auto_ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍກ_fkufcb', `ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍການ (Click to track order)`)}
                   >
                     {group.displayId}
@@ -418,12 +435,12 @@ export default function FramingBoard({
                 <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
                   {hasFramingPermission('framingPrintJob') && (
                   <button className="btn btn-secondary" style={{ padding: '4px', fontSize: '0.7rem' }} onClick={() => onPrintJobClick(group)}>
-                    🖨️ ບິນ
+                    ບິນ
                   </button>
                   )}
                   {hasFramingPermission('framingEditJob') && (
                   <button className="btn btn-secondary" style={{ padding: '4px', fontSize: '0.7rem' }} onClick={() => onEditJobClick(group.jobs[0])}>
-                    ✏️ ແກ້ໄຂ
+                    ແກ້ໄຂ
                   </button>
                   )}
                   {hasFramingPermission('framingUpdateStatus') && (
@@ -456,16 +473,16 @@ export default function FramingBoard({
             }
           }}
           style={{
-            border: dragOverCol === 'framing' ? '2px dashed var(--accent-amber)' : '1px solid rgba(255,255,255,0.05)',
-            background: dragOverCol === 'framing' ? 'rgba(243,156,18,0.05)' : '',
+            border: dragOverCol === 'framing' ? '2px dashed #f39c12' : '1px solid rgba(243, 156, 18, 0.15)',
+            background: dragOverCol === 'framing' ? 'rgba(243, 156, 18, 0.05)' : '',
             borderRadius: '12px',
             padding: '12px',
             transition: 'all 0.2s'
           }}
         >
-          <div className="kanban-col-title">
-            <span>{db.getLabel('framing_board_doing', '🟡 ກຳລັງເລເຊີ/ເລ່ຽມ (Processing)')}</span>
-            <span style={{ background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem' }}>
+          <div className="kanban-col-title" style={{ color: '#f39c12', borderBottom: '1.5px solid rgba(243, 156, 18, 0.3)' }}>
+            <span>{db.getLabel('framing_board_doing', 'ກຳລັງເລເຊີ/ເລ່ຽມ (Processing)')}</span>
+            <span style={{ background: 'rgba(243,156,18,0.12)', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem', color: '#f39c12' }}>
               {groupedFraming.length}
             </span>
           </div>
@@ -475,7 +492,10 @@ export default function FramingBoard({
                 key={group.id} 
                 className="job-card" 
                 style={{ 
-                  borderColor: 'var(--accent-amber)',
+                  border: '1px solid rgba(243, 156, 18, 0.35)',
+                  borderLeft: '4px solid #f39c12',
+                  background: 'rgba(243, 156, 18, 0.03)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15), inset 0 0 10px rgba(243, 156, 18, 0.02)',
                   cursor: hasFramingPermission('framingUpdateStatus') ? 'grab' : 'default'
                 }}
                 draggable={hasFramingPermission('framingUpdateStatus')}
@@ -488,7 +508,7 @@ export default function FramingBoard({
                   <span 
                     className="job-id" 
                     onClick={() => onTrackJob && onTrackJob(group.jobs[0].id)}
-                    style={{ color: 'var(--accent-amber)', cursor: 'pointer', textDecoration: 'underline' }}
+                    style={{ color: '#f39c12', cursor: 'pointer', textDecoration: 'underline' }}
                     title={db.getLabel('auto_ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍກ_fkufcb', `ຄລິກເພື່ອຕິດຕາມສະຖານະລາຍການ (Click to track order)`)}
                   >
                     {group.displayId}
@@ -515,7 +535,7 @@ export default function FramingBoard({
                   )}
                   {hasFramingPermission('framingEditJob') && (
                   <button className="btn btn-secondary" style={{ padding: '4px 6px', fontSize: '0.7rem' }} onClick={() => onEditJobClick(group.jobs[0])}>
-                    ✏️ ແກ້
+                    ແກ້
                   </button>
                   )}
                   {hasFramingPermission('framingUpdateStatus') && (
@@ -548,16 +568,16 @@ export default function FramingBoard({
             }
           }}
           style={{
-            border: dragOverCol === 'done' ? '2px dashed var(--success-green)' : '1px solid rgba(255,255,255,0.05)',
-            background: dragOverCol === 'done' ? 'rgba(39,174,96,0.05)' : '',
+            border: dragOverCol === 'done' ? '2px dashed #2ecc71' : '1px solid rgba(46, 204, 113, 0.15)',
+            background: dragOverCol === 'done' ? 'rgba(46, 204, 113, 0.05)' : '',
             borderRadius: '12px',
             padding: '12px',
             transition: 'all 0.2s'
           }}
         >
-          <div className="kanban-col-title">
-            <span>{db.getLabel('framing_board_done', '🟢 ງານເສັດຮອມານັບ (Ready)')}</span>
-            <span style={{ background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem' }}>
+          <div className="kanban-col-title" style={{ color: '#2ecc71', borderBottom: '1.5px solid rgba(46, 204, 113, 0.3)' }}>
+            <span>{db.getLabel('framing_board_done', 'ງານເສັດຮອມານັບ (Ready)')}</span>
+            <span style={{ background: 'rgba(46,204,113,0.12)', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem', color: '#2ecc71' }}>
               {groupedDone.length}
             </span>
           </div>
@@ -567,7 +587,10 @@ export default function FramingBoard({
                 key={group.id} 
                 className="job-card" 
                 style={{ 
-                  borderColor: 'var(--success-green)',
+                  border: '1px solid rgba(46, 204, 113, 0.4)',
+                  borderLeft: '4px solid #2ecc71',
+                  background: 'rgba(46, 204, 113, 0.03)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15), inset 0 0 10px rgba(46, 204, 113, 0.02)',
                   cursor: hasFramingPermission('framingUpdateStatus') ? 'grab' : 'default'
                 }}
                 draggable={hasFramingPermission('framingUpdateStatus')}
@@ -612,7 +635,7 @@ export default function FramingBoard({
                   )}
                   {hasFramingPermission('framingNotifyCustomer') && (
                   <button className="btn btn-secondary" style={{ padding: '4px 6px', fontSize: '0.7rem', borderColor: 'var(--success-green)', color: 'var(--success-green)' }} onClick={() => handleNotifyClick(group)}>
-                    🔔 ແຈ້ງ
+                    ແຈ້ງ
                   </button>
                   )}
                   {hasFramingPermission('framingCollectPayment') ? (
@@ -657,17 +680,17 @@ export default function FramingBoard({
             }
           }}
           style={{
-            border: dragOverCol === 'picked_up' ? '2px dashed var(--text-secondary)' : '1px solid rgba(255,255,255,0.05)',
-            background: dragOverCol === 'picked_up' ? 'rgba(255,255,255,0.02)' : '',
+            border: dragOverCol === 'picked_up' ? '2px dashed #95a5a6' : '1px solid rgba(149, 165, 166, 0.1)',
+            background: dragOverCol === 'picked_up' ? 'rgba(149, 165, 166, 0.02)' : '',
             borderRadius: '12px',
             padding: '12px',
             transition: 'all 0.2s'
           }}
         >
-          <div className="kanban-col-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <div className="kanban-col-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', color: '#95a5a6', borderBottom: '1.5px solid rgba(149, 165, 166, 0.2)', paddingBottom: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>{db.getLabel('framing_board_delivered', '⚪ ສົ່ງມອບແລ້ວ (Delivered)')}</span>
-              <span style={{ background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem' }}>
+              <span>{db.getLabel('framing_board_delivered', 'ສົ່ງມອບແລ້ວ (Delivered)')}</span>
+              <span style={{ background: 'rgba(149,165,166,0.15)', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem', color: '#95a5a6' }}>
                 {groupedPickedUp.length}
               </span>
             </div>
@@ -678,7 +701,7 @@ export default function FramingBoard({
                 onClick={handleClearDelivered}
                 title={db.getLabel('auto_ລ້າງລາຍການທີ່ສົ່ງມອບແລ້ວທ_676273', `ລ້າງລາຍການທີ່ສົ່ງມອບແລ້ວທັງໝົດ (Clear all delivered)`)}
               >
-                🗑️ ລ້າງ
+                ລ້າງ
               </button>
             )}
           </div>
@@ -688,8 +711,11 @@ export default function FramingBoard({
                 key={group.id} 
                 className="job-card" 
                 style={{ 
-                  opacity: 0.6, 
-                  borderColor: 'var(--border-color)',
+                  opacity: 0.7, 
+                  border: '1px solid rgba(149, 165, 166, 0.3)',
+                  borderLeft: '4px solid #95a5a6',
+                  background: 'rgba(149, 165, 166, 0.02)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                   cursor: hasFramingPermission('framingUpdateStatus') ? 'grab' : 'default'
                 }}
                 draggable={hasFramingPermission('framingUpdateStatus')}
@@ -732,7 +758,7 @@ export default function FramingBoard({
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content modal-sm animate-fade-in">
             <div className="modal-header">
-              <span className="modal-title">{db.getLabel('auto____ແຈ້ງເຕືອນລູກຄ້າ__Notif_itb8m4', `🔔 ແຈ້ງເຕືອນລູກຄ້າ (Notify Customer)`)}</span>
+              <span className="modal-title">{db.getLabel('auto____ແຈ້ງເຕືອນລູກຄ້າ__Notif_itb8m4', `ແຈ້ງເຕືອນລູກຄ້າ (Notify Customer)`)}</span>
               <button className="btn-secondary" style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} onClick={() => setShowNotifyModal(false)}>✕</button>
             </div>
             

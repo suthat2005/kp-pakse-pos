@@ -1,0 +1,348 @@
+model Business {
+  id            String    @id @default(cuid())
+  legacyId      String?   @unique
+  name          String
+  legalName     String?
+  taxId         String?
+  phone         String?
+  email         String?
+  address       String?
+  city          String?
+  country       String    @default("LA")
+  timezone      String    @default("Asia/Vientiane")
+  defaultCurrency String  @default("LAK")
+  logoUrl       String?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  branches           Branch[]
+  users              User[]
+  settings           Setting[]
+  roles              Role[]
+  auditLogs          AuditLog[]
+  currencies         Currency[]
+  media              Media[]
+  accounts           Account[]
+  customers          Customer[]
+  orders             Order[]
+  expenses           Expense[]
+  products           Product[]
+  categories         Category[]
+  brands             Brand[]
+  suppliers          Supplier[]
+  employees          Employee[]
+  shifts             Shift[]
+  promotions         Promotion[]
+  framingJobs        FramingJob[]
+  rawMaterials       RawMaterial[]
+  purchaseOrders     PurchaseOrder[]
+  purchaseReceives   PurchaseReceive[]
+  receiptTemplates   ReceiptTemplate[]
+  taxConfigs         TaxConfig[]
+}
+
+model Branch {
+  id            String    @id @default(cuid())
+  legacyId      String?   @unique
+  businessId    String
+  business      Business  @relation(fields: [businessId], references: [id])
+  name          String
+  code          String
+  address       String?
+  phone         String?
+  isHeadquarter Boolean   @default(false)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  locations        Location[]
+  users            User[]
+  orders           Order[]
+  attendances      Attendance[]
+  dailyclosings    DailyClosing[]
+  cashDrawers      CashDrawer[]
+  expenses         Expense[]
+  purchaseOrders   PurchaseOrder[]
+  purchaseReceives PurchaseReceive[]
+  shifts           Shift[]
+
+  @@unique([businessId, code])
+}
+
+model User {
+  id                  String    @id @default(cuid())
+  legacyId            String?   @unique
+  businessId          String
+  business            Business  @relation(fields: [businessId], references: [id])
+  branchId            String?
+  branch              Branch?   @relation(fields: [branchId], references: [id])
+  email               String?
+  phone               String?
+  name                String
+  passwordHash        String?
+  passcodeHash        String?
+  role                UserRole  @default(cashier)
+  roleId              String?
+  roleRef             Role?     @relation(fields: [roleId], references: [id])
+  avatarUrl           String?
+  isActive            Boolean   @default(true)
+  forcePasswordChange Boolean   @default(false)
+  lastLoginAt         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
+
+  sessions        Session[]
+  loginHistories  LoginHistory[]
+  devices         Device[]
+  auditLogs       AuditLog[]
+  notifications   Notification[]
+  orders          Order[]
+  cart            Cart[]
+  attendances     Attendance[]
+  leaves          Leave[]
+  payrolls        Payroll[]
+  commissions     Commission[]
+  employee        Employee?
+  framingJobs     FramingJob[]
+
+  @@unique([businessId, email])
+  @@unique([businessId, phone])
+}
+
+model Role {
+  id          String    @id @default(cuid())
+  businessId  String
+  business    Business  @relation(fields: [businessId], references: [id])
+  name        String
+  description String?
+  isSystem    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  permissions RolePermission[]
+  users       User[]
+
+  @@unique([businessId, name])
+}
+
+model RolePermission {
+  id        String   @id @default(cuid())
+  roleId    String
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  resource  String
+  action    String
+  scope     String   @default("own")
+  allowed   Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@unique([roleId, resource, action])
+}
+
+model Session {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token       String    @unique
+  deviceId    String?
+  ip          String?
+  userAgent   String?
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model LoginHistory {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ip        String?
+  device    String?
+  status    String
+  reason    String?
+  createdAt DateTime  @default(now())
+}
+
+model Device {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fingerprint String
+  name        String?
+  os          String?
+  browser     String?
+  trusted     Boolean   @default(false)
+  lastSeenAt  DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, fingerprint])
+}
+
+model OtpLog {
+  id          String    @id @default(cuid())
+  target      String
+  channel     String
+  code        String
+  purpose     String
+  verifiedAt  DateTime?
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+}
+
+model AuditLog {
+  id          String    @id @default(cuid())
+  businessId  String
+  business    Business  @relation(fields: [businessId], references: [id])
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id])
+  action      String
+  resource    String
+  resourceId  String?
+  description String?
+  severity    String    @default("info")
+  ip          String?
+  userAgent   String?
+  metadata    String?
+  createdAt   DateTime  @default(now())
+}
+
+model Notification {
+  id        String              @id @default(cuid())
+  userId    String
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  body      String?
+  data      String?
+  channel   NotificationChannel @default(in_app)
+  readAt    DateTime?
+  sentAt    DateTime            @default(now())
+  createdAt DateTime            @default(now())
+}
+
+model Setting {
+  id          String    @id @default(cuid())
+  businessId  String
+  business    Business  @relation(fields: [businessId], references: [id])
+  branchId    String?
+  scope       String    @default("business")
+  key         String
+  value       String
+  type        String    @default("string")
+  isEncrypted Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([businessId, branchId, scope, key])
+}
+
+model Currency {
+  id            String    @id @default(cuid())
+  businessId    String
+  business      Business  @relation(fields: [businessId], references: [id])
+  code          String
+  name          String
+  symbol        String
+  exchangeRate  Decimal   @default(1)
+  isDefault     Boolean   @default(false)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([businessId, code])
+}
+
+model ReceiptTemplate {
+  id          String   @id @default(cuid())
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id])
+  name        String
+  header      String?
+  footer      String?
+  template    String?
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TaxConfig {
+  id          String   @id @default(cuid())
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id])
+  name        String
+  rate        Decimal  @default(0)
+  type        String   @default("vat")
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Media {
+  id           String       @id @default(cuid())
+  businessId   String
+  business     Business     @relation(fields: [businessId], references: [id])
+  fileName     String
+  originalName String
+  mimeType     String
+  size         Int
+  url          String
+  storage      MediaStorage @default(local)
+  uploadedById String?
+  createdAt    DateTime     @default(now())
+
+  productImages ProductImage[]
+  filePermissions FilePermission[]
+}
+
+model FilePermission {
+  id        String   @id @default(cuid())
+  mediaId   String
+  media     Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  userId    String?
+  roleId    String?
+  canView   Boolean  @default(true)
+  canEdit   Boolean  @default(false)
+  canDelete Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Account {
+  id          String    @id @default(cuid())
+  businessId  String
+  business    Business  @relation(fields: [businessId], references: [id])
+  code        String
+  name        String
+  type        String
+  balance     Decimal   @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  journalLines JournalLine[]
+
+  @@unique([businessId, code])
+}
+
+model JournalEntry {
+  id          String    @id @default(cuid())
+  businessId  String
+  date        DateTime  @default(now())
+  reference   String?
+  note        String?
+  totalDebit  Decimal   @default(0)
+  totalCredit Decimal   @default(0)
+  createdAt   DateTime  @default(now())
+
+  lines       JournalLine[]
+}
+
+model JournalLine {
+  id              String       @id @default(cuid())
+  journalEntryId  String
+  journalEntry    JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  accountId       String
+  account         Account      @relation(fields: [accountId], references: [id])
+  debit           Decimal      @default(0)
+  credit          Decimal      @default(0)
+  description     String?
+}

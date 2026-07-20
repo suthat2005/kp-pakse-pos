@@ -1,0 +1,405 @@
+model Customer {
+  id            String         @id @default(cuid())
+  legacyId      String?        @unique
+  businessId    String
+  business      Business       @relation(fields: [businessId], references: [id])
+  groupId       String?
+  group         CustomerGroup? @relation(fields: [groupId], references: [id])
+  tierId        String?
+  tier          CustomerTier?  @relation(fields: [tierId], references: [id])
+  name          String
+  phone         String?
+  email         String?
+  gender        Gender?
+  birthday      DateTime?
+  discountType  String?        // percent | fixed
+  discountValue Decimal        @default(0)
+  points        Decimal        @default(0)
+  creditLimit   Decimal        @default(0)
+  creditUsed    Decimal        @default(0)
+  totalSpend    Decimal        @default(0)
+  totalOrders   Int            @default(0)
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deletedAt     DateTime?
+
+  addresses       CustomerAddress[]
+  notes           CustomerNote[]
+  loyaltyTxs      LoyaltyTransaction[]
+  deposits        Deposit[]
+  orders          Order[]
+  refunds         Refund[]
+  reviews         Review[]
+  carts           Cart[]
+  coupons         Coupon[]
+  framingJobs     FramingJob[]
+
+  @@unique([businessId, phone])
+}
+
+model CustomerGroup {
+  id            String     @id @default(cuid())
+  businessId    String
+  name          String
+  discountType  String?    // percent | fixed
+  discountValue Decimal    @default(0)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  customers     Customer[]
+
+  @@unique([businessId, name])
+}
+
+model CustomerTier {
+  id              String     @id @default(cuid())
+  businessId      String
+  name            String
+  minSpend        Decimal    @default(0)
+  pointsMultiplier Decimal   @default(1)
+  discountValue   Decimal    @default(0)
+  benefits        String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  customers       Customer[]
+  prices          ProductPrice[]
+
+  @@unique([businessId, name])
+}
+
+model CustomerAddress {
+  id         String    @id @default(cuid())
+  customerId String
+  customer   Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  label      String    @default("home")
+  address    String
+  phone      String?
+  isDefault  Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+}
+
+model CustomerNote {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  content    String
+  createdById String?
+  createdAt  DateTime @default(now())
+}
+
+model LoyaltyTransaction {
+  id          String    @id @default(cuid())
+  customerId  String
+  customer    Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  type        String    // earn | redeem | expire | adjust
+  points      Decimal
+  amount      Decimal?
+  orderId     String?
+  order       Order?    @relation(fields: [orderId], references: [id])
+  description String?
+  createdAt   DateTime  @default(now())
+}
+
+model Deposit {
+  id              String    @id @default(cuid())
+  customerId      String
+  customer        Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  orderId         String?
+  order           Order?    @relation(fields: [orderId], references: [id])
+  amount          Decimal
+  currency        String    @default("LAK")
+  usedAmount      Decimal   @default(0)
+  refundedAmount  Decimal   @default(0)
+  method          String    @default("cash")
+  reference       String?
+  status          String    @default("active")
+  note            String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Cart {
+  id            String    @id @default(cuid())
+  label         String?   // e.g. VIP1, Walk-in
+  userId        String?
+  user          User?     @relation(fields: [userId], references: [id])
+  customerId    String?
+  customer      Customer? @relation(fields: [customerId], references: [id])
+  branchId      String?
+  items         CartItem[]
+  discountType  String?   @default("percent")
+  discountValue Decimal   @default(0)
+  depositAmount Decimal   @default(0)
+  note          String?
+  status        String    @default("open")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model CartItem {
+  id          String          @id @default(cuid())
+  cartId      String
+  cart        Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product         @relation(fields: [productId], references: [id])
+  variantId   String?
+  variant     ProductVariant? @relation(fields: [variantId], references: [id])
+  name        String
+  qty         Decimal
+  price       Decimal
+  cost        Decimal         @default(0)
+  total       Decimal
+  discount    Decimal         @default(0)
+  note        String?
+}
+
+model Order {
+  id             String         @id @default(cuid())
+  legacyId       String?        @unique
+  businessId     String
+  business       Business       @relation(fields: [businessId], references: [id])
+  branchId       String?
+  branch         Branch?        @relation(fields: [branchId], references: [id])
+  locationId     String?
+  customerId     String?
+  customer       Customer?      @relation(fields: [customerId], references: [id])
+  userId         String?
+  user           User?          @relation(fields: [userId], references: [id])
+  code           String         @unique
+  type           String         @default("pos")
+  status         OrderStatus    @default(pending)
+  paymentStatus  PaymentStatus  @default(pending)
+  date           DateTime       @default(now())
+  subtotal       Decimal        @default(0)
+  discount       Decimal        @default(0)
+  discountType   String?        // percent | fixed
+  discountValue  Decimal        @default(0)
+  tax            Decimal        @default(0)
+  total          Decimal        @default(0)
+  paidAmount     Decimal        @default(0)
+  balance        Decimal        @default(0)
+  currency       String         @default("LAK")
+  exchangeRate   Decimal        @default(1)
+  note           String?
+  source         String?        // pos | online | mobile
+  channel        String?        // walk-in | facebook | website
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  items          OrderItem[]
+  payments       OrderPayment[]
+  timelines      OrderTimeline[]
+  refunds        Refund[]
+  loyaltyTxs     LoyaltyTransaction[]
+  deposits       Deposit[]
+  reviews        Review[]
+  commissions    Commission[]
+}
+
+model OrderItem {
+  id            String          @id @default(cuid())
+  orderId       String
+  order         Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId     String
+  product       Product         @relation(fields: [productId], references: [id])
+  variantId     String?
+  variant       ProductVariant? @relation(fields: [variantId], references: [id])
+  lotId         String?
+  lot           Lot?            @relation(fields: [lotId], references: [id])
+  name          String
+  qty           Decimal
+  price         Decimal
+  cost          Decimal         @default(0)
+  total         Decimal
+  discount      Decimal         @default(0)
+  returnedQty   Decimal         @default(0)
+  note          String?
+
+  refundItems   RefundItem[]
+}
+
+model OrderPayment {
+  id            String    @id @default(cuid())
+  orderId       String
+  order         Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  method        String    // cash | transfer | qr | card | points | credit
+  amount        Decimal
+  currency      String    @default("LAK")
+  exchangeRate  Decimal   @default(1)
+  received      Decimal?
+  change        Decimal?
+  reference     String?
+  bank          String?
+  status        String    @default("completed")
+  createdAt     DateTime  @default(now())
+}
+
+model OrderTimeline {
+  id          String    @id @default(cuid())
+  orderId     String
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status      String
+  note        String?
+  createdById String?
+  createdAt   DateTime  @default(now())
+}
+
+model Refund {
+  id            String    @id @default(cuid())
+  orderId       String
+  order         Order     @relation(fields: [orderId], references: [id])
+  customerId    String?
+  customer      Customer? @relation(fields: [customerId], references: [id])
+  amount        Decimal
+  reason        String?
+  status        String    @default("pending")
+  approvedById  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  items         RefundItem[]
+}
+
+model RefundItem {
+  id            String   @id @default(cuid())
+  refundId      String
+  refund        Refund   @relation(fields: [refundId], references: [id], onDelete: Cascade)
+  orderItemId   String
+  orderItem     OrderItem @relation(fields: [orderItemId], references: [id])
+  qty           Decimal
+  amount        Decimal
+}
+
+model DailyClosing {
+  id              String    @id @default(cuid())
+  branchId        String
+  branch          Branch    @relation(fields: [branchId], references: [id])
+  userId          String?
+  date            DateTime
+  openingCash     Decimal   @default(0)
+  cashSales       Decimal   @default(0)
+  transferSales   Decimal   @default(0)
+  qrSales         Decimal   @default(0)
+  otherSales      Decimal   @default(0)
+  totalSales      Decimal   @default(0)
+  refunds         Decimal   @default(0)
+  cashInDrawer    Decimal?
+  expectedCash    Decimal   @default(0)
+  difference      Decimal   @default(0)
+  note            String?
+  createdAt       DateTime  @default(now())
+}
+
+model CashDrawer {
+  id              String    @id @default(cuid())
+  branchId        String
+  branch          Branch    @relation(fields: [branchId], references: [id])
+  userId          String
+  openedAt        DateTime  @default(now())
+  closedAt        DateTime?
+  openingAmount   Decimal   @default(0)
+  closingAmount   Decimal?
+  status          String    @default("open")
+}
+
+model Promotion {
+  id            String          @id @default(cuid())
+  businessId    String
+  business      Business        @relation(fields: [businessId], references: [id])
+  code          String
+  name          String
+  type          PromotionType
+  value         Decimal
+  minPurchase   Decimal         @default(0)
+  maxDiscount   Decimal?
+  applicableTo  String?         // product | category | all
+  targetIds     String?         // JSON array
+  active        Boolean         @default(true)
+  validFrom     DateTime        @default(now())
+  validTo       DateTime?
+  usageLimit    Int?
+  usedCount     Int             @default(0)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  coupons       Coupon[]
+}
+
+model Coupon {
+  id            String    @id @default(cuid())
+  promotionId   String
+  promotion     Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  code          String
+  customerId    String?
+  customer      Customer? @relation(fields: [customerId], references: [id])
+  usageLimit    Int?
+  usedCount     Int       @default(0)
+  isActive      Boolean   @default(true)
+  validFrom     DateTime  @default(now())
+  validTo       DateTime?
+}
+
+model Review {
+  id          String    @id @default(cuid())
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id])
+  customerId  String?
+  customer    Customer? @relation(fields: [customerId], references: [id])
+  orderId     String?
+  order       Order?    @relation(fields: [orderId], references: [id])
+  rating      Int
+  comment     String?
+  status      String    @default("pending")
+  createdAt   DateTime  @default(now())
+}
+
+model Recommendation {
+  id                String   @id @default(cuid())
+  productId         String
+  product           Product  @relation("BaseProduct", fields: [productId], references: [id])
+  relatedProductId  String
+  relatedProduct    Product  @relation("RelatedProduct", fields: [relatedProductId], references: [id])
+  score             Decimal
+  type              String   @default("bought_together")
+  createdAt         DateTime @default(now())
+}
+
+model FramingJob {
+  id                String    @id @default(cuid())
+  legacyId          String?   @unique
+  businessId        String
+  business          Business  @relation(fields: [businessId], references: [id])
+  customerId        String?
+  customer          Customer? @relation(fields: [customerId], references: [id])
+  customerName      String?
+  customerPhone     String?
+  slotId            String?
+  slotLabel         String?
+  technicianId      String?
+  technician        User?     @relation(fields: [technicianId], references: [id])
+  status            String    @default("pending")
+  totalPrice        Decimal   @default(0)
+  deposit           Decimal   @default(0)
+  balance           Decimal   @default(0)
+  pickupDate        DateTime?
+  notes             String?
+  amuletImage       String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  amulets           FramingJobAmulet[]
+}
+
+model FramingJobAmulet {
+  id              String     @id @default(cuid())
+  framingJobId    String
+  framingJob      FramingJob @relation(fields: [framingJobId], references: [id], onDelete: Cascade)
+  name            String
+  description     String?
+  image           String?
+  frameTypeId     String?
+  frameTypeName   String?
+  price           Decimal    @default(0)
+}

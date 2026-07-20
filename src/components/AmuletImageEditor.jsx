@@ -1,12 +1,28 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import QRCode from 'qrcode';
 
+// SliderRow custom input component helper
+const SliderRow = ({ label, value, min, max, step, unit = '', onChange, displayFn }) => (
+  <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
+    <div style={{ display:'flex', justifyContent:'space-between', fontSize:'0.75rem', color:'#aaa' }}>
+      <span>{label}</span>
+      <span style={{ color:'var(--gold-primary)', fontWeight:'bold' }}>
+        {displayFn ? displayFn(value) : `${value}${unit}`}
+      </span>
+    </div>
+    <input type="range" min={min} max={max} step={step} value={value}
+      onChange={e => onChange(parseFloat(e.target.value))}
+      style={{ width:'100%', accentColor:'var(--gold-primary)' }}
+    />
+  </div>
+);
+
 export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = false }) {
   // ─── Source image & analysis ────────────────────────────────────────────────
   const [sourceImg, setSourceImg] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [_errorMsg, setErrorMsg] = useState('');
   const [bgRemoveCorsError, setBgRemoveCorsError] = useState(false);
   const [renderError, setRenderError] = useState('');
 
@@ -321,8 +337,8 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
 
   useEffect(() => {
     if (!imageUrl) return;
-    setBgRemoveCorsError(false);
-    setErrorMsg('');
+    queueMicrotask(() => setBgRemoveCorsError(false));
+    queueMicrotask(() => setErrorMsg(''));
 
     const load = async () => {
       // Direct load if already data URI or blob
@@ -355,12 +371,13 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     };
 
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageUrl]);
 
   // ═══════════════════════════════════════════════════════════════════════════════
   // AMULET ANALYZER & FEATURE DETECTOR
   // ═══════════════════════════════════════════════════════════════════════════════
-  const runAnalysis = (imgEl) => {
+  function runAnalysis(imgEl) {
     setIsAnalyzing(true);
     setTimeout(() => {
       try {
@@ -540,10 +557,10 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
           const W = 800, H = 800;
           const thr = stg.bgThreshold;
 
-          const minX = Math.max(0, Math.floor(ddx));
-          const maxX = Math.min(W - 1, Math.floor(ddx + dw) - 1);
-          const minY = Math.max(0, Math.floor(ddy));
-          const maxY = Math.min(H - 1, Math.floor(ddy + dh) - 1);
+          const _minX = Math.max(0, Math.floor(ddx));
+          const _maxX = Math.min(W - 1, Math.floor(ddx + dw) - 1);
+          const _minY = Math.max(0, Math.floor(ddy));
+          const _maxY = Math.min(H - 1, Math.floor(ddy + dh) - 1);
 
           const kData = getKeepMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
           const rData = getRemoveMaskCanvas().getContext('2d').getImageData(0,0,W,H).data;
@@ -820,6 +837,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
       console.error('Canvas render error:', err);
       setRenderError(err.message);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sourceImg, selectedDimId]);
 
   // Re-render pipeline hooks
@@ -827,18 +845,19 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     if (!sourceImg) return;
     drawOriginalCanvas(sourceImg, settings, activeTab);
     renderProcessedImage(settings, analysis);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sourceImg, settings, activeTab, analysis, dimensions]);
 
   useEffect(() => {
     if (activeTab === 'background') {
-      setEraseMode('keep');
+      queueMicrotask(() => setEraseMode('keep'));
     }
   }, [activeTab]);
 
   // ═══════════════════════════════════════════════════════════════════════════════
   // GRAPHICS DRAWING HELPERS
   // ═══════════════════════════════════════════════════════════════════════════════
-  const drawBgTemplate = (ctx, w, h, stg, isExport = false) => {
+  function drawBgTemplate(ctx, w, h, stg, isExport = false) {
     ctx.save();
 
     // Custom background image (if uploaded)
@@ -926,7 +945,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     ctx.restore();
   };
 
-  const drawDimensionLine = (ctx, dim, isSelected, isExport) => {
+  function drawDimensionLine(ctx, dim, isSelected, isExport) {
     const { x1, y1, x2, y2, label, color, thickness = 3, arrowStyle = 'double' } = dim;
 
     ctx.save();
@@ -1024,7 +1043,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     ctx.restore();
   };
 
-  const drawFrame = (ctx, w, h, stg) => {
+  function drawFrame(ctx, w, h, stg) {
     ctx.save();
     ctx.globalAlpha = stg.frameOpacity;
     const sz = stg.frameSize, pad = 12;
@@ -1047,7 +1066,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     ctx.restore();
   };
 
-  const drawWatermark = async (ctx, w, h, stg) => {
+  async function drawWatermark(ctx, w, h, stg) {
     ctx.save();
     ctx.globalAlpha = stg.watermarkOpacity;
     const margin = 25;
@@ -1096,7 +1115,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     ctx.restore();
   };
 
-  const drawGuides = (ctx, w, h, stg, anl) => {
+  function drawGuides(ctx, w, h, stg, anl) {
     ctx.save();
     ctx.lineWidth = 1;
 
@@ -1355,7 +1374,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     }
   };
 
-  const handleCanvasMouseUp = (e) => {
+  const handleCanvasMouseUp = () => {
     if (activeTab === 'dimensions') {
       handleDimMouseUp();
     } else {
@@ -1561,22 +1580,6 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
     }
   };
 
-  // SliderRow custom input component helper
-  const SliderRow = ({ label, value, min, max, step, unit = '', onChange, displayFn }) => (
-    <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
-      <div style={{ display:'flex', justifyContent:'space-between', fontSize:'0.75rem', color:'#aaa' }}>
-        <span>{label}</span>
-        <span style={{ color:'var(--gold-primary)', fontWeight:'bold' }}>
-          {displayFn ? displayFn(value) : `${value}${unit}`}
-        </span>
-      </div>
-      <input type="range" min={min} max={max} step={step} value={value}
-        onChange={e => onChange(parseFloat(e.target.value))}
-        style={{ width:'100%', accentColor:'var(--gold-primary)' }}
-      />
-    </div>
-  );
-
   // ═══════════════════════════════════════════════════════════════════════════════
   // JSX RENDERING
   // ═══════════════════════════════════════════════════════════════════════════════
@@ -1605,7 +1608,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
           background:'rgba(11,15,25,0.8)', flexWrap:'wrap', gap:'10px'
         }}>
           <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
-            <span style={{ fontSize:'1.4rem' }}>🎨</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 14.7255 3.09032 17.1962 4.85857 19C5.03458 19.176 5.09904 19.4354 5.02113 19.6738C4.78652 20.3916 4.98606 21.1962 5.56848 21.6888C6.01258 22.0645 6.6083 22.148 7.12642 21.9056C7.38289 21.7856 7.67499 21.849 7.86311 22.0371C8.98394 23.158 10.4283 22 12 22Z"/><circle cx="7.5" cy="10.5" r="1.5" fill="currentColor"/><circle cx="11.5" cy="7.5" r="1.5" fill="currentColor"/><circle cx="16.5" cy="9.5" r="1.5" fill="currentColor"/><circle cx="15.5" cy="14.5" r="1.5" fill="currentColor"/></svg>
             <div>
               <h2 style={{ color:'var(--gold-primary)', margin:0, fontSize:'1.1rem', fontWeight:'bold' }}>
                 AI Amulet Image Editor (ລະບົບແຕ່ງຮູບພຣະເຄື່ອງ)
@@ -1736,13 +1739,13 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                 >
                   <canvas ref={processedCanvasRef} style={{ width:'100%', height:'100%', display:'block' }} />
                   {/* Visual Brush Hover Indicator */}
-                  {brushPos && activeTab !== 'dimensions' && eraserContainerRef.current && (
+                  {brushPos && activeTab !== 'dimensions' && (
                     <div style={{
                       position:'absolute',
                       left: brushPos.x,
                       top: brushPos.y,
-                      width: `${(brushSizeRef.current / 800) * eraserContainerRef.current.clientWidth}px`,
-                      height: `${(brushSizeRef.current / 800) * eraserContainerRef.current.clientWidth}px`,
+                      width: `${(brushSizeRef.current / 800) * 100}%`,
+                      height: `${(brushSizeRef.current / 800) * 100}%`,
                       borderRadius:'50%',
                       border: eraseMode==='erase'||eraseMode==='remove' ? '2px solid rgba(231,76,60,0.9)' : '2px solid rgba(46,204,113,0.9)',
                       background: eraseMode==='remove' ? 'rgba(255,0,0,0.2)' : eraseMode==='keep' ? 'rgba(0,255,0,0.15)' : eraseMode==='erase' ? 'rgba(231,76,60,0.1)' : 'rgba(46,204,113,0.1)',
@@ -1796,8 +1799,8 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                   <div style={{ position:'absolute', top:0, left:0, width:`${sliderPosition}%`, height:'100%', overflow:'hidden', borderRight:'2px solid var(--gold-primary)', zIndex:2 }}>
                     <canvas ref={processedCanvasRef} style={{
                       position:'absolute', top:0, left:0,
-                      width: sliderContainerRef.current ? sliderContainerRef.current.clientWidth+'px' : '480px',
-                      height: sliderContainerRef.current ? sliderContainerRef.current.clientHeight+'px' : '480px'
+                      width: '100%',
+                      height: '100%'
                     }} />
                   </div>
 

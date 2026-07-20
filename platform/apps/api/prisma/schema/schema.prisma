@@ -1,0 +1,112 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  owner
+  admin
+  manager
+  cashier
+  warehouse
+  technician
+  customer
+}
+
+enum Gender {
+  male
+  female
+  other
+}
+
+enum OrderStatus {
+  pending
+  confirmed
+  preparing
+  shipping
+  completed
+  cancelled
+  refunded
+}
+
+enum PaymentStatus {
+  pending
+  partial
+  paid
+  refunded
+  failed
+}
+
+enum InventoryTxType {
+  receive
+  issue
+  transfer_in
+  transfer_out
+  adjustment
+  count
+  damage
+  claim
+  reservation
+  release
+  production_in
+  production_out
+}
+
+enum LocationType {
+  store
+  warehouse
+  online
+  return
+  repair
+  production
+}
+
+enum PriceListType {
+  retail
+  wholesale
+  member
+  vip
+  online
+  cost
+}
+
+enum PromotionType {
+  fixed
+  percent
+  bogo
+  bundle
+  flash
+}
+
+enum ExpenseStatus {
+  pending
+  approved
+  rejected
+  paid
+}
+
+enum AttendanceStatus {
+  present
+  late
+  absent
+  leave
+  ot
+}
+
+enum NotificationChannel {
+  in_app
+  email
+  sms
+  push
+}
+
+enum MediaStorage {
+  local
+  s3
+  cloudinary
+}

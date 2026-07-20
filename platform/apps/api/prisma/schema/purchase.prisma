@@ -1,0 +1,210 @@
+model PurchaseOrder {
+  id             String    @id @default(cuid())
+  legacyId       String?   @unique
+  businessId     String
+  business       Business  @relation(fields: [businessId], references: [id])
+  branchId       String?
+  branch         Branch?   @relation(fields: [branchId], references: [id])
+  supplierId     String?
+  supplier       Supplier? @relation(fields: [supplierId], references: [id])
+  code           String    @unique
+  status         String    @default("draft")
+  orderDate      DateTime  @default(now())
+  expectedDate   DateTime?
+  total          Decimal   @default(0)
+  tax            Decimal   @default(0)
+  discount       Decimal   @default(0)
+  note           String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  items          PurchaseOrderItem[]
+  receives       PurchaseReceive[]
+}
+
+model PurchaseOrderItem {
+  id              String        @id @default(cuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  productId       String
+  product         Product       @relation(fields: [productId], references: [id])
+  variantId       String?
+  variant         ProductVariant? @relation(fields: [variantId], references: [id])
+  qty             Decimal
+  receivedQty     Decimal       @default(0)
+  unitCost        Decimal
+  total           Decimal
+
+  receiveItems    PurchaseReceiveItem[]
+}
+
+model PurchaseReceive {
+  id              String        @id @default(cuid())
+  legacyId        String?       @unique
+  businessId      String
+  business        Business      @relation(fields: [businessId], references: [id])
+  purchaseOrderId String?
+  purchaseOrder   PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
+  supplierId      String?
+  supplier        Supplier?     @relation(fields: [supplierId], references: [id])
+  branchId        String?
+  branch          Branch?       @relation(fields: [branchId], references: [id])
+  code            String        @unique
+  receivedAt      DateTime      @default(now())
+  total           Decimal       @default(0)
+  note            String?
+  createdAt       DateTime      @default(now())
+
+  items           PurchaseReceiveItem[]
+}
+
+model PurchaseReceiveItem {
+  id                 String          @id @default(cuid())
+  purchaseReceiveId  String
+  purchaseReceive    PurchaseReceive @relation(fields: [purchaseReceiveId], references: [id], onDelete: Cascade)
+  purchaseOrderItemId String?
+  purchaseOrderItem  PurchaseOrderItem? @relation(fields: [purchaseOrderItemId], references: [id])
+  productId          String
+  product            Product         @relation(fields: [productId], references: [id])
+  variantId          String?
+  variant            ProductVariant? @relation(fields: [variantId], references: [id])
+  lotId              String?
+  lot                Lot?            @relation(fields: [lotId], references: [id])
+  qty                Decimal
+  unitCost           Decimal
+  total              Decimal
+  expiryDate         DateTime?
+}
+
+model ExpenseCategory {
+  id          String    @id @default(cuid())
+  businessId  String
+  name        String
+  type        String    @default("operating")
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  expenses    Expense[]
+
+  @@unique([businessId, name])
+}
+
+model Expense {
+  id            String           @id @default(cuid())
+  legacyId      String?          @unique
+  businessId    String
+  business      Business         @relation(fields: [businessId], references: [id])
+  branchId      String?
+  branch        Branch?          @relation(fields: [branchId], references: [id])
+  categoryId    String?
+  category      ExpenseCategory? @relation(fields: [categoryId], references: [id])
+  supplierId    String?
+  supplier      Supplier?        @relation(fields: [supplierId], references: [id])
+  createdById   String?
+  approvedById  String?
+  amount        Decimal
+  currency      String           @default("LAK")
+  convertedAmount Decimal        @default(0)
+  paymentMethod String           @default("cash")
+  status        ExpenseStatus    @default(pending)
+  notes         String?
+  date          DateTime         @default(now())
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+}
+
+model Employee {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id])
+  businessId  String
+  business    Business  @relation(fields: [businessId], references: [id])
+  employeeCode String   @unique
+  payType     String    @default("monthly")
+  baseWage    Decimal   @default(0)
+  otRate      Decimal   @default(0)
+  hiredAt     DateTime?
+  resignedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Shift {
+  id          String    @id @default(cuid())
+  businessId  String
+  business    Business  @relation(fields: [businessId], references: [id])
+  branchId    String?
+  branch      Branch?   @relation(fields: [branchId], references: [id])
+  name        String
+  startTime   String
+  endTime     String
+  days        String?   // JSON e.g. ["Mon","Tue"]
+  createdAt   DateTime  @default(now())
+}
+
+model Attendance {
+  id            String            @id @default(cuid())
+  legacyId      String?           @unique
+  userId        String
+  user          User              @relation(fields: [userId], references: [id])
+  branchId      String?
+  branch        Branch?           @relation(fields: [branchId], references: [id])
+  date          DateTime
+  clockIn       DateTime?
+  clockOut      DateTime?
+  openingCash   Decimal           @default(0)
+  workHours     Decimal           @default(0)
+  otHours       Decimal           @default(0)
+  status        AttendanceStatus  @default(present)
+  payout        Decimal           @default(0)
+  note          String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+model Leave {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  type          String
+  startDate     DateTime
+  endDate       DateTime
+  status        String    @default("pending")
+  approvedById  String?
+  note          String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Payroll {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  periodStart   DateTime
+  periodEnd     DateTime
+  basePay       Decimal   @default(0)
+  otPay         Decimal   @default(0)
+  bonus         Decimal   @default(0)
+  deductions    Decimal   @default(0)
+  commission    Decimal   @default(0)
+  total         Decimal   @default(0)
+  status        String    @default("draft")
+  paidAt        DateTime?
+  note          String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Commission {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  orderId     String?
+  order       Order?    @relation(fields: [orderId], references: [id])
+  amount      Decimal
+  rate        Decimal   @default(0)
+  status      String    @default("pending")
+  createdAt   DateTime  @default(now())
+  paidAt      DateTime?
+}

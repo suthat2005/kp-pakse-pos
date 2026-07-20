@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, lazy, useRef } from 'react';
+import React, { useState, useEffect, Suspense, lazy, useRef, useCallback } from 'react';
 import { db, DEFAULT_LABEL_KEYS } from './utils/db';
 import Portal from './components/Portal';
 
@@ -56,6 +56,153 @@ const hasPermission = (user, tabKey) => {
   return false;
 };
 
+// ─── Theme Color Utilities ────────────────────────────────────────────────────
+// Defined outside App component to avoid re-creation on every render
+function hexToRgba(hex, alpha) {
+  if (!hex || hex.length < 7) return `rgba(212,175,55,${alpha})`;
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+function darkenColor(hex, percent) {
+  if (!hex || hex.length < 7) return '#aa8412';
+  let r = parseInt(hex.slice(1, 3), 16);
+  let g = parseInt(hex.slice(3, 5), 16);
+  let b = parseInt(hex.slice(5, 7), 16);
+  r = Math.max(0, Math.floor(r * (1 - percent)));
+  g = Math.max(0, Math.floor(g * (1 - percent)));
+  b = Math.max(0, Math.floor(b * (1 - percent)));
+  return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+}
+function lightenColor(hex, percent) {
+  if (!hex || hex.length < 7) return '#211e19';
+  let r = parseInt(hex.slice(1, 3), 16);
+  let g = parseInt(hex.slice(3, 5), 16);
+  let b = parseInt(hex.slice(5, 7), 16);
+  r = Math.min(255, Math.floor(r + (255 - r) * percent));
+  g = Math.min(255, Math.floor(g + (255 - g) * percent));
+  b = Math.min(255, Math.floor(b + (255 - b) * percent));
+  return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+}
+// ──────────────────────────────────────────────────────────────────────────────
+
+// ─── Enterprise SVG Icon System ────────────────────────────────────────────────
+// Consistent 20×20 SVG icons for sidebar navigation (stroke-based, 1.6 weight)
+const Icons = {
+  dashboard: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+      <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+      <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+      <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+    </svg>
+  ),
+  pos: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="4" width="20" height="16" rx="2"/>
+      <path d="M7 15h.01M12 15h.01M17 15h.01M7 11h.01M12 11h.01M17 11h.01"/>
+      <path d="M2 8h20"/>
+    </svg>
+  ),
+  framing: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2"/>
+      <rect x="7" y="7" width="10" height="10" rx="1"/>
+    </svg>
+  ),
+  onlineOrders: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9" cy="21" r="1"/>
+      <circle cx="20" cy="21" r="1"/>
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+    </svg>
+  ),
+  inventory: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+      <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+      <line x1="12" y1="22.08" x2="12" y2="12"/>
+    </svg>
+  ),
+  customers: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  ),
+  debts: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="3" width="20" height="14" rx="2"/>
+      <line x1="8" y1="21" x2="16" y2="21"/>
+      <line x1="12" y1="17" x2="12" y2="21"/>
+      <path d="M9 8h6M9 12h4"/>
+    </svg>
+  ),
+  reports: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="20" x2="18" y2="10"/>
+      <line x1="12" y1="20" x2="12" y2="4"/>
+      <line x1="6" y1="20" x2="6" y2="14"/>
+      <line x1="2" y1="20" x2="22" y2="20"/>
+    </svg>
+  ),
+  hrm: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+  ),
+  ai: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="18" height="10" rx="2" ry="2"/>
+      <circle cx="12" cy="5" r="2"/>
+      <path d="M12 7v4"/>
+      <line x1="8" y1="16" x2="8.01" y2="16" strokeWidth="2.2"/>
+      <line x1="16" y1="16" x2="16.01" y2="16" strokeWidth="2.2"/>
+      <path d="M9 19h6"/>
+    </svg>
+  ),
+  settings: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+  ),
+  chevronLeft: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  ),
+  chevronRight: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="9 18 15 12 9 6"/>
+    </svg>
+  ),
+  menu: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"/>
+      <line x1="3" y1="6" x2="21" y2="6"/>
+      <line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  ),
+  search: () => (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8"/>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+  ),
+  clock: () => (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <polyline points="12 6 12 12 16 14"/>
+    </svg>
+  ),
+};
+// ──────────────────────────────────────────────────────────────────────────────
+
 export default function App() {
   const [activeUser, setActiveUser] = useState(null);
   const [activeTab, setActiveTab] = useState('pos');
@@ -67,11 +214,40 @@ export default function App() {
   const [lowStockWarning, setLowStockWarning] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [clockStr, setClockStr] = useState('');
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [commandQuery, setCommandQuery] = useState('');
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Real-time clock — updates every 1s (displays full date, time, and seconds)
+  useEffect(() => {
+    const tick = () => {
+      const n = new Date();
+      const d = n.toLocaleDateString('lo-LA', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const t = n.toLocaleTimeString('lo-LA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      setClockStr(`${d} · ${t}`);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowCommandPalette(prev => !prev);
+        setCommandQuery('');
+      }
+      if (e.key === 'Escape') setShowCommandPalette(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   useEffect(() => {
@@ -90,7 +266,7 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     const trackId = params.get('track');
     if (trackId) {
-      setTrackingJobId(trackId);
+      queueMicrotask(() => setTrackingJobId(trackId));
     }
   }, []);
   
@@ -146,7 +322,7 @@ export default function App() {
     } catch (e) {}
   };
 
-  const checkNewChatMessages = () => {
+  const checkNewChatMessages = useCallback(() => {
     try {
       const rawOrders = db.getOnlineOrders();
       const orders = (Array.isArray(rawOrders) ? rawOrders : []).filter(Boolean);
@@ -211,23 +387,23 @@ export default function App() {
         } catch (e) {}
       }
     } catch (err) {
-      console.error('Error checking new chat messages:', err);
+      console.error('[App] checkNewChatMessages error:', err);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    checkNewChatMessages();
-    const handleUpdate = () => checkNewChatMessages();
-    window.addEventListener('db-updated', handleUpdate);
-    window.addEventListener('storage', handleUpdate);
-    const interval = setInterval(checkNewChatMessages, 3000);
+    queueMicrotask(checkNewChatMessages);
+    window.addEventListener('db-updated', checkNewChatMessages);
+    window.addEventListener('storage', checkNewChatMessages);
+    // Reduced from 3000ms to 5000ms — saves 40% localStorage reads with imperceptible UX delay
+    const interval = setInterval(checkNewChatMessages, 5000);
     
     return () => {
-      window.removeEventListener('db-updated', handleUpdate);
-      window.removeEventListener('storage', handleUpdate);
+      window.removeEventListener('db-updated', checkNewChatMessages);
+      window.removeEventListener('storage', checkNewChatMessages);
       clearInterval(interval);
     };
-  }, []);
+  }, [checkNewChatMessages]);
 
   const handleToastClick = (orderId) => {
     setActiveTab('online_orders');
@@ -264,9 +440,9 @@ export default function App() {
     if (activeUser) {
       const logs = db.getAttendance();
       const record = logs.find(l => l.userId === activeUser.id && !l.clockOut);
-      setTodayAttendance(record || null);
+      queueMicrotask(() => setTodayAttendance(record || null));
     } else {
-      setTodayAttendance(null);
+      queueMicrotask(() => setTodayAttendance(null));
     }
   }, [activeUser]);
 
@@ -348,34 +524,8 @@ export default function App() {
     }
   }, [settings]);
 
-  // Theme helper tools
-  function hexToRgba(hex, alpha) {
-    if (!hex || hex.length < 7) return `rgba(212,175,55,${alpha})`;
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  }
-  function darkenColor(hex, percent) {
-    if (!hex || hex.length < 7) return '#aa8412';
-    let r = parseInt(hex.slice(1, 3), 16);
-    let g = parseInt(hex.slice(3, 5), 16);
-    let b = parseInt(hex.slice(5, 7), 16);
-    r = Math.max(0, Math.floor(r * (1 - percent)));
-    g = Math.max(0, Math.floor(g * (1 - percent)));
-    b = Math.max(0, Math.floor(b * (1 - percent)));
-    return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
-  }
-  function lightenColor(hex, percent) {
-    if (!hex || hex.length < 7) return '#211e19';
-    let r = parseInt(hex.slice(1, 3), 16);
-    let g = parseInt(hex.slice(3, 5), 16);
-    let b = parseInt(hex.slice(5, 7), 16);
-    r = Math.min(255, Math.floor(r + (255 - r) * percent));
-    g = Math.min(255, Math.floor(g + (255 - g) * percent));
-    b = Math.min(255, Math.floor(b + (255 - b) * percent));
-    return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
-  }
+  // Theme helper tools — hexToRgba, darkenColor, lightenColor are now defined
+  // outside App component (above) to avoid re-creation on every render
 
   // Initialize DB and load active session
   useEffect(() => {
@@ -390,6 +540,7 @@ export default function App() {
       }
       loadSystemConfig();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Background Database synchronization effect
@@ -402,6 +553,7 @@ export default function App() {
     return () => {
       db.stopSync();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeUser]);
 
   // Dynamic favicon and apple-touch-icon update effect
@@ -519,10 +671,10 @@ export default function App() {
     return () => window.removeEventListener('dblclick', handleGlobalDoubleClick);
   }, []);
 
-  const loadSystemConfig = () => {
+  function loadSystemConfig() {
     setSettings(db.getSettings());
     checkStockAlerts();
-  };
+  }
 
   const checkStockAlerts = () => {
     const products = db.getProducts();
@@ -530,13 +682,13 @@ export default function App() {
     setLowStockWarning(hasLow);
   };
 
-  const adjustDefaultTabForRole = (role) => {
+  function adjustDefaultTabForRole(role) {
     if (role === 'technician') {
       setActiveTab('framing_board');
     } else {
       setActiveTab('pos');
     }
-  };
+  }
 
   const handleLoginSuccess = (user) => {
     setActiveUser(user);
@@ -569,15 +721,15 @@ export default function App() {
     handleSystemUpdate();
   };
 
-  const handleSystemUpdate = () => {
+  function handleSystemUpdate() {
     loadSystemConfig();
     const current = db.getActiveUser();
     if (current) {
       setActiveUser(current);
     }
-  };
+  }
 
-  const handleRedirectToPOSPayment = (itemToPay) => {
+  const _handleRedirectToPOSPayment = (itemToPay) => {
     setRedirectedCartItem(itemToPay);
     setActiveTab('pos');
   };
@@ -678,6 +830,7 @@ export default function App() {
   const cleanSidebarLabel = (text) => {
     if (!text) return '';
     // Strip leading emojis and optional space
+    /* eslint-disable-next-line no-misleading-character-class */
     return text.replace(/^[\u{1F300}-\u{1F9FF}\u{2700}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2B50}\u{1F1E0}-\u{1F1FF}\u{1F900}-\u{1F9FF}🐾🛠️💵📦👥💳📊🛒📒🤖⚙️⚡️✨🌟👑🔥]+[\s]*/u, '');
   };
 
@@ -702,7 +855,7 @@ export default function App() {
             margin: 0mm !important;
           }
         }
-        /* Collapsible Sidebar Styles */
+        /* ──── Collapsible Sidebar ──── */
         .app-container {
           display: flex !important;
           flex-direction: row !important;
@@ -711,66 +864,65 @@ export default function App() {
           color: var(--text-primary);
         }
         .app-sidebar {
-          background: var(--bg-card);
-          border-right: 1.5px solid var(--border-color);
+          background: linear-gradient(180deg, #080e1c 0%, #060a14 100%);
+          border-right: 1px solid rgba(255,255,255,0.05);
           display: flex;
           flex-direction: column;
           height: 100vh;
           position: sticky;
           top: 0;
-          transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: width 0.3s var(--ease-smooth);
           z-index: 101;
           overflow-y: auto;
           overflow-x: hidden;
-          box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+          box-shadow: 4px 0 30px rgba(0,0,0,0.45);
           flex-shrink: 0;
         }
         .sidebar-logo {
-          padding: 16px 12px;
+          padding: 14px 12px;
           display: flex;
           align-items: center;
           gap: 10px;
-          border-bottom: 1.5px solid var(--border-color);
-          min-height: 70px;
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+          min-height: 66px;
+          background: rgba(255,255,255,0.02);
         }
         .sidebar-logo .logo-img {
-          width: 38px;
-          height: 38px;
-          border-radius: 50%;
+          width: 36px;
+          height: 36px;
+          border-radius: 10px;
           border: 1.5px solid var(--gold-primary);
-          box-shadow: 0 0 8px var(--gold-glow);
+          box-shadow: 0 0 10px var(--gold-glow);
           flex-shrink: 0;
           object-fit: cover;
         }
         .sidebar-logo .logo-img-fallback {
-          width: 38px;
-          height: 38px;
-          border-radius: 50%;
+          width: 36px;
+          height: 36px;
+          border-radius: 10px;
           background: rgba(212,175,55,0.1);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 1.25rem;
+          font-size: 1.2rem;
           border: 1.5px solid var(--gold-primary);
+          box-shadow: 0 0 8px var(--gold-glow);
           flex-shrink: 0;
         }
-        .sidebar-logo .logo-text {
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
-        }
+        .sidebar-logo .logo-text { display: flex; flex-direction: column; overflow: hidden; }
         .sidebar-logo .logo-text h1 {
-          font-size: 0.9rem;
+          font-size: 0.82rem;
           color: var(--gold-primary);
-          font-weight: 700;
+          font-weight: 800;
           white-space: nowrap;
           text-overflow: ellipsis;
           overflow: hidden;
           margin: 0;
+          letter-spacing: 0.2px;
         }
         .sidebar-logo .logo-text p {
-          font-size: 0.65rem;
-          color: var(--text-secondary);
+          font-size: 0.6rem;
+          color: var(--text-muted);
           white-space: nowrap;
           text-overflow: ellipsis;
           overflow: hidden;
@@ -779,69 +931,111 @@ export default function App() {
         .sidebar-nav {
           display: flex;
           flex-direction: column;
-          gap: 4px;
-          padding: 12px 8px;
+          gap: 2px;
+          padding: 10px 8px;
           flex-grow: 1;
+        }
+        /* Section group label */
+        .sidebar-section-label {
+          font-size: 0.55rem;
+          font-weight: 700;
+          letter-spacing: 0.8px;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.2);
+          padding: 10px 12px 4px;
+          white-space: nowrap;
+          overflow: hidden;
+        }
+        .sidebar-divider {
+          height: 1px;
+          background: rgba(255,255,255,0.05);
+          margin: 6px 10px;
+          flex-shrink: 0;
         }
         .sidebar-item {
           display: flex;
           align-items: center;
-          gap: 12px;
-          padding: 12px 16px;
+          gap: 10px;
+          padding: 9px 12px;
           background: transparent;
           border: none;
-          border-left: 3px solid transparent;
+          border-radius: 10px;
           color: var(--text-secondary);
           font-family: inherit;
-          font-size: 0.88rem;
+          font-size: 0.83rem;
           font-weight: 500;
           text-align: left;
           cursor: pointer;
-          transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
           width: 100%;
+          position: relative;
         }
         .sidebar-item:hover {
-          background: var(--bg-card-hover);
+          background: rgba(212,175,55,0.07);
           color: var(--text-primary);
-          border-left-color: var(--gold-primary);
-          padding-left: 20px;
+        }
+        .sidebar-item:hover .sidebar-icon svg {
+          stroke: var(--gold-primary);
+          filter: drop-shadow(0 0 4px rgba(212,175,55,0.4));
         }
         .sidebar-item.active {
-          background: rgba(212, 175, 55, 0.08);
-          border-left-color: var(--gold-primary);
+          background: linear-gradient(135deg, rgba(212,175,55,0.16) 0%, rgba(212,175,55,0.07) 100%);
           color: var(--gold-primary);
-          font-weight: 600;
+          font-weight: 700;
+          box-shadow: inset 3px 0 0 var(--gold-primary);
+        }
+        .sidebar-item.active .sidebar-icon svg {
+          stroke: var(--gold-primary);
+          filter: drop-shadow(0 0 5px rgba(212,175,55,0.5));
+        }
+        .sidebar-item.active::after {
+          content: '';
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: var(--gold-primary);
+          box-shadow: 0 0 8px rgba(212,175,55,0.7);
         }
         .sidebar-icon {
-          font-size: 1.1rem;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 24px;
-          height: 24px;
+          width: 22px;
+          height: 22px;
           flex-shrink: 0;
+          transition: filter 0.18s ease;
+        }
+        .sidebar-icon svg {
+          transition: stroke 0.18s ease, filter 0.18s ease;
         }
         .sidebar-label {
           white-space: nowrap;
           opacity: 1;
           transition: opacity 0.2s;
+          font-size: 0.82rem;
         }
         .sidebar-toggle-btn {
           background: rgba(255,255,255,0.02);
           border: none;
-          border-top: 1px solid var(--border-color);
+          border-top: 1px solid rgba(255,255,255,0.05);
           color: var(--text-secondary);
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
           padding: 12px;
-          font-size: 1rem;
-          transition: background 0.2s;
+          transition: background 0.2s, color 0.2s;
         }
         .sidebar-toggle-btn:hover {
-          background: rgba(255,255,255,0.05);
-          color: white;
+          background: rgba(212,175,55,0.07);
+          color: var(--gold-primary);
+        }
+        .sidebar-toggle-btn svg {
+          transition: transform 0.3s ease;
         }
         .main-layout {
           display: flex;
@@ -851,85 +1045,84 @@ export default function App() {
           height: 100vh;
           overflow: hidden;
         }
+        /* ──── Topbar ──── */
         .app-topbar {
-          background: var(--bg-card);
-          border-bottom: 1.5px solid var(--border-color);
+          background: linear-gradient(135deg, rgba(8,14,28,0.95) 0%, rgba(6,10,20,0.95) 100%);
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0 24px;
-          min-height: 70px;
+          padding: 0 20px;
+          min-height: 62px;
           flex-shrink: 0;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+          box-shadow: 0 4px 24px rgba(0,0,0,0.3);
           z-index: 100;
+          position: sticky;
+          top: 0;
         }
         .active-route-name {
-          font-size: 1.05rem;
-          font-weight: 700;
-          color: var(--user-gold-primary, var(--gold-primary));
+          font-size: 0.95rem;
+          font-weight: 800;
+          color: white;
+          letter-spacing: -0.2px;
         }
         .topbar-actions {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 8px;
         }
+        /* ──── Dashboard content ──── */
         .dashboard-content {
           flex-grow: 1;
           overflow-y: auto !important;
-          padding: 24px;
+          padding: 20px 22px;
           background-color: var(--bg-main);
+          animation: fadeInFast 0.18s ease;
         }
         .no-animations * {
           transition: none !important;
           animation: none !important;
         }
+        /* ──── Hamburger (Mobile) ──── */
         .hamburger-menu-btn {
           display: none;
           background: none;
           border: none;
           color: white;
-          font-size: 1.5rem;
           cursor: pointer;
-          padding: 8px;
-          margin-right: 12px;
+          padding: 7px;
+          margin-right: 8px;
           line-height: 1;
+          border-radius: 8px;
+          transition: background 0.2s;
         }
+        .hamburger-menu-btn:hover { background: rgba(255,255,255,0.08); }
         .sidebar-overlay {
           position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.6);
-          backdrop-filter: blur(4px);
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: rgba(0,0,0,0.7);
+          backdrop-filter: blur(6px);
+          -webkit-backdrop-filter: blur(6px);
           z-index: 998;
+          animation: fadeIn 0.2s ease;
         }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @media (max-width: 768px) {
           .app-sidebar {
             position: fixed !important;
-            left: 0 !important;
-            top: 0 !important;
-            bottom: 0 !important;
+            left: 0 !important; top: 0 !important; bottom: 0 !important;
             width: 260px !important;
             transform: translateX(-100%);
             z-index: 1000 !important;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            transition: transform 0.3s var(--ease-smooth) !important;
           }
-          .app-sidebar.mobile-open {
-            transform: translateX(0) !important;
-          }
-          .sidebar-toggle-btn {
-            display: none !important;
-          }
-          .app-topbar {
-            padding: 0 16px !important;
-          }
-          .hamburger-menu-btn {
-            display: block !important;
-          }
-          .dashboard-content {
-            padding: 16px !important;
-          }
+          .app-sidebar.mobile-open { transform: translateX(0) !important; }
+          .sidebar-toggle-btn { display: none !important; }
+          .app-topbar { padding: 0 14px !important; }
+          .hamburger-menu-btn { display: block !important; }
+          .dashboard-content { padding: 14px !important; }
         }
       `}</style>
 
@@ -1096,174 +1289,148 @@ export default function App() {
               )}
             </div>
           )}
-                    {/* 0. Dashboard */}
+          {/* ── ກຸ່ມ 1: ຫຼັກ ── */}
           {hasPermission(activeUser, 'dashboard') && (
-            <button
-              type="button"
-              className={`sidebar-item ${activeTab === 'dashboard' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('dashboard'); setMobileSidebarOpen(false); }}
-            >
-              <span className="sidebar-icon">🏠</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_dashboard', '🏠 ພາບລວມ (Dashboard)'))}</span>}
+            <button type="button" className={`sidebar-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+              data-tooltip={sidebarCollapsed ? cleanSidebarLabel(db.getLabel('tab_dashboard', 'ພາບລວມ')) : undefined}
+              onClick={() => { setActiveTab('dashboard'); setMobileSidebarOpen(false); }}>
+              <span className="sidebar-icon"><Icons.dashboard /></span>
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_dashboard', 'ພາບລວມ'))}</span>}
             </button>
           )}
 
-                    {/* 1. Reports */}
-          {hasPermission(activeUser, 'reports') && (
-            <button
-              type="button"
-              className={`sidebar-item ${activeTab === 'reports' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('reports'); setMobileSidebarOpen(false); }}
-            >
-              <span className="sidebar-icon">📊</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_reports', '📊 ລາຍງານ (Reports)'))}</span>}
-            </button>
-          )}
+          {/* ── divider: ຂາຍ ── */}
+          {!sidebarCollapsed && <div className="sidebar-section-label">ການຂາຍ</div>}
+          {sidebarCollapsed && <div className="sidebar-divider"/>}
 
-          {/* 2. POS */}
           {hasPermission(activeUser, 'pos') && (
-            <button
-              type="button"
-              className={`sidebar-item ${activeTab === 'pos' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('pos'); setMobileSidebarOpen(false); }}
-            >
-              <span className="sidebar-icon">💵</span>
-              {!sidebarCollapsed && (
-                <span className="sidebar-label">
-                  {cleanSidebarLabel(db.getLabel('tab_pos', '💵 ຂາຍໜ້າຮ້ານ (POS)'))}
-                </span>
-              )}
+            <button type="button" className={`sidebar-item ${activeTab === 'pos' ? 'active' : ''}`}
+              data-tooltip={sidebarCollapsed ? cleanSidebarLabel(db.getLabel('tab_pos', 'ຂາຍໜ້າຮ້ານ')) : undefined}
+              onClick={() => { setActiveTab('pos'); setMobileSidebarOpen(false); }}>
+              <span className="sidebar-icon"><Icons.pos /></span>
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_pos', 'ຂາຍໜ້າຮ້ານ'))}</span>}
             </button>
           )}
 
-          {/* 2b. Framing Board */}
           {hasPermission(activeUser, 'framing_board') && (
-            <button
-              type="button"
-              className={`sidebar-item ${activeTab === 'framing_board' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('framing_board'); setMobileSidebarOpen(false); }}
-            >
-              <span className="sidebar-icon">🛠️</span>
+            <button type="button" className={`sidebar-item ${activeTab === 'framing_board' ? 'active' : ''}`}
+              data-tooltip={sidebarCollapsed ? cleanSidebarLabel(db.getLabel('tab_framing', 'ງານອັດກອບ')) : undefined}
+              onClick={() => { setActiveTab('framing_board'); setMobileSidebarOpen(false); }}>
+              <span className="sidebar-icon"><Icons.framing /></span>
               {!sidebarCollapsed && (
                 <span className="sidebar-label">
-                  {cleanSidebarLabel(db.getLabel('tab_framing', '🛠️ ບອດງານອັດກອບ (Framing Board)'))}
+                  {cleanSidebarLabel(db.getLabel('tab_framing', 'ງານອັດກອບ'))}
                 </span>
               )}
             </button>
           )}
 
-          {/* 3. Online Orders */}
           {(activeUser.role === 'owner' || activeUser.role === 'manager') && (
-            <button
-              type="button"
-              className={`sidebar-item ${activeTab === 'online_orders' ? 'active' : ''}`}
+            <button type="button" className={`sidebar-item ${activeTab === 'online_orders' ? 'active' : ''}`}
+              data-tooltip={sidebarCollapsed ? cleanSidebarLabel(db.getLabel('tab_online_orders', 'ອໍເດີ້ອອນລາຍ')) : undefined}
               onClick={() => { setActiveTab('online_orders'); setMobileSidebarOpen(false); }}
-              style={{ position: 'relative' }}
-            >
-              <span className="sidebar-icon">🛒</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_online_orders', '🛒 ອໍເດີ້ອອນລາຍ (Online Orders)'))}</span>}
+              style={{ position: 'relative' }}>
+              <span className="sidebar-icon"><Icons.onlineOrders /></span>
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_online_orders', 'ອໍເດີ້ອອນລາຍ'))}</span>}
               {unreadChatCount > 0 && (
-                <span 
-                  style={{
-                    position: sidebarCollapsed ? 'absolute' : 'relative',
-                    top: sidebarCollapsed ? '5px' : 'auto',
-                    right: sidebarCollapsed ? '5px' : 'auto',
-                    marginLeft: sidebarCollapsed ? '0' : '8px',
-                    background: 'var(--alert-red)',
-                    color: 'white',
-                    borderRadius: '999px',
-                    padding: '2px 6px',
-                    fontSize: '0.75rem',
-                    fontWeight: 'bold',
-                    boxShadow: '0 0 5px rgba(231,76,60,0.5)'
-                  }}
-                >
-                  {unreadChatCount}
-                </span>
+                <span style={{
+                  position: sidebarCollapsed ? 'absolute' : 'relative',
+                  top: sidebarCollapsed ? '4px' : 'auto',
+                  right: sidebarCollapsed ? '4px' : 'auto',
+                  marginLeft: sidebarCollapsed ? '0' : '6px',
+                  background: 'var(--alert-red)',
+                  color: 'white',
+                  borderRadius: '999px',
+                  padding: '1px 5px',
+                  fontSize: '0.65rem',
+                  fontWeight: 'bold',
+                  boxShadow: '0 0 8px rgba(239,68,68,0.7)',
+                  minWidth: 18, textAlign: 'center',
+                  animation: 'pulse-gold 1.5s infinite',
+                }}>{unreadChatCount}</span>
               )}
             </button>
           )}
 
-          {/* 4. Inventory */}
+          {/* ── divider: ຈັດການ ── */}
+          {!sidebarCollapsed && <div className="sidebar-section-label">ຈັດການ</div>}
+          {sidebarCollapsed && <div className="sidebar-divider"/>}
+
           {hasPermission(activeUser, 'inventory') && (
-            <button
-              type="button"
-              className={`sidebar-item ${activeTab === 'inventory' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('inventory'); setMobileSidebarOpen(false); }}
-            >
-              <span className="sidebar-icon">📦</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_inventory', '📦 ສະຕັອກ (Inventory)'))}</span>}
+            <button type="button" className={`sidebar-item ${activeTab === 'inventory' ? 'active' : ''}`}
+              data-tooltip={sidebarCollapsed ? cleanSidebarLabel(db.getLabel('tab_inventory', 'ສະຕັອກ')) : undefined}
+              onClick={() => { setActiveTab('inventory'); setMobileSidebarOpen(false); }}>
+              <span className="sidebar-icon"><Icons.inventory /></span>
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_inventory', 'ສະຕັອກ'))}</span>}
             </button>
           )}
 
-          {/* 5. Debts */}
-          {hasPermission(activeUser, 'debts') && (
-            <button
-              type="button"
-              className={`sidebar-item ${activeTab === 'debts' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('debts'); setMobileSidebarOpen(false); }}
-            >
-              <span className="sidebar-icon">📒</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_debts', '📒 ບັນຊີຕິດໜີ້ (Debts)'))}</span>}
-            </button>
-          )}
-
-          {/* 6. Members */}
           {hasPermission(activeUser, 'customers') && (
-            <button
-              type="button"
-              className={`sidebar-item ${activeTab === 'customers' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('customers'); setMobileSidebarOpen(false); }}
-            >
-              <span className="sidebar-icon">💳</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_customers', '💳 ສະມາຊິກ (Members)'))}</span>}
+            <button type="button" className={`sidebar-item ${activeTab === 'customers' ? 'active' : ''}`}
+              data-tooltip={sidebarCollapsed ? cleanSidebarLabel(db.getLabel('tab_customers', 'ສະມາຊິກ')) : undefined}
+              onClick={() => { setActiveTab('customers'); setMobileSidebarOpen(false); }}>
+              <span className="sidebar-icon"><Icons.customers /></span>
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_customers', 'ສະມາຊິກ'))}</span>}
             </button>
           )}
 
-          {/* 7. HRM */}
+          {hasPermission(activeUser, 'debts') && (
+            <button type="button" className={`sidebar-item ${activeTab === 'debts' ? 'active' : ''}`}
+              data-tooltip={sidebarCollapsed ? cleanSidebarLabel(db.getLabel('tab_debts', 'ໜີ້ສິນ')) : undefined}
+              onClick={() => { setActiveTab('debts'); setMobileSidebarOpen(false); }}>
+              <span className="sidebar-icon"><Icons.debts /></span>
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_debts', 'ໜີ້ສິນ'))}</span>}
+            </button>
+          )}
+
+          {/* ── divider: ລາຍງານ ── */}
+          {!sidebarCollapsed && <div className="sidebar-section-label">ລາຍງານ</div>}
+          {sidebarCollapsed && <div className="sidebar-divider"/>}
+
+          {hasPermission(activeUser, 'reports') && (
+            <button type="button" className={`sidebar-item ${activeTab === 'reports' ? 'active' : ''}`}
+              data-tooltip={sidebarCollapsed ? cleanSidebarLabel(db.getLabel('tab_reports', 'ລາຍງານ')) : undefined}
+              onClick={() => { setActiveTab('reports'); setMobileSidebarOpen(false); }}>
+              <span className="sidebar-icon"><Icons.reports /></span>
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_reports', 'ລາຍງານ'))}</span>}
+            </button>
+          )}
+
           {hasPermission(activeUser, 'hrm') && (
-            <button
-              type="button"
-              className={`sidebar-item ${activeTab === 'hrm' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('hrm'); setMobileSidebarOpen(false); }}
-            >
-              <span className="sidebar-icon">👥</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_hrm', '👥 ຈັດການບຸກຄະລາກອນ (HRM)'))}</span>}
+            <button type="button" className={`sidebar-item ${activeTab === 'hrm' ? 'active' : ''}`}
+              data-tooltip={sidebarCollapsed ? cleanSidebarLabel(db.getLabel('tab_hrm', 'ພະນັກງານ')) : undefined}
+              onClick={() => { setActiveTab('hrm'); setMobileSidebarOpen(false); }}>
+              <span className="sidebar-icon"><Icons.hrm /></span>
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_hrm', 'ພະນັກງານ'))}</span>}
             </button>
           )}
 
-          {/* 8. AI System */}
+          {/* ── divider: ເຄື່ອງມື ── */}
+          {!sidebarCollapsed && <div className="sidebar-section-label">ເຄື່ອງມື</div>}
+          {sidebarCollapsed && <div className="sidebar-divider"/>}
+
           {hasPermission(activeUser, 'ai') && (
-            <button
-              type="button"
-              className={`sidebar-item ${activeTab === 'ai' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('ai'); setMobileSidebarOpen(false); }}
-            >
-              <span className="sidebar-icon">🤖</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_ai', '🤖 ລະບົບ AI'))}</span>}
+            <button type="button" className={`sidebar-item ${activeTab === 'ai' ? 'active' : ''}`}
+              data-tooltip={sidebarCollapsed ? cleanSidebarLabel(db.getLabel('tab_ai', 'ລະບົບ AI')) : undefined}
+              onClick={() => { setActiveTab('ai'); setMobileSidebarOpen(false); }}>
+              <span className="sidebar-icon"><Icons.ai /></span>
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_ai', 'ລະບົບ AI'))}</span>}
             </button>
           )}
 
-          {/* 9. Settings */}
           {hasPermission(activeUser, 'settings') && (
-            <button
-              type="button"
-              className={`sidebar-item ${activeTab === 'settings' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('settings'); setMobileSidebarOpen(false); }}
-            >
-              <span className="sidebar-icon">⚙️</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_settings', '⚙️ ຕັ້ງຄ່າ (Settings)'))}</span>}
+            <button type="button" className={`sidebar-item ${activeTab === 'settings' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('settings'); setMobileSidebarOpen(false); }}>
+              <span className="sidebar-icon"><Icons.settings /></span>
+              {!sidebarCollapsed && <span className="sidebar-label">{cleanSidebarLabel(db.getLabel('tab_settings', 'ຕັ້ງຄ່າ'))}</span>}
             </button>
           )}
         </nav>
 
-        <button
-          type="button"
-          className="sidebar-toggle-btn"
+        <button type="button" className="sidebar-toggle-btn"
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          title={sidebarCollapsed ? 'ຂະຫຍາຍເມນູ' : 'ພັບເມນູ'}
-        >
-          {sidebarCollapsed ? '➡️' : '⬅️'}
+          title={sidebarCollapsed ? 'ຂະຫຍາຍ' : 'ຫຍໍ້'}>
+          {sidebarCollapsed ? <Icons.chevronRight /> : <Icons.chevronLeft />}
         </button>
       </aside>
 
@@ -1278,7 +1445,7 @@ export default function App() {
               onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
               title={db.getLabel('auto_ເມນູ__Menu__wthrb5', `ເມນູ (Menu)`)}
             >
-              ☰
+              <Icons.menu />
             </button>
             <span className="active-route-name" style={isMobile ? { fontSize: '0.85rem', whiteSpace: 'nowrap', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis' } : {}}>
               {activeTab === 'dashboard' && db.getLabel('tab_dashboard', '🏠 ພາບລວມ (Dashboard)')}
@@ -1296,31 +1463,64 @@ export default function App() {
 
             {/* Connection Status Badge */}
             <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              marginLeft: isMobile ? '6px' : '12px',
-              padding: isMobile ? '4px 6px' : '4px 10px',
-              borderRadius: '12px',
-              background: isOnline ? 'rgba(46, 204, 113, 0.1)' : 'rgba(231, 76, 60, 0.15)',
-              border: `1px solid ${isOnline ? 'rgba(46, 204, 113, 0.2)' : 'rgba(231, 76, 60, 0.3)'}`,
-              fontSize: '0.72rem',
-              color: isOnline ? '#2ecc71' : '#e74c3c',
-              fontWeight: '600',
-              gap: '6px',
-              transition: 'all 0.3s ease'
+              display: 'flex', alignItems: 'center',
+              marginLeft: isMobile ? '6px' : '10px',
+              padding: '3px 9px',
+              borderRadius: 10,
+              background: isOnline ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.15)',
+              border: `1px solid ${isOnline ? 'rgba(34,197,94,0.22)' : 'rgba(239,68,68,0.3)'}`,
+              fontSize: '0.68rem', color: isOnline ? '#22c55e' : '#ef4444',
+              fontWeight: '700', gap: '5px', transition: 'all 0.3s',
             }}>
-              <span className={isOnline ? 'pulse-dot-online' : 'pulse-dot-offline'} style={{
-                width: '6.5px',
-                height: '6.5px',
-                borderRadius: '50%',
-                background: isOnline ? '#2ecc71' : '#e74c3c',
-                display: 'inline-block'
-              }} />
-              {!isMobile && <span className="no-select">{isOnline ? 'Online' : 'Offline'}</span>}
+              <span style={{
+                width: 6, height: 6, borderRadius: '50%',
+                background: isOnline ? '#22c55e' : '#ef4444',
+                display: 'inline-block',
+                boxShadow: isOnline ? '0 0 5px #22c55e' : '0 0 5px #ef4444',
+                animation: isOnline ? 'pulse-blue 2s infinite' : 'none',
+              }}/>
+              {!isMobile && <span>{isOnline ? 'Online' : 'Offline'}</span>}
             </div>
           </div>
 
           <div className="topbar-actions">
+            {/* Ctrl+K Search Button */}
+            {!isMobile && (
+              <button
+                type="button"
+                onClick={() => { setShowCommandPalette(true); setCommandQuery(''); }}
+                title="ຄົ້ນຫາ (Ctrl+K)"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 7,
+                  padding: '4px 12px', borderRadius: 9,
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.09)',
+                  color: 'rgba(255,255,255,0.38)', cursor: 'pointer',
+                  fontSize: '0.72rem', fontFamily: 'inherit',
+                  transition: 'all 0.18s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.65)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = 'rgba(255,255,255,0.38)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)'; }}
+              >
+                <Icons.search /><span>ຄົ້ນຫາ</span>
+                <kbd style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '1px 5px', fontSize: '0.6rem' }}>Ctrl K</kbd>
+              </button>
+            )}
+
+            {/* Real-time Clock */}
+            {!isMobile && (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                padding: '4px 11px', borderRadius: 9,
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.07)',
+                fontSize: '0.68rem', color: 'rgba(255,255,255,0.45)',
+                fontWeight: 600, letterSpacing: '0.3px',
+              }}>
+                <Icons.clock /><span>{clockStr}</span>
+              </div>
+            )}
+
             {lowStockWarning && activeUser.role === 'owner' && (
               <div
                 onClick={() => {
@@ -1328,18 +1528,19 @@ export default function App() {
                   setInventoryFilter('low_stock');
                 }}
                 style={{
-                  background: 'rgba(231, 76, 60, 0.2)',
+                  background: 'rgba(239,68,68,0.18)',
                   color: 'var(--alert-red)',
-                  border: '1px solid var(--alert-red)',
-                  padding: '6px 12px',
-                  borderRadius: '20px',
-                  fontSize: '0.75rem',
-                  fontWeight: 'bold',
+                  border: '1px solid rgba(239,68,68,0.35)',
+                  padding: '4px 11px',
+                  borderRadius: 9,
+                  fontSize: '0.68rem',
+                  fontWeight: 800,
                   animation: 'pulse-gold 1.5s infinite',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 5,
                 }}
               >
-                {isMobile ? '⚠️ ສະຕັອກ' : '⚠️ ສະຕັອກໃກ້ໝົດ!'}
+                ⚠️ {isMobile ? 'ສະຕັອກ' : 'ສະຕັອກໃກ້ໝົດ!'}
               </div>
             )}
 
@@ -1429,103 +1630,129 @@ export default function App() {
               </button>
             )}
 
-            <div className="user-badge" style={{ border: 'none', background: 'transparent', padding: 0 }}>
-              <div className="user-avatar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }}>
+            {/* ── Quick Actions (+) ── */}
+            {!isMobile && (activeUser.role === 'owner' || activeUser.role === 'manager') && (
+              <button
+                type="button"
+                title="ການດໃ຾ົ຾໇ (Quick Actions)"
+                onClick={() => {
+                  setExpenseFormData({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '', currency: 'LAK' });
+                  setShowExpenseModal(true);
+                }}
+                style={{
+                  width: 34, height: 34,
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg,rgba(212,175,55,0.2),rgba(212,175,55,0.08))',
+                  border: '1px solid rgba(212,175,55,0.3)',
+                  color: 'var(--gold-primary)',
+                  fontSize: '1rem', fontWeight: 900,
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 0.18s',
+                  flexShrink: 0,
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(212,175,55,0.25)'; e.currentTarget.style.boxShadow = '0 0 14px rgba(212,175,55,0.35)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(135deg,rgba(212,175,55,0.2),rgba(212,175,55,0.08))'; e.currentTarget.style.boxShadow = 'none'; }}
+              >
+                +
+              </button>
+            )}
+
+            {/* ── User Pill ── */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              padding: isMobile ? '4px' : '5px 12px 5px 5px',
+              borderRadius: 40,
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.09)',
+              cursor: 'default',
+            }}>
+              {/* Avatar */}
+              <div style={{
+                width: 30, height: 30, borderRadius: '50%',
+                background: 'linear-gradient(135deg,rgba(212,175,55,0.2),rgba(212,175,55,0.08))',
+                border: '1.5px solid rgba(212,175,55,0.35)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '0.85rem', flexShrink: 0, overflow: 'hidden',
+              }}>
                 {activeUser.avatar ? (
-                  <img src={activeUser.avatar} alt="User Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={activeUser.avatar} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : settings.shopLogo ? (
-                  <img src={settings.shopLogo} alt="Shop Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={settings.shopLogo} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
                   activeUser.role === 'owner' ? '👑' : activeUser.role === 'cashier' ? '💵' : '🛠️'
                 )}
               </div>
+
               {!isMobile && (
-                <div className="user-info-text">
-                  <div className="user-name">{activeUser.name}</div>
-                  <div className="user-role">
-                    {activeUser.roleName?.split(' ')[0] || (activeUser.role === 'owner' ? 'ເຈົ້າຂອງຮ້ານ' : activeUser.role === 'cashier' ? 'ພະນັກງານຂາຍ' : 'ຊ່າງອັດກອບ')}
+                <div style={{ lineHeight: 1.2 }}>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'white' }}>{activeUser.name}</div>
+                  <div style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.32)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    {activeUser.roleName?.split(' ')[0] || (activeUser.role === 'owner' ? 'ເຈົ້າຂອງຮ້ານ' : activeUser.role === 'cashier' ? 'ພະນັກງານຂາຍ' : 'ຊ່າງ')}
                     {todayAttendance && !todayAttendance.clockOut && (
-                      <span style={{ color: 'var(--success-green)', fontWeight: 'bold', marginLeft: '6px' }}>
-                        (ກະ: {db.getShiftSales(activeUser.id).toLocaleString()} ₭)
+                      <span style={{ color: '#22c55e', fontWeight: 700 }}>
+                        · {db.getShiftSales(activeUser.id).toLocaleString()} ₭
                       </span>
                     )}
                   </div>
                 </div>
               )}
-              
-              {/* Clock-In / Clock-Out Button */}
+
+              {/* Clock-in / Clock-out */}
               {!isMobile && (
-                <div style={{ marginLeft: '6px', marginRight: '6px', display: 'flex', alignItems: 'center' }}>
+                <div style={{ marginLeft: 2 }}>
                   {!todayAttendance ? (
-                    <button
-                      type="button"
-                      className="btn"
+                    <button type="button"
                       style={{
-                        padding: '4px 10px',
-                        fontSize: '0.7rem',
-                        background: 'var(--success-green)',
-                        color: 'black',
-                        fontWeight: 'bold',
-                        borderColor: 'var(--success-green)',
-                        borderRadius: '12px',
-                        cursor: 'pointer',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '4px'
+                        padding: '3px 9px', fontSize: '0.68rem', fontWeight: 800,
+                        background: 'linear-gradient(135deg,#22c55e,#16a34a)',
+                        color: 'white', border: 'none', borderRadius: 8,
+                        cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3,
+                        boxShadow: '0 2px 8px rgba(34,197,94,0.3)',
                       }}
-                      onClick={() => {
-                        setOpeningCashInput('');
-                        setShowClockInModal(true);
-                      }}
+                      onClick={() => { setOpeningCashInput(''); setShowClockInModal(true); }}
                     >
-                      🕒 ເຂົ້າງານ
+                      ⏰ ເຂົ້ງານ
                     </button>
                   ) : !todayAttendance.clockOut ? (
-                    <button
-                      type="button"
-                      className="btn"
+                    <button type="button"
                       style={{
-                        padding: '4px 10px',
-                        fontSize: '0.7rem',
-                        background: 'var(--alert-red)',
-                        color: 'white',
-                        fontWeight: 'bold',
-                        borderColor: 'var(--alert-red)',
-                        borderRadius: '12px',
-                        cursor: 'pointer',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '4px'
+                        padding: '3px 9px', fontSize: '0.68rem', fontWeight: 800,
+                        background: 'linear-gradient(135deg,#ef4444,#dc2626)',
+                        color: 'white', border: 'none', borderRadius: 8,
+                        cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3,
+                        boxShadow: '0 2px 8px rgba(239,68,68,0.3)',
                       }}
-                      onClick={() => {
-                        handleClockOut();
-                      }}
+                      onClick={handleClockOut}
                     >
-                      🕒 ອອກງານ
+                      ⏰ ອອກງານ
                     </button>
                   ) : (
-                    <span
-                      style={{
-                        padding: '4px 10px',
-                        fontSize: '0.65rem',
-                        background: 'rgba(255, 255, 255, 0.08)',
-                        color: 'var(--text-secondary)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        borderRadius: '12px',
-                        fontWeight: 'bold',
-                        display: 'inline-flex',
-                        alignItems: 'center'
-                      }}
-                    >
-                      ✓ ເຮັດວຽກແລ້ວ
-                    </span>
+                    <span style={{ fontSize: '0.62rem', color: '#22c55e', fontWeight: 700 }}>✓ ເຄີຍແລ້ວ</span>
                   )}
                 </div>
               )}
 
+              {/* Logout */}
               {!isMobile && (
-                <button className="logout-btn" onClick={handleLogout} title={db.getLabel('auto_ອອກຈາກລະບົບ_9t08zc', `ອອກຈາກລະບົບ`)}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  title={db.getLabel('auto_ອອກຈາກລະບົບ_9t08zc', 'ອອກຈາກລະບົບ')}
+                  style={{
+                    width: 28, height: 28, borderRadius: '50%',
+                    background: 'rgba(239,68,68,0.1)',
+                    border: '1px solid rgba(239,68,68,0.2)',
+                    color: 'rgba(239,68,68,0.7)',
+                    cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'all 0.18s', flexShrink: 0,
+                    marginLeft: 2,
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.2)'; e.currentTarget.style.color = '#ef4444'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.color = 'rgba(239,68,68,0.7)'; }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                     <polyline points="16 17 21 12 16 7" />
                     <line x1="21" y1="12" x2="9" y2="12" />
@@ -1539,64 +1766,85 @@ export default function App() {
         {/* Main Workspace Tabs Renderer */}
         <main className="dashboard-content">
           {!todayAttendance ? (
+            /* ── Shift Locked Premium Screen ── */
             <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100%',
-              minHeight: '60vh',
-              padding: '40px 24px',
-              textAlign: 'center',
-              background: 'rgba(22, 20, 17, 0.45)',
-              backdropFilter: 'blur(16px)',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid rgba(255, 255, 255, 0.06)',
-              margin: '20px',
-              boxShadow: 'var(--shadow-premium)',
-              gap: '16px'
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              height: '100%', minHeight: '75vh', padding: '32px 24px',
+              textAlign: 'center', gap: 0, position: 'relative', overflow: 'hidden',
             }}>
-              <div style={{ fontSize: '4.5rem', marginBottom: '8px' }}>🔒</div>
-              <h2 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '1.6rem', fontWeight: 'bold' }}>
-                ລະບົບປິດລັອກຊົ່ວຄາວ (Shift Locked)
+              {/* ambient orb */}
+              <div style={{ position: 'absolute', top: '20%', left: '50%', transform: 'translateX(-50%)', width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle, rgba(212,175,55,0.05) 0%, transparent 70%)', pointerEvents: 'none' }}/>
+
+              {/* lock icon ring */}
+              <div style={{ width: 96, height: 96, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(212,175,55,0.1), rgba(212,175,55,0.04))', border: '1.5px solid rgba(212,175,55,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.8rem', marginBottom: 24, boxShadow: '0 0 40px rgba(212,175,55,0.12)', animation: 'pulse-gold 3s ease-in-out infinite' }}>
+                🔒
+              </div>
+
+              <h2 style={{ color: 'white', margin: '0 0 10px', fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.3px' }}>
+                ລອໃຊ້ງານ — ຕ້ອງເຂົ້າງານກ່ອນ
               </h2>
-              <p style={{ color: 'var(--text-secondary)', maxWidth: '520px', margin: 0, fontSize: '0.92rem', lineHeight: '1.6' }}>
-                ກະລຸນາກົດປຸ່ມ **"🕒 ເຂົ້າງານ"** ຢູ່ແຖບເມນູດ້ານເທິງ ຫຼື ກົດປຸ່ມດ້ານລຸ່ມນີ້ ເພື່ອເປີດກະລິ້ນຊັກເງິນສົດ ແລະ ເປີດໃຊ້ງານລະບົບການຂາຍ ແລະ ຈັດການສິນຄ້າ.
+              <p style={{ color: 'rgba(255,255,255,0.38)', maxWidth: 440, margin: '0 0 32px', fontSize: '0.86rem', lineHeight: 1.65 }}>
+                ທ່ານ <strong style={{ color: 'rgba(255,255,255,0.7)' }}>{activeUser?.name}</strong> ຍັງບໍ່ໄດ້ເຂົ້າງານ.
+                ກ່ອນໃຊ້ລະບົບ, ກະລຸນາ Clock-In ເພື່ອເປີດກະ ແລະ ຕິດຕາມລາຍຮັບ.
               </p>
+
+              {/* 3 info pills */}
+              <div style={{ display: 'flex', gap: 12, marginBottom: 32, flexWrap: 'wrap', justifyContent: 'center' }}>
+                {[
+                  { icon: <Icons.pos style={{ width: 16, height: 16, color: 'var(--gold-primary)' }} />, label: 'ລາຍຮັບ', desc: 'ຕິດຕາມກະ' },
+                  { icon: <Icons.reports style={{ width: 16, height: 16, color: '#3498db' }} />, label: 'ລາຍງານ', desc: 'ສະຫຼຸບທ້າຍກະ' },
+                  { icon: <Icons.settings style={{ width: 16, height: 16, color: '#e74c3c' }} />, label: 'ຄວາມປອດໄພ', desc: 'ຄຸ້ມຄອງ Access' },
+                ].map((item, i) => (
+                  <div key={i} style={{
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    padding: '8px 14px', borderRadius: 12,
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    fontSize: '0.78rem',
+                  }}>
+                    <span>{item.icon}</span>
+                    <div style={{ textAlign: 'left' }}>
+                      <div style={{ fontWeight: 700, color: 'white' }}>{item.label}</div>
+                      <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.65rem' }}>{item.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               <button
                 type="button"
-                className="btn"
                 style={{
-                  marginTop: '8px',
-                  padding: '12px 32px',
-                  fontSize: '1rem',
-                  fontWeight: 'bold',
-                  background: 'var(--success-green)',
-                  color: 'black',
-                  borderColor: 'var(--success-green)',
-                  borderRadius: '30px',
-                  cursor: 'pointer',
-                  boxShadow: '0 0 15px rgba(46, 204, 113, 0.4)'
+                  padding: '14px 36px', fontSize: '0.96rem', fontWeight: 800,
+                  background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                  color: 'white', border: 'none', borderRadius: 16, cursor: 'pointer',
+                  boxShadow: '0 8px 28px rgba(34,197,94,0.4), 0 1px 0 rgba(255,255,255,0.15) inset',
+                  display: 'inline-flex', alignItems: 'center', gap: 9,
+                  transition: 'all 0.2s', letterSpacing: '0.1px',
                 }}
-                onClick={() => {
-                  setOpeningCashInput('');
-                  setShowClockInModal(true);
-                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 36px rgba(34,197,94,0.55)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(34,197,94,0.4)'; }}
+                onClick={() => { setOpeningCashInput(''); setShowClockInModal(true); }}
               >
-                🕒 ກົດເຂົ້າງານດຽວນີ້ (Clock In Shift)
+                ⏰ ເຂົ້າງານດຽວນີ້ (Clock In)
               </button>
+
+              <p style={{ marginTop: 18, fontSize: '0.7rem', color: 'rgba(255,255,255,0.2)' }}>
+                ກົດ <kbd style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 4, padding: '1px 6px' }}>ເຂົ້າງານ</kbd> ໃນ Topbar ດ້ານເທິງ ຫຼື ກົດປຸ່ມນີ້
+              </p>
             </div>
           ) : (
             <Suspense fallback={
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: '12px', color: 'var(--text-secondary)' }}>
-                <div style={{ width: '40px', height: '40px', border: '3px solid rgba(255,255,255,0.05)', borderTopColor: 'var(--gold-primary, #d4af37)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-                <style>{`
-                  @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                  }
-                `}</style>
-                <span>{db.getLabel('auto___ກຳລັງໂຫຼດຂໍ້ມູນລະບົບ__L_j7jxoo', `⏳ ກຳລັງໂຫຼດຂໍ້ມູນລະບົບ (Loading Component)...`)}</span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: 20 }}>
+                {/* Premium skeleton loader */}
+                <div style={{ position: 'relative', width: 54, height: 54 }}>
+                  <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '3px solid rgba(255,255,255,0.06)', borderTopColor: 'var(--gold-primary)', animation: 'spin 0.9s linear infinite' }}/>
+                  <div style={{ position: 'absolute', inset: 6, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.04)', borderTopColor: 'rgba(212,175,55,0.35)', animation: 'spin 1.4s linear infinite reverse' }}/>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                  <div style={{ width: 160, height: 10, borderRadius: 6, background: 'linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite' }}/>
+                  <div style={{ width: 110, height: 8, borderRadius: 5, background: 'linear-gradient(90deg,rgba(255,255,255,0.03) 25%,rgba(255,255,255,0.06) 50%,rgba(255,255,255,0.03) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite 0.3s' }}/>
+                </div>
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
               </div>
             }>
               <>
@@ -2382,6 +2630,103 @@ export default function App() {
           </div>
         ))}
       </div>
+
+      {/* ── Command Palette ── */}
+      {showCommandPalette && activeUser && (
+        <div
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(0,0,0,0.8)',
+            backdropFilter: 'blur(10px)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+            paddingTop: '15vh',
+          }}
+          onClick={() => setShowCommandPalette(false)}
+        >
+          <div
+            style={{
+              background: 'linear-gradient(160deg, #0d1424 0%, #080e1c 100%)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 18,
+              width: '100%',
+              maxWidth: 560,
+              margin: '0 16px',
+              boxShadow: '0 32px 100px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.07)',
+              overflow: 'hidden',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Search Input */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+              <span style={{ fontSize: '1rem', opacity: 0.5 }}>🔍</span>
+              <input
+                autoFocus
+                type="text"
+                value={commandQuery}
+                onChange={e => setCommandQuery(e.target.value)}
+                placeholder="ຄົ້ນຫາໜ້າ, ຟັງຊັ່ນ... (Search pages, features...)"
+                style={{
+                  flex: 1, background: 'none', border: 'none', outline: 'none',
+                  color: 'white', fontSize: '0.95rem', fontFamily: 'inherit',
+                }}
+              />
+              <kbd style={{
+                background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
+                borderRadius: 6, padding: '2px 7px', fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)',
+              }}>ESC</kbd>
+            </div>
+            {/* Quick Nav Items */}
+            <div style={{ padding: '8px 0', maxHeight: 380, overflowY: 'auto' }}>
+              {[
+                { icon: <Icons.dashboard style={{ width: 16, height: 16 }} />, label: 'ພາບລວມ (Dashboard)', tab: 'dashboard', role: 'all' },
+                { icon: <Icons.pos style={{ width: 16, height: 16 }} />, label: 'ຂາຍໜ້າຮ້ານ (POS)', tab: 'pos', role: 'all' },
+                { icon: <Icons.framing style={{ width: 16, height: 16 }} />, label: 'ງານອັດກອບ (Framing)', tab: 'framing_board', role: 'all' },
+                { icon: <Icons.onlineOrders style={{ width: 16, height: 16 }} />, label: 'ອໍເດີ້ອອນລาย (Online Orders)', tab: 'online_orders', role: 'owner' },
+                { icon: <Icons.inventory style={{ width: 16, height: 16 }} />, label: 'ສະຕັອກ (Inventory)', tab: 'inventory', role: 'owner' },
+                { icon: <Icons.customers style={{ width: 16, height: 16 }} />, label: 'ສະມາຊິກ (Members)', tab: 'customers', role: 'all' },
+                { icon: <Icons.debts style={{ width: 16, height: 16 }} />, label: 'ໜີ້ສິນ (Debts)', tab: 'debts', role: 'owner' },
+                { icon: <Icons.reports style={{ width: 16, height: 16 }} />, label: 'ລາຍງານ (Reports)', tab: 'reports', role: 'owner' },
+                { icon: <Icons.hrm style={{ width: 16, height: 16 }} />, label: 'ພະນັກງານ (HRM)', tab: 'hrm', role: 'owner' },
+                { icon: <Icons.ai style={{ width: 16, height: 16 }} />, label: 'ລະບົບ AI', tab: 'ai', role: 'owner' },
+                { icon: <Icons.settings style={{ width: 16, height: 16 }} />, label: 'ຕັ້ງຄ່າ (Settings)', tab: 'settings', role: 'owner' },
+              ]
+                .filter(item => {
+                  const q = commandQuery.toLowerCase();
+                  return item.label.toLowerCase().includes(q) || item.tab.includes(q);
+                })
+                .map((item, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => { setActiveTab(item.tab); setShowCommandPalette(false); setMobileSidebarOpen(false); }}
+                    style={{
+                      width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+                      padding: '11px 18px', background: 'none', border: 'none',
+                      color: 'rgba(255,255,255,0.75)', cursor: 'pointer',
+                      fontSize: '0.88rem', fontFamily: 'inherit', textAlign: 'left',
+                      transition: 'all 0.15s',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'white'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; }}
+                  >
+                    <span style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', flexShrink: 0 }}>{item.icon}</span>
+                    {item.label}
+                    <span style={{ marginLeft: 'auto', fontSize: '0.65rem', color: 'rgba(255,255,255,0.25)' }}>↵</span>
+                  </button>
+                ))
+              }
+            </div>
+            {/* Footer hint */}
+            <div style={{ padding: '10px 18px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: 16, fontSize: '0.68rem', color: 'rgba(255,255,255,0.22)' }}>
+              <span><kbd style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 4, padding: '1px 5px', border: '1px solid rgba(255,255,255,0.12)' }}>Ctrl</kbd> + <kbd style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 4, padding: '1px 5px', border: '1px solid rgba(255,255,255,0.12)' }}>K</kbd> ເປີດ/ປິດ</span>
+              <span><kbd style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 4, padding: '1px 5px', border: '1px solid rgba(255,255,255,0.12)' }}>ESC</kbd> ປິດ</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

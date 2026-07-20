@@ -5,7 +5,7 @@ import { db } from '../utils/db';
 import Portal from './Portal';
 import OrderTracking from './OrderTracking';
 
-const accountConfig = {
+const _accountConfig = {
   LAK: { mid: 'mch64f01defcb310', code: '418' },
   THB: { mid: 'mch64f01defcb310_THB', code: '764' },
   USD: { mid: 'mch64f01defcb310_USD', code: '840' }
@@ -156,7 +156,7 @@ export default function OnlineShop() {
   const [trackedOrder, setTrackedOrder] = useState(null);
 
   // Chat states (customer messaging)
-  const [chatOrderId, setChatOrderId] = useState('');
+  const [_chatOrderId, _setChatOrderId] = useState('');
   const [chatMessage, setChatMessage] = useState('');
   const [chatOrder, setChatOrder] = useState(null);
   const [chatAttachments, setChatAttachments] = useState([]);
@@ -212,9 +212,11 @@ export default function OnlineShop() {
     if (savedCustomer) {
       try {
         const parsed = JSON.parse(savedCustomer);
-        setCustomer(parsed);
-        setRecipientName(parsed.name || '');
-        setPhone(parsed.phone || '');
+        queueMicrotask(() => {
+          setCustomer(parsed);
+          setRecipientName(parsed.name || '');
+          setPhone(parsed.phone || '');
+        });
       } catch (e) {
         console.error('Failed to restore customer session:', e);
       }
@@ -248,10 +250,11 @@ export default function OnlineShop() {
   useEffect(() => {
     if (activeTab === 'chat' && customer && !chatOrder) {
       const inq = db.getOrCreateOnlineInquiry(customer.name, customer.phone);
-      setChatOrder(inq);
+      queueMicrotask(() => setChatOrder(inq));
       localStorage.setItem('active_chat_id', inq.id);
       db.markOnlineOrderMessagesAsRead(inq.id, 'admin');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, customer]);
 
   useEffect(() => {
@@ -677,40 +680,202 @@ export default function OnlineShop() {
   };
 
   return (
-    <div className="online-shop-container" style={{ maxWidth: '480px', margin: '0 auto', background: '#0e0c0a', minHeight: '100vh', paddingBottom: '90px', color: '#fff' }}>
+    <div className="online-shop-container" style={{ maxWidth: '480px', margin: '0 auto', background: 'var(--shop-bg)', minHeight: '100vh', paddingBottom: '90px', color: 'var(--shop-text)' }}>
       <style>{`
-        :root {
-          --gold-primary: ${settings.onlineShopThemeColor || '#d4af37'} !important;
-          --accent-amber: ${settings.onlineShopAccentColor || '#f1c40f'} !important;
-        }
+        /* ─── Online Shop Light Theme Variables ────────────────── */
         .online-shop-container {
           font-family: ${settings.onlineShopFontFamily || 'Outfit, Phetsarath OT, sans-serif'} !important;
           font-size: ${settings.onlineShopFontSize === 'small' ? '13px' : settings.onlineShopFontSize === 'large' ? '17px' : '15px'} !important;
+          --shop-brand:    ${settings.onlineShopThemeColor || '#7c3aed'};
+          --shop-brand-lt: ${settings.onlineShopThemeColor ? settings.onlineShopThemeColor + '1a' : '#7c3aed1a'};
+          --shop-accent:   ${settings.onlineShopAccentColor || '#ec4899'};
+          --shop-bg:       #faf8f5;
+          --shop-bg2:      #ffffff;
+          --shop-card:     #ffffff;
+          --shop-card2:    #f3f0eb;
+          --shop-text:     #1a1a2e;
+          --shop-muted:    #6b7280;
+          --shop-border:   rgba(0,0,0,0.08);
+          --shop-shadow:   0 2px 16px rgba(0,0,0,0.08);
+          --shop-shadow-h: 0 8px 32px rgba(0,0,0,0.14);
+          --shop-radius:   16px;
+          --shop-radius-s: 10px;
+          --shop-success:  #059669;
+          --shop-danger:   #dc2626;
+          --shop-warn:     #d97706;
         }
+        /* Override POS dark globals inside shop */
+        .online-shop-container .form-control {
+          background: #ffffff !important;
+          border: 1.5px solid rgba(0,0,0,0.12) !important;
+          color: var(--shop-text) !important;
+          border-radius: 10px !important;
+        }
+        .online-shop-container .form-control:focus {
+          border-color: var(--shop-brand) !important;
+          box-shadow: 0 0 0 3px ${settings.onlineShopThemeColor || '#7c3aed'}26 !important;
+        }
+        .online-shop-container .form-label {
+          color: var(--shop-muted) !important;
+          font-size: 0.78rem !important;
+          font-weight: 600 !important;
+        }
+        .online-shop-container .btn-primary {
+          background: var(--shop-brand) !important;
+          border-color: var(--shop-brand) !important;
+          color: #ffffff !important;
+        }
+        .online-shop-container .btn-primary:hover {
+          filter: brightness(1.1);
+        }
+        .online-shop-container .btn-secondary {
+          background: rgba(0,0,0,0.06) !important;
+          border-color: rgba(0,0,0,0.1) !important;
+          color: var(--shop-text) !important;
+        }
+        .online-shop-container .glass-card {
+          background: var(--shop-card) !important;
+          border: 1px solid var(--shop-border) !important;
+          box-shadow: var(--shop-shadow) !important;
+        }
+        /* Select elements (dropdown) */
+        .online-shop-container select.form-control,
+        .online-shop-container select {
+          background: #ffffff !important;
+          color: var(--shop-text) !important;
+          border: 1.5px solid rgba(0,0,0,0.12) !important;
+          border-radius: 10px !important;
+        }
+        /* File input */
+        .online-shop-container input[type="file"] {
+          background: var(--shop-card2) !important;
+          color: var(--shop-text) !important;
+          border: 1.5px dashed var(--shop-border) !important;
+          border-radius: 10px !important;
+          padding: 10px !important;
+        }
+        /* Modal background */
+        .online-shop-container .modal-overlay {
+          background: rgba(0,0,0,0.45) !important;
+        }
+        /* Scrollbar light */
+        .online-shop-container ::-webkit-scrollbar { width: 4px; height: 4px; }
+        .online-shop-container ::-webkit-scrollbar-track { background: #f3f0eb; }
+        .online-shop-container ::-webkit-scrollbar-thumb { background: var(--shop-brand); border-radius: 99px; }
+        /* Bottom nav */
+        .shop-bottom-nav {
+          position: fixed;
+          bottom: 0; left: 50%;
+          transform: translateX(-50%);
+          width: 100%; max-width: 480px;
+          background: #ffffff;
+          border-top: 1px solid rgba(0,0,0,0.07);
+          display: flex;
+          z-index: 200;
+          box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        }
+        .shop-nav-btn {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 10px 0 8px;
+          border: none;
+          background: transparent;
+          cursor: pointer;
+          gap: 3px;
+          transition: color 0.15s;
+          font-family: inherit;
+          color: #9ca3af;
+          font-size: 0.6rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.4px;
+        }
+        .shop-nav-btn.active { color: var(--shop-brand); }
+        .shop-nav-btn svg { transition: transform 0.15s; }
+        .shop-nav-btn.active svg { transform: scale(1.15); }
+        /* Category pills */
+        .shop-cat-pill {
+          padding: 6px 14px;
+          border-radius: 20px;
+          border: 1.5px solid rgba(0,0,0,0.1);
+          background: #ffffff;
+          color: var(--shop-muted);
+          font-size: 0.73rem;
+          white-space: nowrap;
+          cursor: pointer;
+          transition: all 0.18s;
+          font-family: inherit;
+          font-weight: 500;
+        }
+        .shop-cat-pill.active {
+          background: var(--shop-brand);
+          border-color: var(--shop-brand);
+          color: #ffffff;
+          font-weight: 700;
+        }
+        /* Product card */
+        .shop-product-card {
+          background: var(--shop-card);
+          border-radius: var(--shop-radius);
+          border: 1px solid var(--shop-border);
+          overflow: hidden;
+          box-shadow: var(--shop-shadow);
+          transition: box-shadow 0.2s, transform 0.2s;
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          position: relative;
+        }
+        .shop-product-card:hover {
+          box-shadow: var(--shop-shadow-h);
+          transform: translateY(-2px);
+        }
+        /* Animations */
+        @keyframes shopFadeIn {
+          from { opacity: 0; transform: translateY(6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .shop-fade { animation: shopFadeIn 0.3s ease; }
       `}</style>
       
       {/* 1. TOP HEADER BRAND */}
-      <header style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)', background: '#141210', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <header style={{
+        padding: '14px 16px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderBottom: '1px solid var(--shop-border)',
+        background: '#ffffff',
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {settings.onlineShopLogo ? (
-            <img src={settings.onlineShopLogo} style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid var(--gold-primary)' }} alt="Logo" />
+            <img src={settings.onlineShopLogo} style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--shop-brand)' }} alt="Logo" />
           ) : settings.shopLogo ? (
-            <img src={settings.shopLogo} style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid var(--gold-primary)' }} alt="Logo" />
+            <img src={settings.shopLogo} style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--shop-brand)' }} alt="Logo" />
           ) : (
-            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(212,175,55,0.1)', border: '1px solid var(--gold-primary)', display: 'flex', alignItems: 'center', justifySelf: 'center', justifyContent: 'center', fontSize: '1rem' }}>🪷</div>
+            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--shop-brand-lt)', border: '2px solid var(--shop-brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--shop-brand)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </div>
           )}
           <div>
-            <h1 style={{ fontSize: '0.95rem', margin: 0, color: 'var(--gold-primary)', fontWeight: 'bold' }}>{settings.onlineShopTitle || settings.onlineShopName || settings.shopName || 'ຂອບພຣະຣັທເກຊ'}</h1>
-            <p style={{ fontSize: '0.6rem', color: '#888', margin: 0 }}>Online Store • Mobile First</p>
+            <h1 style={{ fontSize: '1rem', margin: 0, color: 'var(--shop-text)', fontWeight: 800, letterSpacing: '-0.3px' }}>{settings.onlineShopTitle || settings.onlineShopName || settings.shopName || 'KP Pakse'}</h1>
+            <p style={{ fontSize: '0.6rem', color: 'var(--shop-muted)', margin: 0, fontWeight: 500 }}>Online Store</p>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {customer ? (
-            <div onClick={() => setActiveTab('profile')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(212,175,55,0.1)', padding: '4px 10px', borderRadius: '12px', border: '1px solid rgba(212,175,55,0.2)', fontSize: '0.75rem' }}>
-              👑 {customer.tier}
+            <div onClick={() => setActiveTab('profile')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--shop-brand-lt)', padding: '5px 12px', borderRadius: '20px', border: '1.5px solid var(--shop-brand)', fontSize: '0.72rem', color: 'var(--shop-brand)', fontWeight: 700 }}>
+              {customer.tier}
             </div>
           ) : (
-            <button className="btn" onClick={() => setActiveTab('profile')} style={{ fontSize: '0.75rem', padding: '4px 10px', borderRadius: '12px' }}>🔒 Login</button>
+            <button className="btn" onClick={() => setActiveTab('profile')} style={{ fontSize: '0.75rem', padding: '6px 14px', borderRadius: '20px', background: 'var(--shop-brand)', color: '#fff', border: 'none', fontWeight: 700, cursor: 'pointer' }}>Login</button>
           )}
         </div>
       </header>
@@ -718,8 +883,8 @@ export default function OnlineShop() {
       {/* 2. MAIN TABS CONTENT */}
       <div style={{ padding: '16px' }}>
         {!customer ? (
-          /* LOGIN & SIGNUP VIEWS - Forced */
-          <div className="glass-card" style={{ padding: '24px', background: '#141210', border: '1px solid rgba(255,255,255,0.05)' }}>
+          /* LOGIN & SIGNUP VIEWS */
+          <div style={{ background: '#ffffff', borderRadius: 'var(--shop-radius)', padding: '28px 24px', boxShadow: 'var(--shop-shadow)', border: '1px solid var(--shop-border)' }}>
             {authMode === 'login' ? (
               <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <h3 style={{ color: 'var(--gold-primary)', margin: '0 0 10px', textAlign: 'center', fontSize: '1rem' }}>{db.getLabel('auto____ເົ້າສູ່ລະບົບສະມາຊິກ__L_h7mn8', `🔒 ເົ້າສູ່ລະບົບສະມາຊິກ (Login)`)}</h3>
@@ -829,70 +994,32 @@ export default function OnlineShop() {
                 </div>
 
                 {/* Search Input */}
-                <input
-                  type="text"
-                  placeholder={db.getLabel('auto____ຄົ້ນຫາສິນຄ້າ_ຫຼື_ບາໂຄ້_ihvnuz', `🔍 ຄົ້ນຫາສິນຄ້າ ຫຼື ບາໂຄ້ດ...`)}
-                  className="form-control"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{ background: '#1c1916', border: '1px solid rgba(255,255,255,0.08)', margin: 0 }}
-                />
+                <div style={{ position: 'relative' }}>
+                  <svg style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--shop-muted)', pointerEvents: 'none' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input
+                    type="text"
+                    placeholder={db.getLabel('auto____ຄົ້ນຫາສິນຄ້າ_ຫຼື_ບາໂຄ້_ihvnuz', `ຄົ້ນຫາສິນຄ້າ ຫຼື ບາໂຄ້ດ...`)}
+                    className="form-control"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    style={{ paddingLeft: '42px' }}
+                  />
+                </div>
 
                 {/* Category horizontal scroller */}
-                <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '6px' }}>
+                <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
                   <button
                     onClick={() => setSelectedCat('all')}
-                    style={{
-                      padding: '6px 14px',
-                      borderRadius: '16px',
-                      border: '1px solid',
-                      borderColor: selectedCat === 'all' ? 'var(--gold-primary)' : 'rgba(255,255,255,0.08)',
-                      background: selectedCat === 'all' ? 'rgba(212,175,55,0.12)' : '#1c1916',
-                      color: selectedCat === 'all' ? 'var(--gold-primary)' : '#888',
-                      fontSize: '0.75rem',
-                      whiteSpace: 'nowrap',
-                      cursor: 'pointer'
-                    }}
+                    className={`shop-cat-pill ${selectedCat === 'all' ? 'active' : ''}`}
                   >
                     ທັງໝົດ
-                  </button>
-                  <button
-                    onClick={() => setSelectedCat('wishlist')}
-                    style={{
-                      padding: '6px 14px',
-                      borderRadius: '16px',
-                      border: '1px solid',
-                      borderColor: selectedCat === 'wishlist' ? '#e74c3c' : 'rgba(255,255,255,0.08)',
-                      background: selectedCat === 'wishlist' ? 'rgba(231,76,60,0.12)' : '#1c1916',
-                      color: selectedCat === 'wishlist' ? '#e74c3c' : '#888',
-                      fontSize: '0.75rem',
-                      whiteSpace: 'nowrap',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    ❤️ Wishlist ({wishlist.length})
                   </button>
                   {categories.map(cat => (
                     <button
                       key={cat.id}
                       onClick={() => setSelectedCat(cat.id)}
-                      style={{
-                        padding: '6px 14px',
-                        borderRadius: '16px',
-                        border: '1px solid',
-                        borderColor: selectedCat === cat.id ? 'var(--gold-primary)' : 'rgba(255,255,255,0.08)',
-                        background: selectedCat === cat.id ? 'rgba(212,175,55,0.12)' : '#1c1916',
-                        color: selectedCat === cat.id ? 'var(--gold-primary)' : '#888',
-                        fontSize: '0.75rem',
-                        whiteSpace: 'nowrap',
-                        cursor: 'pointer'
-                      }}
+                      className={`shop-cat-pill ${selectedCat === cat.id ? 'active' : ''}`}
                     >
-                      {cat.icon && (cat.icon.startsWith('data:image/') || cat.icon.startsWith('http')) ? (
-                        <img src={cat.icon} style={{ width: '16px', height: '16px', objectFit: 'contain', borderRadius: '2px', marginRight: '4px', verticalAlign: 'middle' }} alt="" />
-                      ) : (
-                        <span style={{ marginRight: '4px' }}>{cat.icon || '📦'}</span>
-                      )}
                       {cat.name}
                     </button>
                   ))}
@@ -907,13 +1034,14 @@ export default function OnlineShop() {
                     
                     // Assign simple decorative labels
                     let badgeText = '';
-                    let badgeColor = '';
-                    if (idx === 0) { badgeText = '🔥 BEST'; badgeColor = '#e74c3c'; }
-                    else if (idx === 1) { badgeText = '✨ ມາໃໝ່'; badgeColor = '#2ecc71'; }
-                    else if (p.stock < 5 && p.stock > 0) { badgeText = '⚠️ ໃກ້ໝົດ'; badgeColor = '#f1c40f'; }
+                    let badgeBg = '';
+                    let badgeTxt = '#fff';
+                    if (idx === 0) { badgeText = 'BEST'; badgeBg = '#ef4444'; }
+                    else if (idx === 1) { badgeText = 'NEW'; badgeBg = '#10b981'; }
+                    else if (p.stock < 5 && p.stock > 0) { badgeText = 'LOW'; badgeBg = '#f59e0b'; badgeTxt = '#000'; }
 
                     return (
-                      <div key={p.id} className="glass-card" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)', background: '#141210', padding: 0, position: 'relative' }}>
+                      <div key={p.id} className="shop-product-card shop-fade">
                         
                         {/* Wishlist toggle button */}
                         <button
@@ -945,20 +1073,22 @@ export default function OnlineShop() {
                             position: 'absolute',
                             top: '8px',
                             left: '8px',
-                            background: badgeColor,
-                            color: '#000',
+                            background: badgeBg,
+                            color: badgeTxt,
                             fontSize: '0.58rem',
-                            fontWeight: 'bold',
-                            padding: '2px 6px',
-                            borderRadius: '4px',
-                            zIndex: 10
+                            fontWeight: 800,
+                            padding: '3px 8px',
+                            borderRadius: '20px',
+                            zIndex: 10,
+                            letterSpacing: '0.5px',
+                            boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
                           }}>
                             {badgeText}
                           </span>
                         )}
 
-                        <div 
-                          style={{ width: '100%', height: '130px', overflow: 'hidden', background: '#000', cursor: 'pointer' }}
+                        <div
+                          style={{ width: '100%', height: '140px', overflow: 'hidden', background: '#f3f0eb', cursor: 'pointer' }}
                           onClick={() => setSelectedDetailProduct(p)}
                           title={db.getLabel('auto_ຄລິກເພື່ອເບິ່ງລາຍລະອຽດ__C_llxi4h', `ຄລິກເພື່ອເບິ່ງລາຍລະອຽດ (Click to view details)`)}
                         >
@@ -966,7 +1096,7 @@ export default function OnlineShop() {
                         </div>
                         <div style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '4px', flexGrow: 1 }}>
                           <h4 
-                            style={{ fontSize: '0.8rem', margin: 0, fontWeight: 'bold', height: '36px', overflow: 'hidden', textOverflow: 'ellipsis', color: 'white', cursor: 'pointer' }}
+                            style={{ fontSize: '0.8rem', margin: 0, fontWeight: 'bold', height: '36px', overflow: 'hidden', textOverflow: 'ellipsis', color: '#333', cursor: 'pointer' }}
                             onClick={() => setSelectedDetailProduct(p)}
                             title={db.getLabel('auto_ຄລິກເພື່ອເບິ່ງລາຍລະອຽດ__C_llxi4h', `ຄລິກເພື່ອເບິ່ງລາຍລະອຽດ (Click to view details)`)}
                           >
@@ -980,7 +1110,7 @@ export default function OnlineShop() {
                           </div>
 
                           <div style={{ display: 'flex', flexDirection: 'column', marginTop: '2px' }}>
-                            <span style={{ fontSize: '0.9rem', color: 'var(--gold-primary)', fontWeight: 'bold' }}>{basePrice.toLocaleString()} ₭</span>
+                            <span style={{ fontSize: '0.95rem', color: 'var(--shop-brand)', fontWeight: 'bold' }}>{basePrice.toLocaleString()} ₭</span>
                             {showVipPrice && (
                               <span style={{ fontSize: '0.65rem', color: '#888' }}>
                                 💎 VIP: <b style={{ color: '#3498db' }}>{p.priceVip.toLocaleString()} ₭</b>
@@ -1006,21 +1136,21 @@ export default function OnlineShop() {
                   })}
                 </div>
                 {/* Store Footer / Contact Block */}
-                <div className="glass-card" style={{ padding: '16px', background: '#141210', border: '1px solid rgba(255,255,255,0.05)', marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.8rem', textAlign: 'center' }}>
-                  <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.9rem' }}>{db.getLabel('auto____ຕິດຕໍ່ພວກເຮົາ__Contact_1e71k0', `📞 ຕິດຕໍ່ພວກເຮົາ (Contact Us)`)}</h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', color: '#ccc' }}>
-                    <div><b>{db.getLabel('auto____ທີ່ຢູ່ຮ້ານ__l7sduf', `🏢 ທີ່ຢູ່ຮ້ານ:`)}</b> {settings.onlineShopAddress || settings.shopAddress || 'ປາກເຊ, ແຂວງຈຳປາສັກ'}</div>
-                    <div><b>{db.getLabel('auto____ເບີໂທຕິດຕໍ່__7lkgb2', `📞 ເບີໂທຕິດຕໍ່:`)}</b> {settings.onlineShopPhone || settings.shopPhone || '02023304555'}</div>
+                <div style={{ background: '#fff', border: '1px solid var(--shop-border)', borderRadius: 'var(--shop-radius)', padding: '20px', marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.8rem', textAlign: 'center', boxShadow: 'var(--shop-shadow)' }}>
+                  <h4 style={{ color: 'var(--shop-brand)', margin: 0, fontSize: '0.9rem', fontWeight: 700 }}>{db.getLabel('auto____ຕິດຕົ່ພວກເຮົາ__Contact_1e71k0', `ຕິດຕົ່ພວກເຮົາ`)}</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', color: 'var(--shop-muted)' }}>
+                    <div><b style={{ color: 'var(--shop-text)' }}>ທີ່૪dda້ານ:</b> {settings.onlineShopAddress || settings.shopAddress || 'ປາກເຊ, ແຂວງຈຳປາສັກ'}</div>
+                    <div><b style={{ color: 'var(--shop-text)' }}>ເບີໂທຕິດຕົ່:</b> {settings.onlineShopPhone || settings.shopPhone || '02023304555'}</div>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '4px' }}>
                     {(settings.onlineShopFacebook || settings.facebook) && (
-                      <a href={settings.onlineShopFacebook || settings.facebook} target="_blank" rel="noopener noreferrer" style={{ color: '#3498db', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        🔵 Facebook
+                      <a href={settings.onlineShopFacebook || settings.facebook} target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: 600 }}>
+                        Facebook
                       </a>
                     )}
                     {(settings.onlineShopTelegram || settings.telegram) && (
-                      <a href={settings.onlineShopTelegram || settings.telegram} target="_blank" rel="noopener noreferrer" style={{ color: '#2ecc71', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        🟢 Telegram
+                      <a href={settings.onlineShopTelegram || settings.telegram} target="_blank" rel="noopener noreferrer" style={{ color: '#10b981', textDecoration: 'none', fontWeight: 600 }}>
+                        Telegram
                       </a>
                     )}
                   </div>
@@ -1028,77 +1158,82 @@ export default function OnlineShop() {
               </div>
             )}
 
+
+
         {/* TABS CART & CHECKOUT */}
         {activeTab === 'cart' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>{db.getLabel('auto____ຕະກ່າສິນຄ້າ___67ep6z', `🛒 ຕະກ່າສິນຄ້າ (`)}{cart.length} {db.getLabel('auto_ລາຍການ__t3ypbz', `ລາຍການ)`)}</h3>
+            <h3 style={{ color: 'var(--shop-text)', margin: 0, fontWeight: 800, fontSize: '1.1rem' }}>
+              {db.getLabel('auto____ຕະກ່າສິນຄ້າ___67ep6z', `ຕະກ່າສິນຄ້າ`)} ({cart.length} {db.getLabel('auto_ລາຍການ__t3ypbz', `ລາຍການ`)})
+            </h3>
             
             {cart.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px 0', color: '#888' }}>
-                <span style={{ fontSize: '3rem' }}>🛒</span>
-                <p style={{ marginTop: '12px' }}>{db.getLabel('auto_ບໍ່ມີສິນຄ້າໃນຕະກ່າຂອງທ່ານ_5npb4v', `ບໍ່ມີສິນຄ້າໃນຕະກ່າຂອງທ່ານ`)}</p>
-                <button className="btn btn-primary" onClick={() => setActiveTab('catalog')}>{db.getLabel('auto_ໄປຊື້ສິນຄ້າ_opywnx', `ໄປຊື້ສິນຄ້າ`)}</button>
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--shop-muted)', background: '#fff', borderRadius: 'var(--shop-radius)', boxShadow: 'var(--shop-shadow)' }}>
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--shop-brand)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4 }}><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                <p style={{ marginTop: '16px', fontWeight: 600, color: 'var(--shop-text)' }}>{db.getLabel('auto_ບໍ່ມີສິນຄ້າໃນຕະກ່າຂອງທ່ານ_5npb4v', `ຕະກ່າຫວ່າງ`)}</p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--shop-muted)', marginTop: 4 }}>ເລືອກສິນຄ້າເພີ່ມ</p>
+                <button className="btn btn-primary" style={{ marginTop: 16, padding: '10px 24px', borderRadius: 20, fontWeight: 700 }} onClick={() => setActiveTab('catalog')}>{db.getLabel('auto_ໄປຊື້ສິນຄ້າ_opywnx', `ເລືອກຊື້ສິນຄ້າ`)}</button>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {/* Cart items list */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {cart.map(item => (
-                    <div key={item.productId} className="glass-card" style={{ display: 'flex', gap: '12px', padding: '10px', background: '#141210', border: '1px solid rgba(255,255,255,0.05)' }}>
-                      <img src={item.image} alt={item.name} style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }} />
-                      <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <span style={{ fontSize: '0.8rem', fontWeight: 'bold', display: 'block', maxHeight: '20px', overflow: 'hidden' }}>{item.name}</span>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>{item.price.toLocaleString()} ₭</span>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
-                          <button onClick={() => updateCartQty(item.productId, item.qty - 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)', background: '#1c1916', color: '#fff', cursor: 'pointer' }}>-</button>
-                          <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{item.qty}</span>
-                          <button onClick={() => updateCartQty(item.productId, item.qty + 1)} style={{ width: '24px', height: '24px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)', background: '#1c1916', color: '#fff', cursor: 'pointer' }}>+</button>
+                    <div key={item.productId} style={{ display: 'flex', gap: '12px', padding: '12px', background: '#fff', borderRadius: 'var(--shop-radius-s)', border: '1px solid var(--shop-border)', boxShadow: '0 1px 4px rgba(0,0,0,0.05)', alignItems: 'center' }}>
+                      <img src={item.image} alt={item.name} style={{ width: '52px', height: '52px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--shop-border)' }} />
+                      <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                        <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--shop-text)', lineHeight: 1.3 }}>{item.name}</span>
+                        <span style={{ fontSize: '0.78rem', color: 'var(--shop-brand)', fontWeight: 700 }}>{item.price.toLocaleString()} ₭</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                          <button onClick={() => updateCartQty(item.productId, item.qty - 1)} style={{ width: '26px', height: '26px', borderRadius: '8px', border: '1.5px solid var(--shop-border)', background: '#f3f0eb', color: 'var(--shop-text)', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
+                          <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--shop-text)', minWidth: '20px', textAlign: 'center' }}>{item.qty}</span>
+                          <button onClick={() => updateCartQty(item.productId, item.qty + 1)} style={{ width: '26px', height: '26px', borderRadius: '8px', border: '1.5px solid var(--shop-border)', background: '#f3f0eb', color: 'var(--shop-text)', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
                         </div>
                       </div>
-                      <button onClick={() => updateCartQty(item.productId, 0)} style={{ background: 'none', border: 'none', color: '#e74c3c', fontSize: '1.1rem', cursor: 'pointer', padding: '0 8px' }}>✕</button>
+                      <button onClick={() => updateCartQty(item.productId, 0)} style={{ background: 'none', border: 'none', color: 'var(--shop-muted)', fontSize: '1rem', cursor: 'pointer', padding: '4px 8px' }}>✕</button>
                     </div>
                   ))}
                 </div>
 
                 {/* Subtotals & Member Discounts breakdown */}
-                <div className="glass-card" style={{ padding: '14px', background: '#141210', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.85rem' }}>
+                <div style={{ background: '#fff', borderRadius: 'var(--shop-radius-s)', border: '1px solid var(--shop-border)', padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.85rem', boxShadow: 'var(--shop-shadow)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: '#888' }}>{db.getLabel('auto_ຍອດລວມສິນຄ້າ__hn05jl', `ຍອດລວມສິນຄ້າ:`)}</span>
-                    <span>{cartSubtotal.toLocaleString()} ₭</span>
+                    <span style={{ color: 'var(--shop-muted)' }}>{db.getLabel('auto_ຍອດລວມສິນຄ້າ__hn05jl', `ຍອດລວມ:`)}</span>
+                    <span style={{ color: 'var(--shop-text)', fontWeight: 600 }}>{cartSubtotal.toLocaleString()} ₭</span>
                   </div>
                   {customer && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#3498db' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#3b82f6' }}>
                       <span>{db.getLabel('auto_ສ່ວນຫຼຸດສະມາຊິກ___7qua5n', `ສ່ວນຫຼຸດສະມາຊິກ (`)}{customer.tier} - {discountPercent}%):</span>
                       <span>-{discountAmount.toLocaleString()} ₭</span>
                     </div>
                   )}
                   {appliedCoupon && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--success-green)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--shop-success)' }}>
                       <span>{db.getLabel('auto_ສ່ວນຫຼຸດຄູປອງ___elebl7', `ສ່ວນຫຼຸດຄູປອງ (`)}{appliedCoupon.code}):</span>
                       <span>-{couponDiscount.toLocaleString()} ₭</span>
                     </div>
                   )}
                   {redeemPoints > 0 && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--gold-primary)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--shop-brand)' }}>
                       <span>{db.getLabel('auto_ສ່ວນຫຼຸດຄະແນນສະສົມ___p9cgyu', `ສ່ວນຫຼຸດຄະແນນສະສົມ (`)}{redeemPoints} points):</span>
                       <span>-{pointsDiscount.toLocaleString()} ₭</span>
                     </div>
                   )}
                   {shippingMethod !== 'pickup' && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ccc' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--shop-muted)' }}>
                       <span>{db.getLabel('auto_ຄ່າຈັດສົ່ງສິນຄ້າ__55wbv3', `ຄ່າຈັດສົ່ງສິນຄ້າ:`)}</span>
                       <span>{isFreeShipping ? 'ສົ່ງຟຣີ' : `${shippingFee.toLocaleString()} ₭`}</span>
                     </div>
                   )}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '6px', color: 'var(--gold-primary)', marginTop: '4px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '1.05rem', borderTop: '2px solid var(--shop-border)', paddingTop: '8px', color: 'var(--shop-brand)', marginTop: '4px' }}>
                     <span>{db.getLabel('auto_ຍອດຊຳລະສຸດທິ__gth873', `ຍອດຊຳລະສຸດທິ:`)}</span>
                     <span>{cartTotal.toLocaleString()} ₭</span>
                   </div>
                 </div>
 
                 {/* Coupons & Points Inputs */}
-                <div className="glass-card" style={{ padding: '16px', background: '#141210', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '12px', borderRadius: '8px', marginBottom: '14px' }}>
-                  <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.85rem' }}>{db.getLabel('auto_____ສ່ວນຫຼຸດ___ຄະແນນສະສົມ_fw1tb6', `🎟️ ສ່ວນຫຼຸດ & ຄະແນນສະສົມ (Discounts & Points):`)}</h4>
+                <div style={{ background: '#fff', borderRadius: 'var(--shop-radius-s)', border: '1px solid var(--shop-border)', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: 'var(--shop-shadow)' }}>
+                  <h4 style={{ color: 'var(--shop-brand)', margin: 0, fontSize: '0.85rem', fontWeight: 700 }}>{db.getLabel('auto_____ສ່ວນຫຼຸດ___ຄະແນນສະສົມ_fw1tb6', `ສ່ວນຫຼຸດ & ຄະແນນ`)}</h4>
                   
                   {/* Coupon Input */}
                   <div className="form-group" style={{ display: 'flex', gap: '8px' }}>
@@ -1109,7 +1244,7 @@ export default function OnlineShop() {
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                       disabled={!!appliedCoupon}
-                      style={{ background: '#1c1916', flex: 1, textTransform: 'uppercase', padding: '8px', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}
+                      style={{ flex: 1, textTransform: 'uppercase' }}
                     />
                     {appliedCoupon ? (
                       <button
@@ -1151,10 +1286,10 @@ export default function OnlineShop() {
 
                   {/* Loyalty Points Input */}
                   {customer && customer.points > 0 && (
-                    <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
-                        <span style={{ color: '#888' }}>{db.getLabel('auto_ຄະແນນສະສົມຂອງທ່ານ__ovguvv', `ຄະແນນສະສົມຂອງທ່ານ:`)}</span>
-                        <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{(customer.points || 0)} Points</span>
+                    <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderTop: '1px solid var(--shop-border)', paddingTop: '10px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ color: 'var(--shop-muted)' }}>{db.getLabel('auto_ຄະແນນສະສົມຂອງທ່ານ__ovguvv', `ຄະແນນສະສົມ:`)}</span>
+                        <span style={{ color: 'var(--shop-brand)', fontWeight: 'bold' }}>{(customer.points || 0)} Points</span>
                       </div>
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                         <input
@@ -1168,7 +1303,7 @@ export default function OnlineShop() {
                             const allowed = Math.min(val, (customer.points || 0), maxRedeem);
                             setRedeemPoints(allowed);
                           }}
-                          style={{ background: '#1c1916', flex: 1, padding: '8px', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}
+                          style={{ flex: 1 }}
                         />
                         <button
                           type="button"
@@ -1181,23 +1316,22 @@ export default function OnlineShop() {
                         >{db.getLabel('auto_ໃຊ້ທັງໝົດ_apdt05', `ໃຊ້ທັງໝົດ`)}</button>
                       </div>
                       {redeemPoints > 0 && (
-                        <span style={{ fontSize: '0.72rem', color: 'var(--gold-primary)' }}>
-                          ✓ ໃຊ້ {redeemPoints} {db.getLabel('auto_ຄະແນນ_ແທນສ່ວນຫຼຸດ__96p7fp', `ຄະແນນ ແທນສ່ວນຫຼຸດ:`)} <b>-{pointsDiscount.toLocaleString()} ₭</b>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--shop-brand)' }}>
+                          ✓ ໃຊ້ຄະແນນສະສົມ: <b>{redeemPoints}</b> Points (ສ່ວນຫຼຸດ -{(redeemPoints * 100).toLocaleString()} ₭)
                         </span>
                       )}
                     </div>
                   )}
-                </div>
-
                 {/* Shipping Form & QR Payment */}
+                </div>
                 <form onSubmit={handlePlaceOrder} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  <h4 style={{ color: 'var(--gold-primary)', margin: '10px 0 0' }}>{db.getLabel('auto____ທີ່ຢູ່ຈັດສົ່ງສິນຄ້າ__S_wh7yl2', `🚚 ທີ່ຢູ່ຈັດສົ່ງສິນຄ້າ (Shipping Address):`)}</h4>
+                  <h4 style={{ color: 'var(--shop-brand)', margin: '10px 0 0', fontWeight: 700 }}>{db.getLabel('auto____ທີ່ຢູ່ຈັດສົ່ງສິນຄ້າ__S_wh7yl2', `ທີ່ຢູ່ຈັດສົ່ງ:`)}</h4>
                   {customer && customer.addresses && customer.addresses.length > 0 && (
                     <div className="form-group" style={{ marginBottom: '8px' }}>
-                      <label className="form-label" style={{ fontSize: '0.72rem', color: 'var(--gold-primary)' }}>{db.getLabel('auto____ເລືອກທີ່ຢູ່ຈັດສົ່ງທີ່ບ_bblquy', `📍 ເລືອກທີ່ຢູ່ຈັດສົ່ງທີ່ບັນທຶກໄວ້`)}</label>
+                      <label className="form-label" style={{ fontSize: '0.72rem', color: 'var(--shop-brand)' }}>{db.getLabel('auto____ເລືອກທີ່ຢູ່ຈັດສົ່ງທີ່ບ_bblquy', `ເລືອກທີ່ຢູ່ທີ່ບັນທຶກໄວ້`)}</label>
                       <select
                         className="form-control"
-                        style={{ background: '#1c1916', width: '100%', padding: '8px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#fff' }}
+                        style={{ width: '100%' }}
                         onChange={(e) => {
                           const idx = Number(e.target.value);
                           if (idx >= 0 && customer.addresses[idx]) {
@@ -1225,7 +1359,7 @@ export default function OnlineShop() {
                   {/* Shipping Method Selector */}
                   {settings.onlineShopEnablePickup !== false && (
                     <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.8rem', color: 'var(--gold-primary)' }}>{db.getLabel('auto____ວິທີການຮັບສິນຄ້າ__Deli_1aokn9', `🚚 ວິທີການຮັບສິນຄ້າ (Delivery Method):`)}</label>
+                      <label className="form-label" style={{ fontSize: '0.8rem', color: 'var(--shop-brand)' }}>{db.getLabel('auto____ວິທີການຮັບສິນຄ້າ__Deli_1aokn9', `ວິທີການຮັບ:`)}</label>
                       <div style={{ display: 'flex', gap: '10px' }}>
                         <button
                           type="button"
@@ -1234,9 +1368,8 @@ export default function OnlineShop() {
                             flex: 1,
                             padding: '8px',
                             fontSize: '0.85rem',
-                            background: shippingMethod === 'delivery' ? 'var(--gold-primary)' : 'rgba(255,255,255,0.05)',
-                            color: shippingMethod === 'delivery' ? 'black' : 'white',
-                            fontWeight: 'bold',
+                            background: shippingMethod === 'delivery' ? 'var(--shop-brand)' : 'rgba(0,0,0,0.04)',
+                            color: shippingMethod === 'delivery' ? '#fff' : 'var(--shop-muted)',
                             cursor: 'pointer'
                           }}
                           onClick={() => setShippingMethod('delivery')}
@@ -1250,8 +1383,8 @@ export default function OnlineShop() {
                             flex: 1,
                             padding: '8px',
                             fontSize: '0.85rem',
-                            background: shippingMethod === 'pickup' ? 'var(--gold-primary)' : 'rgba(255,255,255,0.05)',
-                            color: shippingMethod === 'pickup' ? 'black' : 'white',
+                            background: shippingMethod === 'pickup' ? 'var(--shop-brand)' : 'rgba(0,0,0,0.04)',
+                            color: shippingMethod === 'pickup' ? '#fff' : 'var(--shop-muted)',
                             fontWeight: 'bold',
                             cursor: 'pointer'
                           }}
@@ -1272,7 +1405,7 @@ export default function OnlineShop() {
                         required
                         value={selectedShippingMethodId}
                         onChange={(e) => setSelectedShippingMethodId(e.target.value)}
-                        style={{ background: '#1c1916', width: '100%', padding: '8px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#fff' }}
+                        style={{ width: '100%' }}
                       >
                         <option value="">{db.getLabel('auto____ເລືອກຊ່ອງທາງຈັດສົ່ງ____i0dbgz', `-- ເລືອກຊ່ອງທາງຈັດສົ່ງ --`)}</option>
                         {settings.onlineShopShippingMethods.map(m => (
@@ -1286,11 +1419,11 @@ export default function OnlineShop() {
 
                   <div className="form-group">
                     <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ຊື່ຜູ້ຮັບສິນຄ້າ___qml1rm', `ຊື່ຜູ້ຮັບສິນຄ້າ *`)}</label>
-                    <input type="text" className="form-control" required value={recipientName} onChange={(e) => setRecipientName(e.target.value)} style={{ background: '#1c1916' }} />
+                    <input type="text" className="form-control" required value={recipientName} onChange={(e) => setRecipientName(e.target.value)} />
                   </div>
                   <div className="form-group">
                     <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ເບີໂທລະສັບຕິດຕໍ່___xeo5er', `ເບີໂທລະສັບຕິດຕໍ່ *`)}</label>
-                    <input type="tel" className="form-control" required value={phone} onChange={(e) => setPhone(e.target.value)} style={{ background: '#1c1916' }} />
+                    <input type="tel" className="form-control" required value={phone} onChange={(e) => setPhone(e.target.value)} />
                   </div>
 
                   {shippingMethod === 'delivery' ? (
@@ -1298,37 +1431,36 @@ export default function OnlineShop() {
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                         <div className="form-group">
                           <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ແຂວງ___50pwr', `ແຂວງ *`)}</label>
-                          <input type="text" className="form-control" placeholder={db.getLabel('auto_ຈຳປາສັກ_rv6new', `ຈຳປາສັກ`)} required value={province} onChange={(e) => setProvince(e.target.value)} style={{ background: '#1c1916' }} />
+                          <input type="text" className="form-control" placeholder={db.getLabel('auto_ຈຳປາສັກ_rv6new', `ຈຳປາສັກ`)} required value={province} onChange={(e) => setProvince(e.target.value)} />
                         </div>
                         <div className="form-group">
                           <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ເມືອງ___4n77y2', `ເມືອງ *`)}</label>
-                          <input type="text" className="form-control" placeholder={db.getLabel('auto_ປາກເຊ_c0c4b0', `ປາກເຊ`)} required value={city} onChange={(e) => setCity(e.target.value)} style={{ background: '#1c1916' }} />
+                          <input type="text" className="form-control" placeholder={db.getLabel('auto_ປາກເຊ_c0c4b0', `ປາກເຊ`)} required value={city} onChange={(e) => setCity(e.target.value)} />
                         </div>
                       </div>
                       <div className="form-group">
                         <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ບ້ານ___h8hr4w', `ບ້ານ *`)}</label>
-                        <input type="text" className="form-control" required value={village} onChange={(e) => setVillage(e.target.value)} style={{ background: '#1c1916' }} />
+                        <input type="text" className="form-control" required value={village} onChange={(e) => setVillage(e.target.value)} />
                       </div>
                       <div className="form-group">
                         <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ລາຍລະອຽດທີ່ຢູ່ເພີ່ມເຕີມ_85nqhb', `ລາຍລະອຽດທີ່ຢູ່ເພີ່ມເຕີມ`)}</label>
-                        <input type="text" className="form-control" placeholder={db.getLabel('auto_ຮ່ອມ__ເລກທີເຮືອນ_____mdwq67', `ຮ່ອມ, ເລກທີເຮືອນ,...`)} value={addressLine} onChange={(e) => setAddressLine(e.target.value)} style={{ background: '#1c1916' }} />
+                        <input type="text" className="form-control" placeholder={db.getLabel('auto_ຮ່ອມ__ເລກທີເຮືອນ_____mdwq67', `ຮ່ອມ, ເລກທີເຮືອນ,...`)} value={addressLine} onChange={(e) => setAddressLine(e.target.value)} />
                       </div>
                     </>
                   ) : (
                     <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.75rem', color: 'var(--gold-primary)' }}>{db.getLabel('auto____ວັນທີ_ແລະ_ເວລາທີ່ຈະມາຮ_h6q1qp', `📅 ວັນທີ ແລະ ເວລາທີ່ຈະມາຮັບສິນຄ້າ *`)}</label>
-                      <input type="text" className="form-control" required placeholder={db.getLabel('auto_ຕົວຢ່າງ__ວັນເສົາ_10_00_ໂມ_n6gjvt', `ຕົວຢ່າງ: ວັນເສົາ 10:00 ໂມງເຊົ້າ`)} value={addressLine} onChange={(e) => setAddressLine(e.target.value)} style={{ background: '#1c1916' }} />
+                      <label className="form-label" style={{ fontSize: '0.75rem', color: 'var(--shop-brand)' }}>{db.getLabel('auto____ວັນທີ_ແລະ_ເວລາທີ່ຈະມາຮ_h6q1qp', `ວັນ/ເວລາທີ່ຈະມາຮັບ *`)}</label>
+                      <input type="text" className="form-control" required placeholder={db.getLabel('auto_ຕົວຢ່າງ__ວັນເສົາ_10_00_ໂມ_n6gjvt', `ຕົວຢ່າງ: ວັນເສົາ 10:00 ໂມງເຊົ້າ`)} value={addressLine} onChange={(e) => setAddressLine(e.target.value)} />
                     </div>
                   )}
 
                   <div className="form-group">
                     <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ໝາຍເຫດເຖິງຮ້ານ_qbu7gk', `ໝາຍເຫດເຖິງຮ້ານ`)}</label>
-                    <input type="text" className="form-control" placeholder={db.getLabel('auto_ຝ__ຂົນສົ່ງອະນຸສິດ__ຝາກ_HA_if0mif', `ຝากຂົນສົ່ງອະນຸສິດ, ຝາກ HAL,...`)} value={notes} onChange={(e) => setNotes(e.target.value)} style={{ background: '#1c1916' }} />
+                    <input type="text" className="form-control" placeholder={db.getLabel('auto_ຝ__ຂົນສົ່ງອະນຸສິດ__ຝາກ_HA_if0mif', `ໝາຍເຫດ...`)} value={notes} onChange={(e) => setNotes(e.target.value)} />
                   </div>
-
                   {/* BCEL ONE QR CODE DISPLAY */}
-                  <div className="glass-card" style={{ padding: '16px', background: '#141210', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', marginTop: '10px' }}>
-                    <h4 style={{ color: 'var(--gold-primary)', margin: '0 0 10px', fontSize: '0.85rem' }}>{db.getLabel('auto____ສະແກນຊຳລະຜ່ານ_BCEL_One_cfl4qh', `📱 ສະແກນຊຳລະຜ່ານ BCEL One QR:`)}</h4>
+                  <div style={{ background: '#fff', borderRadius: 'var(--shop-radius-s)', border: '1px solid var(--shop-border)', padding: '16px', textAlign: 'center', marginTop: '10px', boxShadow: 'var(--shop-shadow)' }}>
+                    <h4 style={{ color: 'var(--shop-brand)', margin: '0 0 10px', fontSize: '0.85rem', fontWeight: 700 }}>{db.getLabel('auto____ສະແກນຊຳລະຜ່ານ_BCEL_One_cfl4qh', `ຊຳລະຜ່ານ BCEL One QR:`)}</h4>
                     <div style={{ background: '#fff', padding: '10px', borderRadius: '8px', display: 'inline-block', marginBottom: '10px' }}>
                       {checkoutQrUrl ? (
                         <img
@@ -1342,21 +1474,21 @@ export default function OnlineShop() {
                         </div>
                       )}
                     </div>
-                    <div style={{ fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '2px', color: '#fff' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left', background: 'rgba(0,0,0,0.2)', padding: '10px', borderRadius: '8px', fontSize: '0.78rem' }}>
+                    <div style={{ fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '2px', color: 'var(--shop-text)' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left', background: 'var(--shop-card2)', padding: '10px', borderRadius: '8px', fontSize: '0.78rem' }}>
                         {settings.onlineShopBankAccounts && settings.onlineShopBankAccounts.length > 0 ? (
                           settings.onlineShopBankAccounts.map((acc, idx) => (
-                            <div key={acc.id} style={{ borderBottom: idx < settings.onlineShopBankAccounts.length - 1 ? '1px dashed rgba(255,255,255,0.05)' : 'none', paddingBottom: '6px', marginTop: idx > 0 ? '6px' : '0' }}>
+                            <div key={acc.id} style={{ borderBottom: idx < settings.onlineShopBankAccounts.length - 1 ? '1px dashed var(--shop-border)' : 'none', paddingBottom: '6px', marginTop: idx > 0 ? '6px' : '0' }}>
                               <div><b>{db.getLabel('auto_ທະນາຄານ__kph0bl', `ທະນາຄານ:`)}</b> {acc.bankName}</div>
                               <div><b>{db.getLabel('auto_ຊື່ບັນຊີ__6dn914', `ຊື່ບັນຊີ:`)}</b> {acc.accName}</div>
-                              <div><b>{db.getLabel('auto_ເລກບັນຊີ__ewzcax', `ເລກບັນຊີ:`)}</b> <span style={{ fontFamily: 'monospace', color: 'var(--gold-primary)' }}>{acc.accNum}</span></div>
+                              <div><b>{db.getLabel('auto_ເລກບັນຊີ__ewzcax', `ເລກບັນຊີ:`)}</b> <span style={{ fontFamily: 'monospace', color: 'var(--shop-brand)', fontWeight: 700 }}>{acc.accNum}</span></div>
                             </div>
                           ))
                         ) : (
                           <div>
                             <div><b>{db.getLabel('auto_ທະນາຄານ__kph0bl', `ທະນາຄານ:`)}</b> {settings.bankName || 'BCEL One'}</div>
                             <div><b>{db.getLabel('auto_ຊື່ບັນຊີ__6dn914', `ຊື່ບັນຊີ:`)}</b> {settings.bankAccountName || 'ຮ້ານຂອບພຣະ'}</div>
-                            <div><b>{db.getLabel('auto_ເລກບັນຊີ__ewzcax', `ເລກບັນຊີ:`)}</b> <span style={{ fontFamily: 'monospace', color: 'var(--gold-primary)' }}>{settings.bankAccountNumber || '010XXXXXXXXXXXX'}</span></div>
+                             <div><b>{db.getLabel('auto_ເລກບັນຊີ__ewzcax', `ເລກບັນຊີ:`)}</b> <span style={{ fontFamily: 'monospace', color: 'var(--shop-brand)', fontWeight: 700 }}>{settings.bankAccountNumber || '010XXXXXXXXXXXX'}</span></div>
                           </div>
                         )}
                       </div>
@@ -1365,13 +1497,13 @@ export default function OnlineShop() {
 
                   {/* SLIP UPLOAD */}
                   <div className="form-group">
-                    <label className="form-label" style={{ fontSize: '0.8rem', color: 'var(--gold-primary)' }}>{db.getLabel('auto____ແນບຫຼັກຖານສະລິບການໂອນເ_lmx9mq', `📸 ແນບຫຼັກຖານສະລິບການໂອນເງິນ *`)}</label>
+                      <label className="form-label" style={{ fontSize: '0.8rem', color: 'var(--shop-brand)' }}>{db.getLabel('auto____ແນບຫຼັກຖານສະລິບການໂອນເ_lmx9mq', `ແນບສະລິບການໂອນເງິນ *`)}</label>
                     <input
                       type="file"
                       accept="image/*"
                       required
                       className="form-control"
-                      style={{ background: '#1c1916' }}
+                      style={{ }}
                       onChange={(e) => {
                         const file = e.target.files[0];
                         if (file) {
@@ -1409,33 +1541,33 @@ export default function OnlineShop() {
         {activeTab === 'profile' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {/* VIP info card */}
-                <div className="glass-card" style={{ padding: '20px', background: 'linear-gradient(135deg, rgba(212,175,55,0.15) 0%, rgba(20,18,16,0.5) 100%)', border: '1.5px solid var(--gold-primary)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ padding: '20px', background: 'linear-gradient(135deg, var(--shop-brand) 0%, var(--shop-accent) 100%)', borderRadius: 'var(--shop-radius)', display: 'flex', flexDirection: 'column', gap: '6px', color: '#fff', boxShadow: 'var(--shop-shadow-h)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h3 style={{ margin: 0, color: 'var(--gold-primary)' }}>{db.getLabel('auto____ຂໍ້ມູນສະມາຊິກ_c9v969', `👑 ຂໍ້ມູນສະມາຊິກ`)}</h3>
-                    <span style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '12px', background: '#3498db', color: 'white', fontWeight: 'bold' }}>{customer.tier} Tier</span>
+                    <h3 style={{ margin: 0, color: '#fff', fontWeight: 800 }}>{db.getLabel('auto____ຂໍ້ມູນສະມາຊິກ_c9v969', `ຂໍ້ມູນສະມາຊິກ`)}</h3>
+                    <span style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '20px', background: 'rgba(255,255,255,0.25)', color: '#fff', fontWeight: 700 }}>{customer.tier}</span>
                   </div>
-                  <div style={{ fontSize: '1.1rem', fontWeight: 'bold', marginTop: '6px' }}>{customer.name}</div>
-                  <div style={{ fontSize: '0.85rem', color: '#aaa' }}>{db.getLabel('auto____ເບີໂທ__zk8oa', `📱 ເບີໂທ:`)} {customer.phone}</div>
-                  <div style={{ fontSize: '0.85rem', color: '#aaa' }}>{db.getLabel('auto____ຍອດຊື້ສະສົມລວມ__89uufk', `💰 ຍອດຊື້ສະສົມລວມ:`)} <b style={{ color: 'var(--gold-primary)' }}>{(customer.totalSpend || 0).toLocaleString()} ₭</b></div>
-                  <div style={{ fontSize: '0.85rem', color: '#aaa' }}>{db.getLabel('auto_____ສ່ວນຫຼຸດຂອງທ່ານ__1iwaz5', `🏷️ ສ່ວນຫຼຸດຂອງທ່ານ:`)} <b style={{ color: '#2ecc71' }}>{customer.discountValue || 0}%</b></div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 800, marginTop: '6px', color: '#fff' }}>{customer.name}</div>
+                  <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>{db.getLabel('auto____ເບີໂທ__zk8oa', `ເບີໂທ:`)} {customer.phone}</div>
+                  <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>{db.getLabel('auto____ຍອດຊື້ສະສົມລວມ__89uufk', `ຍອດຊື້ສະສົມ:`)} <b style={{ color: '#fff' }}>{(customer.totalSpend || 0).toLocaleString()} ₭</b></div>
+                  <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)' }}>{db.getLabel('auto_____ສ່ວນຫຼຸດຂອງທ່ານ__1iwaz5', `ສ່ວນຫຼຸດ:`)} <b style={{ color: '#fff' }}>{customer.discountValue || 0}%</b></div>
                   
-                  <button className="btn" onClick={handleLogout} style={{ marginTop: '12px', padding: '6px 12px', fontSize: '0.75rem', background: 'rgba(231,76,60,0.15)', color: '#e74c3c', borderColor: 'rgba(231,76,60,0.3)', width: 'fit-content' }}>
-                    🚪 ອອກຈາກລະບົບ
+                  <button className="btn" onClick={handleLogout} style={{ marginTop: '12px', padding: '6px 12px', fontSize: '0.75rem', background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', width: 'fit-content', borderRadius: '8px', cursor: 'pointer' }}>
+                    ອອກຈາກລະບົບ
                   </button>
                 </div>
 
                 {/* Saved Addresses list & management */}
-                <div className="glass-card" style={{ padding: '16px', background: '#141210', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ background: '#fff', borderRadius: 'var(--shop-radius)', border: '1px solid var(--shop-border)', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px', boxShadow: 'var(--shop-shadow)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h4 style={{ margin: 0, color: 'var(--gold-primary)' }}>{db.getLabel('auto____ທີ່ຢູ່ຈັດສົ່ງຂອງທ່ານ__fllt86', `📍 ທີ່ຢູ່ຈັດສົ່ງຂອງທ່ານ:`)}</h4>
+                    <h4 style={{ margin: 0, color: 'var(--shop-brand)', fontWeight: 700 }}>{db.getLabel('auto____ທີ່ຢູ່ຈັດສົ່ງຂອງທ່ານ__fllt86', `ທີ່ຢູ່ຂອງທ່ານ`)}</h4>
                     <button
                       onClick={() => setShowAddAddrForm(!showAddAddrForm)}
                       style={{
                         padding: '4px 10px',
                         fontSize: '0.7rem',
-                        background: 'rgba(212,175,55,0.1)',
-                        color: 'var(--gold-primary)',
-                        border: '1px solid rgba(212,175,55,0.2)',
+                        background: 'var(--shop-brand-lt)',
+                        color: 'var(--shop-brand)',
+                        border: '1px solid var(--shop-brand)',
                         borderRadius: '6px',
                         cursor: 'pointer',
                         fontWeight: 'bold'
@@ -1472,56 +1604,56 @@ export default function OnlineShop() {
                         setNewNotes('');
                         alert('✓ ເພີ່ມທີ່ຢູ່ຈັດສົ່ງໃໝ່ສຳເລັດ!');
                       }
-                    }} style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
+                    }} style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid var(--shop-border)', paddingTop: '10px' }}>
                       <div className="form-group">
                         <label className="form-label" style={{ fontSize: '0.7rem' }}>{db.getLabel('auto_ຊື່ຜູ້ຮັບ_5aa6oq', `ຊື່ຜູ້ຮັບ`)}</label>
-                        <input type="text" className="form-control" placeholder={customer.name} value={newRecipientName} onChange={(e) => setNewRecipientName(e.target.value)} style={{ background: '#1c1916' }} />
+                        <input type="text" className="form-control" placeholder={customer.name} value={newRecipientName} onChange={(e) => setNewRecipientName(e.target.value)} />
                       </div>
                       <div className="form-group">
                         <label className="form-label" style={{ fontSize: '0.7rem' }}>{db.getLabel('auto_ເບີໂທລະສັບ_nrnku0', `ເບີໂທລະສັບ`)}</label>
-                        <input type="tel" className="form-control" placeholder={customer.phone} value={newPhone} onChange={(e) => setNewPhone(e.target.value)} style={{ background: '#1c1916' }} />
+                        <input type="tel" className="form-control" placeholder={customer.phone} value={newPhone} onChange={(e) => setNewPhone(e.target.value)} />
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                         <div className="form-group">
                           <label className="form-label" style={{ fontSize: '0.7rem' }}>{db.getLabel('auto_ແຂວງ___50pwr', `ແຂວງ *`)}</label>
-                          <input type="text" className="form-control" required placeholder={db.getLabel('auto_ຈຳປາສັກ_rv6new', `ຈຳປາສັກ`)} value={newProvince} onChange={(e) => setNewProvince(e.target.value)} style={{ background: '#1c1916' }} />
+                           <input type="text" className="form-control" required placeholder={db.getLabel('auto_ຈຳປາສັກ_rv6new', `ຈຳປາສັກ`)} value={newProvince} onChange={(e) => setNewProvince(e.target.value)} />
                         </div>
                         <div className="form-group">
                           <label className="form-label" style={{ fontSize: '0.7rem' }}>{db.getLabel('auto_ເມືອງ___4n77y2', `ເມືອງ *`)}</label>
-                          <input type="text" className="form-control" required placeholder={db.getLabel('auto_ປາກເຊ_c0c4b0', `ປາກເຊ`)} value={newCity} onChange={(e) => setNewCity(e.target.value)} style={{ background: '#1c1916' }} />
+                           <input type="text" className="form-control" required placeholder={db.getLabel('auto_ປາກເຊ_c0c4b0', `ປາກເຊ`)} value={newCity} onChange={(e) => setNewCity(e.target.value)} />
                         </div>
                       </div>
                       <div className="form-group">
                         <label className="form-label" style={{ fontSize: '0.7rem' }}>{db.getLabel('auto_ບ້ານ___h8hr4w', `ບ້ານ *`)}</label>
-                        <input type="text" className="form-control" required placeholder={db.getLabel('auto_ບ້ານ____xxmd3s', `ບ້ານ...`)} value={newVillage} onChange={(e) => setNewVillage(e.target.value)} style={{ background: '#1c1916' }} />
+                         <input type="text" className="form-control" required placeholder={db.getLabel('auto_ບ້ານ____xxmd3s', `ບ້ານ...`)} value={newVillage} onChange={(e) => setNewVillage(e.target.value)} />
                       </div>
                       <div className="form-group">
                         <label className="form-label" style={{ fontSize: '0.7rem' }}>{db.getLabel('auto_ລາຍລະອຽດທີ່ຢູ່ເພີ່ມເຕີມ_85nqhb', `ລາຍລະອຽດທີ່ຢູ່ເພີ່ມເຕີມ`)}</label>
-                        <input type="text" className="form-control" placeholder={db.getLabel('auto_ຮ່ອມ__ເລກທີເຮືອນ____qrunzj', `ຮ່ອມ, ເລກທີເຮືອນ...`)} value={newAddressLine} onChange={(e) => setNewAddressLine(e.target.value)} style={{ background: '#1c1916' }} />
+                         <input type="text" className="form-control" placeholder={db.getLabel('auto_ຮ່ອມ__ເລກທີເຮືອນ____qrunzj', `ຮ່ອມ, ເລກທີເຮືອນ...`)} value={newAddressLine} onChange={(e) => setNewAddressLine(e.target.value)} />
                       </div>
                       <div className="form-group">
                         <label className="form-label" style={{ fontSize: '0.7rem' }}>{db.getLabel('auto_ໝາຍເຫດຂົນສົ່ງ_vy84gv', `ໝາຍເຫດຂົນສົ່ງ`)}</label>
-                        <input type="text" className="form-control" placeholder={db.getLabel('auto_ຝາກຂົນສົ່ງ____hppccq', `ຝາກຂົນສົ່ງ...`)} value={newNotes} onChange={(e) => setNewNotes(e.target.value)} style={{ background: '#1c1916' }} />
+                         <input type="text" className="form-control" placeholder={db.getLabel('auto_ຝາກຂົນສົ່ງ____hppccq', `ໝາຍເຫດ...`)} value={newNotes} onChange={(e) => setNewNotes(e.target.value)} />
                       </div>
                       <button type="submit" className="btn btn-primary" style={{ padding: '8px', fontSize: '0.8rem', fontWeight: 'bold', marginTop: '4px' }}>{db.getLabel('auto____ບັນທຶກທີ່ຢູ່ໃໝ່_vkfico', `💾 ບັນທຶກທີ່ຢູ່ໃໝ່`)}</button>
                     </form>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {!customer.addresses || customer.addresses.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '10px 0', fontSize: '0.75rem', color: '#888' }}>{db.getLabel('auto_ບໍ່ມີຂໍ້ມູນທີ່ຢູ່ຈັດສົ່ງ_couia0', `ບໍ່ມີຂໍ້ມູນທີ່ຢູ່ຈັດສົ່ງ`)}</div>
+                        <div style={{ textAlign: 'center', padding: '10px 0', fontSize: '0.75rem', color: 'var(--shop-muted)' }}>{db.getLabel('auto_ບໍ່ມີຂໍ້ມູນທີ່ຢູ່ຈັດສົ່ງ_couia0', `ຍັງບໍ່ທັນມີທີ່ຢູ່`)}</div>
                       ) : (
                         customer.addresses.map((addr, idx) => (
-                          <div key={idx} style={{ padding: '10px', background: '#0e0c0a', borderRadius: '8px', border: addr.isDefault ? '1px solid var(--gold-primary)' : '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
+                          <div key={idx} style={{ padding: '10px', background: 'var(--shop-card2)', borderRadius: '8px', border: addr.isDefault ? '2px solid var(--shop-brand)' : '1px solid var(--shop-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
                             <div style={{ fontSize: '0.75rem', flexGrow: 1 }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold' }}>
-                                👤 {addr.recipientName || customer.name} ({addr.phone || customer.phone})
-                                {addr.isDefault && <span style={{ fontSize: '0.6rem', padding: '1px 6px', background: 'var(--gold-primary)', color: '#000', borderRadius: '4px', fontWeight: 'bold' }}>{db.getLabel('auto_ຫຼັກ_1wtxk1', `ຫຼັກ`)}</span>}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, color: 'var(--shop-text)' }}>
+                                {addr.recipientName || customer.name} ({addr.phone || customer.phone})
+                                {addr.isDefault && <span style={{ fontSize: '0.6rem', padding: '1px 6px', background: 'var(--shop-brand)', color: '#fff', borderRadius: '20px', fontWeight: 700 }}>{db.getLabel('auto_ຫຼັກ_1wtxk1', `ຫຼັກ`)}</span>}
                               </div>
-                              <div style={{ color: '#ccc', marginTop: '2px' }}>
+                              <div style={{ color: 'var(--shop-muted)', marginTop: '2px', fontSize: '0.75rem' }}>
                                 {addr.village}, {addr.city}, {addr.province}
                                 {addr.addressLine ? ` (${addr.addressLine})` : ''}
                               </div>
-                              {addr.notes && <div style={{ color: '#888', fontStyle: 'italic', marginTop: '2px' }}>* {addr.notes}</div>}
+                              {addr.notes && <div style={{ color: 'var(--shop-muted)', fontStyle: 'italic', marginTop: '2px', fontSize: '0.72rem' }}>* {addr.notes}</div>}
                             </div>
                             
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -1658,7 +1790,7 @@ export default function OnlineShop() {
         {/* TABS TRACKING VIEW */}
         {activeTab === 'tracking' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>{db.getLabel('auto____ຕິດຕາມສະຖານະອໍເດີ້_t4to3k', `🔍 ຕິດຕາມສະຖານະອໍເດີ້`)}</h3>
+            <h3 style={{ color: 'var(--shop-text)', margin: 0, fontWeight: 800 }}>{db.getLabel('auto____ຕິດຕາມສະຖານະອໍເດີ້_t4to3k', `ຕິດຕາມສະຖານະ`)}</h3>
             
             <form onSubmit={handleTrackOrder} style={{ display: 'flex', gap: '8px' }}>
               <input
@@ -1667,7 +1799,7 @@ export default function OnlineShop() {
                 placeholder={db.getLabel('auto__້ອນເລກອໍເດີ້_ຫຼື_ບັດຕິດຕ_o82k08', `ป້ອນເລກອໍເດີ້ ຫຼື ບັດຕິດຕາມ (ຕົວຢ່າງ: JOB10001)...`)}
                 value={trackingOrderId}
                 onChange={(e) => setTrackingOrderId(e.target.value)}
-                style={{ background: '#1c1916', margin: 0 }}
+                style={{ margin: 0 }}
                 required
               />
               <button type="submit" className="btn btn-primary" style={{ padding: '0 20px', whiteSpace: 'nowrap', margin: 0 }}>{db.getLabel('auto_ຄົ້ນຫາ_rupbhu', `ຄົ້ນຫາ`)}</button>
@@ -1680,11 +1812,11 @@ export default function OnlineShop() {
                   <OrderTracking jobId={trackedOrder.id} isInline={true} />
                 </div>
               ) : (
-                <div className="glass-card" style={{ padding: '20px', background: '#141210', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px' }}>
+                <div style={{ padding: '20px', background: '#fff', borderRadius: 'var(--shop-radius)', border: '1px solid var(--shop-border)', display: 'flex', flexDirection: 'column', gap: '14px', boxShadow: 'var(--shop-shadow)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--shop-border)', paddingBottom: '10px' }}>
                     <div>
-                      <span style={{ fontSize: '0.75rem', color: '#888' }}>{db.getLabel('auto_ອໍເດີ້ເລກທີ__gfpyfc', `ອໍເດີ້ເລກທີ:`)}</span>
-                      <h4 style={{ color: 'var(--gold-primary)', margin: 0 }}>{trackedOrder.id}</h4>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--shop-muted)' }}>{db.getLabel('auto_ອໍເດີ້ເລກທີ__gfpyfc', `ອໍເດີ້ເລກທີ:`)}</span>
+                      <h4 style={{ color: 'var(--shop-brand)', margin: 0, fontWeight: 700 }}>{trackedOrder.id}</h4>
                     </div>
                     <span style={{
                       fontSize: '0.85rem',
@@ -1699,26 +1831,26 @@ export default function OnlineShop() {
                     <div><b>{db.getLabel('auto_ຜູ້ຮັບ__ew7fbl', `ຜູ້ຮັບ:`)}</b> {trackedOrder.customerName} ({trackedOrder.customerPhone})</div>
                     <div><b>{db.getLabel('auto_ຍອດລວມ__sgo11t', `ຍອດລວມ:`)}</b> {trackedOrder.total.toLocaleString()} LAK</div>
                     {trackedOrder.shippingCompany && <div><b>{db.getLabel('auto_ຂົນສົ່ງ__2yzpre', `ຂົນສົ່ງ:`)}</b> {trackedOrder.shippingCompany}</div>}
-                    {trackedOrder.trackingNumber && <div><b>{db.getLabel('auto_ເລກພັດສະດຸ__smih8r', `ເລກພັດສະດຸ:`)}</b> <b style={{ color: 'var(--gold-primary)' }}>{trackedOrder.trackingNumber}</b></div>}
+                    {trackedOrder.trackingNumber && <div><b>{db.getLabel('auto_ເລກພັດສະດຸ__smih8r', `ເລກພັດສະດຸ:`)}</b> <b style={{ color: 'var(--shop-brand)', fontFamily: 'monospace' }}>{trackedOrder.trackingNumber}</b></div>}
                   </div>
 
                   {/* Parcel photo if available */}
                   {trackedOrder.shippingImage && (
                     <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden', height: '160px' }}>
-                      <img src={trackedOrder.shippingImage} alt="Shipping parcel" style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#000' }} />
+                      <img src={trackedOrder.shippingImage} alt="Shipping parcel" style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#f3f0eb' }} />
                     </div>
                   )}
 
                   {/* Timeline progress steps */}
                   <div style={{ marginTop: '10px' }}>
-                    <h5 style={{ color: 'var(--gold-primary)', margin: '0 0 10px', fontSize: '0.85rem' }}>{db.getLabel('auto____ສະຖານະອໍເດີ້__34z0ky', `🕒 ສະຖານະອໍເດີ້:`)}</h5>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', borderLeft: '2px solid rgba(255,255,255,0.08)', paddingLeft: '14px', marginLeft: '6px' }}>
+                    <h5 style={{ color: 'var(--shop-brand)', margin: '0 0 10px', fontSize: '0.85rem', fontWeight: 700 }}>{db.getLabel('auto____ສະຖານະອໍເດີ້__34z0ky', `ສະຖານະ:`)}</h5>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', borderLeft: '2px solid var(--shop-brand)', paddingLeft: '14px', marginLeft: '6px' }}>
                       {trackedOrder.timeline?.map((evt, idx) => (
                         <div key={idx} style={{ position: 'relative', fontSize: '0.75rem' }}>
-                          <div style={{ position: 'absolute', left: '-19px', top: '4px', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--gold-primary)' }} />
-                          <div style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{evt.status}</div>
-                          <div style={{ fontSize: '0.65rem', color: '#888' }}>{new Date(evt.date).toLocaleString('lo-LA')}</div>
-                          <div style={{ color: '#fff', marginTop: '2px' }}>{evt.note}</div>
+                          <div style={{ position: 'absolute', left: '-19px', top: '4px', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--shop-brand)' }} />
+                          <div style={{ color: 'var(--shop-brand)', fontWeight: 700 }}>{evt.status}</div>
+                          <div style={{ fontSize: '0.65rem', color: 'var(--shop-muted)' }}>{new Date(evt.date).toLocaleString('lo-LA')}</div>
+                          <div style={{ color: 'var(--shop-text)', marginTop: '2px' }}>{evt.note}</div>
                         </div>
                       ))}
                     </div>
@@ -1726,8 +1858,8 @@ export default function OnlineShop() {
                 </div>
               )
             ) : (
-              <div style={{ textAlign: 'center', padding: '40px 0', color: '#888', fontSize: '0.85rem' }}>
-                ກະລຸນາປ້ອນເລກອໍເດີ້ ຫຼື ບັດຕິດຕາມຂ້າງເທິງເພື່ອຕິດຕາມສະຖານະ
+              <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--shop-muted)', fontSize: '0.85rem', background: '#fff', borderRadius: 'var(--shop-radius)', boxShadow: 'var(--shop-shadow)' }}>
+                ກະລຸນາປ້ອນເລກອໍເດີ້ ເພື່ອຕິດຕາມສະຖານະ
               </div>
             )}
           </div>
@@ -1739,15 +1871,15 @@ export default function OnlineShop() {
       {/* === CHAT TAB === */}
       {activeTab === 'chat' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>{db.getLabel('auto____ສົ່ງຂໍ້ຄວາມຫາຮ້ານ_h72xbs', `💬 ສົ່ງຂໍ້ຄວາມຫາຮ້ານ`)}</h3>
+          <h3 style={{ color: 'var(--shop-text)', margin: 0, fontWeight: 800 }}>{db.getLabel('auto____ສົ່ງຂໍ້ຄວາມຫາຮ້ານ_h72xbs', `ສົ່ງຂໍ້ຄວາມ`)}</h3>
 
           {!customer ? (
-            <div style={{ padding: '32px 20px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '14px', alignItems: 'center', background: '#141210', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px' }}>
-              <div style={{ fontSize: '2.5rem' }}>🔒</div>
-              <div style={{ color: 'var(--gold-primary)', fontWeight: 'bold', fontSize: '1rem' }}>{db.getLabel('auto_ກະລຸນາ_Login_ກ່ອນ_bj9te9', `ກະລຸນາ Login ກ່ອນ`)}</div>
-              <div style={{ color: '#aaa', fontSize: '0.82rem' }}>{db.getLabel('auto_ເພື່ອສົ່ງຂໍ້ຄວາມຫາທາງຮ້ານ_2zeqx5', `ເພື່ອສົ່ງຂໍ້ຄວາມຫາທາງຮ້ານ ກະລຸນາ Login ເຂົ້າສູ່ລະບົບກ່ອນ`)}</div>
+            <div style={{ padding: '32px 20px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '14px', alignItems: 'center', background: '#fff', border: '1px solid var(--shop-border)', borderRadius: 'var(--shop-radius)', boxShadow: 'var(--shop-shadow)' }}>
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--shop-brand)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <div style={{ color: 'var(--shop-brand)', fontWeight: 700, fontSize: '1rem' }}>{db.getLabel('auto_ກະລຸນາ_Login_ກ່ອນ_bj9te9', `ກະລຸນາ Login ກ່ອນ`)}</div>
+              <div style={{ color: 'var(--shop-muted)', fontSize: '0.82rem' }}>{db.getLabel('auto_ເພື່ອສົ່ງຂໍ້ຄວາມຫາທາງຮ້ານ_2zeqx5', `ສ້າງບັນຊີ ຫຼື Login ກ່ອນ`)}</div>
               <button type="button" className="btn btn-primary" onClick={() => setActiveTab('profile')} style={{ padding: '10px 28px', fontSize: '0.85rem' }}>
-                👤 ໄປຫນ້າ Login
+                ໄປຫນ້າ Login
               </button>
             </div>
           ) : !chatOrder ? (
@@ -1755,32 +1887,32 @@ export default function OnlineShop() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {/* Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: '10px', padding: '10px 14px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--shop-brand-lt)', border: '1.5px solid var(--shop-brand)', borderRadius: '10px', padding: '10px 14px' }}>
                 <div>
-                  <div style={{ fontSize: '0.7rem', color: '#888' }}>{db.getLabel('auto____ຫ້ອງສົນທະນາ__jjme4p', `💬 ຫ້ອງສົນທະນາ:`)}</div>
-                  <div style={{ color: 'var(--gold-primary)', fontWeight: 'bold', fontSize: '0.9rem' }}>{chatOrder.customerName}</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--shop-muted)' }}>{db.getLabel('auto____ຫ້ອງສົນທະນາ__jjme4p', `ຫ້ອງສົນທະນາ:`)}</div>
+                  <div style={{ color: 'var(--shop-brand)', fontWeight: 700, fontSize: '0.9rem' }}>{chatOrder.customerName}</div>
                 </div>
-                <div style={{ fontSize: '0.65rem', color: '#555' }}>ID: {chatOrder.id}</div>
+                <div style={{ fontSize: '0.65rem', color: 'var(--shop-muted)' }}>ID: {chatOrder.id}</div>
               </div>
 
               {/* Messages */}
-              <div id="chat-messages-customer" style={{ display: 'flex', flexDirection: 'column', gap: '8px', minHeight: '280px', maxHeight: '420px', overflowY: 'auto', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '10px', padding: '12px' }}>
+              <div id="chat-messages-customer" style={{ display: 'flex', flexDirection: 'column', gap: '8px', minHeight: '280px', maxHeight: '420px', overflowY: 'auto', background: 'var(--shop-card2)', border: '1px solid var(--shop-border)', borderRadius: '10px', padding: '12px' }}>
                 {(() => {
                   const liveOrder = db.getOnlineOrders().find(o => o.id === chatOrder.id);
                   const msgs = liveOrder?.messages || [];
-                  if (msgs.length === 0) return <div style={{ textAlign: 'center', color: '#666', fontSize: '0.8rem', paddingTop: '60px' }}>{db.getLabel('auto____ຍັງບໍ່ມີຂໍ້ຄວາມ___ພິມແ_2gyce7', `📭 ຍັງບໍ່ມີຂໍ້ຄວາມ — ພິມແລ້ວສົ່ງຫາຮ້ານໄດ້ເລີຍ!`)}</div>;
+                  if (msgs.length === 0) return <div style={{ textAlign: 'center', color: 'var(--shop-muted)', fontSize: '0.8rem', paddingTop: '60px' }}>{db.getLabel('auto____ຍັງບໍ່ມີຂໍ້ຄວາມ___ພິມແ_2gyce7', `ຍັງບໍ່ມີຂໍ້ຄວາມ — ພິມຂໍ້ຄວາມໄດ້ເລີຍ!`)}</div>;
                   return msgs.map((msg, idx) => (
-                    <div key={idx} style={{ alignSelf: msg.sender === 'customer' ? 'flex-end' : 'flex-start', background: msg.sender === 'customer' ? 'rgba(212,175,55,0.15)' : 'rgba(52,152,219,0.15)', border: `1px solid ${msg.sender === 'customer' ? 'rgba(212,175,55,0.3)' : 'rgba(52,152,219,0.3)'}`, borderRadius: msg.sender === 'customer' ? '12px 12px 2px 12px' : '12px 12px 12px 2px', padding: '8px 12px', maxWidth: '82%' }}>
-                      <div style={{ fontSize: '0.62rem', color: '#888', marginBottom: '3px' }}>
-                        {msg.sender === 'customer' ? '✦ ທ່ານ' : '🏪 ຮ້ານ'}{' • '}{new Date(msg.timestamp).toLocaleString('lo-LA')}
+                    <div key={idx} style={{ alignSelf: msg.sender === 'customer' ? 'flex-end' : 'flex-start', background: msg.sender === 'customer' ? 'var(--shop-brand)' : '#f3f0eb', border: 'none', borderRadius: msg.sender === 'customer' ? '12px 12px 2px 12px' : '12px 12px 12px 2px', padding: '8px 12px', maxWidth: '82%' }}>
+                       <div style={{ fontSize: '0.62rem', color: msg.sender === 'customer' ? 'rgba(255,255,255,0.7)' : 'var(--shop-muted)', marginBottom: '3px' }}>
+                         {msg.sender === 'customer' ? 'ທ່ານ' : 'ຮ້ານ'}{' • '}{new Date(msg.timestamp).toLocaleString('lo-LA')}
                       </div>
-                      {msg.text && <div style={{ fontSize: '0.85rem', color: 'white', wordBreak: 'break-word', lineHeight: '1.4' }}>{msg.text}</div>}
+                       {msg.text && <div style={{ fontSize: '0.85rem', color: msg.sender === 'customer' ? '#fff' : 'var(--shop-text)', wordBreak: 'break-word', lineHeight: '1.4' }}>{msg.text}</div>}
                       {msg.attachments && msg.attachments.length > 0 && (
                         <div style={{ marginTop: msg.text ? '8px' : 0, display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                           {msg.attachments.map((att, ai) => (
                             att.type === 'image' ? <img key={ai} src={att.data} alt={att.name} style={{ maxWidth: '160px', maxHeight: '160px', borderRadius: '8px', cursor: 'pointer', objectFit: 'cover' }} onClick={() => window.open(att.data)} />
                             : att.type === 'video' ? <video key={ai} src={att.data} controls style={{ maxWidth: '200px', borderRadius: '8px' }} />
-                            : <a key={ai} href={att.data} download={att.name} style={{ fontSize: '0.75rem', color: 'var(--gold-primary)', textDecoration: 'underline' }}>📎 {att.name}</a>
+                             : <a key={ai} href={att.data} download={att.name} style={{ fontSize: '0.75rem', color: 'var(--shop-brand)', textDecoration: 'underline' }}>📎 {att.name}</a>
                           ))}
                         </div>
                       )}
@@ -1791,12 +1923,12 @@ export default function OnlineShop() {
 
               {/* Attachment preview */}
               {chatAttachments.length > 0 && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '8px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '8px', background: 'var(--shop-card2)', borderRadius: '8px', border: '1px solid var(--shop-border)' }}>
                   {chatAttachments.map((att, i) => (
                     <div key={i} style={{ position: 'relative' }}>
                       {att.type === 'image' ? <img src={att.data} alt={att.name} style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '6px' }} />
                        : att.type === 'video' ? <div style={{ width: '56px', height: '56px', background: 'rgba(0,0,0,0.5)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>🎬</div>
-                       : <div style={{ padding: '4px 8px', background: 'rgba(212,175,55,0.1)', borderRadius: '6px', fontSize: '0.68rem', color: 'var(--gold-primary)', maxWidth: '90px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>📎 {att.name}</div>}
+                       : <div style={{ padding: '4px 8px', background: 'var(--shop-brand-lt)', borderRadius: '6px', fontSize: '0.68rem', color: 'var(--shop-brand)', maxWidth: '90px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>📎 {att.name}</div>}
                       <button onClick={() => setChatAttachments(prev => prev.filter((_,j) => j !== i))} style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#e74c3c', border: 'none', borderRadius: '50%', width: '16px', height: '16px', color: 'white', cursor: 'pointer', fontSize: '0.55rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                     </div>
                   ))}
@@ -1805,7 +1937,7 @@ export default function OnlineShop() {
 
               {/* Input bar */}
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '42px', height: '42px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', cursor: 'pointer', fontSize: '1.15rem', flexShrink: 0 }}>
+                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '42px', height: '42px', background: 'var(--shop-card2)', border: '1.5px solid var(--shop-border)', borderRadius: '10px', cursor: 'pointer', fontSize: '1.15rem', flexShrink: 0 }}>
                   📎
                   <input type="file" multiple accept="image/*,video/*,.pdf,.doc,.docx" style={{ display: 'none' }}
                     onChange={(e) => {
@@ -1836,7 +1968,7 @@ export default function OnlineShop() {
                       setTimeout(() => { const b = document.getElementById('chat-messages-customer'); if (b) b.scrollTop = b.scrollHeight; }, 100);
                     }
                   }}
-                  style={{ flex: 1, background: '#1c1916', margin: 0, fontSize: '0.85rem', height: '42px' }}
+                  style={{ flex: 1, margin: 0, fontSize: '0.85rem', height: '42px' }}
                 />
                 <button
                   type="button"
@@ -1852,7 +1984,7 @@ export default function OnlineShop() {
                     setTimeout(() => { const b = document.getElementById('chat-messages-customer'); if (b) b.scrollTop = b.scrollHeight; }, 100);
                   }}
                 >
-                  📤 ສົ່ງ
+                  ສົ່ງ
                 </button>
               </div>
             </div>
@@ -1862,112 +1994,35 @@ export default function OnlineShop() {
 
 
             {/* 3. MOBILE BOTTOM NAVIGATION */}
-      <nav style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: '70px',
-        background: '#141210',
-        borderTop: '1px solid rgba(255,255,255,0.05)',
-        display: 'flex',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        zIndex: 100
-      }}>
-        <button
-          onClick={() => setActiveTab('catalog')}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: activeTab === 'catalog' ? 'var(--gold-primary)' : '#888',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '4px',
-            fontSize: '0.65rem',
-            cursor: 'pointer'
-          }}
-        >
-          <span style={{ fontSize: '1.25rem' }}>🛍️</span>
+            {/* 3. MOBILE BOTTOM NAVIGATION */}
+      <nav className="shop-bottom-nav">
+        <button onClick={() => setActiveTab('catalog')} className={`shop-nav-btn ${activeTab === 'catalog' ? 'active' : ''}`}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           <span>{t('home', 'ສິນຄ້າ')}</span>
         </button>
 
-        <button
-          onClick={() => setActiveTab('cart')}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: activeTab === 'cart' ? 'var(--gold-primary)' : '#888',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '4px',
-            fontSize: '0.65rem',
-            cursor: 'pointer',
-            position: 'relative'
-          }}
-        >
-          <span style={{ fontSize: '1.25rem' }}>🛒</span>
+        <button onClick={() => setActiveTab('cart')} className={`shop-nav-btn ${activeTab === 'cart' ? 'active' : ''}`} style={{ position: 'relative' }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
           {cart.length > 0 && (
-            <span style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#e74c3c', color: 'white', borderRadius: '50%', padding: '2px 6px', fontSize: '0.6rem', fontWeight: 'bold' }}>
+            <span style={{ position: 'absolute', top: '6px', right: 'calc(50% - 18px)', background: 'var(--shop-danger)', color: '#fff', borderRadius: '50%', width: '16px', height: '16px', fontSize: '0.55rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {cart.reduce((sum, i) => sum + i.qty, 0)}
             </span>
           )}
           <span>{t('cart', 'ຕະກ່າ')}</span>
         </button>
 
-        <button
-          onClick={() => setActiveTab('tracking')}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: activeTab === 'tracking' ? 'var(--gold-primary)' : '#888',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '4px',
-            fontSize: '0.65rem',
-            cursor: 'pointer'
-          }}
-        >
-          <span style={{ fontSize: '1.25rem' }}>🔍</span>
+        <button onClick={() => setActiveTab('tracking')} className={`shop-nav-btn ${activeTab === 'tracking' ? 'active' : ''}`}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <span>{t('tracking', 'ຕິດຕາມ')}</span>
         </button>
 
-        <button
-          onClick={() => setActiveTab('chat')}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: activeTab === 'chat' ? 'var(--gold-primary)' : '#888',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '4px',
-            fontSize: '0.65rem',
-            cursor: 'pointer'
-          }}
-        >
-          <span style={{ fontSize: '1.25rem' }}>💬</span>
+        <button onClick={() => setActiveTab('chat')} className={`shop-nav-btn ${activeTab === 'chat' ? 'active' : ''}`}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           <span>{t('chat', 'ສອບຖາມ')}</span>
         </button>
 
-        <button
-          onClick={() => setActiveTab('profile')}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: activeTab === 'profile' ? 'var(--gold-primary)' : '#888',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '4px',
-            fontSize: '0.65rem',
-            cursor: 'pointer'
-          }}
-        >
-          <span style={{ fontSize: '1.25rem' }}>👤</span>
+        <button onClick={() => setActiveTab('profile')} className={`shop-nav-btn ${activeTab === 'profile' ? 'active' : ''}`}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           <span>{db.getLabel('auto_ໂປຣໄຟລ໌_uv7wgc', `ໂປຣໄຟລ໌`)}</span>
         </button>
       </nav>
@@ -1976,20 +2031,20 @@ export default function OnlineShop() {
       {selectedDetailProduct && (
         <Portal>
         <div className="modal-overlay" style={{ zIndex: 1050 }}>
-          <div className="modal-content animate-fade-in" style={{ maxWidth: '450px', background: '#12100e', color: 'white', borderRadius: '16px', border: '1px solid rgba(212,175,55,0.2)', padding: '16px', position: 'relative' }}>
+          <div className="modal-content animate-fade-in" style={{ maxWidth: '450px', background: '#ffffff', color: 'var(--shop-text)', borderRadius: 'var(--shop-radius)', border: '1px solid var(--shop-border)', padding: '16px', position: 'relative', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
             
             {/* Close button */}
             <button 
               type="button"
               className="btn-secondary" 
-              style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(0,0,0,0.6)', border: 'none', color: 'white', fontSize: '1.2rem', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }} 
+              style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(0,0,0,0.08)', border: 'none', color: 'var(--shop-text)', fontSize: '1rem', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, zIndex: 10 }}
               onClick={() => setSelectedDetailProduct(null)}
             >
               ✕
             </button>
 
             {/* Product Image */}
-            <div style={{ width: '100%', height: '280px', overflow: 'hidden', borderRadius: '12px', background: '#000', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '16px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '100%', height: '280px', overflow: 'hidden', borderRadius: 'var(--shop-radius-s)', background: '#f3f0eb', border: '1px solid var(--shop-border)', marginBottom: '16px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {(() => {
                 const imgs = selectedDetailProduct.images && selectedDetailProduct.images.length > 0
                   ? selectedDetailProduct.images
@@ -2027,7 +2082,7 @@ export default function OnlineShop() {
                             <span
                               key={i}
                               onClick={() => setActiveImageIdx(i)}
-                              style={{ width: '6px', height: '6px', borderRadius: '50%', background: i === activeImageIdx ? 'var(--gold-primary)' : 'rgba(255,255,255,0.4)', cursor: 'pointer', display: 'inline-block' }}
+                              style={{ width: '6px', height: '6px', borderRadius: '50%', background: i === activeImageIdx ? 'var(--shop-brand)' : 'rgba(0,0,0,0.2)', cursor: 'pointer', display: 'inline-block' }}
                             />
                           ))}
                         </div>
@@ -2040,35 +2095,35 @@ export default function OnlineShop() {
 
             {/* Product Meta */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <h3 style={{ fontSize: '1.1rem', margin: 0, fontWeight: 'bold', color: 'white', lineHeight: '1.4' }}>
+              <h3 style={{ fontSize: '1.1rem', margin: 0, fontWeight: 800, color: 'var(--shop-text)', lineHeight: '1.4' }}>
                 {selectedDetailProduct.name}
               </h3>
               
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <span style={{ fontSize: '1.25rem', color: 'var(--gold-primary)', fontWeight: 'bold' }}>
+                <span style={{ fontSize: '1.3rem', color: 'var(--shop-brand)', fontWeight: 800 }}>
                   {(selectedDetailProduct.priceOnline || selectedDetailProduct.price).toLocaleString()} ₭
                 </span>
                 {selectedDetailProduct.priceVip && selectedDetailProduct.priceVip !== (selectedDetailProduct.priceOnline || selectedDetailProduct.price) && (
-                  <span style={{ fontSize: '0.8rem', color: '#888', background: 'rgba(52,152,219,0.12)', padding: '2px 6px', borderRadius: '4px' }}>
-                    💎 VIP: <b style={{ color: '#3498db' }}>{selectedDetailProduct.priceVip.toLocaleString()} ₭</b>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--shop-muted)', background: 'rgba(59,130,246,0.1)', padding: '2px 8px', borderRadius: '20px' }}>
+                    VIP: <b style={{ color: '#3b82f6' }}>{selectedDetailProduct.priceVip.toLocaleString()} ₭</b>
                   </span>
                 )}
               </div>
 
-              <div style={{ fontSize: '0.8rem', color: '#aaa', display: 'flex', gap: '15px' }}>
-                <span>{db.getLabel('auto_ຄົງເຫຼືອໃນສາງ__mm7zmg', `ຄົງເຫຼືອໃນສາງ:`)} <b style={{ color: selectedDetailProduct.stock > 0 ? '#2ecc71' : '#e74c3c' }}>{selectedDetailProduct.stock} {selectedDetailProduct.unit || 'ອັນ'}</b></span>
+              <div style={{ fontSize: '0.8rem', color: 'var(--shop-muted)', display: 'flex', gap: '15px' }}>
+                <span>{db.getLabel('auto_ຄົງເຫຼືອໃນສາງ__mm7zmg', `ຄົງເຫຼືອ:`)} <b style={{ color: selectedDetailProduct.stock > 0 ? 'var(--shop-success)' : 'var(--shop-danger)' }}>{selectedDetailProduct.stock} {selectedDetailProduct.unit || 'ອັນ'}</b></span>
                 <span>{db.getLabel('auto_ໝວດໝູ່__6g08d4', `ໝວດໝູ່:`)} <b>{categories.find(c => c.id === selectedDetailProduct.category)?.name || 'ທົ່ວໄປ'}</b></span>
               </div>
 
               {/* Divider */}
-              <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '8px 0' }} />
+              <div style={{ height: '1px', background: 'var(--shop-border)', margin: '8px 0' }} />
 
               {/* Description */}
               <div>
-                <h4 style={{ fontSize: '0.85rem', color: 'var(--gold-primary)', margin: '0 0 6px 0', fontWeight: 'bold' }}>
-                  📝 ລາຍລະອຽດສິນຄ້າ (Description):
+                <h4 style={{ fontSize: '0.85rem', color: 'var(--shop-brand)', margin: '0 0 6px 0', fontWeight: 700 }}>
+                  ລາຍລະອຽດສິນຄ້າ:
                 </h4>
-                <p style={{ fontSize: '0.82rem', color: '#ccc', margin: 0, lineHeight: '1.5', whiteSpace: 'pre-wrap', maxHeight: '140px', overflowY: 'auto', paddingRight: '4px' }}>
+                <p style={{ fontSize: '0.82rem', color: 'var(--shop-muted)', margin: 0, lineHeight: '1.6', whiteSpace: 'pre-wrap', maxHeight: '140px', overflowY: 'auto', paddingRight: '4px' }}>
                   {selectedDetailProduct.description || 
                     "ສິນຄ້າຄຸນນະພາບສູງຈາກຮ້ານ ຂອບພຣະ ປາກເຊ, ຜະລິດ ແລະ ອອກແບບດ້ວຍຄວາມປານີດ ຮັບປະກັນຄວາມເພິ່ງພໍໃຈ 100%."}
                 </p>
@@ -2083,13 +2138,13 @@ export default function OnlineShop() {
                     setSelectedDetailProduct(null);
                   }}
                   className="btn btn-primary"
-                  style={{ width: '100%', padding: '12px', fontSize: '0.9rem', borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                  style={{ width: '100%', padding: '12px', fontSize: '0.9rem', borderRadius: '10px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                   disabled={selectedDetailProduct.stock <= 0}
                 >
                   {selectedDetailProduct.stock > 0 ? (
-                    <>{db.getLabel('auto____ໃສ່ຕະກ່າສິນຄ້າ_3o9euw', `🛒 ໃສ່ຕະກ່າສິນຄ້າ`)}</>
+                    <>{db.getLabel('auto____ໃສ່ຕະກ່າສິນຄ້າ_3o9euw', `ໃສ່ກະຕ່າສິນຄ້າ`)}</>
                   ) : (
-                    <>{db.getLabel('auto____ສິນຄ້າໝົດ_ym35v8', `🛑 ສິນຄ້າໝົດ`)}</>
+                    <>{db.getLabel('auto____ສິນຄ້າໝົດ_ym35v8', `ສິນຄ້າໝົດ`)}</>
                   )}
                 </button>
               </div>

@@ -20,28 +20,30 @@ function CustomerModal({ show, editingCust, onClose, onSave }) {
   const [addrNotes, setAddrNotes] = useState('');
 
   useEffect(() => {
-    if (editingCust) {
-      setName(editingCust.name || '');
-      setPhone(editingCust.phone || '');
-      setEmail(editingCust.email || '');
-      setPassword(editingCust.password || '');
-      setDiscountType(editingCust.discountType || 'percent');
-      setDiscountValue(editingCust.discountValue || '');
-      setTier(editingCust.tier || 'Regular');
-      setPoints(editingCust.points ?? 0);
-      // Load first address
-      const addr = editingCust.addresses?.[0] || {};
-      setProvince(addr.province || '');
-      setCity(addr.city || '');
-      setVillage(addr.village || '');
-      setAddressLine(addr.addressLine || '');
-      setAddrNotes(addr.notes || '');
-    } else {
-      setName(''); setPhone(''); setEmail('');
-      setPassword('123456'); // Default password for new members
-      setDiscountType('percent'); setDiscountValue(''); setTier('Regular'); setPoints(0);
-      setProvince(''); setCity(''); setVillage(''); setAddressLine(''); setAddrNotes('');
-    }
+    queueMicrotask(() => {
+      if (editingCust) {
+        setName(editingCust.name || '');
+        setPhone(editingCust.phone || '');
+        setEmail(editingCust.email || '');
+        setPassword(editingCust.password || '');
+        setDiscountType(editingCust.discountType || 'percent');
+        setDiscountValue(editingCust.discountValue || '');
+        setTier(editingCust.tier || 'Regular');
+        setPoints(editingCust.points ?? 0);
+        // Load first address
+        const addr = editingCust.addresses?.[0] || {};
+        setProvince(addr.province || '');
+        setCity(addr.city || '');
+        setVillage(addr.village || '');
+        setAddressLine(addr.addressLine || '');
+        setAddrNotes(addr.notes || '');
+      } else {
+        setName(''); setPhone(''); setEmail('');
+        setPassword('123456'); // Default password for new members
+        setDiscountType('percent'); setDiscountValue(''); setTier('Regular'); setPoints(0);
+        setProvince(''); setCity(''); setVillage(''); setAddressLine(''); setAddrNotes('');
+      }
+    });
   }, [editingCust, show]);
 
   if (!show) return null;
@@ -407,7 +409,7 @@ function CustomerDetailModal({ show, customer, onClose }) {
   );
 }
 
-export default function Customers({ activeUser, onUpdate }) {
+export default function Customers({ activeUser, onUpdate, isMobile }) {
   const hasCustomersPermission = (subKey) => {
     if (!activeUser) return false;
     if (activeUser.role === 'owner') return true;
@@ -429,7 +431,7 @@ export default function Customers({ activeUser, onUpdate }) {
   };
 
   useEffect(() => {
-    loadCustomers();
+    queueMicrotask(loadCustomers);
     const handleUpdate = () => {
       loadCustomers();
     };
@@ -527,52 +529,74 @@ export default function Customers({ activeUser, onUpdate }) {
         </div>
       )}
 
-      {/* Main Glass Header */}
-      <div className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', padding: '20px' }}>
-        <div>
-          <h2 style={{
-            margin: 0,
-            fontSize: '1.4rem',
-            fontWeight: 'bold',
-            background: 'linear-gradient(135deg, var(--gold-primary) 0%, #fff 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text'
-          }}>
-            {db.getLabel('settings_tab_customers', '👥 ຈັດການສະມາຊິກ (Members)')}
-          </h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0' }}>
-            ຈັດການຖານຂໍ້ມູນລູກຄ້າປະຈຳ, ສ່ວນຫຼຸດສະມາຊິກ ແລະ ການສະໝັກສະມາຊິກໃຫມ່
-          </p>
+      {/* ── Page Header ── */}
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        flexWrap: 'wrap', gap: 14,
+        background: 'linear-gradient(160deg, rgba(10,16,30,0.97), rgba(6,10,20,0.97))',
+        border: '1px solid rgba(255,255,255,0.07)',
+        borderRadius: 16, padding: '16px 20px',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.25)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg,rgba(212,175,55,0.18),rgba(212,175,55,0.06))', border: '1px solid rgba(212,175,55,0.28)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'var(--gold-primary)' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div>
+            <h2 style={{
+              margin: 0, fontSize: isMobile ? '1.1rem' : '1.32rem', fontWeight: 900,
+              background: 'linear-gradient(135deg,#d4af37,#f5d76e,#b8922e)',
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+              letterSpacing: '-0.3px',
+            }}>
+              {db.getLabel('settings_tab_customers', 'ຈັດການສະມາຊິກ')}
+            </h2>
+            {!isMobile && <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.78rem', margin: '2px 0 0', fontWeight: 500 }}>ຈັດການຖານຂໍ້ມູນລູກຄ້າ, ສ່ວນຫຼຸດສະມາຊິກ ແລະ ການສະໝັກສະມາຊິກໃໝ່</p>}
+          </div>
         </div>
-      {hasCustomersPermission('membersAdd') && (
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={() => {
-            setEditingCust(null);
-            setShowCustModal(true);
-          }}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', padding: '10px 20px', borderRadius: '10px', fontWeight: 'bold', boxShadow: '0 4px 15px rgba(212,175,55,0.25)' }}
-        >
-          ➕ {db.getLabel('pos_register_member_btn', '＋ ສະໝັກສະມາຊິກໃໝ່')}
-        </button>
-      )}
+        {hasCustomersPermission('membersAdd') && (
+          <button
+            type="button"
+            onClick={() => { setEditingCust(null); setShowCustModal(true); }}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 7,
+              fontSize: '0.85rem', padding: '9px 16px', borderRadius: 11, fontWeight: 800,
+              background: 'linear-gradient(135deg,#d4af37,#b8922e)',
+              color: '#0a0a0a', border: 'none', cursor: 'pointer',
+              boxShadow: '0 4px 15px rgba(212,175,55,0.3)', transition: 'all 0.18s', whiteSpace: 'nowrap',
+            }}
+            onMouseEnter={e => e.currentTarget.style.boxShadow = '0 6px 22px rgba(212,175,55,0.5)'}
+            onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 15px rgba(212,175,55,0.3)'}
+          >
+            + {db.getLabel('pos_register_member_btn', 'ສະໝັກສະມາຊິກໃໝ່')}
+          </button>
+        )}
       </div>
+
 
       {/* Content Section */}
       <div className="glass-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
         
         {/* Search filter row */}
-        <div style={{ display: 'flex', gap: '12px', width: '100%', maxWidth: '400px' }}>
-          <input
-            type="text"
-            className="form-control"
-            placeholder={db.getLabel('auto____ຄົ້ນຫາສະມາຊິກດ້ວຍ_ຊື່__5rfwn4', `🔍 ຄົ້ນຫາສະມາຊິກດ້ວຍ ຊື່ ຫຼື ເບີໂທ...`)}
-            value={custSearchQuery}
-            onChange={(e) => setCustSearchQuery(e.target.value)}
-            style={{ background: 'rgba(0,0,0,0.3)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px 16px', fontSize: '0.85rem', width: '100%' }}
-          />
+        <div style={{ display: 'flex', gap: 12, width: '100%', maxWidth: 420 }}>
+          <div style={{ position: 'relative', flex: 1 }}>
+            <input
+              type="text"
+              placeholder={db.getLabel('auto____ຄົ້ນຫາສະມາຊິກດ້ວຍ_ຊື່__5rfwn4', 'ຄົ້ນຫາຊື່ ຫຼື ເບີໂທ...')}
+              value={custSearchQuery}
+              onChange={(e) => setCustSearchQuery(e.target.value)}
+              style={{
+                width: '100%', paddingLeft: 36, height: 38,
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: 'white', borderRadius: 11, fontSize: '0.85rem',
+                outline: 'none', transition: 'border-color 0.18s', boxSizing: 'border-box',
+              }}
+              onFocus={e => { e.target.style.borderColor = 'rgba(212,175,55,0.5)'; e.target.style.boxShadow = '0 0 0 3px rgba(212,175,55,0.1)'; }}
+              onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; e.target.style.boxShadow = 'none'; }}
+            />
+            <svg style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.3)', pointerEvents: 'none' }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
         </div>
 
         {/* Members Table */}
@@ -585,7 +609,7 @@ export default function Customers({ activeUser, onUpdate }) {
                 <th style={{ padding: '14px 20px' }}>{db.getLabel('cust_phone_col', 'ເບີໂທ / Email')}</th>
                 <th style={{ padding: '14px 20px' }}>{db.getLabel('cust_tier_col', 'ລະດັບສະມາຊິກ')}</th>
                 <th style={{ padding: '14px 20px' }}>{db.getLabel('cust_discount_col', 'ສ່ວນຫຼຸດ')}</th>
-                <th style={{ padding: '14px 20px', textAlign: 'right' }}>{db.getLabel('cust_points_col', '💎 ຄະແນນ')}</th>
+                <th style={{ padding: '14px 20px', textAlign: 'right' }}>{db.getLabel('cust_points_col', 'ຄະແນນ')}</th>
                 <th style={{ padding: '14px 20px', textAlign: 'center' }}>{db.getLabel('cust_actions_col', 'ຈັດການ')}</th>
               </tr>
             </thead>

@@ -1,12 +1,7 @@
 // Mock database utility using localStorage for "ຂອບພຣະຣັທເກຊ" (Amulet POS & Framing)
 // Tailored for Lao language, LAK (ກີບ) currency.
 
-const DEFAULT_CATEGORIES = [
-  { id: 'frames', name: 'ຂอบພຣະ', icon: '🖼️', type: 'physical' },
-  { id: 'amulets', name: 'ພຣະເຄື່ອງ', icon: '📿', type: 'physical' },
-  { id: 'necklaces', name: 'ສ້ອຍຄໍ & ອຸປະກອນ', icon: '⛓️', type: 'physical' },
-  { id: 'services', name: 'ບໍລິການອັດກັນນ້ຳ', icon: '🛠️', type: 'service' }
-];
+const DEFAULT_CATEGORIES = [];
 
 const DEFAULT_USERS = [
 { id: 'owner', name: 'ທ້າວ ຂຸນຊ້າງ', role: 'owner', passcode: '1111', email: 'owner@gmail.com', password: 'owner123', roleName: 'ເຈົ້າຂອງຮ້ານ (Owner)', payType: 'daily', baseWage: 150000, otRate: 25000, permissions: { admin: true, pos: true, inventory: true, hrm: true, reports: true, debts: true, ai: true, settings: true } },
@@ -14,104 +9,15 @@ const DEFAULT_USERS = [
 { id: 'technician', name: 'ທ້າວ ບຸນມີ (ມີ)', role: 'technician', passcode: '3333', email: 'tech@gmail.com', password: 'tech123', roleName: 'ຊ່າງອັດກອບ (Technician)', payType: 'daily', baseWage: 100000, otRate: 20000, permissions: { admin: false, pos: true, inventory: false, hrm: false, reports: false, debts: false, ai: true, settings: false } }
 ];
 
-const DEFAULT_PRODUCTS = [
-// Amulet Frames
-{ id: 'P_K05', barcode: 'K05', name: 'ກອບທອງອີຕາລີ K05 (กรอบทองอิตาลี)', category: 'frames', price: 150000, cost: 100000, stock: 20, minStock: 2, unit: 'ອັນ', image: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=200&auto=format&fit=crop&q=60' },
-{ id: 'P_C009_E195', barcode: 'C009-E195', name: 'ກອບທອງອີຕາລີ C009-E195 (กรอบทองอิตาลี)', category: 'frames', price: 150000, cost: 100000, stock: 20, minStock: 2, unit: 'ອັນ', image: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=200&auto=format&fit=crop&q=60' },
-{ id: 'P001', barcode: '885001', name: 'ຂອບຄຳແທ້ 90% (ຊຸ້ມກໍ)', category: 'frames', price: 2800000, cost: 2200000, stock: 5, minStock: 2, unit: 'ອັນ', image: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=200&auto=format&fit=crop&q=60' },
-{ id: 'P002', barcode: '885002', name: 'ຂອບເງິນແທ້ 92.5%', category: 'frames', price: 450000, cost: 300000, stock: 12, minStock: 4, unit: 'ອັນ', image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=200&auto=format&fit=crop&q=60' },
-{ id: 'P003', barcode: '885003', name: 'ຂອບຜ່າຫວາຍສະແຕນເລດ', category: 'frames', price: 85000, cost: 35000, stock: 45, minStock: 10, unit: 'ອັນ', image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=200&auto=format&fit=crop&q=60' },
-{ id: 'P004', barcode: '885004', name: 'ຂອບໄມ້ສັກແທ້ (ຕັ້ງໂຕະ)', category: 'frames', price: 180000, cost: 90000, stock: 8, minStock: 3, unit: 'ອັນ', image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=200&auto=format&fit=crop&q=60' },
-{ id: 'P005', barcode: '885005', name: 'ຂອບຄຳຮອງຍາ (ລົງຢາແດງ)', category: 'frames', price: 3100000, cost: 2500000, stock: 3, minStock: 1, unit: 'ອັນ', image: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=200&auto=format&fit=crop&q=60' },
+const DEFAULT_PRODUCTS = [];
 
-// Amulets & Holy Objects
-{ id: 'P006', barcode: '885006', name: 'ທ້າວເວດສຸວັນ ຫຼວງພໍ່ພັດ ປີ 63', category: 'amulets', price: 350000, cost: 180000, stock: 10, minStock: 3, unit: 'ອົງ', image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=200&auto=format&fit=crop&q=60' },
-{ id: 'P007', barcode: '885007', name: 'ພຣະສົມເດັດວັດລະຄັງ (ລຸ້ນພິເສດ)', category: 'amulets', price: 1200000, cost: 600000, stock: 2, minStock: 1, unit: 'ອົງ', image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=200&auto=format&fit=crop&q=60' },
+const DEFAULT_PROMOTIONS = [];
 
-// Necklaces & Accessories
-{ id: 'P008', barcode: '885008', name: 'ສ້ອຍຄໍຄຳແທ້ 1 ບາດ', category: 'necklaces', price: 32000000, cost: 29500000, stock: 3, minStock: 1, unit: 'ເສັ້ນ', image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=200&auto=format&fit=crop&q=60' },
-{ id: 'P009', barcode: '885009', name: 'ສ້ອຍເຊືອກຖັກມື (ຫ້ອຍພຣະ 3 ອົງ)', category: 'necklaces', price: 120000, cost: 50000, stock: 15, minStock: 4, unit: 'ເສັ້ນ', image: 'https://images.unsplash.com/photo-1611085583191-a3b1a30a5a40?w=200&auto=format&fit=crop&q=60' },
-{ id: 'P010', barcode: '885010', name: 'ສ້ອຍສະແຕນເລດລາຍກະດູກງູ', category: 'necklaces', price: 75000, cost: 30000, stock: 30, minStock: 5, unit: 'ເສັ້ນ', image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=200&auto=format&fit=crop&q=60' },
+const DEFAULT_CCTV_CAMERAS = [];
 
-// Custom Waterproof framing service (Standard billing item)
-{ id: 'S001', barcode: '990001', name: 'ບໍລິການອັດກັນນ້ຳ (ເລນໃສ/ປົກກະຕິ)', category: 'services', price: 60000, cost: 10000, stock: 999, minStock: 0, unit: 'ອົງ', image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=200&auto=format&fit=crop&q=60' },
-{ id: 'S002', barcode: '990002', name: 'ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)', category: 'services', price: 90000, cost: 15000, stock: 999, minStock: 0, unit: 'ອົງ', image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=200&auto=format&fit=crop&q=60' }
-];
+const DEFAULT_CCTV_ALERTS = [];
 
-const DEFAULT_PROMOTIONS = [
-{ id: 'FREEWATER', code: 'FREEWATER', name: 'ແຖມຟຣີບໍລິການອັດກັນນ້ຳ 60,000 ກີບ', type: 'fixed', value: 60000, minPurchase: 0, active: true },
-{ id: 'PROMO10', code: 'DISCOUNT10', name: 'ສ່ວນຫຼຸດ 10%', type: 'percentage', value: 10, minPurchase: 500000, active: true },
-{ id: 'PROMO50K', code: 'SAVE50K', name: 'ສ່ວນຫຼຸດ 50,000 ກີບ', type: 'fixed', value: 50000, minPurchase: 1000000, active: true }
-];
-
-const DEFAULT_CCTV_CAMERAS = [
-{ id: 'CAM-1', name: 'ກ້ອງ 01: ທາງເຂົ້າໜ້າຮ້ານ', type: 'ip', url: '', active: true, checks: { intruder: true, cashierAudit: false, slacking: false } },
-{ id: 'CAM-2', name: 'ກ້ອງ 02: ເຄົາເຕີແຄຊເຊຍ', type: 'ip', url: '', active: true, checks: { intruder: false, cashierAudit: true, slacking: true } },
-{ id: 'CAM-3', name: 'ກ້ອງ 03: ຕູ້ໂຊພຣະເຄື່ອງ', type: 'ip', url: '', active: true, checks: { intruder: true, cashierAudit: false, slacking: false } },
-{ id: 'CAM-4', name: 'ກ້ອງ 04: ໂຊນຊ່າງອັດກອບ', type: 'ip', url: '', active: true, checks: { intruder: false, cashierAudit: false, slacking: true } }
-];
-
-const DEFAULT_CCTV_ALERTS = [
-{
-id: 'ALT-1',
-timestamp: new Date(Date.now() - 3600000 * 3).toISOString(),
-cameraId: 'CAM-2',
-cameraName: 'ກ້ອງ 02: ເຄົາເຕີແຄຊເຊຍ',
-type: 'cashier_away',
-typeName: 'ພະນັກງານບໍ່ຢູ່ບ່ອນປະຈຳການ',
-description: 'ພະນັກງານບໍ່ຢູ່ປະຈຳການເຄົາເຕີເກີນ 15 ນາທີ ໃນເວລາລູກຄ້າໜາແໜ້ນ',
-resolved: false
-},
-{
-id: 'ALT-2',
-timestamp: new Date(Date.now() - 3600000 * 5).toISOString(),
-cameraId: 'CAM-4',
-cameraName: 'ກ້ອງ 04: ໂຊນຊ່າງອັດກອບ',
-type: 'slacking',
-typeName: 'ກວດພົບການອູ້ງານ/ຫຼິ້ນໂທລະສັບ',
-description: 'ກວດພົບພະນັກງານນັ່ງຫຼິ້ນເກມ ຫຼື ໂທລະສັບຕິດຕໍ່ກັນເກີນ 20 ນາທີ',
-resolved: false
-},
-{
-id: 'ALT-3',
-timestamp: new Date(Date.now() - 3600000 * 10).toISOString(),
-cameraId: 'CAM-1',
-cameraName: 'ກ້ອງ 01: ທາງເຂົ້າໜ້າຮ້ານ',
-type: 'intrusion',
-typeName: 'ກວດພົບການບຸກລຸກ',
-description: 'ກວດພົບການເຄື່ອນໄຫວຜິດປົກກະຕິໃນເວລາປິດຮ້ານ 03:22 ໂມງ',
-resolved: true
-}
-];
-
-const DEFAULT_ATTENDANCE_LOGS = [
-{
-id: 'ATT-1',
-userId: 'cashier',
-userName: 'ນາງ ຈັນທະມາ (ຈັນ)',
-date: new Date(Date.now() - 86400000).toLocaleDateString('en-CA'),
-clockIn: new Date(Date.now() - 86400000 - 3600000 * 9).toISOString(),
-clockOut: new Date(Date.now() - 86400000 - 3600000 * 0.5).toISOString(),
-workHours: 8.5,
-workedPercent: 100,
-otHours: 0.5,
-payout: 87500,
-status: 'present'
-},
-{
-id: 'ATT-2',
-userId: 'technician',
-userName: 'ທ້າວ ບຸນມີ (ມີ)',
-date: new Date(Date.now() - 86400000).toLocaleDateString('en-CA'),
-clockIn: new Date(Date.now() - 86400000 - 3600000 * 8).toISOString(),
-clockOut: new Date(Date.now() - 86400000).toISOString(),
-workHours: 8.0,
-workedPercent: 100,
-otHours: 0.0,
-payout: 100000,
-status: 'present'
-}
-];
+const DEFAULT_ATTENDANCE_LOGS = [];
 
 const DEFAULT_SETTINGS = {
   shopName: 'ຂອບພຣະ ປາກເຊ',
@@ -510,1442 +416,13 @@ export const DEFAULT_LABEL_KEYS = [
   { key: 'tab_customers', defaultValue: "💳 ສະມາຊິກ (Members)", desc: 'ປຸ່ມເມນູ ສະມາຊິກ (Sidebar Navigation)', section: 'navigation' }
 ];
 
-const DEFAULT_ORDERS = [
-{
-id: 'TX10001',
-date: '2026-06-12T10:15:30+07:00',
-cashierId: 'cashier',
-cashierName: 'ນາງ ຈັນທະມາ (ຈັນ)',
-items: [
-{ productId: 'P002', name: 'ຂອບເງິນແທ້ 92.5%', price: 450000, qty: 1, total: 450000 },
-{ productId: 'S001', name: 'ບໍລິການອັດກັນນ້ຳ (ເລນໃສ/ປົກກະຕິ)', price: 60000, qty: 1, total: 60000 }
-],
-subtotal: 510000,
-discount: 0,
-total: 510000,
-paymentMethod: 'cash',
-cashReceived: 600000,
-change: 90000
-}
-];
+const DEFAULT_ORDERS = [];
 
-const DEFAULT_DEBTS = [
-{
-id: 'DBT10001',
-date: '2026-06-13T16:40:00+07:00',
-customerName: 'ທ້າວ ຄຳສະຫວັນ ອຸດົມ',
-customerPhone: '02055663322',
-items: [
-{ productId: 'P001', name: 'ຂອບຄຳແທ້ 90% (ຊຸ້ມກໍ)', price: 2800000, qty: 1, total: 2800000 }
-],
-total: 2800000,
-notes: 'ຄ້າງຈ່າຍຄ່າຂອບພຣະ ລໍຖ້າມື້ເງິນເດືອນອອກ 25 ມິຖຸນາ',
-status: 'unpaid'
-}
-];
+const DEFAULT_DEBTS = [];
 
-const DEFAULT_FRAMING_JOBS = [
-  {
-    "id": "JOB10001",
-    "customerName": "ທ້າວ ບຸນຈັນ ໄຊຍະວົງ",
-    "customerPhone": "02055551111",
-    "amuletDescription": "ຫຼຽນຫຼວງພໍ່ຣວຍ ປີ 59",
-    "frameTypeId": "P002",
-    "frameTypeName": "ຂອບເງິນແທ້ 92.5% + ອັດກັນນ້ຳ",
-    "totalPrice": 510000,
-    "deposit": 200000,
-    "balance": 310000,
-    "status": "done",
-    "createdDate": "2026-06-29T09:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "ອັດເລນໃສໜາພິເສດ ຫໍ່ຖົງກັນກະແທກ",
-    "amuletImage": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=60",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ຫຼຽນຫຼວງພໍ່ຣວຍ ປີ 59",
-        "frameTypeId": "P002",
-        "frameTypeName": "ຂອບເງິນແທ້ 92.5% + ອັດກັນນ້ຳ",
-        "price": 510000,
-        "frameStyle": "ລາຍໄທ",
-        "acrylicThickness": "2.0 mm",
-        "specialNotes": "ອັດເລນໃສໜາພິເສດ"
-      }
-    ]
-  },
-  {
-    "id": "JOB10025",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພิເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "done",
-    "createdDate": "2026-06-29T10:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພກເພ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10026",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ເສມາຫຼວງປູ່ທວດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10027",
-    "customerName": "ສົມສັກ ແກ້ວມະນີ",
-    "customerPhone": "02055554444",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະສົມເດັດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10028",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ເສມາຫຼວງປູ່ທວດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10029",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະສົມເດັດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10030",
-    "customerName": "ສົມສັກ ແກ້ວມະນີ",
-    "customerPhone": "02055554444",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 20000,
-    "balance": 40000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ເສມາຫຼວງປູ່ທວດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10031",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະສົມເດັດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10032",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ເສມາຫຼວງປູ່ທວດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10033",
-    "customerName": "ສົມສັກ ແກ້ວມະນີ",
-    "customerPhone": "02055554444",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະສົມເດັດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10034",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ເສມາຫຼວງປູ່ທວດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10035",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 20000,
-    "balance": 40000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະສົມເດັດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10036",
-    "customerName": "ສົມສັກ ແກ້ວມະນີ",
-    "customerPhone": "02055554444",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ເສມາຫຼວງປູ່ທວດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10037",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະສົມເດັດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10038",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ເສມາຫຼວງປູ່ທວດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10039",
-    "customerName": "ສົມສັກ ແກ້ວມະນີ",
-    "customerPhone": "02055554444",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະສົມເດັດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10040",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 20000,
-    "balance": 40000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ເສມາຫຼວງປູ່ທວດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10041",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະສົມເດັດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10042",
-    "customerName": "ສົມສັກ ແກ້ວມະນີ",
-    "customerPhone": "02055554444",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ເສມາຫຼວງປູ່ທວດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10043",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະສົມເດັດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10044",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ເສມາຫຼວງປູ່ທວດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10045",
-    "customerName": "ສົມສັກ ແກ້ວມະນີ",
-    "customerPhone": "02055554444",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 20000,
-    "balance": 40000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະສົມເດັດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10046",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ເສມາຫຼວງປູ່ທວດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10047",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະສົມເດັດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10048",
-    "customerName": "ສົມສັກ ແກ້ວມະນີ",
-    "customerPhone": "02055554444",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ເສມາຫຼວງປູ່ທວດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10049",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 60000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະສົມເດັດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10050",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 20000,
-    "balance": 40000,
-    "status": "pending",
-    "createdDate": "2026-06-29T11:00:00+07:00",
-    "pickupDate": "2026-06-30T15:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ເສມາຫຼວງປູ່ທວດ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10002",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10003",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10004",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10005",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10006",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10007",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10008",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10009",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10010",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10011",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10012",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10013",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10014",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10015",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10016",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10017",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10018",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10019",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10020",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10021",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10022",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10023",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  },
-  {
-    "id": "JOB10024",
-    "customerName": "ລູກຄ້າທົ່ວໄປ",
-    "customerPhone": "",
-    "amuletDescription": "ພຣະເຄື່ອງ",
-    "frameTypeId": "P001",
-    "frameTypeName": "ບໍລິການອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-    "totalPrice": 60000,
-    "deposit": 0,
-    "balance": 0,
-    "status": "picked_up",
-    "createdDate": "2026-06-28T09:00:00+07:00",
-    "pickupDate": "2026-06-28T17:00:00+07:00",
-    "technicianId": "technician",
-    "notes": "",
-    "amulets": [
-      {
-        "id": 1,
-        "description": "ພຣະເຄື່ອງ",
-        "frameTypeId": "P001",
-        "frameTypeName": "ບໍລິการອັດກັນນ້ຳ (ເລນລາຍ/ພິເສດ)",
-        "price": 60000,
-        "frameStyle": "ເລນລາຍ",
-        "acrylicThickness": "2.0 mm"
-      }
-    ]
-  }
-];
+const DEFAULT_FRAMING_JOBS = [];
 
-const DEFAULT_AUDIT_LOGS = [
-{
-id: 'LOG-1',
-timestamp: new Date(Date.now() - 3600000 * 2).toISOString(),
-userId: 'cashier',
-userName: 'ນາງ ຈັນທະມາ (ຈັນ)',
-type: 'failed_pin',
-description: 'ພະຍາຍາມລົບສິນຄ້າ "ຂອບຄຳແທ້ 90% (ຊຸ້ມກໍ)" ແຕ່ໃສ່ລະຫັດ Admin PIN ຜິດ',
-severity: 'warning'
-},
-{
-id: 'LOG-2',
-timestamp: new Date(Date.now() - 3600000 * 1.8).toISOString(),
-userId: 'cashier',
-userName: 'ນາງ ຈັນທະມາ (ຈັນ)',
-type: 'success_pin',
-description: 'ລົບສິນຄ້າ "ຂອບຄຳແທ້ 90% (ຊຸ້ມກໍ)" ອອກຈາກບັດຄິວ 03 (ອະນຸມັດໂດຍ Admin)',
-severity: 'info'
-},
-{
-id: 'LOG-3',
-timestamp: new Date(Date.now() - 3600000 * 12).toISOString(),
-userId: 'cashier',
-userName: 'ນາງ ຈັນທະມາ (ຈັນ)',
-type: 'open_drawer',
-description: 'ເປີດລິ້ນຊັກເກັບເງິນດ້ວຍມື (Manual Cash Drawer Release) ໂດຍບໍ່ມີການຂາຍ',
-severity: 'danger'
-},
-{
-id: 'LOG-4',
-timestamp: new Date(Date.now() - 3600000 * 24).toISOString(),
-userId: 'cashier',
-userName: 'ນາງ ຈັນທະມາ (ຈັນ)',
-type: 'discount_applied',
-description: 'ໃສ່ສ່ວນຫຼຸດພິເສດ 20% ໃຫ້ກັບລູກຄ້າບັດຄິວ P5',
-severity: 'warning'
-},
-{
-id: 'LOG-5',
-timestamp: new Date(Date.now() - 3600000 * 48).toISOString(),
-userId: 'cashier',
-userName: 'ນາງ ຈັນທະມາ (ຈັນ)',
-type: 'delete_item',
-description: 'ລົບລາຍການ "ສ້ອຍຄໍຄຳແທ້ 1 ບາດ" ອອກຈາກ cart',
-severity: 'info'
-}
-];
+const DEFAULT_AUDIT_LOGS = [];
 
 const getInitialSlots = () => {
   const slots = {};
@@ -2208,18 +685,120 @@ updated = true;
       updated = true;
     }
     if (!u.permissions) {
-      u.permissions = {
-        admin: u.role === 'owner',
-        pos: true, // Everyone gets POS tab since it displays POS or Framing based on role
-        inventory: u.role === 'owner',
-        hrm: u.role === 'owner',
-        reports: u.role === 'owner',
-        debts: u.role === 'owner' || u.role === 'cashier',
-        ai: u.role !== 'cashier',
-        settings: u.role === 'owner'
-      };
-      updated = true;
+      u.permissions = {};
     }
+    const isOwner = u.role === 'owner';
+    const isCashier = u.role === 'cashier';
+    const isTech = u.role === 'technician';
+    
+    const defaultKeys = {
+      admin: isOwner,
+      dashboard: isOwner,
+      pos: isOwner || isCashier,
+      posZoneA: isOwner || isCashier,
+      posZoneB: isOwner || isCashier,
+      posCheckout: isOwner || isCashier,
+      posDiscount: isOwner || isCashier,
+      posChangePrice: isOwner || isCashier,
+      posDeleteOrder: isOwner || isCashier,
+      posOpenDrawer: isOwner || isCashier,
+      posDeposit: isOwner || isCashier,
+      framing: isOwner || isTech,
+      framingView: isOwner || isTech,
+      framingUpdateStatus: isOwner || isTech,
+      framingEditJob: isOwner || isTech,
+      framingNotifyCustomer: isOwner || isTech,
+      framingPrintJob: isOwner || isTech,
+      framingCollectPayment: isOwner || isTech,
+      inventory: isOwner,
+      inventoryWarehouse: isOwner,
+      inventoryWarehouseViewCost: isOwner,
+      inventoryWarehouseAddProduct: isOwner,
+      inventoryWarehouseEditProduct: isOwner,
+      inventoryWarehouseDeleteProduct: isOwner,
+      inventoryWarehouseAddStock: isOwner,
+      inventoryWarehouseDeleteStock: isOwner,
+      inventoryWarehouseTransfer: isOwner,
+      inventoryShop: isOwner || isCashier,
+      inventoryShopViewCost: isOwner || isCashier,
+      inventoryShopAddProduct: isOwner,
+      inventoryShopEditProduct: isOwner,
+      inventoryShopDeleteProduct: isOwner,
+      inventoryShopAddStock: isOwner || isCashier,
+      inventoryShopDeleteStock: isOwner || isCashier,
+      inventoryConsumables: isOwner,
+      inventoryConsumablesViewCost: isOwner,
+      inventoryConsumablesAddProduct: isOwner,
+      inventoryConsumablesEditProduct: isOwner,
+      inventoryConsumablesDeleteProduct: isOwner,
+      inventoryConsumablesAddStock: isOwner,
+      inventoryConsumablesDeleteStock: isOwner,
+      inventoryPurchasing: isOwner,
+      inventoryPurchasingView: isOwner,
+      inventoryPurchasingCreate: isOwner,
+      inventoryPurchasingEdit: isOwner,
+      inventoryPurchasingDelete: isOwner,
+      inventoryPurchasingReceive: isOwner,
+      inventoryRaw: isOwner,
+      inventoryRawViewCost: isOwner,
+      inventoryRawAdd: isOwner,
+      inventoryRawEdit: isOwner,
+      inventoryRawDelete: isOwner,
+      inventoryRawAddStock: isOwner,
+      inventoryRawDeleteStock: isOwner,
+      inventoryBom: isOwner,
+      inventoryBomView: isOwner,
+      inventoryBomAdd: isOwner,
+      inventoryBomEdit: isOwner,
+      inventoryBomDelete: isOwner,
+      inventoryBomProduce: isOwner,
+      hrm: isOwner,
+      hrmView: isOwner,
+      hrmAddUser: isOwner,
+      hrmEditUser: isOwner,
+      hrmDeleteUser: isOwner,
+      hrmPayroll: isOwner,
+      customers: isOwner || isCashier,
+      membersAdd: isOwner || isCashier,
+      membersEdit: isOwner || isCashier,
+      membersDelete: isOwner || isCashier,
+      debts: isOwner || isCashier,
+      debtsCollect: isOwner || isCashier,
+      debtsAddDebt: isOwner || isCashier,
+      debtsDelete: isOwner || isCashier,
+      reports: isOwner,
+      reportsRevenue: isOwner,
+      reportsProfit: isOwner,
+      reportsExport: isOwner,
+      reportsDelete: isOwner,
+      ai: !isCashier,
+      aiChat: !isCashier,
+      aiAnalyze: !isCashier,
+      aiCctv: !isCashier,
+      settings: isOwner,
+      settingsShopInfo: isOwner,
+      settingsReceipt: isOwner,
+      settingsBarcode: isOwner,
+      settingsTheme: isOwner,
+      settingsLabels: isOwner,
+      settingsNotifications: isOwner,
+      settingsRules: isOwner,
+      settingsPromotions: isOwner,
+      settingsFraming: isOwner,
+      settingsExpenses: isOwner,
+      settingsTracking: isOwner,
+      settingsBackup: isOwner,
+      settingsOnlineShop: isOwner,
+      settingsSystem: isOwner,
+      settingsProductionTools: isOwner
+    };
+    
+    Object.keys(defaultKeys).forEach(k => {
+      if (u.permissions[k] === undefined) {
+        u.permissions[k] = defaultKeys[k];
+        updated = true;
+      }
+    });
     if (updated) migrationNeeded = true;
     return u;
 });
@@ -3393,7 +1972,7 @@ if (settings.notifyNewJob !== false) {
   const primaryAmulet = (newJob.amulets && newJob.amulets[0]) || {};
   const fStyle = newJob.frameStyle || primaryAmulet.frameStyle || 'ກອບໃສ';
   const aThickness = newJob.acrylicThickness || primaryAmulet.acrylicThickness || '2.0 mm';
-  const msg = `🛠️ *ແຈ້ງເຕືອນງານອັດກອບໃໝ่!*\n` +
+  const msg = `🛠️ *ແຈ້ງເຕືອນງານອັດກອບໃໝ່!*\n` +
               `🧾 *ລະຫັດງານ:* ${newJob.id}\n` +
               `👤 *ລູກຄ້າ:* ${newJob.customerName || 'ທົ່ວໄປ'}\n` +
               `🖼️ *ປະເພດກອບ:* ${fStyle} (ໜາ: ${aThickness})\n` +
@@ -3585,7 +2164,6 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
   },
   clockOutUser(userId) {
     const logs = this.getAttendance();
-    const dateStr = new Date().toLocaleDateString('en-CA');
     const record = logs.find(l => l.userId === userId && !l.clockOut);
     if (record && !record.clockOut) {
       record.clockOut = new Date().toISOString();
@@ -4645,7 +3223,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     this.saveProductionHistory(history);
     
     // Log audit log
-    this.addAuditLog('production_job', `ຜະລິດສินຄ້າ: ${product.name} ຈຳນວນ ${qty} ${product.unit || 'ອັນ'}, ຫັກວັດຖຸດິບສຳເລັດ`, 'info');
+    this.addAuditLog('production_job', `ຜະລິດສິນຄ້າ: ${product.name} ຈຳນວນ ${qty} ${product.unit || 'ອັນ'}, ຫັກວັດຖຸດິບສຳເລັດ`, 'info');
     
     return newJob;
   },
@@ -4815,7 +3393,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
     const leaveDeduction = totalUnpaidLeaveDays * dailyRate;
     
     // Base wages calculation
-    let baseWages = 0;
+    let baseWages;
     if (rules.calculateByActualHours && expectedShiftHoursTotal > 0) {
       // Hourly calculation mode
       baseWages = user.payType === 'daily' 

@@ -1,0 +1,12 @@
+{
+  "AllowMultiple": false,
+  "Description": "Update dashboard KPI value formatter to show full Lao currency format with dot thousand separators instead of abbreviated letters.",
+  "EndLine": 19,
+  "Instruction": "Change fmtS helper function to use full numbers with dot separator.",
+  "ReplacementContent": "const fmtS = n => {\n  n = n || 0;\n  return Math.round(n).toLocaleString('de-DE') + ' ₭';\n};",
+  "StartLine": 12,
+  "TargetContent": "const fmtS = n => {\n  n=n||0;\n  if(n>=1e9) return (n/1e9).toFixed(1)+'B ₭';\n  if(n>=1e6) return (n/1e6).toFixed(1)+'M ₭';\n  if(n>=1e3) return Math.round(n/1e3)+'K ₭';\n  return n.toLocaleString()+' ₭';\n};",
+  "TargetFile": "c:\\Users\\sutha\\OneDrive\\Desktop\\kp pakse pos\\src\\components\\Dashboard.jsx",
+  "toolAction": "Replacing currency formatting function in Dashboard.jsx",
+  "toolSummary": "Change Dashboard currency formatting"
+}

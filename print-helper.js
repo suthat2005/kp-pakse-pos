@@ -58,7 +58,7 @@ const server = http.createServer((req, res) => {
 
     // Otherwise fall back to local Windows driver spooler via Powershell
     const escapedPrinterName = printerName.replace(/"/g, '\\"');
-    exec(`powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File kick-drawer.ps1 -PrinterName "${escapedPrinterName}"`, (err, stdout, stderr) => {
+    exec(`powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File kick-drawer.ps1 -PrinterName "${escapedPrinterName}"`, (err) => {
       if (err) {
         console.error('Local printer kick error:', err);
         res.statusCode = 500;

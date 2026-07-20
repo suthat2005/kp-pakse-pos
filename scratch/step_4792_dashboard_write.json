@@ -1,0 +1,10 @@
+{
+  "AllowMultiple": false,
+  "Description": "Insert new KpiCard component with click handler support and hover transformation styles.",
+  "EndLine": 260,
+  "StartLine": 256,
+  "TargetContent": "/* ─────────────────────────────────\n   KPI Card — Enterprise Design\n ───────────────────────────────── */",
+  "TargetFile": "c:\\Users\\sutha\\OneDrive\\Desktop\\kp pakse pos\\src\\components\\Dashboard.jsx",
+  "toolAction": "Inserting updated KpiCard component code in Dashboard.jsx",
+  "toolSummary": "Insert KpiCard component"
+}

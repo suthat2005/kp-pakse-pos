@@ -306,9 +306,43 @@ export default defineConfig({
     }
   ],
   build: {
+    target: 'esnext',
     minify: true,
     sourcemap: false,
     cssMinify: true,
-    chunkSizeWarningLimit: 1000
+    chunkSizeWarningLimit: 800,
+    reportCompressedSize: false,
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          // Vendor chunk: React core libs
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            return 'vendor-react';
+          }
+          // Barcode/QR libs (heavy, rarely changes)
+          if (id.includes('node_modules/jsbarcode') || id.includes('node_modules/qrcode') || id.includes('node_modules/jsqr')) {
+            return 'vendor-barcode';
+          }
+          // Firebase admin (server-side, should not be in client bundle but split if included)
+          if (id.includes('node_modules/firebase')) {
+            return 'vendor-firebase';
+          }
+          // Heavy page components — each lazy-loaded chunk stays isolated
+          if (id.includes('/src/components/POS')) return 'page-pos';
+          if (id.includes('/src/components/Inventory')) return 'page-inventory';
+          if (id.includes('/src/components/Reports')) return 'page-reports';
+          if (id.includes('/src/components/Settings')) return 'page-settings';
+          if (id.includes('/src/components/HRM')) return 'page-hrm';
+          if (id.includes('/src/components/AIDetector')) return 'page-ai';
+          if (id.includes('/src/components/AmuletImageEditor')) return 'page-amulet-editor';
+          if (id.includes('/src/components/OnlineShop')) return 'page-online-shop';
+          if (id.includes('/src/components/OnlineOrders')) return 'page-online-orders';
+          if (id.includes('/src/components/Dashboard')) return 'page-dashboard';
+          if (id.includes('/src/components/Debts')) return 'page-debts';
+          if (id.includes('/src/components/Customers')) return 'page-customers';
+          if (id.includes('/src/components/FramingBoard')) return 'page-framing';
+        }
+      }
+    }
   }
 })

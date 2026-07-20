@@ -3303,7 +3303,6 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
     const dataUrl = canvas.toDataURL();
     
     const paperWidth = ensureUnit(settings.barcodePaperWidth || settings.barcodeStickerWidth || '40mm', 'mm');
-    const paperHeight = ensureUnit(settings.barcodePaperHeight || settings.barcodeStickerHeight || '25mm', 'mm');
     const stickerWidth = ensureUnit(settings.barcodeStickerWidth || '40mm', 'mm');
     const stickerHeight = ensureUnit(settings.barcodeStickerHeight || '25mm', 'mm');
     const gapX = ensureUnit(settings.barcodeGapX || '2mm', 'mm');
@@ -3325,14 +3324,25 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
     const stickerMargin = settings.barcodeMargin || 10;
 
     let stickersHtml = '';
-    for (let i = 0; i < barcodePrintQty; i++) {
-      stickersHtml += `
-        <div class="sticker">
-          ${showName ? `<p class="name">${name}</p>` : ''}
-          <img src="${dataUrl}" />
-          ${showPrice ? `<p class="price">${priceVal}</p>` : ''}
-        </div>
-      `;
+    const totalStickers = barcodePrintQty;
+    const numRows = Math.ceil(totalStickers / columns);
+    for (let r = 0; r < numRows; r++) {
+      stickersHtml += `<div class="row-container">`;
+      for (let c = 0; c < columns; c++) {
+        const idx = r * columns + c;
+        if (idx < totalStickers) {
+          stickersHtml += `
+            <div class="sticker">
+              ${showName ? `<p class="name">${name}</p>` : ''}
+              <img src="${dataUrl}" />
+              ${showPrice ? `<p class="price">${priceVal}</p>` : ''}
+            </div>
+          `;
+        } else {
+          stickersHtml += `<div class="sticker placeholder"></div>`;
+        }
+      }
+      stickersHtml += `</div>`;
     }
 
     const printFrame = document.createElement('iframe');
@@ -3352,45 +3362,52 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
           <link href="https://fonts.googleapis.com/css2?family=Phetsarath&display=swap" rel="stylesheet">
           <style>
             @page {
-              size: ${paperWidth} ${paperHeight};
+              size: ${paperWidth} ${stickerHeight};
               margin: 0;
             }
             html, body {
               width: ${paperWidth};
-              height: auto;
+              height: ${stickerHeight};
               margin: 0;
               padding: 0;
+              overflow: hidden;
             }
             body {
               font-family: 'Phetsarath', 'Phetsarath OT', Arial, sans-serif;
               background: white;
               color: black;
-              display: grid;
-              grid-template-columns: repeat(${columns}, ${stickerWidth});
-              column-gap: ${gapX};
-              row-gap: ${gapY};
-              justify-content: start;
+              margin: 0;
+              padding: 0;
+            }
+            .row-container {
+              display: flex;
+              flex-direction: row;
+              width: 100%;
+              height: ${stickerHeight};
+              page-break-after: always;
+              break-after: always;
+              box-sizing: border-box;
               padding-left: ${marginLeft};
               padding-top: ${marginTop};
-              box-sizing: border-box;
+              gap: ${gapX};
             }
-             .sticker {
+            .row-container:last-child {
+              page-break-after: avoid;
+              break-after: avoid;
+            }
+            .sticker {
               display: flex;
               flex-direction: column;
               align-items: ${textAlign === 'left' ? 'flex-start' : textAlign === 'right' ? 'flex-end' : 'center'};
               justify-content: center;
               width: ${stickerWidth};
-              height: ${columns === 1 ? `calc(${stickerHeight} - ${marginTop} - 1.5mm)` : stickerHeight};
-              max-height: ${columns === 1 ? `calc(${stickerHeight} - ${marginTop} - 1.5mm)` : stickerHeight};
+              height: 100%;
               padding: ${stickerMargin}px;
               box-sizing: border-box;
               overflow: hidden;
-              page-break-inside: avoid;
-              break-inside: avoid;
             }
-            .sticker:not(:last-child) {
-              page-break-after: ${columns === 1 ? 'always' : 'auto'};
-              break-after: ${columns === 1 ? 'always' : 'auto'};
+            .sticker.placeholder {
+              visibility: hidden;
             }
             p.name {
               margin: 0;
@@ -3490,7 +3507,6 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
     }
 
     const paperWidth = ensureUnit(settings.barcodePaperWidth || settings.barcodeStickerWidth || '40mm', 'mm');
-    const paperHeight = ensureUnit(settings.barcodePaperHeight || settings.barcodeStickerHeight || '25mm', 'mm');
     const stickerWidth = ensureUnit(settings.barcodeStickerWidth || '40mm', 'mm');
     const stickerHeight = ensureUnit(settings.barcodeStickerHeight || '25mm', 'mm');
     const gapX = ensureUnit(settings.barcodeGapX || '2mm', 'mm');
@@ -3511,21 +3527,38 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
     const textSpacing = ensureUnit(settings.barcodeTextSpacing || 5, 'px');
     const stickerMargin = settings.barcodeMargin || 10;
 
-    let stickersHtml = '';
+    const stickersList = [];
     for (const p of itemsToPrint) {
       const qty = bulkPrintQtys[p.id] || 0;
       const dataUrl = await generateBarcodeDataUrl(p.barcode, format);
       const name = p.name;
       const priceVal = p.price.toLocaleString() + ' ກີບ';
       for (let i = 0; i < qty; i++) {
-        stickersHtml += `
-          <div class="sticker">
-            ${showName ? `<p class="name">${name}</p>` : ''}
-            <img src="${dataUrl}" />
-            ${showPrice ? `<p class="price">${priceVal}</p>` : ''}
-          </div>
-        `;
+        stickersList.push({ name, dataUrl, priceVal });
       }
+    }
+
+    let stickersHtml = '';
+    const totalStickers = stickersList.length;
+    const numRows = Math.ceil(totalStickers / columns);
+    for (let r = 0; r < numRows; r++) {
+      stickersHtml += `<div class="row-container">`;
+      for (let c = 0; c < columns; c++) {
+        const idx = r * columns + c;
+        if (idx < totalStickers) {
+          const s = stickersList[idx];
+          stickersHtml += `
+            <div class="sticker">
+              ${showName ? `<p class="name">${s.name}</p>` : ''}
+              <img src="${s.dataUrl}" />
+              ${showPrice ? `<p class="price">${s.priceVal}</p>` : ''}
+            </div>
+          `;
+        } else {
+          stickersHtml += `<div class="sticker placeholder"></div>`;
+        }
+      }
+      stickersHtml += `</div>`;
     }
 
     const printFrame = document.createElement('iframe');
@@ -3545,45 +3578,52 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
           <link href="https://fonts.googleapis.com/css2?family=Phetsarath&display=swap" rel="stylesheet">
           <style>
             @page {
-              size: ${paperWidth} ${paperHeight};
+              size: ${paperWidth} ${stickerHeight};
               margin: 0;
             }
             html, body {
               width: ${paperWidth};
-              height: auto;
+              height: ${stickerHeight};
               margin: 0;
               padding: 0;
+              overflow: hidden;
             }
             body {
               font-family: 'Phetsarath', 'Phetsarath OT', Arial, sans-serif;
               background: white;
               color: black;
-              display: grid;
-              grid-template-columns: repeat(${columns}, ${stickerWidth});
-              column-gap: ${gapX};
-              row-gap: ${gapY};
-              justify-content: start;
+              margin: 0;
+              padding: 0;
+            }
+            .row-container {
+              display: flex;
+              flex-direction: row;
+              width: 100%;
+              height: ${stickerHeight};
+              page-break-after: always;
+              break-after: always;
+              box-sizing: border-box;
               padding-left: ${marginLeft};
               padding-top: ${marginTop};
-              box-sizing: border-box;
+              gap: ${gapX};
             }
-             .sticker {
+            .row-container:last-child {
+              page-break-after: avoid;
+              break-after: avoid;
+            }
+            .sticker {
               display: flex;
               flex-direction: column;
               align-items: ${textAlign === 'left' ? 'flex-start' : textAlign === 'right' ? 'flex-end' : 'center'};
               justify-content: center;
               width: ${stickerWidth};
-              height: ${columns === 1 ? `calc(${stickerHeight} - ${marginTop} - 1.5mm)` : stickerHeight};
-              max-height: ${columns === 1 ? `calc(${stickerHeight} - ${marginTop} - 1.5mm)` : stickerHeight};
+              height: 100%;
               padding: ${stickerMargin}px;
               box-sizing: border-box;
               overflow: hidden;
-              page-break-inside: avoid;
-              break-inside: avoid;
             }
-            .sticker:not(:last-child) {
-              page-break-after: ${columns === 1 ? 'always' : 'auto'};
-              break-after: ${columns === 1 ? 'always' : 'auto'};
+            .sticker.placeholder {
+              visibility: hidden;
             }
             p.name {
               margin: 0;
@@ -3634,6 +3674,54 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       setShowBulkBarcodeModal(false);
       setBulkPrintQtys({});
     }, 1000);
+  };
+
+  const generateBarcodeDataUrl = async (text, format) => {
+    const settings = db.getSettings();
+    const canvas = document.createElement('canvas');
+    try {
+      if (format === 'QRCODE') {
+        const qrSize = settings.barcodeHeight || 50;
+        canvas.width = qrSize + 20;
+        canvas.height = qrSize + (settings.barcodeShowCode !== false ? 30 : 10);
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        const qrCanvas = document.createElement('canvas');
+        await QRCode.toCanvas(qrCanvas, text, {
+          margin: 1,
+          scale: 3,
+          errorCorrectionLevel: 'M',
+          color: {
+            dark: '#000000',
+            light: '#FFFFFF'
+          }
+        });
+        ctx.drawImage(qrCanvas, (canvas.width - qrSize) / 2, 5, qrSize, qrSize);
+        if (settings.barcodeShowCode !== false) {
+          ctx.fillStyle = '#000000';
+          ctx.font = `bold ${settings.barcodeCodeSize || 10}px Courier New`;
+          ctx.textAlign = 'center';
+          ctx.fillText(text, canvas.width / 2, qrSize + 15);
+        }
+      } else {
+        JsBarcode(canvas, text, {
+          format: format,
+          width: settings.barcodeWidth || 2,
+          height: settings.barcodeHeight || 50,
+          displayValue: settings.barcodeShowCode !== false,
+          fontSize: settings.barcodeCodeSize || 10,
+          font: 'Courier New',
+          background: '#FFFFFF',
+          lineColor: '#000000',
+          margin: 4
+        });
+      }
+      return canvas.toDataURL();
+    } catch (e) {
+      return '';
+    }
   };
 
   const lowStockProducts = products.filter(p => !db.isServiceCategory(p.category) && p.stock <= p.minStock);
@@ -3723,7 +3811,14 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       
       {/* Sub Tab Bar Navigation */}
-      <div className="nav-tabs" style={{ margin: 0, display: 'flex', gap: '10px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px', flexWrap: 'wrap' }}>
+      <div className="nav-tabs" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px', flexWrap: 'wrap' }}>
+        <button
+          type="button"
+          className={`nav-tab ${activeSubTab === 'warehouse' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('warehouse')}
+        >
+          🏠 ຈັດການສາງໃຫຍ່ (Warehouse)
+        </button>
         <button
           type="button"
           className={`nav-tab ${activeSubTab === 'products' ? 'active' : ''}`}
@@ -3733,10 +3828,17 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
         </button>
         <button
           type="button"
-          className={`nav-tab ${activeSubTab === 'warehouse' ? 'active' : ''}`}
-          onClick={() => setActiveSubTab('warehouse')}
+          className={`nav-tab ${activeSubTab === 'consumables' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('consumables')}
         >
-          🏠 ຈັດການສາງໃຫຍ່ (Warehouse)
+          🔧 ສາງອຸປະກອນສິ້ນເປືອງ (Consumables)
+        </button>
+        <button
+          type="button"
+          className={`nav-tab ${activeSubTab === 'purchasing' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('purchasing')}
+        >
+          {db.getLabel('inv_tab_purchasing', '🧾 ສັ່ງຊື້ & ຜູ້ສະໜອງ')}
         </button>
         <button
           type="button"
@@ -3751,20 +3853,6 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
           onClick={() => setActiveSubTab('manufacturing')}
         >
           {db.getLabel('inv_tab_manufacturing', '🏭 ສູດການຜະລິດ & BOM')}
-        </button>
-        <button
-          type="button"
-          className={`nav-tab ${activeSubTab === 'purchasing' ? 'active' : ''}`}
-          onClick={() => setActiveSubTab('purchasing')}
-        >
-          {db.getLabel('inv_tab_purchasing', '🧾 ສັ່ງຊື້ & ຜູ້ສະໜອງ')}
-        </button>
-        <button
-          type="button"
-          className={`nav-tab ${activeSubTab === 'consumables' ? 'active' : ''}`}
-          onClick={() => setActiveSubTab('consumables')}
-        >
-          🔧 ສາງອຸປະກອນສິ້ນເປືອງ (Consumables)
         </button>
       </div>
 

@@ -2,6 +2,91 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { db } from '../utils/db';
 import Portal from './Portal';
 
+const ReportIcons = {
+  revenue: (props) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+    </svg>
+  ),
+  receipt: (props) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+    </svg>
+  ),
+  expense: (props) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+    </svg>
+  ),
+  profit: (props) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
+    </svg>
+  ),
+  frame: (props) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <rect x="3" y="3" width="18" height="18" rx="2"/><rect x="7" y="7" width="10" height="10" rx="1"/>
+    </svg>
+  ),
+  cart: (props) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+    </svg>
+  ),
+  users: (props) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  ),
+  online: (props) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+    </svg>
+  ),
+  treats: (props) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+    </svg>
+  ),
+  overview: (props) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+    </svg>
+  ),
+  posStore: (props) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+  ),
+  book: (props) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+    </svg>
+  ),
+  delivery: (props) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <rect x="1" y="3" width="15" height="13" rx="2" ry="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+    </svg>
+  ),
+  close: (props) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  ),
+  pending: (props) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+    </svg>
+  ),
+  package: (props) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+    </svg>
+  )
+};
+
 export default function Reports({ activeUser, isMobile, onTabChange, onViewLowStock }) {
   const hasReportsPermission = (subKey) => {
     if (!activeUser) return false;
@@ -739,23 +824,25 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
 
   const setDatePreset = (preset) => {
     setActivePreset(preset);
+    const d = new Date();
     if (preset === 'today') {
       setStartDate(todayStr);
       setEndDate(todayStr);
-    } else if (preset === '7days') {
-      const d = new Date();
+    } else if (preset === 'week') {
       d.setDate(d.getDate() - 6);
       setStartDate(d.toLocaleDateString('en-CA'));
       setEndDate(todayStr);
-    } else if (preset === '30days') {
-      const d = new Date();
+    } else if (preset === 'month') {
       d.setDate(d.getDate() - 29);
       setStartDate(d.toLocaleDateString('en-CA'));
       setEndDate(todayStr);
-    } else if (preset === 'year') {
-      const d = new Date();
-      d.setDate(d.getDate() - 364);
+    } else if (preset === 'quarter') {
+      d.setDate(d.getDate() - 89);
       setStartDate(d.toLocaleDateString('en-CA'));
+      setEndDate(todayStr);
+    } else if (preset === 'year') {
+      const ys = new Date(d.getFullYear(), 0, 1);
+      setStartDate(ys.toLocaleDateString('en-CA'));
       setEndDate(todayStr);
     }
   };
@@ -829,7 +916,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
 
   const totalRefunds = rangeReturns.reduce((sum, r) => sum + (r.refundAmount || 0), 0);
 
-  const handleClearFilters = () => {
+  const _handleClearFilters = () => {
     setStartDate('');
     setEndDate('');
     setActivePreset('custom');
@@ -1994,72 +2081,92 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
         </div>
         
         {/* Advanced Date Range Selector */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'var(--bg-card, #161411)', padding: '10px', borderRadius: '12px', border: '1px solid var(--border-color)', width: isMobile ? '100%' : 'auto' }}>
-          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', width: isMobile ? '100%' : 'auto' }}>
+          <div style={{
+            display: 'flex', gap: '3px',
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(148,163,184,0.08)',
+            borderRadius: '12px', padding: '4px',
+            flexWrap: 'wrap',
+          }}>
             {[
-              { id: 'today', name: 'ມື້ນີ້' },
-              { id: '7days', name: '7 ວັນຫຼ້າສຸດ' },
-              { id: '30days', name: '30 ວັນຫຼ້າສຸດ' },
-              { id: 'year', name: '1 ປີຫຼ້າສຸດ' }
+              { id: 'today', name: 'ວັນນີ້' },
+              { id: 'week', name: '7 ວັນ' },
+              { id: 'month', name: 'ເດືອນ' },
+              { id: 'quarter', name: '3 ເດືອນ' },
+              { id: 'year', name: 'ປີ' },
+              { id: 'custom', name: 'ກຳນົດເອງ' }
             ].map(opt => (
               <button
                 key={opt.id}
                 type="button"
-                className={`category-tab ${activePreset === opt.id ? 'active' : ''}`}
-                style={{ border: 'none', borderRadius: '20px', padding: '4px 10px', fontSize: '0.72rem', cursor: 'pointer', margin: 0 }}
+                className={`dash-period-btn ${activePreset === opt.id ? 'active' : ''}`}
+                style={{
+                  padding: '6px 14px', borderRadius: '9px',
+                  background: activePreset === opt.id ? 'linear-gradient(135deg,rgba(99,102,241,0.85),rgba(79,70,229,0.9))' : 'none',
+                  color: activePreset === opt.id ? 'white' : '#64748b',
+                  fontWeight: activePreset === opt.id ? 700 : 500,
+                  fontSize: '0.78rem',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
                 onClick={() => setDatePreset(opt.id)}
               >
                 {opt.name}
               </button>
             ))}
-            <button
-              type="button"
-              className="category-tab"
-              style={{ border: 'none', borderRadius: '20px', padding: '4px 10px', fontSize: '0.72rem', cursor: 'pointer', background: 'rgba(231,76,60,0.15)', color: 'var(--alert-red)', margin: 0 }}
-              onClick={handleClearFilters}
-            >
-              🔄 ຣີເຊັດ
-            </button>
           </div>
-          
-          <div style={isMobile ? { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.8rem' } : { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>ແຕ່:</span>
+
+          {activePreset === 'custom' && (
+            <div style={{
+              display: 'flex', gap: '8px', alignItems: 'center',
+              background: 'rgba(255,255,255,0.02)', marginTop: '8px',
+              border: '1px solid rgba(255,255,255,0.05)',
+              borderRadius: '8px', padding: '4px 8px'
+            }}>
               <input
                 type="date"
-                className="form-control"
                 value={startDate}
                 onChange={(e) => {
                   setStartDate(e.target.value);
                   setActivePreset('custom');
                 }}
-                style={{ width: '100%', padding: '4px 6px', fontSize: '0.75rem', background: '#0c0b09', color: 'white', border: '1px solid var(--border-color)', borderRadius: '4px', margin: 0 }}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'white',
+                  fontSize: '0.78rem',
+                  outline: 'none'
+                }}
               />
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>ຫາ:</span>
+              <span style={{ color: '#64748b', fontSize: '0.78rem' }}>ຫາ</span>
               <input
                 type="date"
-                className="form-control"
                 value={endDate}
                 onChange={(e) => {
                   setEndDate(e.target.value);
                   setActivePreset('custom');
                 }}
-                style={{ width: '100%', padding: '4px 6px', fontSize: '0.75rem', background: '#0c0b09', color: 'white', border: '1px solid var(--border-color)', borderRadius: '4px', margin: 0 }}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'white',
+                  fontSize: '0.78rem',
+                  outline: 'none'
+                }}
               />
             </div>
-          </div>
+          )}
         </div>
       </div>
 
       {/* ─── Tab Switcher ─────────────────────────────────────────────────────── */}
       <div style={{ display: 'flex', gap: '6px', borderBottom: '1px solid var(--border-color)', paddingBottom: '4px' }}>
         {[
-          { id: 'pos',      icon: '🏪', label: 'ໜ້າຮ້ານ POS' },
-          { id: 'online',   icon: '🌐', label: 'ອອນລາຍ Shop' },
-          { id: 'treats',   icon: '🎁', label: 'ລາຍການລ້ຽງແຂກ (Treats)' },
-          { id: 'overview', icon: '📊', label: 'ພາບລວມທຸລະກິດ' },
+          { id: 'pos',      icon: <ReportIcons.posStore style={{ width: 16, height: 16, verticalAlign: 'middle' }} />, label: 'ໜ້າຮ້ານ POS' },
+          { id: 'online',   icon: <ReportIcons.online style={{ width: 16, height: 16, verticalAlign: 'middle' }} />, label: 'ອອນລາຍ Shop' },
+          { id: 'treats',   icon: <ReportIcons.treats style={{ width: 16, height: 16, verticalAlign: 'middle' }} />, label: 'ລາຍການລ້ຽງແຂກ (Treats)' },
+          { id: 'overview', icon: <ReportIcons.overview style={{ width: 16, height: 16, verticalAlign: 'middle' }} />, label: 'ພາບລວມທຸລະກິດ' },
         ].map(tab => (
           <button
             key={tab.id}
@@ -2096,7 +2203,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
         {/* 1. Product Sales */}
         <div style={{ position:'relative', overflow:'hidden', background:'rgba(52,152,219,0.07)', border:'1px solid rgba(52,152,219,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(52,152,219,0.12)' }}>
           <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#3498db', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
-          <span style={{ fontSize:'0.68rem', color:'rgba(52,152,219,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>🛍️ ຍອດຂາຍສິນຄ້າ</span>
+          <span style={{ fontSize:'0.68rem', color:'rgba(52,152,219,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:6 }}><ReportIcons.cart style={{ width: 16, height: 16, color: '#74B9FF' }} /> ຍອດຂາຍສິນຄ້າ</span>
           <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#74B9FF', lineHeight:1.1, letterSpacing:'-0.5px' }}>
             {hasReportsPermission('reportsRevenue') ? Math.round(posProductsValue).toLocaleString() + " ₭" : "*** ₭"}
           </span>
@@ -2106,7 +2213,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
         {/* 2. Framing Sales */}
         <div style={{ position:'relative', overflow:'hidden', background:'rgba(243,156,18,0.07)', border:'1px solid rgba(243,156,18,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(243,156,18,0.12)' }}>
           <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#f39c12', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
-          <span style={{ fontSize:'0.68rem', color:'rgba(243,156,18,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>🛠️ ຍອດຂາຍອັດກອບ</span>
+          <span style={{ fontSize:'0.68rem', color:'rgba(243,156,18,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:6 }}><ReportIcons.frame style={{ width: 16, height: 16, color: '#ffd740' }} /> ຍອດຂາຍອັດກອບ</span>
           <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#ffd740', lineHeight:1.1, letterSpacing:'-0.5px' }}>
             {hasReportsPermission('reportsRevenue') ? Math.round(posJobsValue).toLocaleString() + " ₭" : "*** ₭"}
           </span>
@@ -2116,7 +2223,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
         {/* 3. Total Bills */}
         <div style={{ position:'relative', overflow:'hidden', background:'rgba(108,92,231,0.07)', border:'1px solid rgba(108,92,231,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(108,92,231,0.12)' }}>
           <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#6C5CE7', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
-          <span style={{ fontSize:'0.68rem', color:'rgba(162,155,254,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>🛒 ໃບບິນທັງໝົດ</span>
+          <span style={{ fontSize:'0.68rem', color:'rgba(162,155,254,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:6 }}><ReportIcons.receipt style={{ width: 16, height: 16, color: '#A29BFE' }} /> ໃບບິນທັງໝົດ</span>
           <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#A29BFE', lineHeight:1.1, letterSpacing:'-0.5px' }}>
             {rangeOrders.length} <span style={{ fontSize:'1rem' }}>ບິນ</span>
           </span>
@@ -2126,7 +2233,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
         {/* 4. Outstanding Debt */}
         <div style={{ position:'relative', overflow:'hidden', background:'rgba(231,76,60,0.07)', border:'1px solid rgba(231,76,60,0.25)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(231,76,60,0.15)' }}>
           <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#e74c3c', opacity:0.09, filter:'blur(18px)', pointerEvents:'none' }} />
-          <span style={{ fontSize:'0.68rem', color:'rgba(231,76,60,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>📒 ໜີ້ຄ້າງຊຳລະ</span>
+          <span style={{ fontSize:'0.68rem', color:'rgba(231,76,60,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:6 }}><ReportIcons.book style={{ width: 16, height: 16, color: '#FAB1A0' }} /> ໜີ້ຄ້າງຊຳລະ</span>
           <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#FAB1A0', lineHeight:1.1, letterSpacing:'-0.5px' }}>
             {totalOutstandingDebt.toLocaleString()} ₭
           </span>
@@ -2136,7 +2243,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
         {/* 5. Total Revenue with payment breakdown */}
         <div style={{ position:'relative', overflow:'hidden', background:'rgba(212,175,55,0.07)', border:'1px solid rgba(212,175,55,0.25)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 24px rgba(212,175,55,0.15)' }}>
           <div style={{ position:'absolute', top:-14, right:-14, width:80, height:80, borderRadius:'50%', background:'#D4AF37', opacity:0.09, filter:'blur(22px)', pointerEvents:'none' }} />
-          <span style={{ fontSize:'0.68rem', color:'rgba(212,175,55,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>💵 ລາຍຮັບທັງໝົດ</span>
+          <span style={{ fontSize:'0.68rem', color:'rgba(212,175,55,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:6 }}><ReportIcons.revenue style={{ width: 16, height: 16, color: 'var(--gold-primary)' }} /> ລາຍຮັບທັງໝົດ</span>
           <span style={{ fontSize:'1.5rem', fontWeight:800, color:'var(--gold-primary)', lineHeight:1.1, letterSpacing:'-0.5px' }}>
             {hasReportsPermission('reportsRevenue') ? totalSales.toLocaleString() + " ₭" : "*** ₭"}
           </span>
@@ -2171,7 +2278,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
         {/* 6. Total Expenses */}
         <div style={{ position:'relative', overflow:'hidden', background:'rgba(225,112,85,0.07)', border:'1px solid rgba(225,112,85,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(225,112,85,0.12)' }}>
           <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#E17055', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
-          <span style={{ fontSize:'0.68rem', color:'rgba(225,112,85,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>💸 ລາຍຈ່າຍທັງໝົດ</span>
+          <span style={{ fontSize:'0.68rem', color:'rgba(225,112,85,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}><ReportIcons.expense style={{ width: 16, height: 16, color: '#FAB1A0', marginRight: 6, verticalAlign: 'middle' }} /> ລາຍຈ່າຍທັງໝົດ</span>
           <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#FAB1A0', lineHeight:1.1, letterSpacing:'-0.5px' }}>
             {totalExpenses.toLocaleString()} ₭
           </span>
@@ -2181,7 +2288,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
         {/* 7. Est. Net Profit */}
         <div style={{ position:'relative', overflow:'hidden', background:'rgba(0,184,148,0.07)', border:'1px solid rgba(0,184,148,0.25)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 24px rgba(0,184,148,0.15)' }}>
           <div style={{ position:'absolute', top:-14, right:-14, width:80, height:80, borderRadius:'50%', background:'#00B894', opacity:0.09, filter:'blur(22px)', pointerEvents:'none' }} />
-          <span style={{ fontSize:'0.68rem', color:'rgba(0,184,148,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>📈 ກຳໄລສຸດທິ (ປະເມີນ)</span>
+          <span style={{ fontSize:'0.68rem', color:'rgba(0,184,148,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:6 }}><ReportIcons.profit style={{ width: 16, height: 16, color: '#55EFC4' }} /> ກຳໄລສຸດທິ (ປະເມີນ)</span>
           <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#55EFC4', lineHeight:1.1, letterSpacing:'-0.5px' }}>
             {hasReportsPermission('reportsProfit') ? Math.round(netProfit).toLocaleString() + " ₭" : "*** ₭"}
           </span>
@@ -2196,7 +2303,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
         {/* Invoice Archive and Lookup */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-            <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.05rem' }}>🔍 ໃບບິນຂາຍຊ່ວງນີ້ (Bills Lookup)</h3>
+            <h3 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>🔍 ໃບບິນຂາຍຊ່ວງນີ້ (Bills Lookup)</h3>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
               <input
                 type="text"
@@ -2389,7 +2496,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
         {/* Period Outstanding Debt Ledger */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-            <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.05rem', margin: 0 }}>📒 ບັນຊີລູກຄ້າຕິດໜີ້ຊ່ວງນີ້ (Period Debts Table)</h3>
+            <h3 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>📒 ບັນຊີລູกຄ້າຕິດໜີ້ຊ່ວງນີ້ (Period Debts Table)</h3>
             <input
               type="text"
               className="form-control"
@@ -2527,7 +2634,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
         {/* Expenses summary list for POS tab */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-            <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.05rem', margin: 0 }}>💸 ບັນທຶກລາຍຈ່າຍຊ່ວງນີ້ (Period Expenses Table)</h3>
+            <h3 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>💸 ບັນທຶກລາຍຈ່າຍຊ່ວງນີ້ (Period Expenses Table)</h3>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
               <input
                 type="text"
@@ -2706,14 +2813,18 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
           {/* KPI Row */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '16px' }}>
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #3498db' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🌐 ຍອດຂາຍ Online (ຊຳລະແລ້ວ)</span>
-              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#3498db' }}>{onlinePaidRevenue.toLocaleString()} ₭</span>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>{onlinePaidOrders.length} ອໍເດີ້ຊຳລະສຳເລັດ</span>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(195px, 1fr))', gap: '14px' }}>
+            {/* 1. Online Paid Revenue */}
+            <div style={{ position:'relative', overflow:'hidden', background:'rgba(52,152,219,0.07)', border:'1px solid rgba(52,152,219,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(52,152,219,0.12)' }}>
+              <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#3498db', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
+              <span style={{ fontSize:'0.68rem', color:'rgba(52,152,219,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:6 }}><ReportIcons.online style={{ width: 16, height: 16, color: '#74B9FF' }} /> ຍອດຂາຍ Online (ຊຳລະແລ້ວ)</span>
+              <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#74B9FF', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+                {onlinePaidRevenue.toLocaleString()} ₭
+              </span>
+              <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>{onlinePaidOrders.length} ອໍເດີ້ຊຳລະສຳເລັດ</span>
               
-              <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '4px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
-                <span style={{ fontWeight: 'bold', color: '#3498db' }}>📱 ລວມຮັບເງິນໂອນ (Transfer):</span>
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '5px', marginTop: '2px', display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '0.68rem', color: 'rgba(255,255,255,0.42)' }}>
+                <span style={{ fontWeight: 'bold', color: '#3498db' }}>📱 ລວມຮັບเງິນໂອນ (Transfer):</span>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
                   <span>• ເງິນໂອນ LAK:</span>
                   <span style={{ color: 'white' }}>{onlineTransferLAK.toLocaleString()} ₭</span>
@@ -2732,38 +2843,61 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
                 )}
               </div>
             </div>
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #f1c40f' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>⏳ ລໍຖ້ານວດສະລິບ</span>
-              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#f1c40f' }}>{onlinePending} ອໍເດີ້</span>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ຕ້ອງຢືນຢັນໂດຍ Staff</span>
+
+            {/* 2. Pending Orders */}
+            <div style={{ position:'relative', overflow:'hidden', background:'rgba(241,196,15,0.07)', border:'1px solid rgba(241,196,15,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(241,196,15,0.12)' }}>
+              <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#f1c40f', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
+              <span style={{ fontSize:'0.68rem', color:'rgba(241,196,15,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:6 }}><ReportIcons.pending style={{ width: 16, height: 16, color: '#ffd740' }} /> ລໍຖ້ານວດສະລິບ</span>
+              <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#ffd740', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+                {onlinePending} <span style={{ fontSize:'1rem' }}>ອໍເດີ້</span>
+              </span>
+              <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>ຕ້ອງຢືນຢັນໂດຍ Staff</span>
             </div>
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #2ecc71' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🚚 ສົ່ງ / ສຳເລັດແລ້ວ</span>
-              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#2ecc71' }}>{onlineShipped} ອໍເດີ້</span>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Shipped + Delivered</span>
+
+            {/* 3. Shipped / Delivered */}
+            <div style={{ position:'relative', overflow:'hidden', background:'rgba(46,204,113,0.07)', border:'1px solid rgba(46,204,113,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(46,204,113,0.12)' }}>
+              <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#2ecc71', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
+              <span style={{ fontSize:'0.68rem', color:'rgba(46,204,113,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:6 }}><ReportIcons.delivery style={{ width: 16, height: 16, color: '#2ecc71' }} /> ສົ່ງ / ສຳເລັດແລ້ວ</span>
+              <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#2ecc71', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+                {onlineShipped} <span style={{ fontSize:'1rem' }}>ອໍເດີ້</span>
+              </span>
+              <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>Shipped + Delivered</span>
             </div>
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #e74c3c' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>❌ ຍົກເລີກ / Rejected</span>
-              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#e74c3c' }}>{onlineRejected} ອໍເດີ້</span>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ສະລິບຖືກປະຕິເສດ</span>
+
+            {/* 4. Cancelled / Rejected */}
+            <div style={{ position:'relative', overflow:'hidden', background:'rgba(231,76,60,0.07)', border:'1px solid rgba(231,76,60,0.25)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(231,76,60,0.15)' }}>
+              <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#e74c3c', opacity:0.09, filter:'blur(18px)', pointerEvents:'none' }} />
+              <span style={{ fontSize:'0.68rem', color:'rgba(231,76,60,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:6 }}><ReportIcons.close style={{ width: 16, height: 16, color: '#e74c3c' }} /> ຍົກເລີກ / Rejected</span>
+              <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#FAB1A0', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+                {onlineRejected} <span style={{ fontSize:'1rem' }}>ອໍເດີ້</span>
+              </span>
+              <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>ສະລິບຖືກປະຕิເສດ</span>
             </div>
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid var(--gold-primary)' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📦 ຈຳນວນ Online ທັງໝົດ</span>
-              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>{rangeOnlineOrders.length} ອໍເດີ້</span>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ທຸກສະຖານະ</span>
+
+            {/* 5. Total Online Orders */}
+            <div style={{ position:'relative', overflow:'hidden', background:'rgba(212,175,55,0.07)', border:'1px solid rgba(212,175,55,0.25)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 24px rgba(212,175,55,0.15)' }}>
+              <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#D4AF37', opacity:0.09, filter:'blur(18px)', pointerEvents:'none' }} />
+              <span style={{ fontSize:'0.68rem', color:'rgba(212,175,55,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:6 }}><ReportIcons.package style={{ width: 16, height: 16, color: 'var(--gold-primary)' }} /> ຈຳນວນ Online ທັງໝົດ</span>
+              <span style={{ fontSize:'1.5rem', fontWeight:800, color:'var(--gold-primary)', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+                {rangeOnlineOrders.length} <span style={{ fontSize:'1rem' }}>ອໍເດີ້</span>
+              </span>
+              <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>ທຸກສະຖານະ</span>
             </div>
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #9b59b6' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💎 ສະເລ່ຍຕໍ່ອໍເດີ້</span>
-              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#9b59b6' }}>
+
+            {/* 6. Avg. Order Value */}
+            <div style={{ position:'relative', overflow:'hidden', background:'rgba(155,89,182,0.07)', border:'1px solid rgba(155,89,182,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(155,89,182,0.12)' }}>
+              <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#9b59b6', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
+              <span style={{ fontSize:'0.68rem', color:'rgba(162,155,254,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>💎 ສະເລ່ຍຕໍ່ອໍເດີ້</span>
+              <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#A29BFE', lineHeight:1.1, letterSpacing:'-0.5px' }}>
                 {onlinePaidOrders.length > 0 ? Math.round(onlinePaidRevenue / onlinePaidOrders.length).toLocaleString() : 0} ₭
               </span>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Avg. Order Value</span>
+              <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>Avg. Order Value</span>
             </div>
           </div>
 
           {/* Top products table */}
           <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <h4 style={{ color: 'var(--gold-primary)', margin: 0 }}>🏆 ສິນຄ້າຂາຍດີທາງ Online (Top Selling Products)</h4>
+            <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>🏆 ສິນຄ້າຂາຍດີທາງ Online (Top Selling Products)</h4>
             {onlineTopProducts.length === 0 ? (
               <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '20px' }}>ຍັງບໍ່ມີຂໍ້ມູນການຂາຍ Online</p>
             ) : (
@@ -2797,7 +2931,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
           {/* All online orders — search + mobile cards + desktop table */}
           <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-              <h4 style={{ color: 'var(--gold-primary)', margin: 0 }}>📋 ລາຍການ Online Orders ທັງໝົດ</h4>
+              <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>📋 ລາຍການ Online Orders ທັງໝົດ</h4>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                 <input
                   type="text"
@@ -2929,121 +3063,106 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
             
             {/* Left Column: Interactive Stats & Combined KPI */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(195px, 1fr))', gap: '14px' }}>
             {/* 1. POS Revenue */}
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #9b59b6' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🏪 ຍອດ POS ໜ້າຮ້ານ</span>
-              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#9b59b6' }}>{hasReportsPermission('reportsRevenue') ? totalSales.toLocaleString() + " ₭" : "*** ₭"}</span>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>{rangeOrders.length} ໃບບິນ</span>
+            <div style={{ position:'relative', overflow:'hidden', background:'rgba(155,89,182,0.07)', border:'1px solid rgba(155,89,182,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(155,89,182,0.12)' }}>
+              <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#9b59b6', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
+              <span style={{ fontSize:'0.68rem', color:'rgba(162,155,254,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:6 }}><ReportIcons.posStore style={{ width: 16, height: 16, color: '#A29BFE' }} /> ຍອດ POS ໜ້າຮ້ານ</span>
+              <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#A29BFE', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+                {hasReportsPermission('reportsRevenue') ? totalSales.toLocaleString() + " ₭" : "*** ₭"}
+              </span>
+              <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>{rangeOrders.length} ໃບບິນ</span>
             </div>
 
             {/* 2. Online Revenue */}
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #3498db' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🌐 ຍອດ Online Shop</span>
-              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#3498db' }}>{hasReportsPermission('reportsRevenue') ? onlinePaidRevenue.toLocaleString() + " ₭" : "*** ₭"}</span>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>{onlinePaidOrders.length} ອໍເດີ້ຊຳລະ</span>
+            <div style={{ position:'relative', overflow:'hidden', background:'rgba(52,152,219,0.07)', border:'1px solid rgba(52,152,219,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(52,152,219,0.12)' }}>
+              <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#3498db', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
+              <span style={{ fontSize:'0.68rem', color:'rgba(52,152,219,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:6 }}><ReportIcons.online style={{ width: 16, height: 16, color: '#74B9FF' }} /> ຍອດ Online Shop</span>
+              <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#74B9FF', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+                {hasReportsPermission('reportsRevenue') ? onlinePaidRevenue.toLocaleString() + " ₭" : "*** ₭"}
+              </span>
+              <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>{onlinePaidOrders.length} ອໍເດີ້ຊຳລະ</span>
             </div>
 
             {/* 3. Outstanding Debt */}
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #e67e22' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📒 ໜີ້ຄ້າງຊຳລະ</span>
-              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#e67e22' }}>{totalOutstandingDebt.toLocaleString()} ₭</span>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>{totalDebtors} ລາຍ ທີ່ຍັງຄ້າງ</span>
+            <div style={{ position:'relative', overflow:'hidden', background:'rgba(243,156,18,0.07)', border:'1px solid rgba(243,156,18,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(243,156,18,0.12)' }}>
+              <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#f39c12', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
+              <span style={{ fontSize:'0.68rem', color:'rgba(243,156,18,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>📒 ໜີ້ຄ້າງຊຳລະ</span>
+              <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#ffd740', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+                {totalOutstandingDebt.toLocaleString()} ₭
+              </span>
+              <span style={{ fontSize:'0.67rem', color:'#FAB1A0', fontWeight:600 }}>{totalDebtors} ລາຍ ທີ່ຍັງຄ້າງ</span>
             </div>
 
             {/* 4. Guest Treats */}
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #f39c12' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🎁 ລາຍການລ້ຽງແຂກ (Treats)</span>
-              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#f39c12' }}>
-                {rangeOrders.filter(o => o.paymentMethod === 'treat').length} ຄັ້ງ
+            <div style={{ position:'relative', overflow:'hidden', background:'rgba(230,126,34,0.07)', border:'1px solid rgba(230,126,34,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(230,126,34,0.12)' }}>
+              <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#e67e22', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
+              <span style={{ fontSize:'0.68rem', color:'rgba(230,126,34,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:6 }}><ReportIcons.treats style={{ width: 16, height: 16, color: '#e67e22' }} /> ລາຍການລ້ຽງແຂກ (Treats)</span>
+              <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#e67e22', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+                {rangeOrders.filter(o => o.paymentMethod === 'treat').length} <span style={{ fontSize:'1rem' }}>ຄັ້ງ</span>
               </span>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>
+              <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>
                 ມູນຄ່າ: {rangeOrders.filter(o => o.paymentMethod === 'treat').reduce((s, o) => s + (o.total || 0), 0).toLocaleString()} ₭
               </span>
             </div>
 
             {/* 5. Combined Revenue */}
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid var(--gold-primary)' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💰 ຍອດຂາຍລວມທຸກຊ່ອງທາງ</span>
-              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>{ovTotalRevenue.toLocaleString()} ₭</span>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>POS {totalSales.toLocaleString()} + Online {onlinePaidRevenue.toLocaleString()}</span>
+            <div style={{ position:'relative', overflow:'hidden', background:'rgba(212,175,55,0.07)', border:'1px solid rgba(212,175,55,0.25)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 24px rgba(212,175,55,0.15)' }}>
+              <div style={{ position:'absolute', top:-14, right:-14, width:80, height:80, borderRadius:'50%', background:'#D4AF37', opacity:0.09, filter:'blur(22px)', pointerEvents:'none' }} />
+              <span style={{ fontSize:'0.68rem', color:'rgba(212,175,55,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:6 }}><ReportIcons.revenue style={{ width: 16, height: 16, color: 'var(--gold-primary)' }} /> ຍອດຂາຍລວມທຸກຊ່ອງທາງ</span>
+              <span style={{ fontSize:'1.5rem', fontWeight:800, color:'var(--gold-primary)', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+                {ovTotalRevenue.toLocaleString()} ₭
+              </span>
+              <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>POS {totalSales.toLocaleString()} + Online {onlinePaidRevenue.toLocaleString()}</span>
               
-              <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '4px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
-                
+              <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:5, marginTop:2, display:'flex', flexDirection:'column', gap:3, fontSize:'0.68rem', color:'rgba(255,255,255,0.42)' }}>
                 {/* Cash portion */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', paddingBottom: '2px', borderBottom: '1px dashed rgba(255,255,255,0.05)' }}>
-                  <span style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>💵 ລວມຮັບເງິນສົດ:</span>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
-                    <span>• ເງິນສົດ LAK:</span>
-                    <span style={{ color: 'white' }}>{ovCashLAK.toLocaleString()} ₭</span>
-                  </div>
-                  {(ovCashTHB > 0 || settings.exchangeRateThb) && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
-                      <span>• ເງິນສົດ THB:</span>
-                      <span style={{ color: 'white' }}>{ovCashTHB.toLocaleString()} ฿</span>
-                    </div>
-                  )}
-                  {(ovCashUSD > 0 || settings.exchangeRateUsd) && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
-                      <span>• ເງິນສົດ USD:</span>
-                      <span style={{ color: 'white' }}>${ovCashUSD.toFixed(2)}</span>
-                    </div>
-                  )}
+                <div style={{ display:'flex', flexDirection:'column', gap:2, paddingBottom:4, borderBottom:'1px dashed rgba(255,255,255,0.05)' }}>
+                  <span style={{ fontWeight:700, color:'var(--gold-primary)' }}>💵 ລວມຮັບເງินສົດ:</span>
+                  <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນສົດ LAK:</span><span style={{ color:'white' }}>{ovCashLAK.toLocaleString()} ₭</span></div>
+                  {(ovCashTHB > 0 || settings.exchangeRateThb) && <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນສົດ THB:</span><span style={{ color:'white' }}>{ovCashTHB.toLocaleString()} ฿</span></div>}
+                  {(ovCashUSD > 0 || settings.exchangeRateUsd) && <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນສົດ USD:</span><span style={{ color:'white' }}>${ovCashUSD.toFixed(2)}</span></div>}
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                  <span style={{ fontWeight: 'bold', color: '#3498db' }}>📱 ລວມຮັບເງິນໂອນ (Transfer):</span>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
-                    <span>• ເງິນໂອນ LAK:</span>
-                    <span style={{ color: 'white' }}>{ovTransferLAK.toLocaleString()} ₭</span>
-                  </div>
-                  {(ovTransferTHB > 0 || settings.exchangeRateThb) && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
-                      <span>• ເງິນໂอน THB:</span>
-                      <span style={{ color: 'white' }}>{ovTransferTHB.toLocaleString()} ฿</span>
-                    </div>
-                  )}
-                  {(ovTransferUSD > 0 || settings.exchangeRateUsd) && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
-                      <span>• ເງິນໂອນ USD:</span>
-                      <span style={{ color: 'white' }}>${ovTransferUSD.toFixed(2)}</span>
-                    </div>
-                  )}
+                <div style={{ display:'flex', flexDirection:'column', gap:2 }}>
+                  <span style={{ fontWeight:700, color:'#74B9FF' }}>📱 ລວມຮັບເງินໂອນ (Transfer):</span>
+                  <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນໂອນ LAK:</span><span style={{ color:'white' }}>{ovTransferLAK.toLocaleString()} ₭</span></div>
+                  {(ovTransferTHB > 0 || settings.exchangeRateThb) && <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນໂອນ THB:</span><span style={{ color:'white' }}>{ovTransferTHB.toLocaleString()} ฿</span></div>}
+                  {(ovTransferUSD > 0 || settings.exchangeRateUsd) && <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນໂອນ USD:</span><span style={{ color:'white' }}>${ovTransferUSD.toFixed(2)}</span></div>}
                 </div>
                 {ovDebtLAK > 0 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '4px', borderTop: '1px dashed rgba(255,255,255,0.05)', paddingTop: '4px' }}>
-                    <span style={{ fontWeight: 'bold', color: '#E74C3C' }}>🔴 ຕິດໜີ້ (Debt):</span>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
-                      <span>• ຄ້າງຊຳລະ LAK:</span>
-                      <span style={{ color: 'white' }}>{ovDebtLAK.toLocaleString()} ₭</span>
-                    </div>
+                  <div style={{ display:'flex', flexDirection:'column', gap:2, marginTop:4, borderTop:'1px dashed rgba(255,255,255,0.05)', paddingTop:4 }}>
+                    <span style={{ fontWeight:700, color:'#E74C3C' }}>🔴 ຕິດໜີ້ (Debt):</span>
+                    <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ຄ້າງຊຳລະ LAK:</span><span style={{ color:'white' }}>{ovDebtLAK.toLocaleString()} ₭</span></div>
                   </div>
                 )}
                 {ovTreatLAK > 0 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '4px', borderTop: '1px dashed rgba(255,255,255,0.05)', paddingTop: '4px' }}>
-                    <span style={{ fontWeight: 'bold', color: '#2ECC71' }}>🟢 ລ້ຽງ/ກິນຟຣີ (Treat):</span>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
-                      <span>• ຍອດລ້ຽງ LAK:</span>
-                      <span style={{ color: 'white' }}>{ovTreatLAK.toLocaleString()} ₭</span>
-                    </div>
+                  <div style={{ display:'flex', flexDirection:'column', gap:2, marginTop:4, borderTop:'1px dashed rgba(255,255,255,0.05)', paddingTop:4 }}>
+                    <span style={{ fontWeight:700, color:'#2ECC71' }}>🟢 ລ້ຽງ/ກິນຟຣີ (Treat):</span>
+                    <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ຍອດລ້ຽງ LAK:</span><span style={{ color:'white' }}>{ovTreatLAK.toLocaleString()} ₭</span></div>
                   </div>
                 )}
-
               </div>
             </div>
 
             {/* 6. Total Expenses */}
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #e74c3c' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💸 ລາຍຈ່າຍທັງໝົດ</span>
-              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#e74c3c' }}>{totalExpenses.toLocaleString()} ₭</span>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ຄ່າໃຊ້ຈ່າຍດຳເນີນການ</span>
+            <div style={{ position:'relative', overflow:'hidden', background:'rgba(225,112,85,0.07)', border:'1px solid rgba(225,112,85,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(225,112,85,0.12)' }}>
+              <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#E17055', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
+              <span style={{ fontSize:'0.68rem', color:'rgba(225,112,85,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}><ReportIcons.expense style={{ width: 16, height: 16, color: '#FAB1A0', marginRight: 6, verticalAlign: 'middle' }} /> ລາຍຈ່າຍທັງໝົດ</span>
+              <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#FAB1A0', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+                {totalExpenses.toLocaleString()} ₭
+              </span>
+              <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>ຄ່າໃຊ້ຈ່າຍດຳເນີນການ</span>
             </div>
 
             {/* 7. Net Profit */}
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #2ecc71' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📈 ກຳໄລສຸດທິ (ປະເມີນ)</span>
-              <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#2ecc71' }}>{hasReportsPermission('reportsProfit') ? Math.round(ovNetProfit).toLocaleString() + " ₭" : "*** ₭"}</span>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>*ຫັກຕົ້ນທຶນ + ລາຍຈ່າຍ</span>
+            <div style={{ position:'relative', overflow:'hidden', background:'rgba(0,184,148,0.07)', border:'1px solid rgba(0,184,148,0.25)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 24px rgba(0,184,148,0.15)' }}>
+              <div style={{ position:'absolute', top:-14, right:-14, width:80, height:80, borderRadius:'50%', background:'#00B894', opacity:0.09, filter:'blur(22px)', pointerEvents:'none' }} />
+              <span style={{ fontSize:'0.68rem', color:'rgba(0,184,148,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase' }}>📈 ກຳໄລສຸດທິ (ປະເມີນ)</span>
+              <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#55EFC4', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+                {hasReportsPermission('reportsProfit') ? Math.round(ovNetProfit).toLocaleString() + " ₭" : "*** ₭"}
+              </span>
+              <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>*ຫັກຕົ້ນທຶน + ລາຍຈ່າຍ</span>
             </div>
           </div>
 
@@ -3052,7 +3171,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
             {/* Trend Chart (Revenue Chart) */}
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h4 style={{ color: 'var(--gold-primary)', margin: 0 }}>📈 ແນວໂນ້ມລາຍຮັບ / Revenue Trend</h4>
+                <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>📈 ແนວໂນ້ມລາຍຮັບ / Revenue Trend</h4>
                 <select
                   value={trendChartStyle}
                   onChange={(e) => {
@@ -3074,7 +3193,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
             {/* Category Chart (Product Sales) */}
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h4 style={{ color: 'var(--gold-primary)', margin: 0 }}>📊 ສັດສ່ວນຍອດຂາຍສິນຄ້າ / Category Sales</h4>
+                <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>📊 ສັດສ່ວນຍອດຂາຍສິນຄ້າ / Category Sales</h4>
                 <select
                   value={categoryChartStyle}
                   onChange={(e) => {
@@ -3096,7 +3215,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
           {/* Channel contribution bar */}
           {ovTotalRevenue > 0 && (
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <h4 style={{ color: 'var(--gold-primary)', margin: 0 }}>📊 ສັດສ່ວນຍອດຂາຍ POS vs Online</h4>
+              <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>📊 ສັດສ່ວນຍອດຂາຍ POS vs Online</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {[
                   { label: '🏪 POS ໜ້າຮ້ານ', value: totalSales,         color: '#9b59b6' },
@@ -3123,7 +3242,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
 
           {/* Payment method breakdown (merged POS+Online) */}
           <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <h4 style={{ color: 'var(--gold-primary)', margin: 0 }}>💳 ສະຫຼຸບການຊຳລະ (ລວມທຸກຊ່ອງທາງ)</h4>
+            <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>💳 ສະຫຼຸບການຊຳລະ (ລວມທຸກຊ່ອງທາງ)</h4>
             <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', margin: 0 }}>
               * ຍອດ Online ທີ່ຊຳລະຜ່ານ BCEL QR ນຳໄປລວມໃສ່ <strong style={{ color: '#3498db' }}>ໂອນທະນາຄານ</strong> ອັດຕະໂນມັດ
             </p>
@@ -3157,7 +3276,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
           {/* Expenses summary */}
           {rangeExpenses.length > 0 && (
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <h4 style={{ color: 'var(--gold-primary)', margin: 0 }}>💸 ລາຍຈ່າຍ (Expenses)</h4>
+              <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>💸 ລາຍຈ່າຍ (Expenses)</h4>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.83rem' }}>
                   <thead>
@@ -3196,7 +3315,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
               
               {/* Notifications Widget */}
               <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px' }}>
-                <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.9rem' }}>🔔 ແຈ້ງເຕືອນລະບົບ (System Alerts)</h4>
+                <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>🔔 ແຈ້ງເຕືອນລະບົບ (System Alerts)</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {lowStockCount > 0 && (
                     <div 
@@ -3222,7 +3341,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
 
               {/* Quick Actions Panel */}
               <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px' }}>
-                <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.9rem' }}>⚡ ຈັດການດ່ວນ (Quick Actions)</h4>
+                <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>⚡ ຈັດການດ່ວນ (Quick Actions)</h4>
                 <div className="quick-action-grid">
                   <div className="quick-action-card" onClick={() => {
                     const event = new CustomEvent('trigger-expense-modal');
@@ -3242,7 +3361,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
 
               {/* Live Timeline Activity Feed */}
               <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px' }}>
-                <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '0.9rem' }}>🕒 ປະຫວັດເຄື່ອນໄຫວ (Live Activity)</h4>
+                <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>🕒 ປະຫວັດເຄື່ອນໄຫວ (Live Activity)</h4>
                 <div className="timeline-list">
                   {recentTimelineItems.length === 0 ? (
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ບໍ່ມີການເຄື່ອນໄຫວ</span>
@@ -3891,22 +4010,31 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
         return (
           <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {/* KPI Row — standardized to match POS tab */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
-              <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #e67e22' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🎁 ຈຳນວນຄັ້ງທີ່ລ້ຽງແຂກ (Total Treats)</span>
-                <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: '#e67e22' }}>{treatOrders.length} ຄັ້ງ</span>
-                <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ລາຢການລ້ຠງຕຂກທັ່ງຫມິດ</span>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(195px, 1fr))', gap: '14px' }}>
+              {/* 1. Total Treats */}
+              <div style={{ position:'relative', overflow:'hidden', background:'rgba(230,126,34,0.07)', border:'1px solid rgba(230,126,34,0.22)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(230,126,34,0.12)' }}>
+                <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#e67e22', opacity:0.08, filter:'blur(18px)', pointerEvents:'none' }} />
+                <span style={{ fontSize:'0.68rem', color:'rgba(230,126,34,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:6 }}><ReportIcons.treats style={{ width: 16, height: 16, color: '#e67e22' }} /> ຈຳນວນຄັ້ງທີ່ລ້ຽງແຂກ (Total Treats)</span>
+                <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#e67e22', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+                  {treatOrders.length} <span style={{ fontSize:'1rem' }}>ຄັ້ງ</span>
+                </span>
+                <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>ລາຍການລ້ຽງແຂກທັງໝົດ</span>
               </div>
-              <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid var(--alert-red)' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💰 ມູນຄ່າລວມທີ່ລ້ຽງ (Estimated Value)</span>
-                <span style={{ fontSize: '1.35rem', fontWeight: 'bold', color: 'var(--alert-red)' }}>{totalTreatValue.toLocaleString()} ₭</span>
-                <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>ຍອດລວມທຸກລາຍການ</span>
+
+              {/* 2. Estimated Value */}
+              <div style={{ position:'relative', overflow:'hidden', background:'rgba(231,76,60,0.07)', border:'1px solid rgba(231,76,60,0.25)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(231,76,60,0.15)' }}>
+                <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#e74c3c', opacity:0.09, filter:'blur(18px)', pointerEvents:'none' }} />
+                <span style={{ fontSize:'0.68rem', color:'rgba(231,76,60,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:6 }}><ReportIcons.revenue style={{ width: 16, height: 16, color: '#FAB1A0' }} /> ມູນຄ່າລວມที่ລ້ຽງ (Estimated Value)</span>
+                <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#FAB1A0', lineHeight:1.1, letterSpacing:'-0.5px' }}>
+                  {totalTreatValue.toLocaleString()} ₭
+                </span>
+                <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>ຍอดລວມທຸກລາຍການ</span>
               </div>
             </div>
 
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-                <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '1.02rem' }}>📋 ລາຍລະອຽດການລ້ຽງແຂກ (Treat History)</h4>
+                <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>📋 ລາຍລະອຽດການລ້ຽງແຂກ (Treat History)</h4>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                   <input
                     type="text"

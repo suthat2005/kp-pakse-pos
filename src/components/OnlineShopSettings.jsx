@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { db } from '../utils/db';
 
 const resizeImage = (file, maxDim = 300, quality = 0.7) => {
   return new Promise((resolve) => {
@@ -115,7 +116,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', marginBottom: '8px' }}>
         <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.1rem', margin: 0 }}>
-          🌐 ຕັ້ງຄ່າ ແລະ ປັບແຕ່ງຮ້ານອອນລາຍ (Online Shop Settings)
+          ຕັ້ງຄ່າ ແລະ ປັບແຕ່ງຮ້ານອອນລາຍ (Online Shop Settings)
         </h3>
         <button type="button" className="btn btn-primary" onClick={handleSave}>บันทึก / Save</button>
       </div>
@@ -123,11 +124,11 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
       {/* Sub-navigation inside online settings */}
       <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '12px', overflowX: 'auto', marginBottom: '8px' }}>
         {[
-          { key: 'info', label: '🏪 ຂໍ້ມູນຮ້ານ & ຄວາມສວຍງາມ (Info & Styles)' },
-          { key: 'sales', label: '⚙️ ການຂາຍ & ການຈັດສົ່ງ (Sales & Shipping)' },
-          { key: 'payment', label: '💳 ການຊຳລະເງິນ & POS Link (Payment & POS)' },
-          { key: 'notifications', label: '🔔 ແຈ້ງເຕືອນ & ຄວາມປອດໄພ (Alerts & Security)' },
-          { key: 'translations', label: '📝 ປັບແຕ່ງພາສາ (Translations Override)' }
+          { key: 'info', label: 'ຂໍ້ມູນຮ້ານ & ຄວາມສວຍງາມ (Info & Styles)' },
+          { key: 'sales', label: 'ການຂາຍ & ການຈັດສົ່ງ (Sales & Shipping)' },
+          { key: 'payment', label: 'ການຊຳລະເງິນ & POS Link (Payment & POS)' },
+          { key: 'notifications', label: 'ແຈ້ງເຕືອນ & ຄວາມປອດໄພ (Alerts & Security)' },
+          { key: 'translations', label: 'ປັບແຕ່ງພາສາ (Translations Override)' }
         ].map(t => (
           <button
             key={t.key}

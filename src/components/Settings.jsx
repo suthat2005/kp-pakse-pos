@@ -725,164 +725,201 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
         </div>
       )}
 
-      <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '16px' } : { display: 'grid', gridTemplateColumns: '220px 1fr', gap: '24px', alignItems: 'start' }}>
+      <div style={isMobile ? { display: 'flex', flexDirection: 'column', gap: '16px' } : { display: 'grid', gridTemplateColumns: '260px 1fr', gap: '24px', alignItems: 'start' }}>
         
         {/* Settings Tab Sidebar */}
         {(!isMobile || activeSubTab === '') && (
-          <div className="glass-card" style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {hasSettingsPermission('settingsShopInfo') && (
-          <button
-            className={`nav-tab ${activeSubTab === 'shop' ? 'active' : ''}`}
-            style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
-            onClick={() => setActiveSubTab('shop')}
-          >
-            {db.getLabel('settings_tab_shop', '🏪 ຂໍ້ມູນຮ້ານ (Shop Info)')}
-          </button>
-          )}
-          {hasSettingsPermission('settingsReceipt') && (
-          <button
-            className={`nav-tab ${activeSubTab === 'receipt' ? 'active' : ''}`}
-            style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
-            onClick={() => setActiveSubTab('receipt')}
-          >
-            {db.getLabel('settings_tab_receipt', '🖨️ ຮູບແບບໃບບິນ (Receipt Design)')}
-          </button>
-          )}
-          {hasSettingsPermission('settingsBarcode') && (
-          <button
-            className={`nav-tab ${activeSubTab === 'barcode' ? 'active' : ''}`}
-            style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
-            onClick={() => setActiveSubTab('barcode')}
-          >
-            {db.getLabel('settings_tab_barcode', '🔌 ບາໂຄດ & ສະແກນ (Barcode/Scanner)')}
-          </button>
-          )}
-          {hasSettingsPermission('settingsTheme') && (
-          <button
-            className={`nav-tab ${activeSubTab === 'theme' ? 'active' : ''}`}
-            style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
-            onClick={() => setActiveSubTab('theme')}
-          >
-            {db.getLabel('settings_tab_theme', '🎨 ສີ & ຄວາມໂຄ້ງ (Theme/Borders)')}
-          </button>
-          )}
-          {hasSettingsPermission('settingsLabels') && (
-          <button
-            className={`nav-tab ${activeSubTab === 'labels' ? 'active' : ''}`}
-            style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
-            onClick={() => setActiveSubTab('labels')}
-          >
-            {db.getLabel('settings_tab_labels', '📝 ປັບແຕ່ງພາສາ (Translate Labels)')}
-          </button>
-          )}
-          {hasSettingsPermission('settingsNotifications') && (
-          <button
-            className={`nav-tab ${activeSubTab === 'notifications' ? 'active' : ''}`}
-            style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
-            onClick={() => setActiveSubTab('notifications')}
-          >
-            {db.getLabel('settings_tab_notifications', '🔔 ແຈ້ງເຕືອນໂທລະສັບ (Phone Alerts)')}
-          </button>
-          )}
-          {hasSettingsPermission('settingsRules') && (
-          <button
-            className={`nav-tab ${activeSubTab === 'general' ? 'active' : ''}`}
-            style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
-            onClick={() => setActiveSubTab('general')}
-          >
-            {db.getLabel('settings_tab_rules', '⚙️ ກົດລະບຽບ (Rules)')}
-          </button>
-          )}
-          {hasSettingsPermission('settingsPromotions') && (
-          <button
-            className={`nav-tab ${activeSubTab === 'promotions' ? 'active' : ''}`}
-            style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
-            onClick={() => setActiveSubTab('promotions')}
-          >
-            {db.getLabel('settings_tab_coupons', '🏷️ ໂປຣໂມຊັ່ນ (Coupons)')}
-          </button>
-          )}
-          {hasSettingsPermission('settingsFraming') && (
-          <button
-            className={`nav-tab ${activeSubTab === 'framing_specs' ? 'active' : ''}`}
-            style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
-            onClick={() => setActiveSubTab('framing_specs')}
-          >
-            {db.getLabel('settings_tab_framing_specs', '🛠️ ຕົວເລືອກງານເລ່ຽມ (Framing Options)')}
-          </button>
-          )}
-          {hasSettingsPermission('settingsExpenses') && (
-          <button
-            className={`nav-tab ${activeSubTab === 'expenses' ? 'active' : ''}`}
-            style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
-            onClick={() => setActiveSubTab('expenses')}
-          >
-            {db.getLabel('settings_tab_expenses', '💸 ປະເພດລາຍຈ່າຍ (Expense Categories)')}
-          </button>
-          )}
-          {hasSettingsPermission('settingsTracking') && (
-          <button
-            className={`nav-tab ${activeSubTab === 'tracking' ? 'active' : ''}`}
-            style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
-            onClick={() => setActiveSubTab('tracking')}
-          >
-            {db.getLabel('settings_tab_tracking', '🔍 ຕິດຕາມພຣະ (Amulet Tracking)')}
-          </button>
-          )}
-          {hasSettingsPermission('settingsBackup') && (
-          <button
-            className={`nav-tab ${activeSubTab === 'data_retention' ? 'active' : ''}`}
-            style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
-            onClick={() => setActiveSubTab('data_retention')}
-          >
-            🧹 ການຈັດການຂໍ້ມູນ (Data Retention)
-          </button>
-          )}
-          {hasSettingsPermission('settingsOnlineShop') && (
-          <button
-            className={`nav-tab ${activeSubTab === 'online_shop_settings' ? 'active' : ''}`}
-            style={{ width: '100%', justifyContent: 'flex-start', border: 'none' }}
-            onClick={() => {
-              if (settings.onlineShopAccessPinRequired) {
-                const pin = prompt('🔒 ປ້ອງກັນການເຂົ້າເຖິງ: ກະລຸນາໃສ່ລະຫັດ PIN ຂອງ Admin:');
-                if (!pin) return;
-                const isMasterPin = pin === settings.masterAdminPin;
-                const users = db.getUsers();
-                const matchedOwner = users.find(u => u.role === 'owner' && u.passcode === pin);
-                if (matchedOwner || isMasterPin) {
-                  setActiveSubTab('online_shop_settings');
-                } else {
-                  alert('❌ ລະຫັດ PIN ບໍ່ຖືກຕ້ອງ!');
-                }
-              } else {
-                setActiveSubTab('online_shop_settings');
-              }
-            }}
-          >
-            🌐 ຕັ້ງຄ່າຮ້ານອອນລາຍ (Online Shop)
-          </button>
-          )}
-          {hasSettingsPermission('settingsSystem') && (
-          <button
-            className={`nav-tab ${activeSubTab === 'system' ? 'active' : ''}`}
-            style={{ width: '100%', justifyContent: 'flex-start', border: 'none', color: 'var(--alert-red)' }}
-            onClick={() => setActiveSubTab('system')}
-          >
-            {db.getLabel('settings_tab_system', '⚠️ ຄວບຄຸມລະບົບ (System)')}
-          </button>
-          )}
-          {hasSettingsPermission('settingsProductionTools') && (
-          <button
-            className={`nav-tab ${activeSubTab === 'production_tools' ? 'active' : ''}`}
-            style={{ width: '100%', justifyContent: 'flex-start', border: 'none', color: '#3498db' }}
-            onClick={() => setActiveSubTab('production_tools')}
-          >
-            ⚙️ ເຄື່ອງມືລະບົບ (Production Tools)
-          </button>
-          )}
-        </div>
-      )}
+          <div className="glass-card" style={{ padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '14px', minHeight: '520px' }}>
+            
+            {/* ── Group 1: ຕັ້ງຄ່າທົ່ວໄປ (General Info) ── */}
+            <div>
+              <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--gold-primary)', opacity: 0.8, marginBottom: '6px', padding: '0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                📋 ຕັ້ງຄ່າທົ່ວໄປ
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                {hasSettingsPermission('settingsShopInfo') && (
+                  <button
+                    className={`nav-tab ${activeSubTab === 'shop' ? 'active' : ''}`}
+                    style={{ width: '100%', justifyContent: 'flex-start', border: 'none', padding: '6px 8px', fontSize: '0.8rem' }}
+                    onClick={() => setActiveSubTab('shop')}
+                  >
+                    {db.getLabel('settings_tab_shop', 'ຂໍ້ມູນຮ້ານ (Shop Info)')}
+                  </button>
+                )}
+                {hasSettingsPermission('settingsTheme') && (
+                  <button
+                    className={`nav-tab ${activeSubTab === 'theme' ? 'active' : ''}`}
+                    style={{ width: '100%', justifyContent: 'flex-start', border: 'none', padding: '6px 8px', fontSize: '0.8rem' }}
+                    onClick={() => setActiveSubTab('theme')}
+                  >
+                    {db.getLabel('settings_tab_theme', 'ສີ & ຄວາມໂຄ້ງ (Theme/Borders)')}
+                  </button>
+                )}
+                {hasSettingsPermission('settingsLabels') && (
+                  <button
+                    className={`nav-tab ${activeSubTab === 'labels' ? 'active' : ''}`}
+                    style={{ width: '100%', justifyContent: 'flex-start', border: 'none', padding: '6px 8px', fontSize: '0.8rem' }}
+                    onClick={() => setActiveSubTab('labels')}
+                  >
+                    {db.getLabel('settings_tab_labels', 'ປັບແຕ່ງພາສາ (Translate Labels)')}
+                  </button>
+                )}
+                {hasSettingsPermission('settingsNotifications') && (
+                  <button
+                    className={`nav-tab ${activeSubTab === 'notifications' ? 'active' : ''}`}
+                    style={{ width: '100%', justifyContent: 'flex-start', border: 'none', padding: '6px 8px', fontSize: '0.8rem' }}
+                    onClick={() => setActiveSubTab('notifications')}
+                  >
+                    {db.getLabel('settings_tab_notifications', 'ແຈ້ງເຕືອນໂທລະສັບ (Phone Alerts)')}
+                  </button>
+                )}
+                {hasSettingsPermission('settingsRules') && (
+                  <button
+                    className={`nav-tab ${activeSubTab === 'general' ? 'active' : ''}`}
+                    style={{ width: '100%', justifyContent: 'flex-start', border: 'none', padding: '6px 8px', fontSize: '0.8rem' }}
+                    onClick={() => setActiveSubTab('general')}
+                  >
+                    {db.getLabel('settings_tab_rules', 'ກົດລະບຽບ (Rules)')}
+                  </button>
+                )}
+              </div>
+            </div>
 
+            {/* ── Group 2: ຕັ້ງຄ່າການຂາຍ (POS & Specs) ── */}
+            <div>
+              <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--gold-primary)', opacity: 0.8, marginBottom: '6px', padding: '0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                🛒 ຕັ້ງຄ່າການຂາຍ
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                {hasSettingsPermission('settingsReceipt') && (
+                  <button
+                    className={`nav-tab ${activeSubTab === 'receipt' ? 'active' : ''}`}
+                    style={{ width: '100%', justifyContent: 'flex-start', border: 'none', padding: '6px 8px', fontSize: '0.8rem' }}
+                    onClick={() => setActiveSubTab('receipt')}
+                  >
+                    {db.getLabel('settings_tab_receipt', 'ຮູບແບບໃບບິນ (Receipt Design)')}
+                  </button>
+                )}
+                {hasSettingsPermission('settingsBarcode') && (
+                  <button
+                    className={`nav-tab ${activeSubTab === 'barcode' ? 'active' : ''}`}
+                    style={{ width: '100%', justifyContent: 'flex-start', border: 'none', padding: '6px 8px', fontSize: '0.8rem' }}
+                    onClick={() => setActiveSubTab('barcode')}
+                  >
+                    {db.getLabel('settings_tab_barcode', 'ບາໂຄດ & ສະແກນ (Barcode/Scanner)')}
+                  </button>
+                )}
+                {hasSettingsPermission('settingsPromotions') && (
+                  <button
+                    className={`nav-tab ${activeSubTab === 'promotions' ? 'active' : ''}`}
+                    style={{ width: '100%', justifyContent: 'flex-start', border: 'none', padding: '6px 8px', fontSize: '0.8rem' }}
+                    onClick={() => setActiveSubTab('promotions')}
+                  >
+                    {db.getLabel('settings_tab_coupons', 'ໂປຣໂມຊັ່ນ (Coupons)')}
+                  </button>
+                )}
+                {hasSettingsPermission('settingsFraming') && (
+                  <button
+                    className={`nav-tab ${activeSubTab === 'framing_specs' ? 'active' : ''}`}
+                    style={{ width: '100%', justifyContent: 'flex-start', border: 'none', padding: '6px 8px', fontSize: '0.8rem' }}
+                    onClick={() => setActiveSubTab('framing_specs')}
+                  >
+                    {db.getLabel('settings_tab_framing_specs', 'ຕົວເລືອກງານເລ່ຽມ (Framing Options)')}
+                  </button>
+                )}
+                {hasSettingsPermission('settingsExpenses') && (
+                  <button
+                    className={`nav-tab ${activeSubTab === 'expenses' ? 'active' : ''}`}
+                    style={{ width: '100%', justifyContent: 'flex-start', border: 'none', padding: '6px 8px', fontSize: '0.8rem' }}
+                    onClick={() => setActiveSubTab('expenses')}
+                  >
+                    {db.getLabel('settings_tab_expenses', 'ປະເພດລາຍຈ່າຍ (Expense Categories)')}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* ── Group 3: ຮ້ານຄ້າ & ຕິດຕາມ (Online & Tracking) ── */}
+            <div>
+              <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--gold-primary)', opacity: 0.8, marginBottom: '6px', padding: '0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                🌐 ຮ້ານອອນລາຍ & ຕິດຕາມ
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                {hasSettingsPermission('settingsOnlineShop') && (
+                  <button
+                    className={`nav-tab ${activeSubTab === 'online_shop_settings' ? 'active' : ''}`}
+                    style={{ width: '100%', justifyContent: 'flex-start', border: 'none', padding: '6px 8px', fontSize: '0.8rem' }}
+                    onClick={() => {
+                      if (settings.onlineShopAccessPinRequired) {
+                        const pin = prompt('ປ້ອງກັນການເຂົ້າເຖິງ: ກະລຸນາໃສ່ລະຫັດ PIN ຂອງ Admin:');
+                        if (!pin) return;
+                        const isMasterPin = pin === settings.masterAdminPin;
+                        const users = db.getUsers();
+                        const matchedOwner = users.find(u => u.role === 'owner' && u.passcode === pin);
+                        if (matchedOwner || isMasterPin) {
+                          setActiveSubTab('online_shop_settings');
+                        } else {
+                          alert('❌ ລະຫັດ PIN ບໍ່ຖືກຕ້ອງ!');
+                        }
+                      } else {
+                        setActiveSubTab('online_shop_settings');
+                      }
+                    }}
+                  >
+                    ຕັ້ງຄ່າຮ້ານອອນລາຍ (Online Shop)
+                  </button>
+                )}
+                {hasSettingsPermission('settingsTracking') && (
+                  <button
+                    className={`nav-tab ${activeSubTab === 'tracking' ? 'active' : ''}`}
+                    style={{ width: '100%', justifyContent: 'flex-start', border: 'none', padding: '6px 8px', fontSize: '0.8rem' }}
+                    onClick={() => setActiveSubTab('tracking')}
+                  >
+                    {db.getLabel('settings_tab_tracking', 'ຕິດຕາມພຣະ (Amulet Tracking)')}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* ── Group 4: ລະບົບ & ເຄື່ອງມື (System Control) ── */}
+            <div>
+              <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--gold-primary)', opacity: 0.8, marginBottom: '6px', padding: '0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                🛠️ ຄວບຄຸມ & ເຄື່ອງມື
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                {hasSettingsPermission('settingsBackup') && (
+                  <button
+                    className={`nav-tab ${activeSubTab === 'data_retention' ? 'active' : ''}`}
+                    style={{ width: '100%', justifyContent: 'flex-start', border: 'none', padding: '6px 8px', fontSize: '0.8rem' }}
+                    onClick={() => setActiveSubTab('data_retention')}
+                  >
+                    ການຈັດການຂໍ້ມູນ (Data Retention)
+                  </button>
+                )}
+                {hasSettingsPermission('settingsSystem') && (
+                  <button
+                    className={`nav-tab ${activeSubTab === 'system' ? 'active' : ''}`}
+                    style={{ width: '100%', justifyContent: 'flex-start', border: 'none', padding: '6px 8px', fontSize: '0.8rem', color: 'var(--alert-red)' }}
+                    onClick={() => setActiveSubTab('system')}
+                  >
+                    {db.getLabel('settings_tab_system', 'ຄວບຄຸມລະບົບ (System)')}
+                  </button>
+                )}
+                {hasSettingsPermission('settingsProductionTools') && (
+                  <button
+                    className={`nav-tab ${activeSubTab === 'production_tools' ? 'active' : ''}`}
+                    style={{ width: '100%', justifyContent: 'flex-start', border: 'none', padding: '6px 8px', fontSize: '0.8rem', color: '#3498db' }}
+                    onClick={() => setActiveSubTab('production_tools')}
+                  >
+                    ເຄື່ອງມືລະບົບ (Production Tools)
+                  </button>
+                )}
+              </div>
+            </div>
+
+          </div>
+        )}
+      
       {/* Settings Tab Main Panel */}
       {(!isMobile || activeSubTab !== '') && (
         <div className="glass-card" style={isMobile ? { padding: '16px' } : undefined}>

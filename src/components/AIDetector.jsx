@@ -4,7 +4,7 @@ import AmuletImageEditor from './AmuletImageEditor';
 
 function CameraFeed({ cam, idx, currentTime }) {
   const videoRef = useRef(null);
-  const [hasStream, setHasStream] = useState(false);
+  const [_hasStream, setHasStream] = useState(false);
   const [streamError, setStreamError] = useState('');
 
   useEffect(() => {
@@ -34,7 +34,7 @@ function CameraFeed({ cam, idx, currentTime }) {
   if (!cam.active) {
     return (
       <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
-        <span style={{ fontSize: '1.8rem', display: 'block' }}>⚠</span>
+        <span style={{ fontSize: '1rem', display: 'block', color: 'var(--alert-red)', fontWeight: 'bold' }}>OFFLINE</span>
         <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>{db.getLabel('auto_ກ້ອງວົງຈອນປິດ_Offline_7hcvwb', `ກ້ອງວົງຈອນປິດ Offline`)}</span>
         <p style={{ fontSize: '0.65rem', marginTop: '2px' }}>{db.getLabel('auto_ເປີດໃຊ້ງານກ້ອງໃນເມນູຄວບຄຸ_tc0qlx', `ເປີດໃຊ້ງານກ້ອງໃນເມນູຄວບຄຸມ`)}</p>
       </div>
@@ -139,7 +139,7 @@ function CameraFeed({ cam, idx, currentTime }) {
           <>
             {overlays}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', padding: '8px', textAlign: 'center', width: '100%', justifyContent: 'center', height: '100%' }}>
-              <span style={{ fontSize: '1.2rem', margin: 0 }}>{cam.type === 'nvr' ? '💾' : '📼'}</span>
+              <span style={{ fontSize: '1.2rem', margin: 0 }}>{cam.type === 'nvr' ? 'NVR' : 'DVR'}</span>
               <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: cam.type === 'nvr' ? '#3498db' : '#9b59b6' }}>
                 {(cam.type || '').toUpperCase()} — {cam.brand ? cam.brand.toUpperCase() : 'Hikvision'} (CH {cam.channel || 1})
               </span>
@@ -155,7 +155,7 @@ function CameraFeed({ cam, idx, currentTime }) {
                   alert('✓ ຄັດລອກ RTSP URL ສຳເລັດ!');
                 }}
               >
-                📋 Copy RTSP URL
+                Copy RTSP URL
               </button>
             </div>
           </>
@@ -198,7 +198,7 @@ function CameraFeed({ cam, idx, currentTime }) {
   return (
     <>
       {overlays}
-      <span style={{ fontSize: '2.5rem', opacity: 0.15 }}>🎥</span>
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.15 }}><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
       <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', marginTop: '4px', textShadow: '1px 1px 1px #000', zIndex: 1 }}>
         SIMULATED STREAM
       </span>
@@ -215,25 +215,26 @@ export default function AIDetector({ activeUser }) {
   };
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState(null);
-  const [selectedMockImg, setSelectedMockImg] = useState('');
+  const [_selectedMockImg, setSelectedMockImg] = useState('');
   
   const videoScanRef = useRef(null);
   const canvasScanRef = useRef(null);
   
   // AI Alerts & Forecasts
   const [aiAlerts, setAiAlerts] = useState([]);
-  const [forecastCount, setForecastCount] = useState(38);
+  const [forecastCount, _setForecastCount] = useState(38);
 
   // Audit tab states
   const [activeTab, setActiveTab] = useState('scanner'); // 'scanner', 'forecasts', 'audit', 'cctv'
   useEffect(() => {
     if (activeTab === 'scanner' && !hasAiPermission('aiChat')) {
-      if (hasAiPermission('aiAnalyze')) setActiveTab('forecasts');
-      else if (hasAiPermission('aiCctv')) setActiveTab('cctv');
+      if (hasAiPermission('aiAnalyze')) queueMicrotask(() => setActiveTab('forecasts'));
+      else if (hasAiPermission('aiCctv')) queueMicrotask(() => setActiveTab('cctv'));
     }
     if ((activeTab === 'forecasts' || activeTab === 'audit') && !hasAiPermission('aiAnalyze')) {
-      if (hasAiPermission('aiChat')) setActiveTab('scanner');
+      if (hasAiPermission('aiChat')) queueMicrotask(() => setActiveTab('scanner'));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeUser, activeTab]);
   const [auditLogs, setAuditLogs] = useState([]);
   const [auditSearch, setAuditSearch] = useState('');
@@ -276,9 +277,11 @@ export default function AIDetector({ activeUser }) {
   const [slotsList, setSlotsList] = useState({});
 
   useEffect(() => {
-    setCameras(db.getCameras());
-    setCctvAlerts(db.getCctvAlerts());
-    setSlotsList(db.getSlots());
+    queueMicrotask(() => {
+      setCameras(db.getCameras());
+      setCctvAlerts(db.getCctvAlerts());
+      setSlotsList(db.getSlots());
+    });
     const clockTimer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
@@ -325,7 +328,7 @@ export default function AIDetector({ activeUser }) {
       alerts.push({
         id: 'a1',
         type: 'danger',
-        title: '⚠️ ວິກິດສະຕັອກສິນຄ້າຂາດແຄນ',
+        title: 'ວິກິດສະຕັອກສິນຄ້າຂາດແຄນ',
         desc: `ພົບສິນຄ້າ ${lowStock.length} ລາຍການທີ່ຕໍ່າກວ່າເກນຄວາມປອດໄພ. AI ຄາດການວ່າ ຂອບຄຳແທ້ 90% ຈະໝົດສະຕັອກພາຍໃນ 3 ວັນ ຖ້າຍອດອັດກອບຍັງຄົງທີ.`
       });
     }
@@ -334,7 +337,7 @@ export default function AIDetector({ activeUser }) {
     alerts.push({
       id: 'a2',
       type: 'warning',
-      title: '📈 ຄາດການຄວາມຕ້ອງການ (Demand Forecast)',
+      title: 'ຄາດການຄວາມຕ້ອງການ (Demand Forecast)',
       desc: 'ອາທິດໜ້າຄາດວ່າຈະມີລູກຄ້ານຳພຣະເຄື່ອງຮູບຊົງ "ສີ່ຫຼ່ຽມສົມເດັດ" ມາອັດກອບເພີ່ມຂຶ້ນ 35% ເນື່ອງຈາກມີງານບຸນໃຫຍ່ໃນທ້ອງຖິ່ນ. ແນະນຳໃຫ້ຊ່າງກຽມແຜ່ນອາຄຣີລິກເລນໜາໄວ້ລ່ວງໜ້າ.'
     });
 
@@ -345,11 +348,13 @@ export default function AIDetector({ activeUser }) {
       desc: 'ສ້ອຍສະແຕນເລດລາຍກະດູກງູ ບໍ່ມີການເຄື່ອນໄຫວມາແລ້ວ 45 ວັນ. ແນະນຳໃຫ້ຈັດໂປຣໂມຊັ່ນ "ຊື້ຂອບພຣະແຖມສ່ວນຫຼຸດສ້ອຍຄໍ 15%" ເພື່ອລະບາຍສະຕັອກ.'
     });
 
-    setAiAlerts(alerts);
-    setAuditLogs(db.getAuditLogs());
+    queueMicrotask(() => {
+      setAiAlerts(alerts);
+      setAuditLogs(db.getAuditLogs());
+    });
   }, []);
 
-  const startScan = (mockId) => {
+  const _startScan = (mockId) => {
     const selected = mockAmulets.find(m => m.id === mockId);
     if (!selected) return;
 

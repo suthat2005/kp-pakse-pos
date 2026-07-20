@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../utils/db';
 import Portal from './Portal';
 
-export default function OnlineOrders({ activeUser, isMobile }) {
+export default function OnlineOrders({ isMobile }) {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [filterPayment, setFilterPayment] = useState('all');
@@ -60,6 +60,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
       window.removeEventListener('storage', handleUpdate);
       window.removeEventListener('select-online-chat', handleSelectChat);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function loadOrders() {
@@ -85,7 +86,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
       // Refresh selected order if list changes
       const fresh = db.getOnlineOrders().find(o => o.id === selectedOrder.id);
       if (fresh) {
-        setSelectedOrder(fresh);
+        queueMicrotask(() => setSelectedOrder(fresh));
         // Automatically mark customer messages as read if we are looking at this order
         const hasUnread = fresh.messages && fresh.messages.some(m => m.sender === 'customer' && !m.read);
         if (hasUnread) {
@@ -93,6 +94,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
         }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orders]);
 
   const handleSelectOrder = (order) => {
@@ -211,24 +213,24 @@ export default function OnlineOrders({ activeUser, isMobile }) {
 
   const getPaymentStatusText = (status) => {
     switch (status) {
-      case 'unpaid': return '🛑 ລໍຖ້າຊຳລະ';
-      case 'pending_verification': return '⏳ ລໍຖ້າກວດສອບສະລິບ';
-      case 'paid': return '✅ ຊຳລະແລ້ວ';
+      case 'unpaid': return 'ລໍຖ້າຊຳລະ';
+      case 'pending_verification': return 'ລໍຖ້າກວດສອບສະລິບ';
+      case 'paid': return 'ຊຳລະແລ້ວ';
       case 'rejected': return '❌ ສະລິບຖືກປະຕิເສດ';
-      case 'inquiry': return '💬 ສອບຖາມຂໍ້ມູນ';
+      case 'inquiry': return 'ສອບຖາມຂໍ້ມູນ';
       default: return status;
     }
   };
 
   const getShippingStatusText = (status) => {
     switch (status) {
-      case 'pending': return '⏳ ລໍຖ້າດຳເນີນການ';
-      case 'packing': return '📦 ກຳລັງແພັກພັດສະດຸ';
-      case 'ready_to_ship': return '🚚 ພ້ອມສົ່ງ';
-      case 'shipped': return '✈️ ສົ່ງແລ້ວ';
-      case 'delivered': return '🎁 ສຳເລັດແລ້ວ';
-      case 'cancelled': return '❌ ຍົກເລີກ';
-      case 'inquiry': return '📋 ບໍ່ມີອໍເດີ້';
+      case 'pending': return 'ລໍຖ້າດຳເນີນການ';
+      case 'packing': return 'ກຳລັງແພັກພັດສະດຸ';
+      case 'ready_to_ship': return 'ພ້ອມສົ່ງ';
+      case 'shipped': return 'ສົ່ງແລ້ວ';
+      case 'delivered': return 'ສຳເລັດແລ້ວ';
+      case 'cancelled': return 'ຍົກເລີກ';
+      case 'inquiry': return 'ບໍ່ມີອໍເດີ້';
       default: return status;
     }
   };
@@ -239,7 +241,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
       {(!isMobile || !selectedOrder) && (
         <div className="glass-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', height: '100%', overflowY: 'auto' }}>
         <div>
-          <h3 style={{ color: 'var(--gold-primary)', margin: '0 0 4px', fontSize: isMobile ? '1.2rem' : '1.35rem' }}>{db.getLabel('tab_online_orders', '🛒 ອໍເດີ້ອອນລາຍ (Online Orders)')}</h3>
+          <h3 style={{ color: 'var(--gold-primary)', margin: '0 0 4px', fontSize: isMobile ? '1.2rem' : '1.35rem' }}>{db.getLabel('tab_online_orders', 'ອໍເດີ້ອອນລາຍ (Online Orders)')}</h3>
           {!isMobile && <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', margin: 0 }}>{db.getLabel('auto_ຈັດການອໍເດີ້_ແລະ_ກວດສອບສະ_9ulacz', `ຈັດການອໍເດີ້ ແລະ ກວດສອບສະລິບລູກຄ້າ`)}</p>}
         </div>
 
@@ -261,7 +263,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
               transition: 'all 0.2s'
             }}
           >
-            📥 ອໍເດີ້ ({orders.filter(o => o.type !== 'inquiry' && !(o.shippingStatus === 'delivered' || o.shippingStatus === 'cancelled' || o.paymentStatus === 'rejected')).length})
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0 -1.79 1.11z"/></svg> ອໍເດີ້ ({orders.filter(o => o.type !== 'inquiry' && !(o.shippingStatus === 'delivered' || o.shippingStatus === 'cancelled' || o.paymentStatus === 'rejected')).length})
           </button>
           <button
             type="button"
@@ -279,7 +281,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
               transition: 'all 0.2s'
             }}
           >
-            🗄️ Archive ({orders.filter(o => o.type !== 'inquiry' && (o.shippingStatus === 'delivered' || o.shippingStatus === 'cancelled' || o.paymentStatus === 'rejected')).length})
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg> Archive ({orders.filter(o => o.type !== 'inquiry' && (o.shippingStatus === 'delivered' || o.shippingStatus === 'cancelled' || o.paymentStatus === 'rejected')).length})
           </button>
           <button
             type="button"
@@ -301,7 +303,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
               gap: '4px'
             }}
           >
-            💬 ຫ້ອງແຊັດ {totalUnreadChats > 0 ? `(${totalUnreadChats})` : ''}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> ຫ້ອງແຊັດ {totalUnreadChats > 0 ? `(${totalUnreadChats})` : ''}
           </button>
         </div>
 
@@ -310,21 +312,21 @@ export default function OnlineOrders({ activeUser, isMobile }) {
           <input
             type="text"
             className="form-control"
-            placeholder={activeTab === 'chat' ? "🔍 ຄົ້ນຫາຫ້ອງສົນທະນາ..." : "🔍 ຄົ້ນຫາເລກອໍເດີ້, ຊື່, ເບີໂທ..."}
+            placeholder={activeTab === 'chat' ? "ຄົ້ນຫາຫ້ອງສົນທະນາ..." : "ຄົ້ນຫາເລກອໍເດີ້, ຊື່, ເບີໂທ..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           {activeTab !== 'chat' && (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
               <select className="form-control" value={filterPayment} onChange={(e) => setFilterPayment(e.target.value)} style={{ fontSize: '0.75rem' }}>
-                <option value="all">{db.getLabel('auto____ຊຳລະ__ທັງໝົດ__c69856', `💳 ຊຳລະ (ທັງໝົດ)`)}</option>
-                <option value="unpaid">{db.getLabel('auto____ລໍຖ້າຊຳລະ_soqhc1', `🛑 ລໍຖ້າຊຳລະ`)}</option>
-                <option value="pending_verification">{db.getLabel('auto___ລໍຖ້າກວດສອບ_bqmral', `⏳ ລໍຖ້າກວດສອບ`)}</option>
-                <option value="paid">{db.getLabel('auto___ຊຳລະແລ້ວ_evb829', `✅ ຊຳລະແລ້ວ`)}</option>
-                <option value="rejected">{db.getLabel('auto___ປະຕິເສດ_49z6u6', `❌ ປະຕິເສດ`)}</option>
+                <option value="all">{db.getLabel('auto____ຊຳລະ__ທັງໝົດ__c69856', `ຊຳລະ (ທັງໝົດ)`)}</option>
+                <option value="unpaid">{db.getLabel('auto____ລໍຖ້າຊຳລະ_soqhc1', `ລໍຖ້າຊຳລະ`)}</option>
+                <option value="pending_verification">{db.getLabel('auto___ລໍຖ້າກວດສອບ_bqmral', `ລໍຖ້າກວດສອບ`)}</option>
+                <option value="paid">{db.getLabel('auto___ຊຳລະແລ້ວ_evb829', `ຊຳລະແລ້ວ`)}</option>
+                <option value="rejected">{db.getLabel('auto___ປະຕິເສດ_49z6u6', `ປະຕິເສດ`)}</option>
               </select>
               <select className="form-control" value={filterShipping} onChange={(e) => setFilterShipping(e.target.value)} style={{ fontSize: '0.75rem' }}>
-                <option value="all">{db.getLabel('auto____ຂົນສົ່ງ__ທັງໝົດ__78g5x1', `🚚 ຂົນສົ່ງ (ທັງໝົດ)`)}</option>
+                <option value="all">{db.getLabel('auto____ຂົນສົ່ງ__ທັງໝົດ__78g5x1', `ຂົນສົ່ງ (ທັງໝົດ)`)}</option>
                 <option value="pending">{db.getLabel('auto_ລໍຖ້າເຮັດ_wg2uko', `ລໍຖ້າເຮັດ`)}</option>
                 <option value="packing">{db.getLabel('auto_ກຳລັງແພັກ_xsmx6', `ກຳລັງແພັກ`)}</option>
                 <option value="ready_to_ship">{db.getLabel('auto_ພ້ອມສົ່ງ_ue3hfz', `ພ້ອມສົ່ງ`)}</option>
@@ -463,7 +465,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2px' }}>
                       <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                        💵 ລວມ: <span style={{ color: 'white', fontWeight: 'bold' }}>{(o.total || o.totalAmount || 0).toLocaleString()} LAK</span>
+                        ລວມ: <span style={{ color: 'white', fontWeight: 'bold' }}>{(o.total || o.totalAmount || 0).toLocaleString()} LAK</span>
                       </span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         {unreadCount > 0 && (
@@ -485,7 +487,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                           background: (o.shippingMethod === 'pickup' || (o.shippingAddress && o.shippingAddress.province && o.shippingAddress.province.includes('ຮັບຢູ່ໜ້າຮ້ານ'))) ? 'rgba(52,152,219,0.15)' : 'rgba(155,89,182,0.15)',
                           color: (o.shippingMethod === 'pickup' || (o.shippingAddress && o.shippingAddress.province && o.shippingAddress.province.includes('ຮັບຢູ່ໜ້າຮ້ານ'))) ? '#3498db' : '#9b59b6'
                         }}>
-                          {(o.shippingMethod === 'pickup' || (o.shippingAddress && o.shippingAddress.province && o.shippingAddress.province.includes('ຮັບຢູ່ໜ້າຮ້ານ'))) ? '🏪 ຮັບຢູ່ໜ້າຮ້ານ' : '🚚 ຈັດສົ່ງ'}
+                          {(o.shippingMethod === 'pickup' || (o.shippingAddress && o.shippingAddress.province && o.shippingAddress.province.includes('ຮັບຢູ່ໜ້າຮ້ານ'))) ? 'ຮັບຢູ່ໜ້າຮ້ານ' : 'ຈັດສົ່ງ'}
                         </span>
                       </div>
                     </div>
@@ -507,7 +509,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
               onClick={() => setSelectedOrder(null)}
               style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', marginBottom: '16px' }}
             >
-              ⬅️ ກັບຄືນ (Back to List)
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>ກັບຄືນ
             </button>
           )}
         {selectedOrder ? (
@@ -537,7 +539,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                       {selectedOrder.customerName} {selectedOrder.customerPhone.startsWith('GUEST-') ? '(ແຂກທົ່ວໄປ)' : ''}
                     </h3>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                      📞 {selectedOrder.customerPhone} | 🧾 ID: {selectedOrder.id}
+                      {selectedOrder.customerPhone} | ID: {selectedOrder.id}
                     </div>
                   </div>
                 </div>
@@ -550,7 +552,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                       onClick={() => setActiveTab('active')}
                       style={{ fontSize: '0.75rem', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '4px' }}
                     >
-                      📄 ເບິ່ງລາຍລະອຽດອໍເດີ້
+                      ເບິ່ງລາຍລະອຽດອໍເດີ້
                     </button>
                   )}
                   {isMobile && (
@@ -581,7 +583,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
               }}>
                 {(!selectedOrder.messages || selectedOrder.messages.length === 0) ? (
                   <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.85rem', paddingTop: '100px' }}>
-                    📭 ຍັງບໍ່ມີຂໍ້ຄວາມສຳລັບການສົນທະນານີ້
+                    ຍັງບໍ່ມີຂໍ້ຄວາມສຳລັບການສົນທະນານີ້
                   </div>
                 ) : (
                   selectedOrder.messages.map((msg, idx) => (
@@ -594,7 +596,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                       maxWidth: '75%'
                     }}>
                       <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', marginBottom: '3px' }}>
-                        {msg.sender === 'admin' ? '🏪 ຮ້ານ' : `👤 ${msg.senderName || 'ລູກຄ້າ'}`}
+                        {msg.sender === 'admin' ? 'ຮ້ານ' : `${msg.senderName || 'ລູກຄ້າ'}`}
                         {' · '}{new Date(msg.timestamp).toLocaleString('lo-LA')}
                       </div>
                       {msg.text && <div style={{ fontSize: '0.85rem', color: 'white', wordBreak: 'break-word' }}>{msg.text}</div>}
@@ -606,7 +608,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                             ) : att.type === 'video' ? (
                               <video key={ai} src={att.data} controls style={{ maxWidth: '200px', borderRadius: '6px' }} />
                             ) : (
-                              <a key={ai} href={att.data} download={att.name} style={{ fontSize: '0.75rem', color: 'var(--gold-primary)', textDecoration: 'underline' }}>📎 {att.name}</a>
+                              <a key={ai} href={att.data} download={att.name} style={{ fontSize: '0.75rem', color: 'var(--gold-primary)', textDecoration: 'underline' }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg> {att.name}</a>
                             )
                           ))}
                         </div>
@@ -654,349 +656,349 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                   disabled={!chatReply.trim() && adminAttachments.length === 0}
                   style={{ padding: '0 20px', height: '38px', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }}
                 >
-                  📤 ສົ່ງ
+                  ສົ່ງ
                 </button>
               </div>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {/* Header info */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1.5px solid var(--border-color)', paddingBottom: '16px' }}>
-              <div>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ເລກທີອໍເດີ້__x02ooo', `ເລກທີອໍເດີ້:`)}</span>
-                <h2 style={{ color: 'var(--gold-primary)', margin: 0 }}>{selectedOrder.id}</h2>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                  📅 ສ້າງເມື່ອ: {new Date(selectedOrder.date).toLocaleString('lo-LA')}
-                </div>
-              </div>
-
-              {/* Status control buttons */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{db.getLabel('auto_ການຊຳລະ__gdqf7m', `ການຊຳລະ:`)}</span>
-                  <span style={{
-                    fontWeight: 'bold',
-                    color: selectedOrder.paymentStatus === 'paid' ? '#2ecc71' : selectedOrder.paymentStatus === 'pending_verification' ? '#f1c40f' : '#e74c3c'
-                  }}>
-                    {getPaymentStatusText(selectedOrder.paymentStatus)}
-                  </span>
-                </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{db.getLabel('auto_ສະຖານະຂົນສົ່ງ__hx1myr', `ສະຖານະຂົນສົ່ງ:`)}</span>
-                  <span style={{ color: 'white', fontWeight: 'bold' }}>{getShippingStatusText(selectedOrder.shippingStatus)}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Layout divided into details and slip section */}
-            {selectedOrder.type === 'inquiry' ? (
-              /* Full-width Inquiry Chat view */
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div style={{ background: 'rgba(52,152,219,0.04)', border: '1px solid rgba(52,152,219,0.2)', borderRadius: '10px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  <h4 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    💬 ການສອບຖາມຈາກລູກຄ້າ: {selectedOrder.customerName} ({selectedOrder.customerPhone})
-                  </h4>
-                  
-                  {/* Message history */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minHeight: '300px', maxHeight: '450px', overflowY: 'auto', padding: '8px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
-                    {(!selectedOrder.messages || selectedOrder.messages.length === 0) ? (
-                      <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.85rem', paddingTop: '80px' }}>
-                        📭 ຍັງບໍ່ມີຂໍ້ຄວາມ
-                      </div>
-                    ) : (
-                      selectedOrder.messages.map((msg, idx) => (
-                        <div key={idx} style={{
-                          alignSelf: msg.sender === 'admin' ? 'flex-end' : 'flex-start',
-                          background: msg.sender === 'admin' ? 'rgba(212,175,55,0.12)' : 'rgba(52,152,219,0.12)',
-                          border: `1px solid ${msg.sender === 'admin' ? 'rgba(212,175,55,0.3)' : 'rgba(52,152,219,0.3)'}`,
-                          borderRadius: '10px',
-                          padding: '8px 12px',
-                          maxWidth: '85%'
-                        }}>
-                          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginBottom: '3px' }}>
-                            {msg.sender === 'admin' ? '🏪 ຮ້ານ' : `👤 ${msg.senderName || 'ລູກຄ້າ'}`}
-                            {' · '}{new Date(msg.timestamp).toLocaleString('lo-LA')}
-                          </div>
-                          <div style={{ fontSize: '0.82rem', color: 'white', wordBreak: 'break-word' }}>{msg.text}</div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-
-                  {/* Admin reply input */}
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder={db.getLabel('auto_ຕອບກັບລູກຄ້າ_____Enter_ເພ_ycpywh', `ຕອບກັບລູກຄ້າ... (Enter ເພື່ອສົ່ງ)`)}
-                      value={chatReply}
-                      onChange={(e) => setChatReply(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === 'Enter') handleSendAdminReply(); }}
-                      style={{ flex: 1, fontSize: '0.82rem' }}
-                    />
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      onClick={handleSendAdminReply}
-                      disabled={!chatReply.trim()}
-                      style={{ padding: '6px 20px', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
-                    >
-                      📤 ສົ່ງ
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px' }}>
-              {/* Left detail column */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                {/* 1. Items ordered list */}
-                <div>
-                  <h4 style={{ color: 'var(--gold-primary)', margin: '0 0 10px' }}>{db.getLabel('auto____ລາຍການສິນຄ້າໃນອໍເດີ້__vspin3', `📦 ລາຍການສິນຄ້າໃນອໍເດີ້:`)}</h4>
-                  <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
-                    <thead>
-                      <tr style={{ borderBottom: '1.5px solid var(--border-color)', color: 'var(--text-secondary)' }}>
-                        <th style={{ textAlign: 'left', padding: '8px 4px' }}>{db.getLabel('auto_ສິນຄ້າ_9zpaw2', `ສິນຄ້າ`)}</th>
-                        <th style={{ textAlign: 'right', padding: '8px 4px' }}>{db.getLabel('auto_ລາຄາ_1wpv6j', `ລາຄາ`)}</th>
-                        <th style={{ textAlign: 'center', padding: '8px 4px' }}>{db.getLabel('auto_ຈຳນວນ_car3ds', `ຈຳນວນ`)}</th>
-                        <th style={{ textAlign: 'right', padding: '8px 4px' }}>{db.getLabel('auto_ລວມ_27sjj', `ລວມ`)}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(selectedOrder.items || []).map((item, idx) => (
-                        <tr key={idx} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                          <td style={{ padding: '8px 4px', fontWeight: 'bold' }}>{item.name || 'N/A'}</td>
-                          <td style={{ padding: '8px 4px', textAlign: 'right' }}>{(item.price || 0).toLocaleString()} LAK</td>
-                          <td style={{ padding: '8px 4px', textAlign: 'center' }}>{item.qty || 0}</td>
-                          <td style={{ padding: '8px 4px', textAlign: 'right', fontWeight: 'bold' }}>{(item.total || 0).toLocaleString()} LAK</td>
-                        </tr>
-                      ))}
-                      <tr style={{ fontSize: '1rem', fontWeight: 'bold' }}>
-                        <td colSpan="3" style={{ padding: '12px 4px', textAlign: 'right', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຍອດລວມທັງໝົດ__l8gc2u', `ຍອດລວມທັງໝົດ:`)}</td>
-                        <td style={{ padding: '12px 4px', textAlign: 'right', color: 'var(--gold-primary)' }}>{(selectedOrder.total || 0).toLocaleString()} LAK</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* 2. Customer delivery address */}
-                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                  {(() => {
-                    const isPickup = selectedOrder.shippingMethod === 'pickup' || (selectedOrder.shippingAddress && selectedOrder.shippingAddress.province && selectedOrder.shippingAddress.province.includes('ຮັບຢູ່ໜ້າຮ້ານ'));
-                    return (
-                      <>
-                        <h4 style={{ color: 'var(--gold-primary)', margin: '0 0 10px' }}>
-                          {isPickup ? '🏪 ຂໍ້ມູນການຮັບເຄື່ອງຢູ່ໜ້າຮ້ານ:' : '🚚 ຂໍ້ມູນການຈັດສົ່ງພັດສະດຸ:'}
-                        </h4>
-                        {selectedOrder.shippingAddress ? (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem' }}>
-                            <div><b>{db.getLabel('auto_ຊື່ຜູ້ຮັບ_ມາຮັບ__f8hjq5', `ຊື່ຜູ້ຮັບ/ມາຮັບ:`)}</b> {selectedOrder.shippingAddress.recipientName}</div>
-                            <div><b>{db.getLabel('auto_ເບີໂທຕິດຕໍ່__k3xudr', `ເບີໂທຕິດຕໍ່:`)}</b> {selectedOrder.shippingAddress.phone}</div>
-                            {isPickup ? (
-                              <div><b>{db.getLabel('auto_ວັນທີ_ເວລາ_ທີ່ຈະມາຮັບ__c9n1y4', `ວັນທີ/ເວລາ ທີ່ຈະມາຮັບ:`)}</b> <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{selectedOrder.shippingAddress.addressLine || 'N/A'}</span></div>
-                            ) : (
-                              <>
-                                <div><b>{db.getLabel('auto_ທີ່ຢູ່__j60jfx', `ທີ່ຢູ່:`)}</b> {db.getLabel('auto_ບ້ານ_1wjcgm', `ບ້ານ`)} {selectedOrder.shippingAddress.village || 'N/A'}{db.getLabel('auto___ເມືອງ_a8mf3w', `, ເມືອງ`)} {selectedOrder.shippingAddress.city || 'N/A'}{db.getLabel('auto___ແຂວງ_n8rkd1', `, ແຂວງ`)} {selectedOrder.shippingAddress.province || 'N/A'} ({selectedOrder.shippingAddress.country || 'N/A'})</div>
-                                {selectedOrder.shippingAddress.addressLine && <div><b>{db.getLabel('auto_ລາຍລະອຽດເພີ່ມເຕີມ__85xv4u', `ລາຍລະອຽດເພີ່ມເຕີມ:`)}</b> {selectedOrder.shippingAddress.addressLine}</div>}
-                              </>
-                            )}
-                            {selectedOrder.shippingAddress.notes && <div style={{ color: 'var(--accent-amber)', marginTop: '4px' }}><b>{db.getLabel('auto____ໝາຍເຫດຈາກລູກຄ້າ__2yhsic', `📝 ໝາຍເຫດຈາກລູກຄ້າ:`)}</b> {selectedOrder.shippingAddress.notes}</div>}
-                          </div>
-                        ) : (
-                          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ບໍ່ມີຂໍ້ມູນການຈັດສົ່ງ_1l8hun', `ບໍ່ມີຂໍ້ມູນການຈັດສົ່ງ`)}</div>
-                        )}
-                      </>
-                    );
-                  })()}
-                </div>
-
-                {/* 3. Shipping info editing form */}
-                <form onSubmit={handleUpdateShipping} style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(255,255,255,0.01)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                  <h4 style={{ color: 'var(--gold-primary)', margin: '0 0 4px' }}>{db.getLabel('auto____ຈັດການຂໍ້ມູນການຈັດສົ່ງ_sg2s4w', `📦 ຈັດການຂໍ້ມູນການຈັດສົ່ງ:`)}</h4>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                    <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.8rem' }}>{db.getLabel('auto_ບໍລິສັດຂົນສົ່ງ__Carrier__x1eojm', `ບໍລິສັດຂົນສົ່ງ (Carrier)`)}</label>
-                      <input type="text" className="form-control" placeholder="Anousith, HAL,..." value={shippingCompany} onChange={(e) => setShippingCompany(e.target.value)} />
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label" style={{ fontSize: '0.8rem' }}>{db.getLabel('auto_ເລກພັດສະດຸ__Tracking_Numb_e1mqc2', `ເລກພັດສະດຸ (Tracking Number)`)}</label>
-                      <input type="text" className="form-control" placeholder="ANXXXXXXXX" value={trackingNumber} onChange={(e) => setTrackingNumber(e.target.value)} />
-                    </div>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" style={{ fontSize: '0.8rem' }}>{db.getLabel('auto_ຮູບພາບໃບຝາກສົ່ງ___ກ່ອງພັດ_q6ipdz', `ຮູບພາບໃບຝາກສົ່ງ / ກ່ອງພັດສະດຸ`)}</label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="form-control"
-                      onChange={(e) => {
-                        const file = e.target.files[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onloadend = () => setShippingImage(reader.result);
-                          reader.readAsDataURL(file);
-                        }
-                      }}
-                    />
-                    {shippingImage && (
-                      <div style={{ marginTop: '6px' }}>
-                        <img src={shippingImage} alt="Shipping Label Preview" style={{ maxHeight: '80px', objectFit: 'contain', border: '1px solid var(--border-color)', borderRadius: '4px' }} />
-                      </div>
-                    )}
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" style={{ fontSize: '0.8rem' }}>{db.getLabel('auto_ໝາຍເຫດ___ຂໍ້ຄວາມອັບເດດສະຖ_6yrvrn', `ໝາຍເຫດ / ຂໍ້ຄວາມອັບເດດສະຖານະ`)}</label>
-                    <input type="text" className="form-control" placeholder={db.getLabel('auto_ກຳລັງດຳເນີນການຈັດສົ່ງ_____bjwjzu', `ກຳລັງດຳເນີນການຈັດສົ່ງ,...`)} value={shippingNote} onChange={(e) => setShippingNote(e.target.value)} />
-                  </div>
-                  <button type="submit" className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.8rem', alignSelf: 'flex-end' }}>{db.getLabel('auto____ບັນທຶກຂໍ້ມູນການສົ່ງ_tk7gru', `💾 ບັນທຶກຂໍ້ມູນການສົ່ງ`)}</button>
-                </form>
-
-                {/* 4. Timeline status log */}
-                <div>
-                  <h4 style={{ color: 'var(--gold-primary)', margin: '0 0 10px' }}>{db.getLabel('auto____ປະຫວັດຄວາມເຄື່ອນໄຫວ__T_jw29cc', `🕒 ປະຫວັດຄວາມເຄື່ອນໄຫວ (Timeline Log):`)}</h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderLeft: '2px solid var(--border-color)', paddingLeft: '14px', marginLeft: '6px' }}>
-                    {selectedOrder.timeline?.map((evt, idx) => (
-                      <div key={idx} style={{ position: 'relative', fontSize: '0.8rem', paddingBottom: '4px' }}>
-                        <div style={{ position: 'absolute', left: '-19px', top: '4px', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--gold-primary)' }} />
-                        <div style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{evt.status}</div>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{new Date(evt.date).toLocaleString('lo-LA')}</div>
-                        <div style={{ color: 'white', marginTop: '2px' }}>{evt.note}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 5. Customer Chat Panel */}
-                <div style={{ background: 'rgba(52,152,219,0.04)', border: '1px solid rgba(52,152,219,0.2)', borderRadius: '10px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <h4 style={{ color: 'var(--gold-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    💬 ຂໍ້ຄວາມຈາກລູກຄ້າ:
-                    {selectedOrder.messages && selectedOrder.messages.filter(m => m.sender === 'customer' && m.read === false).length > 0 && (
-                      <span style={{ fontSize: '0.7rem', background: '#e74c3c', color: 'white', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>
-                        {selectedOrder.messages.filter(m => m.sender === 'customer' && m.read === false).length} ໃໝ່
-                      </span>
-                    )}
-                  </h4>
-
-                  {/* Message history */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '220px', overflowY: 'auto', padding: '4px 0' }}>
-                    {(!selectedOrder.messages || selectedOrder.messages.length === 0) ? (
-                      <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.8rem', padding: '20px 0' }}>
-                        📭 ຍັງບໍ່ມີຂໍ້ຄວາມ
-                      </div>
-                    ) : (
-                      selectedOrder.messages.map((msg, idx) => (
-                        <div key={idx} style={{
-                          alignSelf: msg.sender === 'admin' ? 'flex-end' : 'flex-start',
-                          background: msg.sender === 'admin' ? 'rgba(212,175,55,0.12)' : 'rgba(52,152,219,0.12)',
-                          border: `1px solid ${msg.sender === 'admin' ? 'rgba(212,175,55,0.3)' : 'rgba(52,152,219,0.3)'}`,
-                          borderRadius: '10px',
-                          padding: '8px 12px',
-                          maxWidth: '85%'
-                        }}>
-                          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginBottom: '3px' }}>
-                            {msg.sender === 'admin' ? '🏪 ຮ້ານ' : `👤 ${msg.senderName || 'ລູກຄ້າ'}`}
-                            {' · '}{new Date(msg.timestamp).toLocaleString('lo-LA')}
-                          </div>
-                          <div style={{ fontSize: '0.82rem', color: 'white', wordBreak: 'break-word' }}>{msg.text}</div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-
-                  {/* Admin reply input */}
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder={db.getLabel('auto_ຕອບກັບລູກຄ້າ_____Enter_ເພ_ycpywh', `ຕອບກັບລູກຄ້າ... (Enter ເພື່ອສົ່ງ)`)}
-                      value={chatReply}
-                      onChange={(e) => setChatReply(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === 'Enter') handleSendAdminReply(); }}
-                      style={{ flex: 1, fontSize: '0.82rem' }}
-                    />
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      onClick={handleSendAdminReply}
-                      disabled={!chatReply.trim()}
-                      style={{ padding: '6px 16px', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
-                    >
-                      📤 ສົ່ງ
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right column: Slip review and actions */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <h4 style={{ color: 'var(--gold-primary)', margin: 0 }}>{db.getLabel('auto____ສະລິບການໂອນເງິນ__qz8usx', `📱 ສະລິບການໂອນເງິນ:`)}</h4>
-
-                {selectedOrder.slipImage ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <div
-                      onClick={() => setZoomSlip(true)}
-                      style={{
-                        width: '100%',
-                        height: '350px',
-                        border: '1.5px solid var(--border-color)',
-                        borderRadius: '10px',
-                        overflow: 'hidden',
-                        cursor: 'zoom-in',
-                        background: '#000',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      <img src={selectedOrder.slipImage} alt="Payment Slip" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                    </div>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textAlign: 'center', display: 'block' }}>{db.getLabel('auto____ຄລິກທີ່ຮູບເພື່ອຊູມ_ຂະຫ_f4tnrr', `💡 ຄລິກທີ່ຮູບເພື່ອຊູມ/ຂະຫຍາຍ`)}</span>
-                  </div>
-                ) : (
-                  <div style={{
-                    width: '100%',
-                    height: '240px',
-                    border: '1.5px dashed var(--border-color)',
-                    borderRadius: '10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'var(--text-secondary)',
-                    fontSize: '0.85rem',
-                    textAlign: 'center',
-                    padding: '20px'
-                  }}>
-                    🛑 ຍັງບໍ່ມີການອັບໂຫຼດສະລິບຊຳລະເງິນ
-                  </div>
-                )}
-
-                {/* Actions based on payment Status */}
-                {selectedOrder.paymentStatus === 'pending_verification' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '10px' }}>
-                    <button className="btn btn-primary" onClick={handleApprovePayment} style={{ width: '100%', fontWeight: 'bold' }}>
-                      ✅ ຢືນຢັນຍອດເງິນ / Approve
-                    </button>
-                    <button className="btn" onClick={handleRejectPayment} style={{ width: '100%', background: 'var(--alert-red)', color: 'white', borderColor: 'var(--alert-red)', fontWeight: 'bold' }}>
-                      ❌ ປະຕິເສດສະລິບ / Reject
-                    </button>
-                  </div>
-                )}
-
-                {/* Status adjustment buttons */}
-                {selectedOrder.paymentStatus === 'paid' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)', marginTop: '10px' }}>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>{db.getLabel('auto____ປ່ຽນສະຖານະການຈັດສົ່ງ__gpi7i3', `⚙️ ປ່ຽນສະຖານະການຈັດສົ່ງ:`)}</span>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '6px' }}>
-                      <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '6px' }} onClick={() => handleChangeShippingStatus('packing', 'ກຳລັງແພັກພັດສະດຸ')}>{db.getLabel('auto____ແພັກພັດສະດຸ_sl6dev', `📦 ແພັກພັດສະດຸ`)}</button>
-                      <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '6px' }} onClick={() => handleChangeShippingStatus('ready_to_ship', 'ພ້ອມຈັດສົ່ງ')}>{db.getLabel('auto____ພ້ອມຈັດສົ່ງ_tka0m1', `🚚 ພ້ອມຈັດສົ່ງ`)}</button>
-                      <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '6px' }} onClick={() => handleChangeShippingStatus('shipped', 'ຈັດສົ່ງອອກແລ້ວ')}>{db.getLabel('auto____ຈັດສົ່ງແລ້ວ_opbcuc', `✈️ ຈັດສົ່ງແລ້ວ`)}</button>
-                      <button className="btn btn-primary" style={{ fontSize: '0.75rem', padding: '6px', background: '#2ecc71', borderColor: '#2ecc71' }} onClick={() => handleChangeShippingStatus('delivered', 'ສົ່ງມອບສຳເລັດ')}>{db.getLabel('auto____ສຳເລັດແລ້ວ_ao0c32', `🎁 ສຳເລັດແລ້ວ`)}</button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Header info */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1.5px solid var(--border-color)', paddingBottom: '16px' }}>
+              <div>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ເລກທີອໍເດີ້__x02ooo', `ເລກທີອໍເດີ້:`)}</span>
+                <h2 style={{ color: 'var(--gold-primary)', margin: 0 }}>{selectedOrder.id}</h2>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                  ສ້າງເມື່ອ: {new Date(selectedOrder.date).toLocaleString('lo-LA')}
+                </div>
+              </div>
+
+              {/* Status control buttons */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{db.getLabel('auto_ການຊຳລະ__gdqf7m', `ການຊຳລະ:`)}</span>
+                  <span style={{
+                    fontWeight: 'bold',
+                    color: selectedOrder.paymentStatus === 'paid' ? '#2ecc71' : selectedOrder.paymentStatus === 'pending_verification' ? '#f1c40f' : '#e74c3c'
+                  }}>
+                    {getPaymentStatusText(selectedOrder.paymentStatus)}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{db.getLabel('auto_ສະຖານະຂົນສົ່ງ__hx1myr', `ສະຖານະຂົນສົ່ງ:`)}</span>
+                  <span style={{ color: 'white', fontWeight: 'bold' }}>{getShippingStatusText(selectedOrder.shippingStatus)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Layout divided into details and slip section */}
+            {selectedOrder.type === 'inquiry' ? (
+              /* Full-width Inquiry Chat view */
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ background: 'rgba(52,152,219,0.04)', border: '1px solid rgba(52,152,219,0.2)', borderRadius: '10px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    ການສອບຖາມຈາກລູກຄ້າ: {selectedOrder.customerName} ({selectedOrder.customerPhone})
+                  </h4>
+                  
+                  {/* Message history */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minHeight: '300px', maxHeight: '450px', overflowY: 'auto', padding: '8px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
+                    {(!selectedOrder.messages || selectedOrder.messages.length === 0) ? (
+                      <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.85rem', paddingTop: '80px' }}>
+                        ຍັງບໍ່ມີຂໍ້ຄວາມ
+                      </div>
+                    ) : (
+                      selectedOrder.messages.map((msg, idx) => (
+                        <div key={idx} style={{
+                          alignSelf: msg.sender === 'admin' ? 'flex-end' : 'flex-start',
+                          background: msg.sender === 'admin' ? 'rgba(212,175,55,0.12)' : 'rgba(52,152,219,0.12)',
+                          border: `1px solid ${msg.sender === 'admin' ? 'rgba(212,175,55,0.3)' : 'rgba(52,152,219,0.3)'}`,
+                          borderRadius: '10px',
+                          padding: '8px 12px',
+                          maxWidth: '85%'
+                        }}>
+                          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginBottom: '3px' }}>
+                            {msg.sender === 'admin' ? '🏪 ຮ້ານ' : `👤 ${msg.senderName || 'ລູກຄ້າ'}`}
+                            {' · '}{new Date(msg.timestamp).toLocaleString('lo-LA')}
+                          </div>
+                          <div style={{ fontSize: '0.82rem', color: 'white', wordBreak: 'break-word' }}>{msg.text}</div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Admin reply input */}
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder={db.getLabel('auto_ຕອບກັບລູກຄ້າ_____Enter_ເພ_ycpywh', `ຕອບກັບລູກຄ້າ... (Enter ເພື່ອສົ່ງ)`)}
+                      value={chatReply}
+                      onChange={(e) => setChatReply(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') handleSendAdminReply(); }}
+                      style={{ flex: 1, fontSize: '0.82rem' }}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={handleSendAdminReply}
+                      disabled={!chatReply.trim()}
+                      style={{ padding: '6px 20px', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
+                    >
+                      📤 ສົ່ງ
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px' }}>
+              {/* Left detail column */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {/* 1. Items ordered list */}
+                <div>
+                  <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: '0 0 10px' }}>{db.getLabel('auto____ລາຍການສິນຄ້າໃນອໍເດີ້__vspin3', `ລາຍການສິນຄ້າໃນອໍເດີ້:`)}</h4>
+                  <table className="table-premium" style={{ width: '100%', marginTop: 0 }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1.5px solid var(--border-color)', color: 'var(--text-secondary)' }}>
+                        <th style={{ textAlign: 'left', padding: '8px 4px' }}>{db.getLabel('auto_ສິນຄ້າ_9zpaw2', `ສິນຄ້າ`)}</th>
+                        <th style={{ textAlign: 'right', padding: '8px 4px' }}>{db.getLabel('auto_ລາຄາ_1wpv6j', `ລາຄາ`)}</th>
+                        <th style={{ textAlign: 'center', padding: '8px 4px' }}>{db.getLabel('auto_ຈຳນວນ_car3ds', `ຈຳນວນ`)}</th>
+                        <th style={{ textAlign: 'right', padding: '8px 4px' }}>{db.getLabel('auto_ລວມ_27sjj', `ລວມ`)}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(selectedOrder.items || []).map((item, idx) => (
+                        <tr key={idx} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                          <td style={{ padding: '8px 4px', fontWeight: 'bold' }}>{item.name || 'N/A'}</td>
+                          <td style={{ padding: '8px 4px', textAlign: 'right' }}>{(item.price || 0).toLocaleString()} LAK</td>
+                          <td style={{ padding: '8px 4px', textAlign: 'center' }}>{item.qty || 0}</td>
+                          <td style={{ padding: '8px 4px', textAlign: 'right', fontWeight: 'bold' }}>{(item.total || 0).toLocaleString()} LAK</td>
+                        </tr>
+                      ))}
+                      <tr style={{ fontSize: '1rem', fontWeight: 'bold' }}>
+                        <td colSpan="3" style={{ padding: '12px 4px', textAlign: 'right', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຍອດລວມທັງໝົດ__l8gc2u', `ຍອດລວມທັງໝົດ:`)}</td>
+                        <td style={{ padding: '12px 4px', textAlign: 'right', color: 'var(--gold-primary)' }}>{(selectedOrder.total || 0).toLocaleString()} LAK</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* 2. Customer delivery address */}
+                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                  {(() => {
+                    const isPickup = selectedOrder.shippingMethod === 'pickup' || (selectedOrder.shippingAddress && selectedOrder.shippingAddress.province && selectedOrder.shippingAddress.province.includes('ຮັບຢູ່ໜ້າຮ້ານ'));
+                    return (
+                      <>
+                        <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: '0 0 10px' }}>
+                          {isPickup ? 'ຂໍ້ມູນການຮັບເຄື່ອງຢູ່ໜ້າຮ້ານ:' : 'ຂໍ້ມູນການຈັດສົ່ງພັດສະດຸ:'}
+                        </h4>
+                        {selectedOrder.shippingAddress ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem' }}>
+                            <div><b>{db.getLabel('auto_ຊື່ຜູ້ຮັບ_ມາຮັບ__f8hjq5', `ຊື່ຜູ້ຮັບ/ມາຮັບ:`)}</b> {selectedOrder.shippingAddress.recipientName}</div>
+                            <div><b>{db.getLabel('auto_ເບີໂທຕິດຕໍ່__k3xudr', `ເບີໂທຕິດຕໍ່:`)}</b> {selectedOrder.shippingAddress.phone}</div>
+                            {isPickup ? (
+                              <div><b>{db.getLabel('auto_ວັນທີ_ເວລາ_ທີ່ຈະມາຮັບ__c9n1y4', `ວັນທີ/ເວລາ ທີ່ຈະມາຮັບ:`)}</b> <span style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{selectedOrder.shippingAddress.addressLine || 'N/A'}</span></div>
+                            ) : (
+                              <>
+                                <div><b>{db.getLabel('auto_ທີ່ຢູ່__j60jfx', `ທີ່ຢູ່:`)}</b> {db.getLabel('auto_ບ້ານ_1wjcgm', `ບ້ານ`)} {selectedOrder.shippingAddress.village || 'N/A'}{db.getLabel('auto___ເມືອງ_a8mf3w', `, ເມືອງ`)} {selectedOrder.shippingAddress.city || 'N/A'}{db.getLabel('auto___ແຂວງ_n8rkd1', `, ແຂວງ`)} {selectedOrder.shippingAddress.province || 'N/A'} ({selectedOrder.shippingAddress.country || 'N/A'})</div>
+                                {selectedOrder.shippingAddress.addressLine && <div><b>{db.getLabel('auto_ລາຍລະອຽດເພີ່ມເຕີມ__85xv4u', `ລາຍລະອຽດເພີ່ມເຕີມ:`)}</b> {selectedOrder.shippingAddress.addressLine}</div>}
+                              </>
+                            )}
+                            {selectedOrder.shippingAddress.notes && <div style={{ color: 'var(--accent-amber)', marginTop: '4px' }}><b>{db.getLabel('auto____ໝາຍເຫດຈາກລູກຄ້າ__2yhsic', `ໝາຍເຫດຈາກລູກຄ້າ:`)}</b> {selectedOrder.shippingAddress.notes}</div>}
+                          </div>
+                        ) : (
+                          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ບໍ່ມີຂໍ້ມູນການຈັດສົ່ງ_1l8hun', `ບໍ່ມີຂໍ້ມູນການຈັດສົ່ງ`)}</div>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+
+                {/* 3. Shipping info editing form */}
+                <form onSubmit={handleUpdateShipping} style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(255,255,255,0.01)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                  <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: '0 0 4px' }}>{db.getLabel('auto____ຈັດการຂໍ້ມູນການຈັດສົ່ງ_sg2s4w', `ຈັດການຂໍ້ມູນການຈັດສົ່ງ:`)}</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div className="form-group">
+                      <label className="form-label" style={{ fontSize: '0.8rem' }}>{db.getLabel('auto_ບໍລິສັດຂົນສົ່ງ__Carrier__x1eojm', `ບໍລິສັດຂົນສົ່ງ (Carrier)`)}</label>
+                      <input type="text" className="form-control" placeholder="Anousith, HAL,..." value={shippingCompany} onChange={(e) => setShippingCompany(e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label" style={{ fontSize: '0.8rem' }}>{db.getLabel('auto_ເລກພັດສະດຸ__Tracking_Numb_e1mqc2', `ເລກພັດສະດຸ (Tracking Number)`)}</label>
+                      <input type="text" className="form-control" placeholder="ANXXXXXXXX" value={trackingNumber} onChange={(e) => setTrackingNumber(e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label" style={{ fontSize: '0.8rem' }}>{db.getLabel('auto_ຮູບພາບໃບຝາກສົ່ງ___ກ່ອງພັດ_q6ipdz', `ຮູບພາບໃບຝາກສົ່ງ / ກ່ອງພັດສະດຸ`)}</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="form-control"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => setShippingImage(reader.result);
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                    {shippingImage && (
+                      <div style={{ marginTop: '6px' }}>
+                        <img src={shippingImage} alt="Shipping Label Preview" style={{ maxHeight: '80px', objectFit: 'contain', border: '1px solid var(--border-color)', borderRadius: '4px' }} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label" style={{ fontSize: '0.8rem' }}>{db.getLabel('auto_ໝາຍເຫດ___ຂໍ້ຄວາມອັບເດດສະຖ_6yrvrn', `ໝາຍເຫດ / ຂໍ້ຄວາມອັບເດດສະຖານະ`)}</label>
+                    <input type="text" className="form-control" placeholder={db.getLabel('auto_ກຳລັງດຳເນີນການຈັດສົ່ງ_____bjwjzu', `ກຳລັງດຳເນີນການຈັດສົ່ງ,...`)} value={shippingNote} onChange={(e) => setShippingNote(e.target.value)} />
+                  </div>
+                  <button type="submit" className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.8rem', alignSelf: 'flex-end' }}>{db.getLabel('auto____ບັນທຶກຂໍ້ມູນການສົ່ງ_tk7gru', `ບັນທຶກຂໍ້ມູນການສົ່ງ`)}</button>
+                </form>
+
+                {/* 4. Timeline status log */}
+                <div>
+                  <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: '0 0 10px' }}>{db.getLabel('auto____ປະຫວັດຄວາມເຄື່ອນໄຫວ__T_jw29cc', `ປະຫວັດຄວາມເຄື່ອນໄຫວ (Timeline Log):`)}</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderLeft: '2px solid var(--border-color)', paddingLeft: '14px', marginLeft: '6px' }}>
+                    {selectedOrder.timeline?.map((evt, idx) => (
+                      <div key={idx} style={{ position: 'relative', fontSize: '0.8rem', paddingBottom: '4px' }}>
+                        <div style={{ position: 'absolute', left: '-19px', top: '4px', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--gold-primary)' }} />
+                        <div style={{ color: 'var(--gold-primary)', fontWeight: 'bold' }}>{evt.status}</div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{new Date(evt.date).toLocaleString('lo-LA')}</div>
+                        <div style={{ color: 'white', marginTop: '2px' }}>{evt.note}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 5. Customer Chat Panel */}
+                <div style={{ background: 'rgba(52,152,219,0.04)', border: '1px solid rgba(52,152,219,0.2)', borderRadius: '10px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    ຂໍ້ຄວາມຈາກລູກຄ້າ:
+                    {selectedOrder.messages && selectedOrder.messages.filter(m => m.sender === 'customer' && m.read === false).length > 0 && (
+                      <span style={{ fontSize: '0.7rem', background: '#e74c3c', color: 'white', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>
+                        {selectedOrder.messages.filter(m => m.sender === 'customer' && m.read === false).length} ໃໝ່
+                      </span>
+                    )}
+                  </h4>
+
+                  {/* Message history */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '220px', overflowY: 'auto', padding: '4px 0' }}>
+                    {(!selectedOrder.messages || selectedOrder.messages.length === 0) ? (
+                      <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.8rem', padding: '20px 0' }}>
+                        📭 ຍັງບໍ່ມີຂໍ້ຄວາມ
+                      </div>
+                    ) : (
+                      selectedOrder.messages.map((msg, idx) => (
+                        <div key={idx} style={{
+                          alignSelf: msg.sender === 'admin' ? 'flex-end' : 'flex-start',
+                          background: msg.sender === 'admin' ? 'rgba(212,175,55,0.12)' : 'rgba(52,152,219,0.12)',
+                          border: `1px solid ${msg.sender === 'admin' ? 'rgba(212,175,55,0.3)' : 'rgba(52,152,219,0.3)'}`,
+                          borderRadius: '10px',
+                          padding: '8px 12px',
+                          maxWidth: '85%'
+                        }}>
+                          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginBottom: '3px' }}>
+                            {msg.sender === 'admin' ? '🏪 ຮ້ານ' : `👤 ${msg.senderName || 'ລູກຄ້າ'}`}
+                            {' · '}{new Date(msg.timestamp).toLocaleString('lo-LA')}
+                          </div>
+                          <div style={{ fontSize: '0.82rem', color: 'white', wordBreak: 'break-word' }}>{msg.text}</div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Admin reply input */}
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder={db.getLabel('auto_ຕອບກັບລູກຄ້າ_____Enter_ເພ_ycpywh', `ຕອບກັບລູກຄ້າ... (Enter ເພື່ອສົ່ງ)`)}
+                      value={chatReply}
+                      onChange={(e) => setChatReply(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') handleSendAdminReply(); }}
+                      style={{ flex: 1, fontSize: '0.82rem' }}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={handleSendAdminReply}
+                      disabled={!chatReply.trim()}
+                      style={{ padding: '6px 16px', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
+                    >
+                      📤 ສົ່ງ
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right column: Slip review and actions */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>{db.getLabel('auto____ສະລິບການໂອນເງິນ__qz8usx', `ສະລິບການໂอนເງິນ:`)}</h4>
+
+                {selectedOrder.slipImage ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div
+                      onClick={() => setZoomSlip(true)}
+                      style={{
+                        width: '100%',
+                        height: '350px',
+                        border: '1.5px solid var(--border-color)',
+                        borderRadius: '10px',
+                        overflow: 'hidden',
+                        cursor: 'zoom-in',
+                        background: '#000',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <img src={selectedOrder.slipImage} alt="Payment Slip" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    </div>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textAlign: 'center', display: 'block' }}>{db.getLabel('auto____ຄລິກທີ່ຮູບເພື່ອຊູມ_ຂະຫ_f4tnrr', `ຄລິກທີ່ຮູບເພື່ອຊູມ/ຂະຫຍາຍ`)}</span>
+                  </div>
+                ) : (
+                  <div style={{
+                    width: '100%',
+                    height: '240px',
+                    border: '1.5px dashed var(--border-color)',
+                    borderRadius: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'var(--text-secondary)',
+                    fontSize: '0.85rem',
+                    textAlign: 'center',
+                    padding: '20px'
+                  }}>
+                    ຍັງບໍ່ມີການອັບໂຫຼດສະລິບຊຳລະເງິນ
+                  </div>
+                )}
+
+                {/* Actions based on payment Status */}
+                {selectedOrder.paymentStatus === 'pending_verification' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '10px' }}>
+                    <button className="btn btn-primary" onClick={handleApprovePayment} style={{ width: '100%', fontWeight: 'bold' }}>
+                      ຢືນຢັນຍອດເງິນ / Approve
+                    </button>
+                    <button className="btn" onClick={handleRejectPayment} style={{ width: '100%', background: 'var(--alert-red)', color: 'white', borderColor: 'var(--alert-red)', fontWeight: 'bold' }}>
+                      ປະຕິເສດສະລິບ / Reject
+                    </button>
+                  </div>
+                )}
+
+                {/* Status adjustment buttons */}
+                {selectedOrder.paymentStatus === 'paid' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)', marginTop: '10px' }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>{db.getLabel('auto____ປ່ຽນສະຖານະການຈັດສົ່ງ__gpi7i3', `ປ່ຽນສະຖານະການຈັດສົ່ງ:`)}</span>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '6px' }}>
+                      <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '6px' }} onClick={() => handleChangeShippingStatus('packing', 'ກຳລັງແພັກພັດສະດຸ')}>{db.getLabel('auto____ແພັກພັດສະດຸ_sl6dev', `ແພັກພັດສະດຸ`)}</button>
+                      <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '6px' }} onClick={() => handleChangeShippingStatus('ready_to_ship', 'ພ້ອມຈັດສົ່ງ')}>{db.getLabel('auto____ພ້ອມຈັດສົ່ງ_tka0m1', `ພ້ອມຈັດສົ່ງ`)}</button>
+                      <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '6px' }} onClick={() => handleChangeShippingStatus('shipped', 'ຈັດສົ່ງອອກແລ້ວ')}>{db.getLabel('auto____ຈັດສົ່ງແລ້ວ_opbcuc', `ຈັດສົ່ງແລ້ວ`)}</button>
+                      <button className="btn btn-primary" style={{ fontSize: '0.75rem', padding: '6px', background: '#2ecc71', borderColor: '#2ecc71' }} onClick={() => handleChangeShippingStatus('delivered', 'ສົ່ງມອບສຳເລັດ')}>{db.getLabel('auto____ສຳເລັດແລ້ວ_ao0c32', `ສຳເລັດແລ້ວ`)}</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            )}
           </div>
           )
         ) : (
@@ -1045,7 +1047,7 @@ export default function OnlineOrders({ activeUser, isMobile }) {
                 className="btn btn-primary"
                 style={{ display: 'inline-block', textDecoration: 'none', padding: '8px 20px', fontSize: '0.85rem' }}
               >
-                📥 ດາວໂຫຼດສະລິບ (Download Slip)
+                ດາວໂຫຼດສະລິບ (Download Slip)
               </a>
             </div>
           </div>

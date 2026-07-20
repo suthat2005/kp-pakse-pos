@@ -31,7 +31,7 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
 
   const handlePrintReceipt = (debt, cashierName = '', paymentMethodLabel = '') => {
     const widths = db.getPaperPrintWidths(settings.receiptPaperWidth || '80mm');
-    const paperWidth = widths.paper;
+    const _paperWidth = widths.paper;
     const printableWidth = widths.printable;
     const fontSize = ensureUnit(settings.receiptFontSize || '10pt', 'pt');
     const shopLogo = settings.receiptLogoUrl || '';
@@ -56,7 +56,7 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
       itemsHtml += '<tr><td style="padding:4px 0;line-height:1.2;">' + item.name + '</td><td style="width:' + (settings.receiptQtyColWidth || '35px') + ';text-align:center;padding:4px 0;">' + item.qty + '</td><td style="width:' + (settings.receiptPriceColWidth || '95px') + ';text-align:right;padding:4px 0;">' + (item.total || (item.price * item.qty)).toLocaleString() + ' ກີບ</td></tr>';
     });
 
-    const statusText = debt.status === 'unpaid' ? '🔴 ຍັງບໍ່ທັນຊຳລະ' : '🟢 ຊຳລະແລ້ວ';
+    const statusText = debt.status === 'unpaid' ? 'ຍັງບໍ່ທັນຊຳລະ' : 'ຊຳລະແລ້ວ';
 
     const subtotal = debt.subtotal !== undefined ? debt.subtotal : debt.items.reduce((s, i) => s + (i.total || (i.price * i.qty)), 0);
     const discount = debt.discount || 0;
@@ -111,21 +111,21 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
       (settings.receiptShowCustomer !== false ? '<div><b>' + db.getLabel('rcpt_customer','ລູກຄ້າ:') + '</b> ' + debt.customerName + '</div><div><b>ໂທລະສັບ:</b> ' + debt.customerPhone + '</div>' : '') +
       (debt.notes ? '<div><b>ໝາຍເຫດ:</b> ' + debt.notes + '</div>' : '');
 
-    doc.write('<html><head><title>ໃບບິນໜີ້ - ' + debt.id + '</title><style>@page{size:' + (widths.paper.includes('landscape') ? 'A5 landscape' : widths.paper === 'A5' ? 'A5' : widths.paper === 'A4' ? 'A4' : 'portrait') + ';margin:0}body{margin:0;padding:10px;font-family:Arial,sans-serif;background:white;color:black;font-size:' + fontSize + ';line-height:1.4}.header{text-align:center;margin-bottom:10px}.logo{width:50px;height:50px;border-radius:50%;object-fit:cover;margin-bottom:6px}.title{font-size:calc(' + fontSize + ' + 2pt);font-weight:bold}.subtitle{font-size:calc(' + fontSize + ' - 1.5pt);color:#555}.divider{border-bottom:' + (settings.receiptDividerThickness || '1px') + ' ' + (settings.receiptDividerStyle || 'dashed') + ' black;margin:8px 0}.details{font-size:calc(' + fontSize + ' - 1.5pt);margin-bottom:8px}.details div{margin-bottom:2px}.totals{display:flex;justify-content:space-between;font-weight:bold;margin-top:4px}.status-badge{text-align:center;font-weight:bold;font-size:calc(' + fontSize + ' - 0.5pt);margin:8px 0;padding:4px;border:1px solid black}</style></head><body onload="window.print();"><div style="width:' + printableWidth + ';margin:0 auto;box-sizing:border-box;padding-left:calc(' + (settings.receiptPadding || '3mm') + ' + ' + (settings.receiptMarginLeft || '0mm') + ');padding-right:calc(' + (settings.receiptPadding || '3mm') + ' + ' + (settings.receiptMarginRight || '0mm') + ');padding-top:calc(' + (settings.receiptPadding || '3mm') + ' + ' + (settings.receiptMarginTop || '0mm') + ');padding-bottom:calc(' + (settings.receiptPadding || '3mm') + ' + ' + (settings.receiptMarginBottom || '0mm') + ' + ' + (settings.receiptFeedPadding || '8mm') + ');"><div class="header">' + ((settings.receiptShowLogo !== false && shopLogo) ? '<img src="' + shopLogo + '" class="logo" />' : '') + (settings.receiptShowHeader !== false ? '<div class="title">' + shopName + '</div>' : '') + (settings.receiptShowContactInfo !== false ? '<div class="subtitle">' + shopSubtitle + '</div><div class="subtitle">' + shopAddress + ' | ໂທ: ' + shopPhone + '</div>' : '') + '</div><div class="status-badge">' + statusText + '</div><div class="details">' + detailsHtml + '</div><div class="divider"></div><div style="padding-right:6mm;"><table style="width:100%;border-collapse:collapse;font-size:calc(' + fontSize + ' - 1.5pt);"><thead><tr style="border-bottom:1px solid black;text-align:left;"><th style="padding-bottom:4px;">ລາຍການ</th><th style=\"width:' + (settings.receiptQtyColWidth || '35px') + ';text-align:center;padding-bottom:4px;\">ຈຳນວນ</th><th style=\"width:' + (settings.receiptPriceColWidth || '95px') + ';text-align:right;padding-bottom:4px;\">ລາຄາ</th></tr></thead><tbody>' + itemsHtml + '</tbody></table></div><div class="divider"></div>' + totalsHtml + equivalentHtml + qrHtml + (settings.receiptShowSignatures !== false ? '<div style="display:flex;justify-content:space-between;font-size:calc(' + fontSize + ' - 2.5pt);margin-top:30px;text-align:center;color:black;"><div style="width:45%;"><div>..................................</div><div style="margin-top:4px;">' + db.getLabel('rcpt_paid_by', 'ຜູ້ຈ່າຍເງິນ') + '</div></div><div style="width:45%;"><div>..................................</div><div style="margin-top:4px;">' + db.getLabel('rcpt_received_by', 'ຜູ້ຮັບເງິນ') + '</div></div></div>' : '') + '<div class="divider"></div>' + (settings.receiptShowFooter !== false ? '<div style="text-align:center;font-size:calc(' + fontSize + ' - 2pt);margin-top:10px;">' + (settings.receiptFooterNote || 'ຂອບໃຈທີ່ໃຊ້ບໍລິການ!') + '</div>' : '') + '</div></body></html>');
+    doc.write('<html><head><title>ໃບບິນໜີ້ - ' + debt.id + '</title><style>@page{size:' + (widths.paper.includes('landscape') ? 'A5 landscape' : widths.paper === 'A5' ? 'A5' : widths.paper === 'A4' ? 'A4' : 'portrait') + ';margin:0}body{margin:0;padding:10px;font-family:Arial,sans-serif;background:white;color:black;font-size:' + fontSize + ';line-height:1.4}.header{text-align:center;margin-bottom:10px}.logo{width:50px;height:50px;border-radius:50%;object-fit:cover;margin-bottom:6px}.title{font-size:calc(' + fontSize + ' + 2pt);font-weight:bold}.subtitle{font-size:calc(' + fontSize + ' - 1.5pt);color:#555}.divider{border-bottom:' + (settings.receiptDividerThickness || '1px') + ' ' + (settings.receiptDividerStyle || 'dashed') + ' black;margin:8px 0}.details{font-size:calc(' + fontSize + ' - 1.5pt);margin-bottom:8px}.details div{margin-bottom:2px}.totals{display:flex;justify-content:space-between;font-weight:bold;margin-top:4px}.status-badge{text-align:center;font-weight:bold;font-size:calc(' + fontSize + ' - 0.5pt);margin:8px 0;padding:4px;border:1px solid black}</style></head><body onload="window.print();"><div style="width:' + printableWidth + ';margin:0 auto;box-sizing:border-box;padding-left:calc(' + (settings.receiptPadding || '3mm') + ' + ' + (settings.receiptMarginLeft || '0mm') + ');padding-right:calc(' + (settings.receiptPadding || '3mm') + ' + ' + (settings.receiptMarginRight || '0mm') + ');padding-top:calc(' + (settings.receiptPadding || '3mm') + ' + ' + (settings.receiptMarginTop || '0mm') + ');padding-bottom:calc(' + (settings.receiptPadding || '3mm') + ' + ' + (settings.receiptMarginBottom || '0mm') + ' + ' + (settings.receiptFeedPadding || '8mm') + ');"><div class="header">' + ((settings.receiptShowLogo !== false && shopLogo) ? '<img src="' + shopLogo + '" class="logo" />' : '') + (settings.receiptShowHeader !== false ? '<div class="title">' + shopName + '</div>' : '') + (settings.receiptShowContactInfo !== false ? '<div class="subtitle">' + shopSubtitle + '</div><div class="subtitle">' + shopAddress + ' | ໂທ: ' + shopPhone + '</div>' : '') + '</div><div class="status-badge">' + statusText + '</div><div class="details">' + detailsHtml + '</div><div class="divider"></div><div style="padding-right:6mm;"><table style="width:100%;border-collapse:collapse;font-size:calc(' + fontSize + ' - 1.5pt);"><thead><tr style="border-bottom:1px solid black;text-align:left;"><th style="padding-bottom:4px;">ລາຍການ</th><th style="width:' + (settings.receiptQtyColWidth || '35px') + ';text-align:center;padding-bottom:4px;">ຈຳນວນ</th><th style="width:' + (settings.receiptPriceColWidth || '95px') + ';text-align:right;padding-bottom:4px;">ລາຄາ</th></tr></thead><tbody>' + itemsHtml + '</tbody></table></div><div class="divider"></div>' + totalsHtml + equivalentHtml + qrHtml + (settings.receiptShowSignatures !== false ? '<div style="display:flex;justify-content:space-between;font-size:calc(' + fontSize + ' - 2.5pt);margin-top:30px;text-align:center;color:black;"><div style="width:45%;"><div>..................................</div><div style="margin-top:4px;">' + db.getLabel('rcpt_paid_by', 'ຜູ້ຈ່າຍເງິນ') + '</div></div><div style="width:45%;"><div>..................................</div><div style="margin-top:4px;">' + db.getLabel('rcpt_received_by', 'ຜູ້ຮັບເງິນ') + '</div></div></div>' : '') + '<div class="divider"></div>' + (settings.receiptShowFooter !== false ? '<div style="text-align:center;font-size:calc(' + fontSize + ' - 2pt);margin-top:10px;">' + (settings.receiptFooterNote || 'ຂອບໃຈທີ່ໃຊ້ບໍລິການ!') + '</div>' : '') + '</div></body></html>');
     doc.close();
     printFrame.contentWindow.focus();
     setTimeout(() => { document.body.removeChild(printFrame); }, 1000);
   };
 
   useEffect(() => {
-    setDebts(db.getDebts());
+    queueMicrotask(() => setDebts(db.getDebts()));
   }, [showCheckout]);
 
   const handleSearch = (e) => setSearchQuery(e.target.value);
 
   const handlePayClick = (debt) => {
     if (!hasDebtsPermission('debtsCollect')) {
-      alert('🔒 ທ່ານບໍ່ມີສິດໃນການຮັບຊຳລະໜີ້!');
+      alert('ທ່ານບໍ່ມີສິດໃນການຮັບຊຳລະໜີ້!');
       return;
     }
     setSelectedDebt(debt);
@@ -180,7 +180,7 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
     db.addOrder(orderData);
     setShowCheckout(false);
     setSelectedDebt(null);
-    setSuccessMsg('✅ ຊຳລະໜີ້ ແລະ ບັນທຶກສຳເລັດແລ້ວ!');
+    setSuccessMsg('ຊຳລະໜີ້ ແລະ ບັນທຶກສຳເລັດແລ້ວ!');
     setDebts(db.getDebts());
     if (onUpdate) onUpdate();
     setTimeout(() => setSuccessMsg(''), 3000);
@@ -199,29 +199,39 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
       <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         
         {successMsg && (
-          <div style={{ background: 'rgba(39, 174, 96, 0.15)', border: '1px solid var(--success-green)', color: 'var(--success-green)', padding: '12px 16px', borderRadius: '8px', fontWeight: 'bold', textAlign: 'center' }}>
-            {successMsg}
+          <div style={{ background: 'linear-gradient(135deg,rgba(34,197,94,0.12),rgba(34,197,94,0.06))', color: '#22c55e', padding: '10px 16px', borderRadius: 12, border: '1px solid rgba(34,197,94,0.25)', fontWeight: 700, fontSize: '0.87rem', display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left' }}>
+            <span>&#10003;</span>{successMsg}
           </div>
         )}
 
-        <div>
-          <h2 style={{ color: 'var(--gold-primary)', fontSize: isMobile ? '1.25rem' : '1.5rem', margin: 0 }}>
-            {db.getLabel('title_debts', '📒 ບັນຊີຕິດໜີ້ລູກຄ້າ (Customer Credit Ledger)')}
-          </h2>
-          {!isMobile && (
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0' }}>{'ຕິດຕາມລູກຄ້າຕິດໜີ້, ຊຳລະໜີ້ຄ້າງ, ພິມໃບບິນ'}</p>
-          )}
-        </div>
-
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <input
-            type="text"
-            className="form-control"
-            placeholder={'🔍 ຄົ້ນຫາ ຊື່ລູກຄ້າ / ເບີໂທ / ເລກບິນ...'}
-            value={searchQuery}
-            onChange={handleSearch}
-            style={{ flex: 1, background: 'var(--input-bg)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px 14px', color: 'white' }}
-          />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg,rgba(239,68,68,0.15),rgba(239,68,68,0.06))', border: '1px solid rgba(239,68,68,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}></div>
+            <div>
+              <h2 style={{ background: 'linear-gradient(135deg,#ef4444,#fca5a5,#dc2626)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', margin: 0, fontSize: isMobile ? '1.1rem' : '1.35rem', fontWeight: 900, letterSpacing: '-0.3px' }}>
+                {db.getLabel('title_debts', 'ບັນຊີຕິດໜີ້ລູກຄ້າ')}
+              </h2>
+              {!isMobile && <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.78rem', margin: '2px 0 0', fontWeight: 500 }}>ຕິດຕາມລູກຄ້າຕິດໜີ້, ຊຳລະໜີ້ຄ້າງ, ພິມໃບບິນ</p>}
+            </div>
+          </div>
+          <div style={{ position: 'relative', width: isMobile ? '100%' : 280 }}>
+            <input
+              type="text"
+              placeholder='ຄົ້ນຫາ ຊື່ລູກຄ້າ / ເບີໂທ / ເລກບິນ...'
+              value={searchQuery}
+              onChange={handleSearch}
+              style={{
+                width: '100%', paddingLeft: 36, height: 38,
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: 'white', borderRadius: 11, fontSize: '0.85rem',
+                outline: 'none', transition: 'border-color 0.18s', boxSizing: 'border-box',
+              }}
+              onFocus={e => { e.target.style.borderColor = 'rgba(239,68,68,0.5)'; e.target.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.1)'; }}
+              onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; e.target.style.boxShadow = 'none'; }}
+            />
+            <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.28)', fontSize: '0.82rem', pointerEvents: 'none' }}></span>
+          </div>
         </div>
 
         {/* Desktop Table */}
@@ -266,22 +276,22 @@ export default function Debts({ activeUser, onUpdate, isMobile }) {
                         color: debt.status === 'unpaid' ? 'var(--alert-red)' : 'var(--success-green)',
                         border: '1px solid ' + (debt.status === 'unpaid' ? 'rgba(231, 76, 60, 0.3)' : 'rgba(39, 174, 96, 0.3)')
                       }}>
-                        {debt.status === 'unpaid' ? '🔴 ຍັງບໍ່ທັນຊຳລະ' : '🟢 ຊຳລະແລ້ວ'}
+                        {debt.status === 'unpaid' ? 'ຍັງບໍ່ທັນຊຳລະ' : 'ຊຳລະແລ້ວ'}
                       </span>
                     </td>
                     <td style={{ padding: '12px 16px', textAlign: 'right' }}>
                       <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                         <button className="btn btn-secondary" style={{ padding: '4px 10px', fontSize: '0.75rem' }} onClick={() => handlePrintReceipt(debt)}>
-                          {'🖨️ ພິມບິນ'}
+                          {'ພິມບິນ'}
                         </button>
                         {debt.status === 'unpaid' && hasDebtsPermission('debtsCollect') ? (
                           <button className="btn btn-primary" style={{ padding: '4px 10px', fontSize: '0.75rem' }} onClick={() => handlePayClick(debt)}>
-                            {'💵 ຊຳລະໜີ້'}
+                            {'ຊຳລະໜີ້'}
                           </button>
                         ) : debt.status === 'unpaid' ? (
-                          <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', alignSelf: 'center' }}>{'🔒 ຊຳລະໜີ້'}</span>
+                          <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', alignSelf: 'center' }}>{'ຊຳລະໜີ້'}</span>
                         ) : (
-                          <span style={{ color: 'var(--success-green)', fontSize: '0.75rem', alignSelf: 'center' }}>{'✅ ຊຳລະແລ້ວ'}</span>
+                          <span style={{ color: 'var(--success-green)', fontSize: '0.75rem', alignSelf: 'center' }}>{'ຊຳລະແລ້ວ'}</span>
                         )}
                       </div>
                     </td>
