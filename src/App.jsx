@@ -1749,12 +1749,12 @@ export default function App() {
               <div style={{ position: 'absolute', top: '20%', left: '50%', transform: 'translateX(-50%)', width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle, rgba(212,175,55,0.05) 0%, transparent 70%)', pointerEvents: 'none' }}/>
 
               {/* lock icon ring */}
-              <div style={{ width: 96, height: 96, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(212,175,55,0.1), rgba(212,175,55,0.04))', border: '1.5px solid rgba(212,175,55,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.8rem', marginBottom: 24, boxShadow: '0 0 40px rgba(212,175,55,0.12)', animation: 'pulse-gold 3s ease-in-out infinite' }}>
-                🔒
+              <div style={{ width: 96, height: 96, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(212,175,55,0.1), rgba(212,175,55,0.04))', border: '1.5px solid rgba(212,175,55,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24, boxShadow: '0 0 40px rgba(212,175,55,0.12)', animation: 'pulse-gold 3s ease-in-out infinite' }}>
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--gold-primary)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 0 8px rgba(212,175,55,0.4))' }}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </div>
 
               <h2 style={{ color: 'white', margin: '0 0 10px', fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.3px' }}>
-                ລອໃຊ້ງານ — ຕ້ອງເຂົ້າງານກ່ອນ
+                ລໍຖ້າໃຊ້ງານ — ຕ້ອງເຂົ້າງານກ່ອນ
               </h2>
               <p style={{ color: 'rgba(255,255,255,0.38)', maxWidth: 440, margin: '0 0 32px', fontSize: '0.86rem', lineHeight: 1.65 }}>
                 ທ່ານ <strong style={{ color: 'rgba(255,255,255,0.7)' }}>{activeUser?.name}</strong> ຍັງບໍ່ໄດ້ເຂົ້າງານ.
