@@ -3101,7 +3101,8 @@ export default function POS({
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', padding: '9px 16px', borderRadius: '10px', fontWeight: 'bold', margin: 0 }}
                   title={db.getLabel('auto_ຄືນສິນຄ້າ___ຄືນເງິນ_63o73v', `ຄືນສິນຄ້າ / ຄືນເງິນ`)}
                 >
-                  ↩️ {db.getLabel('pos_return_refund', 'ຄືນສິນຄ້າ')}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                  {db.getLabel('pos_return_refund', 'ຄືນສິນຄ້າ')}
                 </button>
                 <button
                   type="button"
@@ -3109,7 +3110,8 @@ export default function POS({
                   onClick={() => setShowAddSlotModal(true)}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', padding: '9px 18px', borderRadius: '10px', fontWeight: 'bold', boxShadow: '0 4px 15px rgba(212,175,55,0.3)', margin: 0 }}
                 >
-                  ➕ {db.getLabel('pos_add_queue', 'ເພີ່ມບັດຄິວ')}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ flexShrink: 0 }}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  {db.getLabel('pos_add_queue', 'ເພີ່ມບັດຄິວ')}
                 </button>
               </div>
             </div>
