@@ -2173,7 +2173,10 @@ export default function App() {
         <div className="modal-overlay" style={{ zIndex: 1100 }}>
           <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
             <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '1.15rem' }}>{db.getLabel('auto____ເປີດກະລິ້ນຊັກ___ເຂົ້າງ_x4lh3e', `🕒 ເປີດກະລິ້ນຊັກ / ເຂົ້າງານ`)}</h3>
+              <h3 style={{ color: 'var(--gold-primary)', margin: 0, fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                {db.getLabel('pos_drawer_open_title', 'ເປີດກະລິ້ນຊັກ / ເຂົ້າງານ')}
+              </h3>
               <button className="close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => setShowClockInModal(false)}>✕</button>
             </div>
             <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -2256,7 +2259,10 @@ export default function App() {
                     handleSystemUpdate();
                   }}
                 >
-                  🕒 ຢືນຢັນເຂົ້າງານ
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    {db.getLabel('pos_confirm_clock_in', 'ຢືນຢັນເຂົ້າງານ')}
+                  </span>
                 </button>
               </div>
             </div>
