@@ -1528,19 +1528,21 @@ export default function App() {
                   setInventoryFilter('low_stock');
                 }}
                 style={{
-                  background: 'rgba(239,68,68,0.18)',
+                  background: 'rgba(239,68,68,0.12)',
                   color: 'var(--alert-red)',
-                  border: '1px solid rgba(239,68,68,0.35)',
-                  padding: '4px 11px',
-                  borderRadius: 9,
-                  fontSize: '0.68rem',
-                  fontWeight: 800,
+                  border: '1px solid rgba(239,68,68,0.3)',
+                  padding: '6px 12px',
+                  borderRadius: '12px',
+                  fontSize: '0.75rem',
+                  fontWeight: 'bold',
                   animation: 'pulse-gold 1.5s infinite',
                   cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 5,
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  whiteSpace: 'nowrap'
                 }}
               >
-                ⚠️ {isMobile ? 'ສະຕັອກ' : 'ສະຕັອກໃກ້ໝົດ!'}
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                {isMobile ? 'ສະຕັອກ' : 'ສະຕັອກໃກ້ໝົດ!'}
               </div>
             )}
 
@@ -1558,11 +1560,15 @@ export default function App() {
                 borderColor: 'rgba(52, 152, 219, 0.3)',
                 whiteSpace: 'nowrap',
                 fontWeight: 'bold',
-                marginRight: '8px'
+                marginRight: '8px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
               }}
               onClick={() => setShowOnlineShopQrModal(true)}
             >
-              {isMobile ? '🌐 QR' : '🌐 QR ເບິ່ງສິນຄ້າ'}
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><line x1="7" y1="7" x2="7" y2="7.01"/><line x1="17" y1="7" x2="17" y2="7.01"/><line x1="7" y1="17" x2="7" y2="17.01"/><line x1="17" y1="17" x2="17" y2="17.01"/></svg>
+              {isMobile ? 'QR' : 'QR ເບິ່ງສິນຄ້າ'}
             </button>
 
             {/* Quick-action Expense Logger */}
