@@ -3453,15 +3453,37 @@ export default function POS({
                           <div style={{
                             width: '42px',
                             height: '42px',
-                            borderRadius: '50%',
-                            background: `radial-gradient(circle, rgba(212,175,55,0.12), rgba(12,10,8,0.8))`,
+                            borderRadius: !hasCustomer ? '50%' : '10px',
+                            background: 'rgba(255, 255, 255, 0.03)',
                             border: `2px solid ${cardBorder}`,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            fontSize: '1.2rem'
+                            boxShadow: 'inset 0 0 8px rgba(212,175,55,0.05)'
                           }}>
-                            {isDebt ? '🔴' : (hasCustomer && hasDeposit) ? '💰' : hasCustomer ? '🛍' : '📿'}
+                            {isDebt ? (
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--alert-red)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                              </svg>
+                            ) : (hasCustomer && hasDeposit) ? (
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold-primary)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="12" y1="1" x2="12" y2="23"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                              </svg>
+                            ) : hasCustomer ? (
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <path d="M16 10a4 4 0 0 1-8 0"></path>
+                              </svg>
+                            ) : (
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3498db" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                              </svg>
+                            )}
                           </div>
                         )}
                       </div>
