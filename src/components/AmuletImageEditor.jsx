@@ -1656,7 +1656,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
           }}>
             {[
               { id:'crop',       icon:'📐', label:'ຈັດຮູບ' },
-              { id:'enhance',    icon:'✨', label:'ປับແສງ' },
+              { id:'enhance',    icon:'✨', label:'ປັບແສງ' },
               { id:'eraser',     icon:'🧹', label:'ຢາງລົບ' },
               { id:'background', icon:'🎨', label:'ພື້ນຫຼັງ' },
               { id:'dimensions', icon:'📏', label:'ຂະໜາດ' },
@@ -1910,7 +1910,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                     <p style={{ fontSize:'0.78rem', color:'#aaa', marginBottom:'10px' }}>✂️ ຕັດຂອບ (Crop):</p>
                     <SliderRow label="◀ ຕັດຊ້າຍ (Left)" value={settings.cropLeft} min={0} max={49} step={0.5} unit="%"
                       onChange={v => updateSettings({cropLeft:v})} />
-                    <SliderRow label="▶ ຕັດຂວา (Right)" value={settings.cropRight} min={0} max={49} step={0.5} unit="%"
+                    <SliderRow label="▶ ຕັດຂວາ (Right)" value={settings.cropRight} min={0} max={49} step={0.5} unit="%"
                       onChange={v => updateSettings({cropRight:v})} />
                     <SliderRow label="▲ ຕັດເທິງ (Top)" value={settings.cropTop} min={0} max={49} step={0.5} unit="%"
                       onChange={v => updateSettings({cropTop:v})} />
@@ -2109,7 +2109,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                     </button>
                   </div>
 
-                  <SliderRow label="🎚️ ຄວາມທົນທาน (Tolerance)" value={settings.bgThreshold} min={5} max={150} step={1} unit=""
+                  <SliderRow label="🎚️ ຄວາມທົນທານ (Tolerance)" value={settings.bgThreshold} min={5} max={150} step={1} unit=""
                     onChange={v => updateSettings({bgThreshold:v})}
                     displayFn={v => {
                       if(v<30) return `${v} (ເຄັ່ງ)`;
@@ -2307,7 +2307,7 @@ export default function AmuletImageEditor({ imageUrl, onSave, onClose, inline = 
                             {[
                               { id:'double', label:'↔ ສອງຫົວ' },
                               { id:'end',    label:'→ ຫົວຂວາ' },
-                              { id:'none',   label:'— ເสັ້ນຊື່' },
+                              { id:'none',   label:'— ເສັ້ນຊື່' },
                             ].map(styleOpt => (
                               <button key={styleOpt.id} onClick={() => {
                                 setDimensions(prev => prev.map(d => d.id === selDim.id ? { ...d, arrowStyle: styleOpt.id } : d));

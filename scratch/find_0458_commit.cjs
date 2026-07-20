@@ -1,26 +1,28 @@
 const { execSync } = require('child_process');
 const fs = require('fs');
 
-console.log("=== GIT LOG (Recent 30 commits with full ISO dates) ===");
+console.log("=== SEARCHING EARLY COMMITS FOR db_shared.json ===");
 try {
-  const log = execSync('git log -n 30 --format="%h %cd %s"', { encoding: 'utf8' });
-  console.log(log);
+  const commits = execSync('git log --reverse --format="%H" -- db_shared.json', { encoding: 'utf8' }).trim().split('\n');
+  console.log(`Total commits of db_shared.json: ${commits.length}`);
+  
+  for (let i = 0; i < Math.min(10, commits.length); i++) {
+    const hash = commits[i];
+    console.log(`\nCommit index ${i}: ${hash}`);
+    try {
+      execSync(`git show ${hash}:db_shared.json > scratch/temp_db.json`);
+      const db = JSON.parse(fs.readFileSync('scratch/temp_db.json', 'utf8'));
+      if (db.users && Array.isArray(db.users.data)) {
+        console.log(`  - Users:`);
+        db.users.data.forEach(u => {
+          console.log(`    * ID: ${u.id}, Name: ${u.name}, Passcode: ${u.passcode}, Password: ${u.password}`);
+        });
+      }
+      fs.unlinkSync('scratch/temp_db.json');
+    } catch (e) {
+      console.log(`  - Failed to read: ${e.message}`);
+    }
+  }
 } catch (e) {
-  console.error(e.message);
-}
-
-console.log("=== GIT REFLOG (Recent 50 entries) ===");
-try {
-  const reflog = execSync('git reflog -n 50 --date=iso', { encoding: 'utf8' });
-  console.log(reflog);
-} catch (e) {
-  console.error(e.message);
-}
-
-console.log("=== GIT STASH LIST ===");
-try {
-  const stash = execSync('git stash list --date=iso', { encoding: 'utf8' });
-  console.log(stash);
-} catch (e) {
-  console.error(e.message);
+  console.error(e);
 }

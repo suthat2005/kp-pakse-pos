@@ -590,7 +590,7 @@ export default function Login({ onLoginSuccess }) {
             )}
 
             <button type="submit" className="login-btn-primary" style={{ marginBottom: 10 }}>
-              {otpSent ? 'ຢືນຢັນ ແລະ ປ່ຽນລະหັດຜ່ານ' : 'ສົ່ງລະຫັດ OTP'}
+              {otpSent ? 'ຢືນຢັນ ແລະ ປ່ຽນລະຫັດຜ່ານ' : 'ສົ່ງລະຫັດ OTP'}
             </button>
             <button type="button" className="login-btn-secondary"
               onClick={() => { setView('login'); setError(''); setSuccessMessage(''); setOtpSent(false); }}>

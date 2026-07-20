@@ -139,7 +139,7 @@ export default function OnlineOrders({ isMobile }) {
       shippingImage,
       statusNote: shippingNote || 'ອັບເດດຂໍ້ມູນການຈັດສົ່ງພັດສະດຸ'
     });
-    alert('✓ อັບເດດຂໍ້ມູນການຈັດສົ່ງສຳເລັດ!');
+    alert('✓ ອັບເດດຂໍ້ມູນການຈັດສົ່ງສຳເລັດ!');
     setShippingNote('');
     loadOrders();
   };
@@ -216,7 +216,7 @@ export default function OnlineOrders({ isMobile }) {
       case 'unpaid': return 'ລໍຖ້າຊຳລະ';
       case 'pending_verification': return 'ລໍຖ້າກວດສອບສະລິບ';
       case 'paid': return 'ຊຳລະແລ້ວ';
-      case 'rejected': return '❌ ສະລິບຖືກປະຕิເສດ';
+      case 'rejected': return '❌ ສະລິບຖືກປະຕິເສດ';
       case 'inquiry': return 'ສອບຖາມຂໍ້ມູນ';
       default: return status;
     }
@@ -814,7 +814,7 @@ export default function OnlineOrders({ isMobile }) {
 
                 {/* 3. Shipping info editing form */}
                 <form onSubmit={handleUpdateShipping} style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(255,255,255,0.01)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                  <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: '0 0 4px' }}>{db.getLabel('auto____ຈັດการຂໍ້ມູນການຈັດສົ່ງ_sg2s4w', `ຈັດການຂໍ້ມູນການຈັດສົ່ງ:`)}</h4>
+                  <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: '0 0 4px' }}>{db.getLabel('auto____ຈັດກາຣຂໍ້ມູນການຈັດສົ່ງ_sg2s4w', `ຈັດການຂໍ້ມູນການຈັດສົ່ງ:`)}</h4>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div className="form-group">
                       <label className="form-label" style={{ fontSize: '0.8rem' }}>{db.getLabel('auto_ບໍລິສັດຂົນສົ່ງ__Carrier__x1eojm', `ບໍລິສັດຂົນສົ່ງ (Carrier)`)}</label>
@@ -931,7 +931,7 @@ export default function OnlineOrders({ isMobile }) {
 
               {/* Right column: Slip review and actions */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>{db.getLabel('auto____ສະລິບການໂອນເງິນ__qz8usx', `ສະລິບການໂอนເງິນ:`)}</h4>
+                <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>{db.getLabel('auto____ສະລິບການໂອນເງິນ__qz8usx', `ສະລິບການໂອນເງິນ:`)}</h4>
 
                 {selectedOrder.slipImage ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

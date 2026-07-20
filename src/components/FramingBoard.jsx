@@ -73,7 +73,7 @@ export default function FramingBoard({
       if ('speechSynthesis' in window && soundEnabledRef.current) {
         try {
           window.speechSynthesis.cancel(); // clear speech queue
-          const text = "ช่างอัดกรอบพระ งานเข้าแล้วเด้อค่ะ";
+          const text = "ຊ່າງອັດກຣອບພຣະ ງານເຂ້າແລ້ວເດ້ອຄ່ະ";
           const utterance = new SpeechSynthesisUtterance(text);
           utterance.lang = 'th-TH';
           utterance.rate = 0.92;   // sweet slow tempo
@@ -258,7 +258,7 @@ export default function FramingBoard({
     const trackUrl = `${baseOrigin}${window.location.pathname}?track=${job.id}`;
 
     if (lang === 'thai') {
-      return `งานเลี่ยมพระของคุณเลขบิล ${job.id} เสร็จเรียบร้อยแล้วค่ะ! ยอดค้างชำระ: ${balanceStr} กีบ. ติดตามสถานะได้ที่: ${trackUrl} กรุณามารับเครื่องได้ที่ ร้านขอบพระ ปากเซ.`;
+      return `ງານເລີ່ຢມພຣະຂອງຄຸຓເລຂບິລ ${job.id} ເສຣ໇ຈເຣີຢບຣ້ອຢແລ້ວຄ່ະ! ຢອດຄ້າງຊຳຣະ: ${balanceStr} ກີບ. ຕິດຕາມສຖານະໄດ້ທີ່: ${trackUrl} ກຣຸຓາມາຣັບເຄຣື່ອງໄດ້ທີ່ ຣ້ານຂອບພຣະ ປາກເ຋.`;
     } else if (lang === 'eng') {
       return `Your amulet framing work order ${job.id} is ready for pick up! Balance due: ${balanceStr} LAK. Track status: ${trackUrl} Please collect it at Kop Phra Pakse shop.`;
     }
@@ -772,7 +772,7 @@ export default function FramingBoard({
                 <label className="form-label" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ເລືອກພາສາຂໍ້ຄວາມ__Select__ktpsax', `ເລືອກພາສາຂໍ້ຄວາມ (Select Language):`)}</label>
                 <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                   <button type="button" className={`btn ${notifyLang === 'lao' ? 'btn-primary' : 'btn-secondary'}`} style={{ flex: 1, padding: '6px' }} onClick={() => setNotifyLang('lao')}>{db.getLabel('auto_ລາວ__Lao__c3aec1', `ລາວ (Lao)`)}</button>
-                  <button type="button" className={`btn ${notifyLang === 'thai' ? 'btn-primary' : 'btn-secondary'}`} style={{ flex: 1, padding: '6px' }} onClick={() => setNotifyLang('thai')}>ไทย (Thai)</button>
+                  <button type="button" className={`btn ${notifyLang === 'thai' ? 'btn-primary' : 'btn-secondary'}`} style={{ flex: 1, padding: '6px' }} onClick={() => setNotifyLang('thai')}>ໄທຢ (Thai)</button>
                   <button type="button" className={`btn ${notifyLang === 'eng' ? 'btn-primary' : 'btn-secondary'}`} style={{ flex: 1, padding: '6px' }} onClick={() => setNotifyLang('eng')}>Eng</button>
                 </div>
               </div>

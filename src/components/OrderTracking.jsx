@@ -149,7 +149,7 @@ export default function OrderTracking({ jobId, onClose, isInline = false, mockJo
             style={{ color: getStatusColor(job.status), background: getStatusColor(job.status) }}
           />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span className="m-label-dim">{db.getLabel('track_current_step', 'ขັ້ນຕອນປັດຈຸບັນ (Current Step)')}</span>
+            <span className="m-label-dim">{db.getLabel('track_current_step', 'ຂັ້ນຕອນປັດຈຸບັນ (Current Step)')}</span>
             <span className="m-status-text" style={{ color: getStatusColor(job.status) }}>
               {getStatusText(job.status)}
             </span>
@@ -408,7 +408,7 @@ export default function OrderTracking({ jobId, onClose, isInline = false, mockJo
                 <span className="price-value">{(job.totalPrice || 0).toLocaleString()} ₭</span>
               </div>
               <div className="price-row" style={{ color: '#2ecc71' }}>
-                <span className="price-label" style={{ color: '#2ecc71' }}>{db.getLabel('track_deposit', 'มັດຈຳແລ້ວ:')}</span>
+                <span className="price-label" style={{ color: '#2ecc71' }}>{db.getLabel('track_deposit', 'ມັດຈຳແລ້ວ:')}</span>
                 <span className="price-value">-{(job.deposit || 0).toLocaleString()} ₭</span>
               </div>
               <div className="price-row price-total">
@@ -871,7 +871,7 @@ export default function OrderTracking({ jobId, onClose, isInline = false, mockJo
               {db.getLabel('track_not_found', 'ບໍ່ພົບຂໍ້ມູນງານອັດກອບພຣະນີ້')}
             </h2>
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: showMobileUI ? '0.75rem' : '0.88rem', margin: 0 }}>
-              {db.getLabel('track_not_found_desc', 'ກະລຸນາກວດສອບເລກໃບບິນ ຫຼື ລອງສະແກນໃໝ່ອີกຄັ້ງ')}
+              {db.getLabel('track_not_found_desc', 'ກະລຸນາກວດສອບເລກໃບບິນ ຫຼື ລອງສະແກນໃໝ່ອີກຄັ້ງ')}
             </p>
           </div>
         ) : (

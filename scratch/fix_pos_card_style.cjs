@@ -1,31 +1,41 @@
 const fs = require('fs');
+const path = require('path');
 
-const file = 'C:\\Users\\sutha\\OneDrive\\Desktop\\kp pakse pos\\src\\components\\POS.jsx';
-if (fs.existsSync(file)) {
-  let content = fs.readFileSync(file, 'utf8');
-  content = content.replace(/\r\n/g, '\n');
+function processFile(filePath) {
+  let content = fs.readFileSync(filePath, 'utf8');
+  let original = content;
 
-  const oldCardStyle = `  const cardStyle = {
-    padding: '10px',
-    borderColor: isService ? 'rgba(229,169,59,0.28)' : 'rgba(39,174,96,0.2)',
-  };`;
+  // We want to replace characters in the range U+0E01 to U+0E4E (excluding U+0E3F)
+  // Let's build a regex for all characters in the Thai range except U+0E3F
+  // U+0E01 to U+0E3E and U+0E40 to U+0E4E
+  const thaiRegex = /[\u0E01-\u0E3E\u0E40-\u0E4E]/g;
 
-  const newCardStyle = `  const cardStyle = {
-    padding: '10px',
-    borderColor: isService ? 'rgba(229,169,59,0.28)' : 'rgba(39,174,96,0.2)',
-    height: '195px',
-    minHeight: '195px',
-    display: 'flex',
-    flexDirection: 'column',
-    boxSizing: 'border-box',
-    justifyContent: 'space-between'
-  };`;
+  content = content.replace(thaiRegex, (match) => {
+    const code = match.charCodeAt(0);
+    return String.fromCharCode(code + 0x80);
+  });
 
-  if (content.includes(oldCardStyle)) {
-    content = content.replace(oldCardStyle, newCardStyle);
-    fs.writeFileSync(file, content, 'utf8');
-    console.log("✅ Successfully updated cardStyle in POS.jsx!");
-  } else {
-    console.log("❌ Could not find oldCardStyle in POS.jsx!");
+  if (content !== original) {
+    fs.writeFileSync(filePath, content, 'utf8');
+    console.log(`✅ Converted Thai characters to Lao in: ${filePath}`);
   }
 }
+
+function scanDir(dir) {
+  const files = fs.readdirSync(dir);
+  for (const file of files) {
+    const fullPath = path.join(dir, file);
+    const stat = fs.statSync(fullPath);
+    if (stat.isDirectory()) {
+      if (file !== 'node_modules' && file !== '.git' && file !== 'dist') {
+        scanDir(fullPath);
+      }
+    } else if (file.endsWith('.jsx') || file.endsWith('.js') || file.endsWith('.css')) {
+      processFile(fullPath);
+    }
+  }
+}
+
+console.log("🚀 Starting automatic conversion of Thai typos to Lao characters...");
+scanDir('C:\\Users\\sutha\\OneDrive\\Desktop\\kp pakse pos\\src');
+console.log("🏁 Done!");

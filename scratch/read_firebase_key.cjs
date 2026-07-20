@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
 
@@ -11,18 +12,20 @@ if (fs.existsSync(KEY_FILE)) {
   });
   const firestoreDb = getFirestore();
   
-  console.log("☁️ Connected to Cloud Firestore. Listing all root collections...");
+  console.log("☁️ Connected to Cloud Firestore. Fetching 'users' collection...");
   
-  firestoreDb.listCollections()
-    .then(collections => {
-      console.log("=== ROOT COLLECTIONS ===");
-      collections.forEach(col => {
-        console.log(`  - Collection ID: ${col.id}`);
-      });
+  firestoreDb.collection('pos_db').doc('users').get()
+    .then(doc => {
+      if (doc.exists) {
+        console.log("=== FIRESTORE USERS ===");
+        console.log(JSON.stringify(doc.data(), null, 2));
+      } else {
+        console.log("Document 'users' does not exist in Firestore!");
+      }
       process.exit(0);
     })
     .catch(err => {
-      console.error("Error listing collections:", err);
+      console.error("Error fetching doc:", err);
       process.exit(1);
     });
 } else {

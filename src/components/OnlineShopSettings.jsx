@@ -100,16 +100,16 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
   };
 
   const translationKeys = [
-    { key: 'home', defaultLo: 'ໜ້າແລກ', defaultTh: 'หน้าแรก', defaultEn: 'Home' },
-    { key: 'cart', defaultLo: 'ກະຕ່າສິນຄ້າ', defaultTh: 'ตะกร้าสินค้า', defaultEn: 'Cart' },
-    { key: 'checkout', defaultLo: 'ຊຳລະເງິນ', defaultTh: 'ชำระเงิน', defaultEn: 'Checkout' },
-    { key: 'tracking', defaultLo: 'ຕິດຕາມອໍເດີ້', defaultTh: 'ติดตามออเดอร์', defaultEn: 'Track' },
-    { key: 'chat', defaultLo: 'ຕິດຕໍ່ສອບຖາມ', defaultTh: 'ติดต่อสอบถาม', defaultEn: 'Chat' },
-    { key: 'buyNow', defaultLo: 'ຊື້ເລີຍ', defaultTh: 'ซื้อเลย', defaultEn: 'Buy Now' },
-    { key: 'addCart', defaultLo: 'ໃສ່ກະຕ່າ', defaultTh: 'ใส่ตะกร้า', defaultEn: 'Add to Cart' },
-    { key: 'coupon', defaultLo: 'ລະຫັດສ່ວນຫຼຸດ', defaultTh: 'รหัสส่วนลด', defaultEn: 'Coupon' },
-    { key: 'points', defaultLo: 'ຄະແນນສະສົມ', defaultTh: 'คะแนนสะสม', defaultEn: 'Loyalty Points' },
-    { key: 'searchPlaceHolder', defaultLo: 'ຄົ້ນຫາສິນຄ້າ...', defaultTh: 'ค้นหาสินค้า...', defaultEn: 'Search products...' }
+    { key: 'home', defaultLo: 'ໜ້າແລກ', defaultTh: 'ຫນ້າແຣກ', defaultEn: 'Home' },
+    { key: 'cart', defaultLo: 'ກະຕ່າສິນຄ້າ', defaultTh: 'ຕະກຣ້າສິນຄ້າ', defaultEn: 'Cart' },
+    { key: 'checkout', defaultLo: 'ຊຳລະເງິນ', defaultTh: 'ຊຳຣະເງິນ', defaultEn: 'Checkout' },
+    { key: 'tracking', defaultLo: 'ຕິດຕາມອໍເດີ້', defaultTh: 'ຕິດຕາມອອເດອຣ໌', defaultEn: 'Track' },
+    { key: 'chat', defaultLo: 'ຕິດຕໍ່ສອບຖາມ', defaultTh: 'ຕິດຕ່ອສອບຖາມ', defaultEn: 'Chat' },
+    { key: 'buyNow', defaultLo: 'ຊື້ເລີຍ', defaultTh: '຋ື້ອເລຢ', defaultEn: 'Buy Now' },
+    { key: 'addCart', defaultLo: 'ໃສ່ກະຕ່າ', defaultTh: 'ໃສ່ຕະກຣ້າ', defaultEn: 'Add to Cart' },
+    { key: 'coupon', defaultLo: 'ລະຫັດສ່ວນຫຼຸດ', defaultTh: 'ຣຫັສສ່ວນລດ', defaultEn: 'Coupon' },
+    { key: 'points', defaultLo: 'ຄະແນນສະສົມ', defaultTh: 'ຄະແນນສະສມ', defaultEn: 'Loyalty Points' },
+    { key: 'searchPlaceHolder', defaultLo: 'ຄົ້ນຫາສິນຄ້າ...', defaultTh: 'ຄ້ນຫາສິນຄ້າ...', defaultEn: 'Search products...' }
   ];
 
   return (
@@ -118,7 +118,7 @@ export default function OnlineShopSettings({ settings, setSettings, categories, 
         <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.1rem', margin: 0 }}>
           ຕັ້ງຄ່າ ແລະ ປັບແຕ່ງຮ້ານອອນລາຍ (Online Shop Settings)
         </h3>
-        <button type="button" className="btn btn-primary" onClick={handleSave}>บันทึก / Save</button>
+        <button type="button" className="btn btn-primary" onClick={handleSave}>ບັນທຶກ / Save</button>
       </div>
 
       {/* Sub-navigation inside online settings */}

@@ -551,7 +551,7 @@ export default function Dashboard({ onTabChange, isMobile }) {
           <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4,1fr)', gap:14, marginBottom:24 }}>
             <KpiCard
               icon={<DashIcons.revenue />}
-              label="ຍอดຂາຍລວມ"
+              label="ຍອດຂາຍລວມ"
               value={fmtS(data.totalRevenue)}
               sub={`${data.totalOrders} ບິນ · ທຽບ${period==='today'?'ມື້ກ່ອນ':period==='week'?'7ວັນກ່ອນ':'ງວດກ່ອນ'}: ${revChange>=0?'+':''}${Math.abs(revChange).toFixed(1)}%`}
               subColor={revChange>=0?'#34d399':'#f87171'}
@@ -594,7 +594,7 @@ export default function Dashboard({ onTabChange, isMobile }) {
           ═══════════════════════ */}
           <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4,1fr)', gap:12, marginBottom:28 }}>
             {[
-              { icon:<DashIcons.frame />, label:'ງານอັດກອບ', value:fmtS(data.totalFraming), sub:`${data.framingJobs} Job`, color:'rgba(155,89,182,0.08)', tab:'framing' },
+              { icon:<DashIcons.frame />, label:'ງານອັດກອບ', value:fmtS(data.totalFraming), sub:`${data.framingJobs} Job`, color:'rgba(155,89,182,0.08)', tab:'framing' },
               { icon:<DashIcons.cart />, label:'ອໍເດີ້ອອນລາຍ', value:fmtS(data.onlineRevenue), sub:`${data.onlineOrders} ອໍເດີ້`, color:'rgba(52,152,219,0.08)', tab:'online-orders' },
               { icon:<DashIcons.users />, label:'ສະມາຊິກໃໝ່', value:data.newCustomers.toLocaleString(), sub:`ໃນ${periods.find(p=>p.key===period)?.label||period}ນີ້`, color:'rgba(52,211,153,0.08)', tab:'customers' },
               { icon:<DashIcons.alert />, label:'Stock ໃກ້ໝົດ', value:data.lowStock.length.toLocaleString(), sub:data.lowStock.length>0?'ຕ້ອງສັ່ງຊື້ຮີບ':'Stock ຫລ່ຽງດີ', color:data.lowStock.length>0?'rgba(230,126,34,0.08)':'rgba(39,174,96,0.08)', tab:'inventory' },

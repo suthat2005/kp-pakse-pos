@@ -2663,7 +2663,7 @@ export default function App() {
                 { icon: <Icons.dashboard style={{ width: 16, height: 16 }} />, label: 'ພາບລວມ (Dashboard)', tab: 'dashboard', role: 'all' },
                 { icon: <Icons.pos style={{ width: 16, height: 16 }} />, label: 'ຂາຍໜ້າຮ້ານ (POS)', tab: 'pos', role: 'all' },
                 { icon: <Icons.framing style={{ width: 16, height: 16 }} />, label: 'ງານອັດກອບ (Framing)', tab: 'framing_board', role: 'all' },
-                { icon: <Icons.onlineOrders style={{ width: 16, height: 16 }} />, label: 'ອໍເດີ້ອອນລาย (Online Orders)', tab: 'online_orders', role: 'owner' },
+                { icon: <Icons.onlineOrders style={{ width: 16, height: 16 }} />, label: 'ອໍເດີ້ອອນລາຢ (Online Orders)', tab: 'online_orders', role: 'owner' },
                 { icon: <Icons.inventory style={{ width: 16, height: 16 }} />, label: 'ສະຕັອກ (Inventory)', tab: 'inventory', role: 'owner' },
                 { icon: <Icons.customers style={{ width: 16, height: 16 }} />, label: 'ສະມາຊິກ (Members)', tab: 'customers', role: 'all' },
                 { icon: <Icons.debts style={{ width: 16, height: 16 }} />, label: 'ໜີ້ສິນ (Debts)', tab: 'debts', role: 'owner' },

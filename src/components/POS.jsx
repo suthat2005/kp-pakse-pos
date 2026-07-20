@@ -266,7 +266,7 @@ export default function POS({
   const [pendingDeleteIndex, setPendingDeleteIndex] = useState(-1);
   // pinError/setPinError moved above the useEffect that uses it (line ~206)
 
-  // Rename Slot Modal (แก้ไขชื่อคิว)
+  // Rename Slot Modal (ແກ້ໄຂຊື່ອຄິວ)
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [renameSlotTarget, setRenameSlotTarget] = useState(null);
   const [renameValue, setRenameValue] = useState('');
@@ -919,7 +919,7 @@ export default function POS({
     }
   };
 
-  // 4. Rename Slot Card Dialog (แก้ไขชื่อบัตรคิว)
+  // 4. Rename Slot Card Dialog (ແກ້ໄຂຊື່ອບັຕຣຄິວ)
   const handleRenameClick = (e, slot) => {
     e.stopPropagation(); // prevent opening the menu view
     setRenameSlotTarget(slot);
@@ -2013,7 +2013,7 @@ export default function POS({
     if (onUpdate) onUpdate();
   };
 
-  // พิมพ์บิล (Work Order / Bill Slip) -> Now prints a Draft Invoice/Receipt instead of Work Order
+  // ພິມພ໌ບິລ (Work Order / Bill Slip) -> Now prints a Draft Invoice/Receipt instead of Work Order
   const handlePrintWorkOrder = () => {
     if (adjustedCartItems.length === 0) {
       alert('ບໍ່ມີລາຍການສິນຄ້າໃນຄິວນີ້!');
@@ -2082,7 +2082,7 @@ export default function POS({
     return () => window.removeEventListener('afterprint', handleAfterPrint);
   }, [closePrintModals]);
 
-  // ติดหนี้ (Save as Unpaid Debt)
+  // ຕິດຫນີ້ (Save as Unpaid Debt)
   const handleOpenDebtClick = () => {
     if (activeSlot.items.length === 0) {
       alert('ບໍ່ມີລາຍການສິນຄ້າໃນຄິວນີ້!');
@@ -2181,7 +2181,7 @@ export default function POS({
       remainingAmount: remainingDebt,
       paymentMethod: 'debt',
       payCurrency: 'LAK',
-      cashierName: activeUser ? activeUser.name : 'ພะນັກງານ',
+      cashierName: activeUser ? activeUser.name : 'ພະນັກງານ',
       cashierId: activeUser ? activeUser.id : ''
     });
 
@@ -4273,7 +4273,7 @@ export default function POS({
         );
       })()}
 
-      {/* Slot Customer Entry Modal (เด้งทุกครั้งที่กดบัตรคิว) */}
+      {/* Slot Customer Entry Modal (ເດ້ງທຸກຄຣັ້ງທີ່ກດບັຕຣຄິວ) */}
       {showSlotEntryModal && slotEntryTarget && (
         <Portal>
         <div className="modal-overlay" style={{ zIndex: 1300, backdropFilter: 'blur(6px)', background: 'rgba(0,0,0,0.7)' }}>
@@ -4316,7 +4316,7 @@ export default function POS({
             {/* Two main action buttons */}
             <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               
-              {/* Option A: Customer with stored item (ลูกค้าฝาก) */}
+              {/* Option A: Customer with stored item (ລູກຄ້າຝາກ) */}
               <div style={{
                 background: 'rgba(212,175,55,0.07)',
                 border: '1.5px solid rgba(212,175,55,0.25)',
@@ -6546,7 +6546,7 @@ export default function POS({
             <form onSubmit={handleAddFramingSubmit}>
               <div className="modal-body">
                 <div className="form-group">
-                  <label className="form-label">{db.getLabel('auto_ຄ_ວ_ບັດຄິວ__Slot_ID__jr32va', `ຄิວ/ບັດຄິວ (Slot ID)`)}</label>
+                  <label className="form-label">{db.getLabel('auto_ຄ_ວ_ບັດຄິວ__Slot_ID__jr32va', `ຄິວ/ບັດຄິວ (Slot ID)`)}</label>
                   <input
                     type="text"
                     className="form-control"
@@ -7203,7 +7203,7 @@ export default function POS({
                               {a.specialNotes && <div>{db.getLabel('auto___ໝາຍເຫດ__rxkpvv', `• ໝາຍເຫດ:`)} {a.specialNotes}</div>}
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginTop: '2px' }}>
-                              <span>{db.getLabel('auto_ລາຄ___buuadd', `ລາຄา:`)}</span>
+                              <span>{db.getLabel('auto_ລາຄ___buuadd', `ລາຄາ:`)}</span>
                               <span style={{ fontWeight: 'bold' }}>{Number(a.price || 0).toLocaleString()} {db.getLabel('auto_ກີບ_2726e', `ກີບ`)}</span>
                             </div>
                           </div>
@@ -7284,7 +7284,7 @@ export default function POS({
 
                 {settings.receiptShowFooter !== false && (
                   <div className="print-receipt-footer" style={{ borderTop: `${settings.receiptDividerThickness || '1px'} ${settings.receiptDividerStyle || 'dashed'} black`, marginTop: '10px', paddingTop: '5px', textAlign: 'center', fontSize: settings.receiptFooterFontSize || 'calc(100% - 2pt)' }}>
-                    <p>{settings.receiptFooterNote || 'ກະລຸນາກວດສອບພຣະເຄື່ອງ ແລະ ຂອບ ກ່ອນອອກຈາກຮ້าน'}</p>
+                    <p>{settings.receiptFooterNote || 'ກະລຸນາກວດສອບພຣະເຄື່ອງ ແລະ ຂອບ ກ່ອນອອກຈາກຮ້ານ'}</p>
                   </div>
                 )}
                 {/* ─── Feed Padding: prevents last line from being cut by printer blade ─── */}

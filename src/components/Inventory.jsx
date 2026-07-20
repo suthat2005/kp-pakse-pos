@@ -2130,7 +2130,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                   </div>
 
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ໄລຍະຫ່າງ_ຄວາມໜາໃ_ຕັດ__Was_lr8x6g', `ໄລຍະຫ່າງ/ຄວາມໜາໃบຕັດ (Waste margin - cm)`)}</label>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>{db.getLabel('auto_ໄລຍະຫ່າງ_ຄວາມໜາໃ_ຕັດ__Was_lr8x6g', `ໄລຍະຫ່າງ/ຄວາມໜາໃບຕັດ (Waste margin - cm)`)}</label>
                     <input type="number" step="0.1" className="form-control" value={margin} onChange={(e) => setMargin(e.target.value)} />
                   </div>
 
@@ -3118,7 +3118,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
     
     const currentWarehouseStock = warehouseActiveProduct.warehouseStock || 0;
     if (qty > currentWarehouseStock) {
-      if (!window.confirm(`⚠️ ຈຳນວນທີ່ໂອນ (${qty}) ຫຼາຍກວ່າສະຕັອກສາງໃຫຍ່ທີ່ມີ (${currentWarehouseStock}). ຢືນຢันທີ່ຈະໂອນບໍ່?`)) {
+      if (!window.confirm(`⚠️ ຈຳນວນທີ່ໂອນ (${qty}) ຫຼາຍກວ່າສະຕັອກສາງໃຫຍ່ທີ່ມີ (${currentWarehouseStock}). ຢືນຢັນທີ່ຈະໂອນບໍ່?`)) {
         return;
       }
     }
@@ -3130,7 +3130,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
       prodList[idx].stock = (prodList[idx].stock || 0) + qty;
       db.saveProducts(prodList);
       db.addAuditLog('warehouse_transfer', `ໂອນສິນຄ້າໄປໜ້າຮ້ານ: ${warehouseActiveProduct.name} ໂອນ ${qty} ${warehouseActiveProduct.unit || 'ອັນ'} (ສາງໃຫຍ່ -${qty} -> ໜ້າຮ້ານ +${qty}) (${warehouseTransferNotes || ''})`);
-      alert('✓ ໂอนຍ້າຍສິນຄ້າໄປໜ້າຮ້ານສຳເລັດ!');
+      alert('✓ ໂອນຍ້າຍສິນຄ້າໄປໜ້າຮ້ານສຳເລັດ!');
       setShowWarehouseTransferModal(false);
       setWarehouseTransferQty('');
       setWarehouseTransferNotes('');
@@ -4114,7 +4114,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
             <InventoryKpiCard
               icon={<InventoryIcons.box />}
-              label={db.getLabel('auto____ຈຳນວນສິນຄ້າຄົງເຫຼືອໜ້າ_9dgu3y', 'ຈຳນວນສິນຄ້າຄົງເຫຼືอໜ້າຮ້ານທັງໝົດ')}
+              label={db.getLabel('auto____ຈຳນວນສິນຄ້າຄົງເຫຼືອໜ້າ_9dgu3y', 'ຈຳນວນສິນຄ້າຄົງເຫຼືອໜ້າຮ້ານທັງໝົດ')}
               value={totalStockCount.toLocaleString()}
               sub={`${db.getLabel('auto_ຊິ້ນ__ຈາກ_4n4po5', 'ຊິ້ນ (ຈາກ')} ${physicalProducts.length} ${db.getLabel('auto_ລາຍການ__t3ypbz', 'ລາຍການ)')}`}
               accentColor="212, 175, 55"
@@ -5725,7 +5725,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   </div>
 {hasInventoryPermission('inventoryViewCost') && (
                   <div className="form-group">
-                    <label className="form-label">{db.getLabel('auto_ລາຄ_ຕົ້ນທຶນ__ກີບ__h4un78', `ລາຄาຕົ້ນທຶນ (ກີບ)`)}</label>
+                    <label className="form-label">{db.getLabel('auto_ລາຄ_ຕົ້ນທຶນ__ກີບ__h4un78', `ລາຄາຕົ້ນທຶນ (ກີບ)`)}</label>
                     <input
                       type="number"
                       className="form-control"
@@ -5772,7 +5772,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div className="form-group">
-                    <label className="form-label">{db.getLabel('auto_ຫົວໜ່ວ__7dd5s2', `ຫົວໜ່ວย`)}</label>
+                    <label className="form-label">{db.getLabel('auto_ຫົວໜ່ວ__7dd5s2', `ຫົວໜ່ວຢ`)}</label>
                     <input
                       type="text"
                       className="form-control"

@@ -1175,7 +1175,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
 
           <div class="divider"></div>
 
-          <div class="section-title">📊 ສິນຄ້າທີ່ຂายໄດ້</div>
+          <div class="section-title">📊 ສິນຄ້າທີ່ຂາຢໄດ້</div>
           <div style="padding-right: 6mm;">
           <table style="width: 100%; border-collapse: collapse; font-size: calc(${fontSize} - 1.5pt); margin-top: 4px;">
             <thead>
@@ -2217,7 +2217,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
           <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#ffd740', lineHeight:1.1, letterSpacing:'-0.5px' }}>
             {hasReportsPermission('reportsRevenue') ? Math.round(posJobsValue).toLocaleString() + " ₭" : "*** ₭"}
           </span>
-          <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>ຍອດຂາຍສະເພາະງານอັດກອບ</span>
+          <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>ຍອດຂາຍສະເພາະງານອັດກອບ</span>
         </div>
 
         {/* 3. Total Bills */}
@@ -2282,7 +2282,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
           <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#FAB1A0', lineHeight:1.1, letterSpacing:'-0.5px' }}>
             {totalExpenses.toLocaleString()} ₭
           </span>
-          <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>ລາຍຈ່າຍໃນໄລຍะເວລາທີ່ເລືອກ</span>
+          <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>ລາຍຈ່າຍໃນໄລຍະເວລາທີ່ເລືອກ</span>
         </div>
 
         {/* 7. Est. Net Profit */}
@@ -2496,7 +2496,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
         {/* Period Outstanding Debt Ledger */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-            <h3 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>📒 ບັນຊີລູกຄ້າຕິດໜີ້ຊ່ວງນີ້ (Period Debts Table)</h3>
+            <h3 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>📒 ບັນຊີລູກຄ້າຕິດໜີ້ຊ່ວງນີ້ (Period Debts Table)</h3>
             <input
               type="text"
               className="form-control"
@@ -2824,7 +2824,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
               <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>{onlinePaidOrders.length} ອໍເດີ້ຊຳລະສຳເລັດ</span>
               
               <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '5px', marginTop: '2px', display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '0.68rem', color: 'rgba(255,255,255,0.42)' }}>
-                <span style={{ fontWeight: 'bold', color: '#3498db' }}>📱 ລວມຮັບเງິນໂອນ (Transfer):</span>
+                <span style={{ fontWeight: 'bold', color: '#3498db' }}>📱 ລວມຮັບເງິນໂອນ (Transfer):</span>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px' }}>
                   <span>• ເງິນໂອນ LAK:</span>
                   <span style={{ color: 'white' }}>{onlineTransferLAK.toLocaleString()} ₭</span>
@@ -2871,7 +2871,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
               <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#FAB1A0', lineHeight:1.1, letterSpacing:'-0.5px' }}>
                 {onlineRejected} <span style={{ fontSize:'1rem' }}>ອໍເດີ້</span>
               </span>
-              <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>ສະລິບຖືກປະຕิເສດ</span>
+              <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>ສະລິບຖືກປະຕິເສດ</span>
             </div>
 
             {/* 5. Total Online Orders */}
@@ -3039,7 +3039,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
                             <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
                               <button style={btnOpen} onClick={() => handleReprint(o)}>🖨️ ເປີດເບິ່ງ</button>
                               <button style={btnEdit} onClick={() => handleOpenEdit('online', o)}>✏️ ແກ້ໄຂ</button>
-                              {hasReportsPermission('reportsDelete') && <button style={btnDel} onClick={() => handleRequestDelete('online', o.id, 'ຂາຍອອນລາຍ')}>🗑️ ລຶบ</button>}
+                              {hasReportsPermission('reportsDelete') && <button style={btnDel} onClick={() => handleRequestDelete('online', o.id, 'ຂາຍອອນລາຍ')}>🗑️ ລຶບ</button>}
                             </div>
                           </td>
                         </tr>
@@ -3118,14 +3118,14 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
               <div style={{ borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:5, marginTop:2, display:'flex', flexDirection:'column', gap:3, fontSize:'0.68rem', color:'rgba(255,255,255,0.42)' }}>
                 {/* Cash portion */}
                 <div style={{ display:'flex', flexDirection:'column', gap:2, paddingBottom:4, borderBottom:'1px dashed rgba(255,255,255,0.05)' }}>
-                  <span style={{ fontWeight:700, color:'var(--gold-primary)' }}>💵 ລວມຮັບເງินສົດ:</span>
+                  <span style={{ fontWeight:700, color:'var(--gold-primary)' }}>💵 ລວມຮັບເງິນສົດ:</span>
                   <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນສົດ LAK:</span><span style={{ color:'white' }}>{ovCashLAK.toLocaleString()} ₭</span></div>
                   {(ovCashTHB > 0 || settings.exchangeRateThb) && <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນສົດ THB:</span><span style={{ color:'white' }}>{ovCashTHB.toLocaleString()} ฿</span></div>}
                   {(ovCashUSD > 0 || settings.exchangeRateUsd) && <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນສົດ USD:</span><span style={{ color:'white' }}>${ovCashUSD.toFixed(2)}</span></div>}
                 </div>
 
                 <div style={{ display:'flex', flexDirection:'column', gap:2 }}>
-                  <span style={{ fontWeight:700, color:'#74B9FF' }}>📱 ລວມຮັບເງินໂອນ (Transfer):</span>
+                  <span style={{ fontWeight:700, color:'#74B9FF' }}>📱 ລວມຮັບເງິນໂອນ (Transfer):</span>
                   <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນໂອນ LAK:</span><span style={{ color:'white' }}>{ovTransferLAK.toLocaleString()} ₭</span></div>
                   {(ovTransferTHB > 0 || settings.exchangeRateThb) && <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນໂອນ THB:</span><span style={{ color:'white' }}>{ovTransferTHB.toLocaleString()} ฿</span></div>}
                   {(ovTransferUSD > 0 || settings.exchangeRateUsd) && <div style={{ display:'flex', justifyContent:'space-between', paddingLeft:8 }}><span>• ເງິນໂອນ USD:</span><span style={{ color:'white' }}>${ovTransferUSD.toFixed(2)}</span></div>}
@@ -3162,7 +3162,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
               <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#55EFC4', lineHeight:1.1, letterSpacing:'-0.5px' }}>
                 {hasReportsPermission('reportsProfit') ? Math.round(ovNetProfit).toLocaleString() + " ₭" : "*** ₭"}
               </span>
-              <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>*ຫັກຕົ້ນທຶน + ລາຍຈ່າຍ</span>
+              <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>*ຫັກຕົ້ນທຶນ + ລາຍຈ່າຍ</span>
             </div>
           </div>
 
@@ -3171,7 +3171,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
             {/* Trend Chart (Revenue Chart) */}
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>📈 ແนວໂນ້ມລາຍຮັບ / Revenue Trend</h4>
+                <h4 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: 0 }}>📈 ແນວໂນ້ມລາຍຮັບ / Revenue Trend</h4>
                 <select
                   value={trendChartStyle}
                   onChange={(e) => {
@@ -3466,7 +3466,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
                   <div className="print-receipt-title">{settings.shopName || 'ຂອບພຣະຣັທເກຊ'}</div>
                   <div className="print-receipt-subtitle">{settings.shopSubtitle || 'ຮ້ານອັດກອບພຣະເຄື່ອງ & ວັດຖຸມຸງຄຸນ'}</div>
                   <div className="print-receipt-subtitle">{settings.shopAddress} | ໂທ: {settings.shopPhone}</div>
-                  <div className="print-receipt-subtitle" style={{ fontWeight: 'bold', color: 'red', marginTop: '2px' }}>(ໃບບິນພิມຍ້ອນຫຼັງ / REPRINT)</div>
+                  <div className="print-receipt-subtitle" style={{ fontWeight: 'bold', color: 'red', marginTop: '2px' }}>(ໃບບິນພິມຍ້ອນຫຼັງ / REPRINT)</div>
                 </div>
 
                 <div style={{ fontSize: '8pt', marginBottom: '8px' }}>
@@ -4024,11 +4024,11 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
               {/* 2. Estimated Value */}
               <div style={{ position:'relative', overflow:'hidden', background:'rgba(231,76,60,0.07)', border:'1px solid rgba(231,76,60,0.25)', borderRadius:18, padding:'18px 16px', display:'flex', flexDirection:'column', gap:6, boxShadow:'0 4px 20px rgba(231,76,60,0.15)' }}>
                 <div style={{ position:'absolute', top:-14, right:-14, width:70, height:70, borderRadius:'50%', background:'#e74c3c', opacity:0.09, filter:'blur(18px)', pointerEvents:'none' }} />
-                <span style={{ fontSize:'0.68rem', color:'rgba(231,76,60,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:6 }}><ReportIcons.revenue style={{ width: 16, height: 16, color: '#FAB1A0' }} /> ມູນຄ່າລວມที่ລ້ຽງ (Estimated Value)</span>
+                <span style={{ fontSize:'0.68rem', color:'rgba(231,76,60,0.85)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', display:'inline-flex', alignItems:'center', gap:6 }}><ReportIcons.revenue style={{ width: 16, height: 16, color: '#FAB1A0' }} /> ມູນຄ່າລວມທີ່ລ້ຽງ (Estimated Value)</span>
                 <span style={{ fontSize:'1.5rem', fontWeight:800, color:'#FAB1A0', lineHeight:1.1, letterSpacing:'-0.5px' }}>
                   {totalTreatValue.toLocaleString()} ₭
                 </span>
-                <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>ຍอดລວມທຸກລາຍການ</span>
+                <span style={{ fontSize:'0.67rem', color:'rgba(255,255,255,0.38)' }}>ຍອດລວມທຸກລາຍການ</span>
               </div>
             </div>
 
@@ -4086,7 +4086,7 @@ export default function Reports({ activeUser, isMobile, onTabChange, onViewLowSt
                       </div>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                         <button style={btnOpen} onClick={() => handleReprint(order)}>🖨️ ເປີດເບິ່ງ</button>
-                        <button style={btnEdit} onClick={() => handleOpenEdit('order', order)}>✏️ ແກ้ໄຂ</button>
+                        <button style={btnEdit} onClick={() => handleOpenEdit('order', order)}>✏️ ແກ້ໄຂ</button>
                         {hasReportsPermission('reportsDelete') && <button style={btnDel} onClick={() => handleRequestDelete('pos', order.id, 'ລ້ຽງແຂກ')}>🗑️ ລຶບ</button>}
                       </div>
                     </div>

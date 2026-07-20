@@ -429,7 +429,7 @@ export default function AIDetector({ activeUser }) {
     if (confirm('ທ່ານຕ້ອງການລຶບກ້ອງວົງຈອນປິດນີ້ແທ້ບໍ່?')) {
       db.deleteCamera(id);
       setCameras(db.getCameras());
-      db.addAuditLog('delete_camera', `ລຶບກ້ອງວົງจອນປິດ: "${name}"`, 'warning');
+      db.addAuditLog('delete_camera', `ລຶບກ້ອງວົງຈອນປິດ: "${name}"`, 'warning');
     }
   };
 

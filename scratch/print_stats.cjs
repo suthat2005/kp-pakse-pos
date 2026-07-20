@@ -1,16 +1,17 @@
 const fs = require('fs');
+
 const file = 'C:\\Users\\sutha\\OneDrive\\Desktop\\kp pakse pos\\db_shared.json';
 if (fs.existsSync(file)) {
   const db = JSON.parse(fs.readFileSync(file, 'utf8'));
-  console.log("=== DB TABLES AND SIZES ===");
-  for (const key in db) {
-    const table = db[key];
-    if (table && table.data) {
-      console.log(`- ${key}: ${Object.keys(table.data).length} records`);
-    } else {
-      console.log(`- ${key}: (no .data structure)`);
-    }
+  console.log("=== CHECKING ONLINE ORDERS IN DB ===");
+  const orders = db.online_orders?.data || db.online_orders || [];
+  if (Array.isArray(orders)) {
+    orders.forEach(o => {
+      if (o.total === null || o.total === undefined) {
+        console.log(`Order: ID=${o.id}, customerId=${o.customerId}, total=${o.total}`);
+      }
+    });
   }
 } else {
-  console.log("db_shared.json does not exist!");
+  console.log("Database file not found!");
 }

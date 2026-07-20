@@ -325,7 +325,7 @@ export default function HRM({ activeUser, onUpdate, isMobile }) {
     }
     setUsers(updatedUsers);
     setEditingUser(null);
-    showNotification('✓ ອັບເດດຂໍ້ມູນພະนັກງານສຳເລັດ!');
+    showNotification('✓ ອັບເດດຂໍ້ມູນພະນັກງານສຳເລັດ!');
     if (onUpdate) onUpdate();
   };
 
@@ -460,7 +460,7 @@ export default function HRM({ activeUser, onUpdate, isMobile }) {
   const handlePayout = (payData) => {
     if (window.confirm(`ຢືນຢັນການຈ່າຍເງິນເດືອນໃຫ້ ${payData.userName} ປະຈຳເດືອນ ${payData.month} ຈຳນວນ ${(payData.netPay).toLocaleString()} ₭?`)) {
       db.payoutPayroll(payData);
-      showNotification(`✓ จ່າຍເງິນເດືອນໃຫ້ ${payData.userName} ສຳເລັດແລ້ວ!`);
+      showNotification(`✓ ຈ່າຍເງິນເດືອນໃຫ້ ${payData.userName} ສຳເລັດແລ້ວ!`);
       loadHRMData();
       if (onUpdate) onUpdate();
     }
@@ -650,7 +650,7 @@ export default function HRM({ activeUser, onUpdate, isMobile }) {
   };
 
   const handleDeleteLog = (id) => {
-    if (window.confirm('ต้องการลຶບບັນທຶກເວລາເຂົ້າງານນີ້ ຫຼື ບໍ່?')) {
+    if (window.confirm('ຕ້ອງກາຣລຶບບັນທຶກເວລາເຂົ້າງານນີ້ ຫຼື ບໍ່?')) {
       const logs = db.getAttendance();
       const updated = logs.filter(l => l.id !== id);
       db.saveAttendance(updated);
@@ -943,14 +943,14 @@ export default function HRM({ activeUser, onUpdate, isMobile }) {
                 onClick={() => setShiftForm({ userId: '', dayOfWeek: '1', startTime: '08:00', endTime: '17:00', breakStartTime: '12:00', breakEndTime: '13:00' })}
                 style={{ width: '100%', marginTop: '6px', padding: '8px' }}
               >
-                ล้างຄ່າ (Reset)
+                ລ້າງຄ່າ (Reset)
               </button>
             </form>
           </div>
 
           {/* Shifts Calendar Grid */}
           <div className="glass-card" style={{ padding: '20px', minHeight: '400px' }}>
-            <h3 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: '0 0 16px' }}>{db.getLabel('auto____ຕາຕະລາງກະການເຮັດວຽກຂອງ_mdt169', `ຕາຕະລາງກະการເຮັດວຽກຂອງພະນັກງານທັງໝົດ`)}</h3>
+            <h3 style={{ color: 'var(--gold-primary)', fontWeight: 800, fontSize: '0.98rem', margin: '0 0 16px' }}>{db.getLabel('auto____ຕາຕະລາງກະການເຮັດວຽກຂອງ_mdt169', `ຕາຕະລາງກະກາຣເຮັດວຽກຂອງພະນັກງານທັງໝົດ`)}</h3>
             {shifts.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
                 ບໍ່ມີຂໍ້ມູນຕາຕະລາງກະການເຮັດວຽກ. ກະລຸນາສ້າງຕາຕະລາງດ້ານຊ້າຍມື.
@@ -1031,7 +1031,7 @@ export default function HRM({ activeUser, onUpdate, isMobile }) {
                 ລະບົບເຂົ້າງານ & ບັນທຶກເວລາພະນັກງານ (Daily Attendance Timesheets)
               </h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: '2px' }}>
-                ຈັດການແລະເພີ່ມເວລາເຂົ້າງານ-ออกງານ, ຄິດໄລ່ຊົ່ວໂມງ OT ຂອງແຕ່ລະວັນ.
+                ຈັດການແລະເພີ່ມເວລາເຂົ້າງານ-ອອກງານ, ຄິດໄລ່ຊົ່ວໂມງ OT ຂອງແຕ່ລະວັນ.
               </p>
             </div>
             <button
@@ -1367,7 +1367,7 @@ export default function HRM({ activeUser, onUpdate, isMobile }) {
                             color: l.status === 'approved' ? 'var(--success-green)' : l.status === 'rejected' ? 'var(--alert-red)' : '#f1c40f',
                             border: `1px solid ${l.status === 'approved' ? 'var(--success-green)' : l.status === 'rejected' ? 'var(--alert-red)' : '#f1c40f'}`
                           }}>
-                            {l.status === 'approved' ? 'อนຸມັດແລ້ວ' : l.status === 'rejected' ? 'ປະຕິເສດ' : 'ລໍຖ້າອະນຸມັດ'}
+                            {l.status === 'approved' ? 'ອນຸມັດແລ້ວ' : l.status === 'rejected' ? 'ປະຕິເສດ' : 'ລໍຖ້າອະນຸມັດ'}
                           </span>
                         </td>
                         <td style={{ padding: '12px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
@@ -1416,12 +1416,12 @@ export default function HRM({ activeUser, onUpdate, isMobile }) {
                         color: l.status === 'approved' ? 'var(--success-green)' : l.status === 'rejected' ? 'var(--alert-red)' : '#f1c40f',
                         border: `1px solid ${l.status === 'approved' ? 'var(--success-green)' : l.status === 'rejected' ? 'var(--alert-red)' : '#f1c40f'}`
                       }}>
-                        {l.status === 'approved' ? 'อนຸມັດແລ້ວ' : l.status === 'rejected' ? 'ປະຕິເສດ' : 'ລໍຖ້າອະນຸມັດ'}
+                        {l.status === 'approved' ? 'ອນຸມັດແລ້ວ' : l.status === 'rejected' ? 'ປະຕິເສດ' : 'ລໍຖ້າອະນຸມັດ'}
                       </span>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>
                       <div><span style={{ color: 'white' }}>{db.getLabel('auto_ປະເພດ__h4vhjb', `ປະເພດ:`)}</span> {getLeaveTypeName(l.leaveType)}</div>
-                      <div><span style={{ color: 'white' }}>{db.getLabel('auto_ໄລຍະເວລາ__b3op6q', `ໄລຍะເວລາ:`)}</span> {new Date(l.startDate).toLocaleDateString('lo-LA')} - {new Date(l.endDate).toLocaleDateString('lo-LA')}</div>
+                      <div><span style={{ color: 'white' }}>{db.getLabel('auto_ໄລຍະເວລາ__b3op6q', `ໄລຍະເວລາ:`)}</span> {new Date(l.startDate).toLocaleDateString('lo-LA')} - {new Date(l.endDate).toLocaleDateString('lo-LA')}</div>
                       <div><span style={{ color: 'white' }}>{db.getLabel('auto_ເຫດຜົນ__8u7bjd', `ເຫດຜົນ:`)}</span> {l.reason || '-'}</div>
                       <div><span style={{ color: 'white' }}>{db.getLabel('auto_ຜູ້ອະນຸມັດ__bt5pok', `ຜູ້ອະນຸມັດ:`)}</span> {l.approvedByName || '-'}</div>
                     </div>
@@ -1482,7 +1482,7 @@ export default function HRM({ activeUser, onUpdate, isMobile }) {
                 <thead>
                   <tr>
                     <th style={{ textAlign: 'left', padding: '12px' }}>{db.getLabel('auto_ພະນັກງານ_9cvntj', `ພະນັກງານ`)}</th>
-                    <th style={{ textAlign: 'right', padding: '12px' }}>{db.getLabel('auto_ຄ່າຈ້__ພື້ນຖານ__Base__gurfi8', `ຄ່າຈ້างພື້ນຖານ (Base)`)}</th>
+                    <th style={{ textAlign: 'right', padding: '12px' }}>{db.getLabel('auto_ຄ່າຈ້__ພື້ນຖານ__Base__gurfi8', `ຄ່າຈ້າງພື້ນຖານ (Base)`)}</th>
                     <th style={{ textAlign: 'right', padding: '12px' }}>{db.getLabel('auto_ຄ່າລ່ວງເວລາ__OT__vvegeh', `ຄ່າລ່ວງເວລາ (OT)`)}</th>
                     <th style={{ textAlign: 'right', padding: '12px' }}>{db.getLabel('auto_ຫັກເຂົ້າສາຍ__Late__8ce1dv', `ຫັກເຂົ້າສາຍ (Late)`)}</th>
                     <th style={{ textAlign: 'right', padding: '12px' }}>{db.getLabel('auto_ຫັກຂາດວຽກ__Absence__2jnvjq', `ຫັກຂາດວຽກ (Absence)`)}</th>
@@ -1744,7 +1744,7 @@ export default function HRM({ activeUser, onUpdate, isMobile }) {
                 </div>
 
                 <div className="form-group" style={{ marginTop: '15px' }}>
-                  <label className="form-label" style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{db.getLabel('auto_ສິດທິການເຂົ້າເຖ____Permis_tjwfop', `ສິດທິການເຂົ້າເຖิง (Permissions)`)}</label>
+                  <label className="form-label" style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{db.getLabel('auto_ສິດທິການເຂົ້າເຖ____Permis_tjwfop', `ສິດທິການເຂົ້າເຖິງ (Permissions)`)}</label>
                   <div style={{
                     background: 'rgba(255, 255, 255, 0.02)',
                     border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -2090,7 +2090,7 @@ export default function HRM({ activeUser, onUpdate, isMobile }) {
                 </div>
 
                 <div className="form-group" style={{ marginTop: '15px' }}>
-                  <label className="form-label" style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{db.getLabel('auto_ສິດທິ___ເຂົ້າເຖິງ__Permis_8hngzx', `ສິດທິการເຂົ້າເຖິງ (Permissions)`)}</label>
+                  <label className="form-label" style={{ fontWeight: 'bold', color: 'var(--gold-primary)' }}>{db.getLabel('auto_ສິດທິ___ເຂົ້າເຖິງ__Permis_8hngzx', `ສິດທິກາຣເຂົ້າເຖິງ (Permissions)`)}</label>
                   <div style={{
                     background: 'rgba(255, 255, 255, 0.02)',
                     border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -2436,7 +2436,7 @@ export default function HRM({ activeUser, onUpdate, isMobile }) {
                     payout: ''
                   });
                 }}>{db.getLabel('auto_ຍົກເລີກ_m404cc', `ຍົກເລີກ`)}</button>
-                <button type="submit" className="btn btn-primary">{db.getLabel('auto___ເພີ່ມບັນທຶ__pphxyd', `ເພີ່ມບັນທຶก`)}</button>
+                <button type="submit" className="btn btn-primary">{db.getLabel('auto___ເພີ່ມບັນທຶ__pphxyd', `ເພີ່ມບັນທຶກ`)}</button>
               </div>
             </form>
           </div>
@@ -2585,7 +2585,7 @@ export default function HRM({ activeUser, onUpdate, isMobile }) {
                   <div><b>{db.getLabel('auto_ຕຳແໜ່ງ__Position___8qrcue', `ຕຳແໜ່ງ (Position):`)}</b> <span style={{ fontWeight: 'bold' }}>{{ owner: 'ເຈົ້າຂອງຮ້ານ (Owner)', cashier: 'ພະນັກງານຂາຍ (Cashier)', waiter: 'ພະນັກງານເສີບ (Waiter)', chef: 'ພໍ່ຄົວ (Chef)', staff: 'ພະນັກງານ (Staff)' }[selectedPayslip.userRole] || selectedPayslip.userRole || 'ພະນັກງານ'}</span></div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div><b>{db.getLabel('auto_ວ__ທີຈ່າຍ__Date_paid___4pbog1', `ວันທີຈ່າຍ (Date paid):`)}</b> {selectedPayslip.paidAt ? new Date(selectedPayslip.paidAt).toLocaleDateString('lo-LA') : 'ລໍຖ້າການຊຳລະ'}</div>
+                  <div><b>{db.getLabel('auto_ວ__ທີຈ່າຍ__Date_paid___4pbog1', `ວັນທີຈ່າຍ (Date paid):`)}</b> {selectedPayslip.paidAt ? new Date(selectedPayslip.paidAt).toLocaleDateString('lo-LA') : 'ລໍຖ້າການຊຳລະ'}</div>
                   <div><b>{db.getLabel('auto_ວິທີການຊຳລະ__Method___n8ce0b', `ວິທີການຊຳລະ (Method):`)}</b> {db.getLabel('auto_ໂອນຜ່ານ_BCEL_One_mq5o5v', `ໂອນຜ່ານ BCEL One`)}</div>
                 </div>
               </div>
@@ -2798,13 +2798,13 @@ export default function HRM({ activeUser, onUpdate, isMobile }) {
                           <span>{baseWage.toLocaleString()} {db.getLabel('auto_ກີບ_2726e', `ກີບ`)}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>{db.getLabel('auto_ຄ່າຈ___ສະເລ່ຍຕໍ່ວັນ__ຫານ__3j8saq', `ຄ່າຈ้างສະເລ່ຍຕໍ່ວັນ (ຫານ 26):`)}</span>
+                          <span>{db.getLabel('auto_ຄ່າຈ___ສະເລ່ຍຕໍ່ວັນ__ຫານ__3j8saq', `ຄ່າຈ້າງສະເລ່ຍຕໍ່ວັນ (ຫານ 26):`)}</span>
                           <span>{dailyWage.toLocaleString()} {db.getLabel('auto_ກີບ_2726e', `ກີບ`)}</span>
                         </div>
                       </>
                     ) : (
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>{db.getLabel('auto_ອັດຕາຄ່າຈ___ລາຍວັນ__i3wewc', `ອັດຕາຄ່າຈ้างລາຍວັນ:`)}</span>
+                        <span>{db.getLabel('auto_ອັດຕາຄ່າຈ___ລາຍວັນ__i3wewc', `ອັດຕາຄ່າຈ້າງລາຍວັນ:`)}</span>
                         <span>{baseWage.toLocaleString()} {db.getLabel('auto_ກີບ_2726e', `ກີບ`)}</span>
                       </div>
                     )}

@@ -1,72 +1,40 @@
-const fs = require('fs');
-const path = require('path');
 const https = require('https');
-const zlib = require('zlib');
+const fs = require('fs');
 
-const DB_FILE = path.resolve("c:/Users/sutha/OneDrive/Desktop/kp pakse pos/db_shared.json");
-const BACKUP_FILE = path.resolve("c:/Users/sutha/OneDrive/Desktop/kp pakse pos/db_shared_backup.json");
-const LIVE_URL = "https://kp-pakse-suthatpospos.shop/api/production/backup";
-
-async function main() {
-  console.log(`🚀 Fetching live database backup from: ${LIVE_URL}`);
-
-  // Backup local database file
-  if (fs.existsSync(DB_FILE)) {
-    fs.copyFileSync(DB_FILE, BACKUP_FILE);
-    console.log(`✓ Backed up local db_shared.json to db_shared_backup.json`);
-  }
-
-  const chunks = [];
-  const options = {
-    rejectUnauthorized: false,
-    headers: {
-      'Authorization': 'Bearer KP-Pakse-Secret-Token-2026'
-    }
-  };
-
-  https.get(LIVE_URL, options, (res) => {
-    if (res.statusCode !== 200) {
-      console.error(`❌ HTTP error! Status: ${res.statusCode}`);
-      
-      // Let's print response body to debug if needed
-      let errBody = '';
-      res.on('data', chunk => errBody += chunk);
-      res.on('end', () => {
-        console.error("Response:", errBody);
-        process.exit(1);
-      });
-      return;
-    }
-
-    res.on('data', chunk => chunks.push(chunk));
-    res.on('end', () => {
-      const buffer = Buffer.concat(chunks);
-      console.log(`✓ Downloaded ${buffer.length} bytes of compressed database.`);
-      
-      try {
-        const decompressed = zlib.gunzipSync(buffer);
-        const parsed = JSON.parse(decompressed.toString('utf8'));
-        
-        // Save to local db_shared.json
-        fs.writeFileSync(DB_FILE, JSON.stringify(parsed, null, 2), 'utf8');
-        console.log(`✓ Successfully updated db_shared.json with production database!`);
-        
-        // Print tables
-        for (const [key, val] of Object.entries(parsed)) {
-          const count = Array.isArray(val.data) 
-            ? val.data.length 
-            : (typeof val.data === 'object' && val.data !== null ? Object.keys(val.data).length : 1);
-          console.log(`   └─ Table [${key}]: ${count} records`);
-        }
-      } catch (err) {
-        console.error("❌ Failed to decompress/parse the downloaded backup:", err);
+function getJson(url) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      headers: {
+        'Authorization': 'Bearer KP-Pakse-Secret-Token-2026'
       }
-    });
-  }).on('error', (err) => {
-    console.error("❌ HTTPS request failed:", err);
+    };
+    https.get(url, options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => data += chunk);
+      res.on('end', () => {
+        try {
+          resolve(JSON.parse(data));
+        } catch (e) {
+          reject(new Error("Failed to parse: " + data.slice(0, 100)));
+        }
+      });
+    }).on('error', (err) => reject(err));
   });
 }
 
-main().catch(err => {
-  console.error("❌ Unexpected error:", err);
-});
+console.log("=== FETCHING USERS FROM LIVE SERVER SYNC API ===");
+getJson('https://kp-pakse-suthatpospos.shop/api/db/sync?users=0')
+  .then(res => {
+    if (res.users) {
+      console.log("Success! Users in live database:");
+      console.log(JSON.stringify(res.users, null, 2));
+    } else {
+      console.log("Failed. Response keys:", Object.keys(res));
+      console.log("Full response:", res);
+    }
+    process.exit(0);
+  })
+  .catch(err => {
+    console.error("Error:", err.message);
+    process.exit(1);
+  });

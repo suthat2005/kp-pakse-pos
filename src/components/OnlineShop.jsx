@@ -1801,7 +1801,7 @@ export default function OnlineShop() {
               <input
                 type="text"
                 className="form-control"
-                placeholder={db.getLabel('auto__້ອນເລກອໍເດີ້_ຫຼື_ບັດຕິດຕ_o82k08', `ป້ອນເລກອໍເດີ້ ຫຼື ບັດຕິດຕາມ (ຕົວຢ່າງ: JOB10001)...`)}
+                placeholder={db.getLabel('auto__້ອນເລກອໍເດີ້_ຫຼື_ບັດຕິດຕ_o82k08', `ປ້ອນເລກອໍເດີ້ ຫຼື ບັດຕິດຕາມ (ຕົວຢ່າງ: JOB10001)...`)}
                 value={trackingOrderId}
                 onChange={(e) => setTrackingOrderId(e.target.value)}
                 style={{ margin: 0 }}
@@ -1828,7 +1828,7 @@ export default function OnlineShop() {
                       fontWeight: 'bold',
                       color: getOrderStatusColor(trackedOrder.paymentStatus)
                     }}>
-                      {getOrderStatusColor(trackedOrder.paymentStatus) === '#2ecc71' ? 'ชຳລະແລ້ວ' : 'ລໍຖ້າກວດສອບ'}
+                      {getOrderStatusColor(trackedOrder.paymentStatus) === '#2ecc71' ? 'ຊຳລະແລ້ວ' : 'ລໍຖ້າກວດສອບ'}
                     </span>
                   </div>
 

@@ -197,7 +197,7 @@ export const DEFAULT_LABEL_KEYS = [
   { key: 'chk_title', defaultValue: "ຂັ້ນຕອນການຊຳລະເງິນ (Checkout)", desc: 'ຫົວຂໍ້ ຂັ້ນຕອນການຊຳລະເງິນ', section: 'pos' },
   { key: 'chk_pay_method', defaultValue: "ຊ່ອງທາງການຊຳລະເງິນ", desc: 'ຊ່ອງທາງການຊຳລະເງິນ', section: 'pos' },
   { key: 'chk_cash', defaultValue: "💵 ເງິນສົດ (Cash)", desc: 'ຕົວເລືອກ ເງິນສົດ', section: 'pos' },
-  { key: 'chk_transfer', defaultValue: "📱 ໂອນຜ່ານທະນາຄານ (BCEL One)", desc: 'ຕົວເລືອກ ໂອນຜ່ານທະนาຄານ', section: 'pos' },
+  { key: 'chk_transfer', defaultValue: "📱 ໂອນຜ່ານທະນາຄານ (BCEL One)", desc: 'ຕົວເລືອກ ໂອນຜ່ານທະນາຄານ', section: 'pos' },
   { key: 'chk_received', defaultValue: "ຮັບເງິນສົດມາ", desc: 'ຄຳວ່າ ຮັບເງິນສົດມາ', section: 'pos' },
   { key: 'chk_change', defaultValue: "ເງິນທອນ (Change)", desc: 'ຄຳວ່າ ເງິນທອນ', section: 'pos' },
   { key: 'chk_confirm_btn', defaultValue: "💾 ຢືນຢັນການຊຳລະ", desc: 'ປຸ່ມ ຢືນຢັນການຊຳລະ', section: 'pos' },
@@ -221,7 +221,7 @@ export const DEFAULT_LABEL_KEYS = [
   { key: 'rcpt_deposit', defaultValue: "ມັດຈຳ:", desc: 'ປ້າຍກຳກັບມັດຈຳໃນໃບບິນ', section: 'receipt' },
   { key: 'rcpt_deposit_offset', defaultValue: "ຫັກມັດຈຳ:", desc: 'ປ້າຍກຳກັບຫັກມັດຈຳໃນໃບບິນ', section: 'receipt' },
   { key: 'rcpt_balance', defaultValue: "ຄ້າງຊຳລະ:", desc: 'ປ້າຍກຳກັບຄ້າງຊຳລະໃນໃບບິນ', section: 'receipt' },
-  { key: 'rcpt_payment_amount_label', defaultValue: "ຍອດຊຳລະ", desc: 'ປ້າຍກຳກັບຍອດຊຳລະສະกຸນເງິນອື່น', section: 'receipt' },
+  { key: 'rcpt_payment_amount_label', defaultValue: "ຍອດຊຳລະ", desc: 'ປ້າຍກຳກັບຍອດຊຳລະສະກຸນເງິນອື່ນ', section: 'receipt' },
   { key: 'rcpt_received_label', defaultValue: "ຮັບເງິນ", desc: 'ປ້າຍກຳກັບເງິນທີ່ຮັບມາ', section: 'receipt' },
   { key: 'rcpt_change_label', defaultValue: "ເງິນທອນ", desc: 'ປ້າຍກຳກັບເງິນທອນ', section: 'receipt' },
   { key: 'rcpt_ref_label', defaultValue: "ເລກອ້າງອີງ (Ref):", desc: 'ປ້າຍກຳກັບເລກອ້າງອີງການໂອນ', section: 'receipt' },
@@ -229,7 +229,7 @@ export const DEFAULT_LABEL_KEYS = [
   { key: 'rcpt_currency_lak', defaultValue: "LAK (ກີບ):", desc: 'ປ້າຍກຳກັບສະກຸນເງິນ ກີບ', section: 'receipt' },
   { key: 'rcpt_currency_thb', defaultValue: "THB (ບາດ):", desc: 'ປ້າຍກຳກັບສະກຸນເງິນ ບາດ', section: 'receipt' },
   { key: 'rcpt_currency_usd', defaultValue: "USD (ໂດລາ):", desc: 'ປ້າຍກຳກັບສະກຸນເງິນ ໂດລາ', section: 'receipt' },
-  { key: 'rcpt_exchange_rate_label', defaultValue: "ອັດຕາແລກປ່ຽນ:", desc: 'ປ້າຍກຳກັບອັດຕາແລกປ່ຽນໃນໃບບິນ', section: 'receipt' },
+  { key: 'rcpt_exchange_rate_label', defaultValue: "ອັດຕາແລກປ່ຽນ:", desc: 'ປ້າຍກຳກັບອັດຕາແລກປ່ຽນໃນໃບບິນ', section: 'receipt' },
   { key: 'rcpt_qr_payment_title', defaultValue: "QR Code ຮັບເງິນ (BCEL One)", desc: 'ປ້າຍກຳກັບຫົວຂໍ້ QR Code ຮັບເງິນ', section: 'receipt' },
   { key: 'rcpt_bank_account_name_label', defaultValue: "ຊື່ບັນຊີ:", desc: 'ປ້າຍກຳກັບຊື່ບັນຊີທະນາຄານ', section: 'receipt' },
   { key: 'rcpt_bank_account_no_label', defaultValue: "ເລກບັນຊີ:", desc: 'ປ້າຍກຳກັບເລກບັນຊີທະນາຄານ', section: 'receipt' },
@@ -269,7 +269,7 @@ export const DEFAULT_LABEL_KEYS = [
   { key: 'framing_board_done', defaultValue: "✅ ສຳເລັດແລ້ວ (Done)", desc: 'ຖັນ ສຳເລັດແລ້ວ (Framing)', section: 'system' },
   { key: 'framing_board_delivered', defaultValue: "📦 ສົ່ງມອບແລ້ວ (Delivered)", desc: 'ຖັນ ສົ່ງມອບແລ້ວ (Framing)', section: 'system' },
   { key: 'debts_ledger_title', defaultValue: "📒 ບັນຊີລູກຄ້າຕິດໜີ້ (Customer Debts Ledger)", desc: 'ຫົວຂໍ້ ບັນຊີລູກຄ້າຕິດໜີ້', section: 'debts' },
-  { key: 'debts_total_outstanding', defaultValue: "ຍອດຄ້າງຊຳລະທັງໝົດ:", desc: 'ป້າຍຍອດຄ້າງຊຳລະທັງໝົດ', section: 'debts' },
+  { key: 'debts_total_outstanding', defaultValue: "ຍອດຄ້າງຊຳລະທັງໝົດ:", desc: 'ປ້າຍຍອດຄ້າງຊຳລະທັງໝົດ', section: 'debts' },
   { key: 'debts_search_placeholder', defaultValue: "🔍 ຄົ້ນຫາຕາມຊື່ລູກຄ້າ ຫຼື ເບີໂທ...", desc: 'ຊ່ອງຄົ້ນຫາໃນໜ້າຕິດໜີ້', section: 'debts' },
   { key: 'hrm_employee_list', defaultValue: "👥 ລາຍຊື່ພະນັກງານ (Employee Directory)", desc: 'ຫົວຂໍ້ ລາຍຊື່ພະນັກງານ (HRM)', section: 'hrm' },
   { key: 'hrm_payroll_ledger', defaultValue: "💵 ບັນຊີເງິນເດືອນພະນັກງານ (Staff Payroll)", desc: 'ຫົວຂໍ້ ບັນຊີເງິນເດືອນພະນັກງານ', section: 'hrm' },
@@ -277,7 +277,7 @@ export const DEFAULT_LABEL_KEYS = [
   { key: 'qty_modal_total', defaultValue: "ຍອດລວມ / Total:", desc: 'ປ້າຍຍອດລວມໃນປ໋ອບອັບຈຳນວນ', section: 'system' },
   { key: 'qty_modal_cancel', defaultValue: "ຍົກເລີກ / Cancel", desc: 'ປຸ່ມຍົກເລີກໃນປ໋ອບອັບຈຳນວນ', section: 'system' },
   { key: 'qty_modal_confirm', defaultValue: "ຢືນຢັນ / Confirm", desc: 'ປຸ່ມຢືນຢັນໃນປ໋ອບອັບຈຳນວນ', section: 'system' },
-  { key: 'pos_or', defaultValue: "ຫຼື / OR", desc: 'ຂໍ້ความ ຫຼື / OR ລະຫວ່າງທາງເລືອກຄິວ', section: 'pos' },
+  { key: 'pos_or', defaultValue: "ຫຼື / OR", desc: 'ຂໍ້ຄວາມ ຫຼື / OR ລະຫວ່າງທາງເລືອກຄິວ', section: 'pos' },
   { key: 'track_title', defaultValue: "ລະບົບຕິດຕາມສະຖານະອັດກອບພຣະ", desc: 'ຫົວຂໍ້ ລະບົບຕິດຕາມສະຖານະອັດກອບພຣະ', section: 'tracking' },
   { key: 'track_subtitle', defaultValue: "ຕິດຕາມຂັ້ນຕອນການອັດກອບພຣະເຄື່ອງຂອງທ່ານແບບ Real-time", desc: 'ຄຳອະທິບາຍໃຕ້ຫົວຂໍ້ ລະບົບຕິດຕາມສະຖານະ', section: 'tracking' },
   { key: 'track_bill_no', defaultValue: "ເລກໃບບິນຕິດຕາມ:", desc: 'ປ້າຍກຳກັບ ເລກໃບບິນຕິດຕາມ:', section: 'tracking' },
@@ -307,7 +307,7 @@ export const DEFAULT_LABEL_KEYS = [
   { key: 'track_step_ready_done', defaultValue: "ພ້ອມຮັບກັບບ້ານ", desc: 'ຂໍ້ຄວາມ ພ້ອມຮັບກັບບ້ານ', section: 'tracking' },
   { key: 'track_step_ready_waiting', defaultValue: "ລໍຖ້າການອັດກອບ", desc: 'ຂໍ້ຄວາມ ລໍຖ້າອັດກອບ', section: 'tracking' },
   { key: 'track_step_picked_up_done', defaultValue: "ສົ່ງມອບຮຽບຮ້ອຍ", desc: 'ຂໍ້ຄວາມ ສົ່ງມອບຮຽບຮ້ອຍ', section: 'tracking' },
-  { key: 'track_step_picked_up_waiting', defaultValue: "ລໍຖ້າລູກຄ້າມาຮັບ", desc: 'ຂໍ້ຄວາມ ລໍຖ້າລູກຄ້າມາຮັບ', section: 'tracking' },
+  { key: 'track_step_picked_up_waiting', defaultValue: "ລໍຖ້າລູກຄ້າມາຮັບ", desc: 'ຂໍ້ຄວາມ ລໍຖ້າລູກຄ້າມາຮັບ', section: 'tracking' },
   { key: 'track_amulet_prefix', defaultValue: "ອົງທີ", desc: 'ຄຳນຳໜ້າ ລຳດັບພຣະເຄື່ອງ', section: 'tracking' },
   { key: 'track_thickness_prefix', defaultValue: "ຄວາມໜາ", desc: 'ຄຳວ່າ ຄວາມໜາອະຄຣິລິກ', section: 'tracking' },
   { key: 'track_notes_prefix', defaultValue: "ໝາຍເຫດ:", desc: 'ຄຳວ່າ ໝາຍເຫດ', section: 'tracking' },
@@ -339,7 +339,7 @@ export const DEFAULT_LABEL_KEYS = [
   { key: 'rep_revenue_label', defaultValue: "💵 ຍອດຂາຍທັງໝົດ (Revenue)", desc: 'ປ້າຍກຳກັບ ຍອດຂາຍທັງໝົດ (Reports)', section: 'reports' },
   { key: 'rep_revenue_subtext', defaultValue: "ຍອດຂາຍໃນໄລຍະເວລາທີ່ເລືອກ", desc: 'ຄຳອະທິບາຍ ຍອດຂາຍໃນໄລຍະເວລາ (Reports)', section: 'reports' },
   { key: 'rep_net_profit_label', defaultValue: "📈 ກຳໄລສຸດທິ (Est. Profit)", desc: 'ປ້າຍກຳກັບ ກຳໄລສຸດທິ (Reports)', section: 'reports' },
-  { key: 'rep_profit_subtext', defaultValue: "*ຫັກຕົ້ນທຶນ ແລະ ຄ່າໃຊ້ຈ่ายແລ້ວ", desc: 'ຄຳອະທິບາຍ ຫັກຕົ້ນທຶนແລ້ວ (Reports)', section: 'reports' },
+  { key: 'rep_profit_subtext', defaultValue: "*ຫັກຕົ້ນທຶນ ແລະ ຄ່າໃຊ້ຈ່າຢແລ້ວ", desc: 'ຄຳອະທິບາຍ ຫັກຕົ້ນທຶນແລ້ວ (Reports)', section: 'reports' },
   { key: 'rep_orders_count', defaultValue: "🛒 ຈຳນວນໃບບິນຂາຍ", desc: 'ປ້າຍກຳກັບ ຈຳນວນໃບບິນຂາຍ (Reports)', section: 'reports' },
   { key: 'rep_average', defaultValue: "ສະເລ່ຍ:", desc: 'ຄຳວ່າ ສະເລ່ຍ (Reports)', section: 'reports' },
   { key: 'rep_total_debt', defaultValue: "📒 ມູນຄ່າໜີ້ຄ້າງຊຳລະທັງໝົດ", desc: 'ປ້າຍກຳກັບ ມູນຄ່າໜີ້ຄ້າງຊຳລະ (Reports)', section: 'reports' },
@@ -362,13 +362,13 @@ export const DEFAULT_LABEL_KEYS = [
   { key: 'inv_category', defaultValue: "ໝວດໝູ່ (Category)", desc: 'ປ້າຍກຳກັບ ໝວດໝູ່ (Inventory)', section: 'inventory' },
   { key: 'inv_supplier', defaultValue: "ຜູ້ສະໜອງ (Supplier)", desc: 'ປ້າຍກຳກັບ ຜູ້ສະໜອງ (Inventory)', section: 'inventory' },
   { key: 'inv_unit', defaultValue: "ຫົວໜ່ວຍ (Unit)", desc: 'ປ້າຍກຳກັບ ຫົວໜ່ວຍ (Inventory)', section: 'inventory' },
-  { key: 'inv_description', defaultValue: "ຄຳອະທິບາຍ (Description)", desc: 'ປ້າຍກຳກັບ ຄຳອະທิບາຍ (Inventory)', section: 'inventory' },
+  { key: 'inv_description', defaultValue: "ຄຳອະທິບາຍ (Description)", desc: 'ປ້າຍກຳກັບ ຄຳອະທິບາຍ (Inventory)', section: 'inventory' },
   { key: 'inv_search_placeholder', defaultValue: "🔍 ຄົ້ນຫາຕາມຊື່, ບາໂຄດ ຫຼື ໝວດໝູ່...", desc: 'ຊ່ອງຄົ້ນຫາສິນຄ້າ (Inventory)', section: 'inventory' },
   { key: 'inv_total_products', defaultValue: "ສິນຄ້າທັງໝົດ:", desc: 'ປ້າຍກຳກັບ ຈຳນວນສິນຄ້າທັງໝົດ (Inventory)', section: 'inventory' },
   { key: 'inv_total_stock_value', defaultValue: "ມູນຄ່າສະຕັອກ (ທຶນ):", desc: 'ປ້າຍກຳກັບ ມູນຄ່າສະຕັອກ (Inventory)', section: 'inventory' },
   { key: 'inv_potential_profit', defaultValue: "ກຳໄລຄາດຄະເນ:", desc: 'ປ້າຍກຳກັບ ກຳໄລຄາດຄະເນ (Inventory)', section: 'inventory' },
   { key: 'inv_save_btn', defaultValue: "💾 ບັນທຶກສິນຄ້າ", desc: 'ປຸ່ມ ບັນທຶກສິນຄ້າ (Inventory)', section: 'inventory' },
-  { key: 'inv_edit_btn', defaultValue: "✏️ ແກ้ໄຂ", desc: 'ປຸ່ມ ແກ้ໄຂສິນຄ້າ (Inventory)', section: 'inventory' },
+  { key: 'inv_edit_btn', defaultValue: "✏️ ແກ້ໄຂ", desc: 'ປຸ່ມ ແກ້ໄຂສິນຄ້າ (Inventory)', section: 'inventory' },
   { key: 'inv_delete_btn', defaultValue: "🗑️ ລຶບ", desc: 'ປຸ່ມ ລຶບສິນຄ້າ (Inventory)', section: 'inventory' },
   { key: 'hrm_role_owner', defaultValue: "ເຈົ້າຂອງຮ້ານ (Owner)", desc: 'ຕຳແໜ່ງ ເຈົ້າຂອງຮ້ານ (HRM)', section: 'hrm' },
   { key: 'hrm_role_cashier', defaultValue: "ພະນັກງານຂາຍ (Cashier)", desc: 'ຕຳແໜ່ງ ພະນັກງານຂາຍ (HRM)', section: 'hrm' },
@@ -403,12 +403,12 @@ export const DEFAULT_LABEL_KEYS = [
   // --- Customer Members Settings & POS Labels ---
   { key: 'settings_tab_customers', defaultValue: "👥 ຈັດການສະມາຊິກ (Members)", desc: 'ແທັບຍ່ອຍ ຈັດການສະມາຊິກ (Settings)', section: 'settings' },
   { key: 'pos_search_customer_placeholder', defaultValue: "🔍 ຄົ້ນຫາເບີໂທ ຫຼື ຊື່ລູກຄ້າ...", desc: 'ຊ່ອງຄົ້ນຫາເບີໂທ ຫຼື ຊື່ລູກຄ້າ (POS Grid)', section: 'pos' },
-  { key: 'pos_select_customer_label', defaultValue: "ເລືອກສະມາຊິກຮ້าน (Search Member)", desc: 'ປ້າຍກຳກັບ ເລືອກສະມາຊິກ (POS Rename Modal)', section: 'pos' },
+  { key: 'pos_select_customer_label', defaultValue: "ເລືອກສະມາຊິກຮ້ານ (Search Member)", desc: 'ປ້າຍກຳກັບ ເລືອກສະມາຊິກ (POS Rename Modal)', section: 'pos' },
   { key: 'pos_register_member_btn', defaultValue: "＋ ສະໝັກສະມາຊິກໃໝ່", desc: 'ປຸ່ມ ສະໝັກສະມາຊິກໃໝ່ (POS Rename Modal)', section: 'pos' },
-  { key: 'cust_id_col', defaultValue: "ລະຫັດສະມາຊິກ", desc: 'ຫົວຕາຕະລาง ລະຫັດສະມາຊິກ (Settings Members)', section: 'settings' },
+  { key: 'cust_id_col', defaultValue: "ລະຫັດສະມາຊິກ", desc: 'ຫົວຕາຕະລາງ ລະຫັດສະມາຊິກ (Settings Members)', section: 'settings' },
   { key: 'cust_name_col', defaultValue: "ຊື່ສະມາຊິກ", desc: 'ຫົວຕາຕະລາງ ຊື່ສະມາຊິກ (Settings Members)', section: 'settings' },
   { key: 'cust_phone_col', defaultValue: "ເບີໂທຕິດຕໍ່", desc: 'ຫົວຕາຕະລາງ ເບີໂທຕິດຕໍ່ (Settings Members)', section: 'settings' },
-  { key: 'cust_tier_col', defaultValue: "ລະດັບສະມາຊິກ", desc: 'ຫົວຕาຕະລາງ ລະດັບສະມາຊิก (Settings Members)', section: 'settings' },
+  { key: 'cust_tier_col', defaultValue: "ລະດັບສະມາຊິກ", desc: 'ຫົວຕາຕະລາງ ລະດັບສະມາຊິກ (Settings Members)', section: 'settings' },
   { key: 'cust_discount_col', defaultValue: "ສ່ວນຫຼຸດເລີ່ມຕົ້ນ", desc: 'ຫົວຕາຕະລາງ ສ່ວນຫຼຸດເລີ່ມຕົ້ນ (Settings Members)', section: 'settings' },
   { key: 'cust_actions_col', defaultValue: "ຈັດການ", desc: 'ຫົວຕາຕະລາງ ຈັດການ (Settings Members)', section: 'settings' }
 ,
@@ -2149,7 +2149,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       logs.unshift(record);
       this.saveAttendance(logs);
       
-      this.addAuditLog('clock_in', 'ພะນັກງານ ' + record.userName + ' ເຂົ້າງານ (Clock In), ເງິນທອນເລີ່ມຕົ້ນ: ' + (Number(openingCash) || 0).toLocaleString() + ' ກີບ');
+      this.addAuditLog('clock_in', 'ພະນັກງານ ' + record.userName + ' ເຂົ້າງານ (Clock In), ເງິນທອນເລີ່ມຕົ້ນ: ' + (Number(openingCash) || 0).toLocaleString() + ' ກີບ');
       
       const settings = this.getSettings();
       if (settings.notifyClockInOut !== false) {
@@ -2621,7 +2621,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
 
         this.sendNotification(message);
       } else if (lowStockItems && lowStockItems.length > 0 && settings.notifyLowStock !== false) {
-        let message = `⚠️ *ແຈ້ງເຕືອນສິນຄ້າໃກ້ໝົດສະຕັอก!*\n`;
+        let message = `⚠️ *ແຈ້ງເຕືອນສິນຄ້າໃກ້ໝົດສະຕັອກ!*\n`;
         lowStockItems.forEach(item => {
           message += `• ${item.name} (ເຫຼືອ ${item.stock} ${item.unit || 'ອັນ'}, ເກນຕໍ່າສຸດ ${item.minStock} ${item.unit || 'ອັນ'})\n`;
         });
@@ -3066,7 +3066,7 @@ return getStorage('attendance', DEFAULT_ATTENDANCE_LOGS);
       user: depositData.cashierName || 'system',
       cashier: depositData.cashierName || 'system',
       device: navigator.userAgent,
-      branch: 'ปากเซ',
+      branch: 'ປາກເ຋',
       status: 'Waiting Payment',
       uuid: uuid,
       checksum: crc16,

@@ -5,9 +5,7 @@ if (fs.existsSync(file)) {
   let content = fs.readFileSync(file, 'utf8');
   content = content.replace(/\r\n/g, '\n');
 
-  // Insert debug route
-  const target = `  // API: Production - Full Backup (Downloads Gzip compressed db_shared.json)`;
-  const debugRoute = `  // API: Debug Firebase Env
+  const target = `  // API: Debug Firebase Env
   if (pathname === '/api/debug-env' && req.method === 'GET') {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
@@ -23,13 +21,13 @@ if (fs.existsSync(file)) {
     return;
   }
 
-  // API: Production - Full Backup (Downloads Gzip compressed db_shared.json)`;
+`;
 
   if (content.includes(target)) {
-    content = content.replace(target, debugRoute);
+    content = content.replace(target, '');
     fs.writeFileSync(file, content, 'utf8');
-    console.log("✅ Successfully injected /api/debug-env in server.js!");
+    console.log("✅ Successfully removed /api/debug-env debug route from server.js!");
   } else {
-    console.log("❌ Target not found in server.js!");
+    console.log("❌ Target debug route not found in server.js!");
   }
 }

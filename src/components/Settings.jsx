@@ -151,7 +151,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
   const [isMainTerminalLocal, setIsMainTerminalLocal] = useState(() => localStorage.getItem('isMainTerminal') !== 'false');
 
   const handleResetShopInfo = () => {
-    if (!window.confirm('ຕ້ອງການລ້າງຂໍ້ມູນຮ້านຄ້າທັງໝົດແທ້ບໍ່?')) return;
+    if (!window.confirm('ຕ້ອງການລ້າງຂໍ້ມູນຮ້ານຄ້າທັງໝົດແທ້ບໍ່?')) return;
     setSettings(prev => ({
       ...prev,
       shopName: '',
@@ -1097,7 +1097,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                   <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                       <div className="form-group">
-                        <label className="form-label">{db.getLabel('auto__ື່ທະນາຄານ__Bank_Name__sisurk', `ชື່ທະນາຄານ (Bank Name)`)}</label>
+                        <label className="form-label">{db.getLabel('auto__ື່ທະນາຄານ__Bank_Name__sisurk', `ຊື່ທະນາຄານ (Bank Name)`)}</label>
                         <input
                           type="text"
                           className="form-control"
@@ -1403,7 +1403,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     {/* Sizing & Spacing Group */}
                     <div className="glass-card" style={{ padding: '12px', background: 'rgba(255,255,255,0.01)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                        <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.85rem', margin: 0 }}>{db.getLabel('auto____ຂະໜາດ___ໄລຍະຫ_____Sizi_vhbdik', `📏 ຂະໜາດ & ໄລຍະຫ่าง (Sizing & Spacing)`)}</h4>
+                        <h4 style={{ color: 'var(--gold-primary)', fontSize: '0.85rem', margin: 0 }}>{db.getLabel('auto____ຂະໜາດ___ໄລຍະຫ_____Sizi_vhbdik', `📏 ຂະໜາດ & ໄລຍະຫ່າງ (Sizing & Spacing)`)}</h4>
                         <button
                           type="button"
                           className="btn btn-secondary"
@@ -1890,7 +1890,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                         {renderLabelInput('rcpt_qr_payment_title', 'ຫົວຂໍ້ QR Code (QR Title)', 'QR Code ຮັບເງິນ (BCEL One)')}
                         {renderLabelInput('rcpt_paid_by', 'ລາຍເຊັນຜູ້ຈ່າຍ (Paid By)', 'ຜູ້ຈ່າຍເງິນ (Paid By)')}
-                        {renderLabelInput('rcpt_received_by', 'ລายເຊັນຜູ້ຮັບ (Received By)', 'ຜູ້ຮັບເງິນ (Received By)')}
+                        {renderLabelInput('rcpt_received_by', 'ລາຢເຊັນຜູ້ຮັບ (Received By)', 'ຜູ້ຮັບເງິນ (Received By)')}
                         {renderLabelInput('rcpt_track_title', 'ຫົວຂໍ້ຕິດຕາມ (Tracking Title)', '🔍 ສະແກນຕິດຕາມສະຖານະລາຍການ (Scan to Track)')}
                         {renderLabelInput('rcpt_track_note', 'ຄຳອະທິບາຍຕິດຕາມ (Tracking Description)', 'ຕິດຕາມຂັ້ນຕອນການອັດກອບພຣະເຄື່ອງຂອງທ່ານແບບ Real-time')}
                         {renderLabelInput('rcpt_track_job_label', 'ປ້າຍກຳກັບເລກທີງານ (Job ID Label)', 'ເລກທີງານ:')}
@@ -1975,7 +1975,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       {/* Bill Meta */}
                       <div style={{ fontSize: settings.receiptItemsFontSize || 'calc(100% - 2pt)', marginBottom: '6px', color: '#333' }}>
                         {settings.receiptShowBillId !== false && <div><b>{db.getLabel('rcpt_bill_no', 'ເລກບິນ:')}</b> RCPT-10023</div>}
-                        {settings.receiptShowDate !== false && <div><b>{db.getLabel('auto_ວ__ທີ__dh4ndf', `ວันທີ:`)}</b> {new Date().toLocaleString('lo-LA')}</div>}
+                        {settings.receiptShowDate !== false && <div><b>{db.getLabel('auto_ວ__ທີ__dh4ndf', `ວັນທີ:`)}</b> {new Date().toLocaleString('lo-LA')}</div>}
                         {settings.receiptShowCashier !== false && <div><b>{db.getLabel('rcpt_cashier', 'ພະນັກງານຂາຍ:')}</b> {db.getLabel('auto_ແອດມິນ_seu2m', `ແອດມິນ`)}</div>}
                         {settings.receiptShowPaymentMethod !== false && <div><b>{db.getLabel('rcpt_payment_method_label', 'ການຊຳລະ:')}</b> {db.getLabel('rcpt_payment_cash', 'ເງິນສົດ (Cash)')}</div>}
                         {settings.receiptShowCustomer !== false && <div><b>{db.getLabel('rcpt_customer_label', 'ລູກຄ້າ:')}</b> {db.getLabel('rcpt_customer_general', 'ລູກຄ້າທົ່ວໄປ')}</div>}
@@ -2114,7 +2114,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
               </div>
 
               <button type="submit" className="btn btn-primary" style={{ width: 'fit-content', alignSelf: 'flex-end', marginTop: '10px' }}>
-                💾 ບັນທຶກຮູບແບບໃບບิน
+                💾 ບັນທຶກຮູບແບບໃບບິນ
               </button>
             </form>
           )}
@@ -2434,7 +2434,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           onChange={(e) => setSettings({ ...settings, barcodeShowPrice: e.target.checked })}
                           style={{ width: '16px', height: '16px', accentColor: 'var(--gold-primary)' }}
                         />
-                        ສະແດງລາຄา (Show Price)
+                        ສະແດງລາຄາ (Show Price)
                       </label>
                       <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem' }}>
                         <input
@@ -2511,7 +2511,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       </div>
                       <div className="form-group">
                         <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>{db.getLabel('auto_ໄລຍະຫ່າງບ_ໂຄດ_ໂຕໜັງສື_5fxuxt', `ໄລຍະຫ່າງບาໂຄດ/ໂຕໜັງສື`)}</span>
+                          <span>{db.getLabel('auto_ໄລຍະຫ່າງບ_ໂຄດ_ໂຕໜັງສື_5fxuxt', `ໄລຍະຫ່າງບາໂຄດ/ໂຕໜັງສື`)}</span>
                           <span style={{ color: 'var(--gold-primary)' }}>{settings.barcodeTextSpacing || 5}px</span>
                         </label>
                         <input
@@ -2599,7 +2599,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                         <label htmlFor="local-is-main-terminal" style={{ fontSize: '0.85rem', color: 'white', cursor: 'pointer', userSelect: 'none' }}>
                           💻 <strong>{db.getLabel('auto_ເຄື່ອງນີ້ແມ່ນເຄື່ອງຫຼັກທີ_66257f', `ເຄື່ອງນີ້ແມ່ນເຄື່ອງຫຼັກທີ່ຕໍ່ເຄື່ອງພິມ (Main Terminal)`)}</strong>
                           <span style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                            (ເປີດສະເພาະເຄື່ອງຄອມພິວເຕີທີ່ຕໍ່ກັບເຄື່ອງພິມຢູ່ໜ້າຮ້ານ, ສ່ວນໃນໂທລະສັບໃຫ້ປິດໄວ້ ເພື່ອໃຫ້ກົດເປີດລິ້ນຊັກຈາກທາງໄກໄດ້)
+                            (ເປີດສະເພາະເຄື່ອງຄອມພິວເຕີທີ່ຕໍ່ກັບເຄື່ອງພິມຢູ່ໜ້າຮ້ານ, ສ່ວນໃນໂທລະສັບໃຫ້ປິດໄວ້ ເພື່ອໃຫ້ກົດເປີດລິ້ນຊັກຈາກທາງໄກໄດ້)
                           </span>
                         </label>
                       </div>
@@ -2712,7 +2712,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(212,175,55,0.05)', border: '1px dashed var(--gold-primary)', borderRadius: '8px', fontSize: '0.8rem' }}>
                         <h5 style={{ color: 'var(--gold-primary)', margin: '0 0 8px', fontSize: '0.85rem' }}>{db.getLabel('auto____ວິທີຕັ້ງຄ່າການພິມຜ່ານ__lmh1qy', `ℹ️ ວິທີຕັ້ງຄ່າການພິມຜ່ານ LAN & ເຄື່ອງສະແກນ Bluetooth`)}</h5>
                         <ul style={{ paddingLeft: '16px', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px', color: 'var(--text-secondary)' }}>
-                          <li><b>{db.getLabel('auto_ເຄື່ອງພິມ_LAN___ລ_້ນຊັກ__lhx7r8', `ເຄື່ອງພິມ LAN & ລิ້ນຊັກ:`)}</b> {db.getLabel('auto_ເຊື່ອມຕໍ່ສາຍ_LAN_ເຂົ້າເຄື_co1pw', `ເຊື່ອມຕໍ່ສາຍ LAN ເຂົ້າເຄື່ອງພິມ, ຈາກນັ້ນເສີບສາຍ RJ11 ຂອງລິ້ນຊັກເກັບເງິນເຂົ້າເຄື່ອງພິມ. ເມື່ອມີການພິມບິນ ລະບົບຈະຍິງກະແສໄຟເປີດລິ້ນຊັກໂດຍກົງຜ່ານ IP ອັດຕະໂນມັດ.`)}</li>
+                          <li><b>{db.getLabel('auto_ເຄື່ອງພິມ_LAN___ລ_້ນຊັກ__lhx7r8', `ເຄື່ອງພິມ LAN & ລິ້ນຊັກ:`)}</b> {db.getLabel('auto_ເຊື່ອມຕໍ່ສາຍ_LAN_ເຂົ້າເຄື_co1pw', `ເຊື່ອມຕໍ່ສາຍ LAN ເຂົ້າເຄື່ອງພິມ, ຈາກນັ້ນເສີບສາຍ RJ11 ຂອງລິ້ນຊັກເກັບເງິນເຂົ້າເຄື່ອງພິມ. ເມື່ອມີການພິມບິນ ລະບົບຈະຍິງກະແສໄຟເປີດລິ້ນຊັກໂດຍກົງຜ່ານ IP ອັດຕະໂນມັດ.`)}</li>
                           <li><b>{db.getLabel('auto_ເຄື່ອງສະແກນ_Bluetooth__342ktk', `ເຄື່ອງສະແກນ Bluetooth:`)}</b> {db.getLabel('auto_ເຊື່ອມຕໍ່__Pair__ເຄື່ອງສະ_31mt9k', `ເຊື່ອມຕໍ່ (Pair) ເຄື່ອງສະແກນເຂົ້າກັບໂທລະສັບ ຫຼື ຄອມພິວເຕີ ໂດຍຕັ້ງຄ່າໃຫ້ຢູ່ໃນໂໝດ`)} <b>Keyboard Emulator (HID)</b>{db.getLabel('auto___ລະບົບ_POS_ຈະຮັບຄ່າບາໂຄ້_54k97l', `. ລະບົບ POS ຈະຮັບຄ່າບາໂຄ້ດ ແລະ ເພີ່ມສິນຄ້າເຂົ້າຕະກ່າໃຫ້ເອງໂດຍອັດຕະໂນມັດທັນທີເມື່ອສະແກນ.`)}</li>
                         </ul>
                       </div>
@@ -2720,7 +2720,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
 
                     {/* Online Shop & QR Code Settings */}
                     <div className="glass-card" style={{ padding: '16px', background: 'rgba(255,255,255,0.01)', marginTop: '16px', borderLeft: '4px solid #3498db' }}>
-                      <h4 style={{ color: '#3498db', fontSize: '0.9rem', marginBottom: '12px' }}>{db.getLabel('auto____ຕັ້ງຄ່າເວັບໄຊຕ໌_ເມ_ູອອ_40fng9', `🌐 ຕັ້ງຄ່າເວັບໄຊຕ໌/ເມนູອອນລາຍ (Online Shop & Menu QR Settings)`)}</h4>
+                      <h4 style={{ color: '#3498db', fontSize: '0.9rem', marginBottom: '12px' }}>{db.getLabel('auto____ຕັ້ງຄ່າເວັບໄຊຕ໌_ເມ_ູອອ_40fng9', `🌐 ຕັ້ງຄ່າເວັບໄຊຕ໌/ເມນູອອນລາຍ (Online Shop & Menu QR Settings)`)}</h4>
                       
                       <div className="form-group" style={{ marginBottom: '12px' }}>
                         <label className="form-label">{db.getLabel('auto_ລິ້ງເວັບໄຊຕ໌_ເມນູອອນລາຍ___7bsf42', `ລິ້ງເວັບໄຊຕ໌/ເມນູອອນລາຍ (Online Shop Link URL)`)}</label>
@@ -2743,12 +2743,12 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                           onChange={(e) => setSettings({ ...settings, onlineShopLabel: e.target.value })}
                           placeholder={db.getLabel('auto_e_g__ສະແກນເບິ່ງເມນູອອນລາຍ_tdybda', `e.g. ສະແກນເບິ່ງເມນູອອນລາຍ (Scan Menu Online)`)}
                         />
-                        <small style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຂໍ_ຄວາມສະແດງໃຕ້ຮູບ_QR_Cod_k3i2b0', `ຂໍ้ຄວາມສະແດງໃຕ້ຮູບ QR Code (ປ່ຽນຂໍ້ຄວາມສະແກນເບິ່ງເມນູໃນຮ້ານໄດ້)`)}</small>
+                        <small style={{ color: 'var(--text-secondary)' }}>{db.getLabel('auto_ຂໍ_ຄວາມສະແດງໃຕ້ຮູບ_QR_Cod_k3i2b0', `ຂໍ້ຄວາມສະແດງໃຕ້ຮູບ QR Code (ປ່ຽນຂໍ້ຄວາມສະແກນເບິ່ງເມນູໃນຮ້ານໄດ້)`)}</small>
                       </div>
 
                       {/* Live QR Code Preview */}
                       <div style={{ textAlign: 'center', marginTop: '16px', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '10px' }}>
-                        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>{db.getLabel('auto_____ຕົວຢ່າງ_QR_Code_ທີ່ລູ_2xm184', `👁️ ຕົວຢ່າງ QR Code ທີ່ລູກຄ້າຈະສະແກน:`)}</div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>{db.getLabel('auto_____ຕົວຢ່າງ_QR_Code_ທີ່ລູ_2xm184', `👁️ ຕົວຢ່າງ QR Code ທີ່ລູກຄ້າຈະສະແກນ:`)}</div>
                         <div style={{ display: 'inline-block', padding: '10px', background: 'white', borderRadius: '12px' }}>
                           <img 
                             src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(settings.onlineShopUrl || window.location.origin)}`} 
@@ -4287,7 +4287,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                         checked={settings.trackingShowPricing !== false}
                         onChange={(e) => setSettings({ ...settings, trackingShowPricing: e.target.checked })}
                       />
-                      ສະແດງລາຍລະອຽດລາຄา & ຍອດມັດຈຳ (Show Price & Deposit Details)
+                      ສະແດງລາຍລະອຽດລາຄາ & ຍອດມັດຈຳ (Show Price & Deposit Details)
                     </label>
                   </div>
                   
@@ -4349,7 +4349,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                 <h3 style={{ color: 'var(--gold-primary)', fontSize: '1.1rem', margin: 0 }}>
                   🧹 ການຈັດການຂໍ້ມູນ ແລະ ການລຶບອັດຕະໂນມັດ (Data Retention & Auto-Delete)
                 </h3>
-                <button type="submit" className="btn btn-primary">บันทึก / Save</button>
+                <button type="submit" className="btn btn-primary">ບັນທຶກ / Save</button>
               </div>
 
               <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
@@ -4643,7 +4643,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     onClick={handlePrintCoupon}
                     style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px' }}
                   >
-                    🖨️ ພิມບັດຄູປອງ (Print Card)
+                    🖨️ ພິມບັດຄູປອງ (Print Card)
                   </button>
                 </div>
                 <small style={{ color: 'var(--text-secondary)', textAlign: 'center', maxWidth: '380px' }}>
@@ -4906,7 +4906,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                             style={{ background: 'none', border: 'none', color: 'var(--alert-red)', fontSize: '0.65rem', padding: 0, marginTop: '2px', cursor: 'pointer' }}
                             onClick={() => setDesignLogoImage('')}
                           >
-                            ❌ ລຶບໂລໂກ້ສະເພາะ (Use Main Logo)
+                            ❌ ລຶບໂລໂກ້ສະເພາະ (Use Main Logo)
                           </button>
                         )}
                       </div>
