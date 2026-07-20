@@ -1202,7 +1202,8 @@ export default function App() {
                     setMobileSidebarOpen(false);
                   }}
                 >
-                  🕒 ເຂົ້າງານ (Clock In)
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: 6, flexShrink: 0 }}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  ເຂົ້າງານ (Clock In)
                 </button>
               ) : !todayAttendance.clockOut ? (
                 <button
@@ -1227,7 +1228,8 @@ export default function App() {
                     setMobileSidebarOpen(false);
                   }}
                 >
-                  🕒 ອອກງານ (Clock Out)
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: 6, flexShrink: 0 }}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  ອອກງານ (Clock Out)
                 </button>
               ) : (
                 <div style={{
@@ -1673,28 +1675,30 @@ export default function App() {
                   {!todayAttendance ? (
                     <button type="button"
                       style={{
-                        padding: '3px 9px', fontSize: '0.68rem', fontWeight: 800,
+                        padding: '4px 10px', fontSize: '0.68rem', fontWeight: 800,
                         background: 'linear-gradient(135deg,#22c55e,#16a34a)',
                         color: 'white', border: 'none', borderRadius: 8,
-                        cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3,
+                        cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4,
                         boxShadow: '0 2px 8px rgba(34,197,94,0.3)',
                       }}
                       onClick={() => { setOpeningCashInput(''); setShowClockInModal(true); }}
                     >
-                      ⏰ ເຂົ້ງານ
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      ເຂົ້າງານ
                     </button>
                   ) : !todayAttendance.clockOut ? (
                     <button type="button"
                       style={{
-                        padding: '3px 9px', fontSize: '0.68rem', fontWeight: 800,
+                        padding: '4px 10px', fontSize: '0.68rem', fontWeight: 800,
                         background: 'linear-gradient(135deg,#ef4444,#dc2626)',
                         color: 'white', border: 'none', borderRadius: 8,
-                        cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3,
+                        cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4,
                         boxShadow: '0 2px 8px rgba(239,68,68,0.3)',
                       }}
                       onClick={handleClockOut}
                     >
-                      ⏰ ອອກງານ
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      ອອກງານ
                     </button>
                   ) : (
                     <span style={{ fontSize: '0.62rem', color: '#22c55e', fontWeight: 700 }}>✓ ເຄີຍແລ້ວ</span>
