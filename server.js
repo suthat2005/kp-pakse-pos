@@ -692,6 +692,22 @@ const server = http.createServer(async (req, res) => {
     return slots;
   }
 
+  // API: Debug Firebase Env
+  if (pathname === '/api/debug-env' && req.method === 'GET') {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    try {
+      const sa = process.env.FIREBASE_SERVICE_ACCOUNT ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT) : null;
+      res.end(JSON.stringify({
+        project_id: sa ? sa.project_id : 'none',
+        has_env: !!process.env.FIREBASE_SERVICE_ACCOUNT
+      }));
+    } catch(e) {
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
   // API: Production - Full Backup (Downloads Gzip compressed db_shared.json)
   if (pathname === '/api/production/backup' && req.method === 'GET') {
     try {
