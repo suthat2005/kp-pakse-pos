@@ -3108,10 +3108,18 @@ export default function POS({
                   type="button"
                   className="btn btn-primary"
                   onClick={() => setShowAddSlotModal(true)}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', padding: '9px 18px', borderRadius: '10px', fontWeight: 'bold', boxShadow: '0 4px 15px rgba(212,175,55,0.3)', margin: 0 }}
+                  title={db.getLabel('pos_add_queue', 'ເພີ່ມບັດຄິວ (Add Queue)')}
+                  style={{
+                    width: 34, height: 34,
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
+                    border: 'none', color: '#ffffff',
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 4px 15px rgba(52,152,219,0.35)',
+                    cursor: 'pointer', flexShrink: 0, margin: 0
+                  }}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ flexShrink: 0 }}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                  {db.getLabel('pos_add_queue', 'ເພີ່ມບັດຄິວ')}
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ flexShrink: 0 }}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 </button>
               </div>
             </div>
@@ -3120,7 +3128,7 @@ export default function POS({
               <input
                 type="text"
                 className="form-control"
-                placeholder={db.getLabel('pos_search_customer_placeholder', '🔍 ຄົ້ນຫາເບີໂທ ຫຼື ຊື່ລູກຄ້າ...')}
+                placeholder={db.getLabel('pos_search_customer_ph', 'ຄົ້ນຫາເບີໂທ ຫຼື ຊື່ລູກຄ້າ...')}
                 value={queueSearchQuery}
                 onChange={(e) => setQueueSearchQuery(e.target.value)}
                 style={{ maxWidth: '240px', background: 'rgba(0,0,0,0.4)', color: 'white', border: '1px solid var(--border-color)', height: '36px', borderRadius: '10px', fontSize: '0.85rem', padding: '0 12px', margin: 0 }}
