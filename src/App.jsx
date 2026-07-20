@@ -1460,24 +1460,25 @@ export default function App() {
             </div>
 
             {/* Connection Status Badge */}
-            <div style={{
-              display: 'flex', alignItems: 'center',
-              marginLeft: isMobile ? '6px' : '10px',
-              padding: '3px 9px',
-              borderRadius: 10,
-              background: isOnline ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.15)',
-              border: `1px solid ${isOnline ? 'rgba(34,197,94,0.22)' : 'rgba(239,68,68,0.3)'}`,
-              fontSize: '0.68rem', color: isOnline ? '#22c55e' : '#ef4444',
-              fontWeight: '700', gap: '5px', transition: 'all 0.3s',
-            }}>
-              <span style={{
-                width: 6, height: 6, borderRadius: '50%',
-                background: isOnline ? '#22c55e' : '#ef4444',
-                display: 'inline-block',
-                boxShadow: isOnline ? '0 0 5px #22c55e' : '0 0 5px #ef4444',
-                animation: isOnline ? 'pulse-blue 2s infinite' : 'none',
-              }}/>
-              {!isMobile && <span>{isOnline ? 'Online' : 'Offline'}</span>}
+            <div 
+              title={isOnline ? "ລະບົບອອນລາຍ (System Online)" : "ລະບົບອອຟລາຍ (System Offline)"}
+              style={{
+                width: 34, height: 34,
+                borderRadius: '10px',
+                background: isOnline ? 'rgba(34, 197, 94, 0.08)' : 'rgba(239, 68, 68, 0.08)',
+                border: isOnline ? '1.5px solid rgba(34, 197, 94, 0.4)' : '1.5px solid rgba(239, 68, 68, 0.4)',
+                color: isOnline ? '#22c55e' : '#ef4444',
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                marginLeft: '8px',
+                transition: 'all 0.3s',
+                flexShrink: 0
+              }}
+            >
+              {isOnline ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation: 'pulse-blue 2s infinite' }}><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.83-2.84"/><path d="M1 9a15.72 15.72 0 0 1 2.06-1.57"/><path d="M16.71 5.21A15.86 15.86 0 0 1 22.58 9"/><path d="M8.53 16.11a6 6 0 0 1 5.09-1"/><circle cx="12" cy="20" r="1"/></svg>
+              )}
             </div>
           </div>
 
