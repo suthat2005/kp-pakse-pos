@@ -1109,12 +1109,14 @@ export default function POS({
     
     const activeJob = framingJobs.find(j => j.slotId === slot.id && j.status !== 'picked_up');
     const hasItems = slot.items && slot.items.length > 0;
+    const isDebt = slot.isDebt;
     
-    // 🔒 BLOCK: Cannot delete a slot that has items or active framing jobs
-    if (hasItems || activeJob) {
+    // 🔒 BLOCK: Cannot delete a slot that has items, active framing jobs, or unpaid debt
+    if (hasItems || activeJob || isDebt) {
       const itemCount = slot.items ? slot.items.length : 0;
       alert(
         `🚫 ບໍ່ສາມາດລຶບບັດຄິວ "${slot.label}" ໄດ້!\n\n` +
+        (isDebt ? `• ມີໜີ້ຄ້າງຢູ່ (Unpaid Debt - ຕ້ອງຊຳລະໜີ້ກ່ອນ)\n` : '') +
         (hasItems ? `• ມີສິນຄ້າ ${itemCount} ລາຍການ ຄ້າງຢູ່ (ຕ້ອງຈ່າຍ / ລ້າງກ່ອນ)\n` : '') +
         (activeJob ? `• ມີໃບສັ່ງອັດກອບພຣະຄ້າງຢູ່ (ຕ້ອງ Picked Up ກ່ອນ)\n` : '') +
         `\n⚠️ ກະລຸນາຊຳລະ ຫຼື ລ້າງລາຍການໃຫ້ຄົບກ່ອນລຶບ.`
@@ -3307,29 +3309,39 @@ export default function POS({
                           </button>
                         )}
 
-                        {/* Delete button (except Walk-In) */}
-                        {slot.id !== 'Walk-In' && (
-                          <button
-                            type="button"
-                            className="btn btn-secondary"
-                            style={{
-                              width: '38px',
-                              height: '38px',
-                              borderRadius: '8px',
-                              padding: 0,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontSize: '1rem',
-                              border: '1px solid rgba(231,76,60,0.3)',
-                              background: 'rgba(231,76,60,0.05)',
-                              color: '#e74c3c'
-                            }}
-                            onClick={(e) => { e.stopPropagation(); handleDeleteSlotClick(e, slot); }}
-                          >
-                            ✕
-                          </button>
-                        )}
+                        {/* Delete / Lock button (except Walk-In) */}
+                        {slot.id !== 'Walk-In' && (() => {
+                          const slotHasItems = slot.items && slot.items.length > 0;
+                          const slotHasJob = framingJobs.some(j => j.slotId === slot.id && j.status !== 'picked_up');
+                          const isDebt = slot.isDebt;
+                          const isLocked = slotHasItems || slotHasJob || isDebt;
+                          return (
+                            <button
+                              type="button"
+                              className="btn btn-secondary"
+                              style={{
+                                width: '38px',
+                                height: '38px',
+                                borderRadius: '8px',
+                                padding: 0,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                border: isLocked ? '1px solid rgba(212,175,55,0.4)' : '1px solid rgba(231,76,60,0.3)',
+                                background: isLocked ? 'rgba(212,175,55,0.1)' : 'rgba(231,76,60,0.05)',
+                                color: isLocked ? 'var(--gold-primary)' : '#e74c3c'
+                              }}
+                              onClick={(e) => { e.stopPropagation(); handleDeleteSlotClick(e, slot); }}
+                              title={isLocked ? (isDebt ? '🔒 ລຶບບໍ່ໄດ້: ມີໜີ້ຄ້າງຢູ່ (Unpaid Debt)' : '🔒 ລຶບບໍ່ໄດ້: ມີສິນຄ້າ/ອັດກອບຄ້າງຢູ່') : 'ລຶບບັດຄິວ'}
+                            >
+                              {isLocked ? (
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                              ) : (
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                              )}
+                            </button>
+                          );
+                        })()}
                       </div>
                     </div>
                   );
@@ -3401,11 +3413,12 @@ export default function POS({
                       {/* Decorative top accent line */}
                       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: `linear-gradient(90deg, transparent, ${cardBorder}, transparent)` }} />
 
-                      {/* Delete slot button (except Walk-In) */}
+                      {/* Delete / Lock slot button (except Walk-In) */}
                       {slot.id !== 'Walk-In' && (() => {
                         const slotHasItems = slot.items && slot.items.length > 0;
                         const slotHasJob = framingJobs.some(j => j.slotId === slot.id && j.status !== 'picked_up');
-                        const isLocked = slotHasItems || slotHasJob;
+                        const isDebt = slot.isDebt;
+                        const isLocked = slotHasItems || slotHasJob || isDebt;
                         return (
                           <button
                             className="no-print"
@@ -3413,25 +3426,29 @@ export default function POS({
                               position: 'absolute',
                               top: '8px',
                               right: '8px',
-                              width: '24px',
-                              height: '24px',
+                              width: '26px',
+                              height: '26px',
                               borderRadius: '50%',
-                              background: isLocked ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.7)',
-                              border: isLocked ? '1.5px solid rgba(180,180,180,0.3)' : '1.5px solid rgba(231,76,60,0.5)',
-                              color: isLocked ? 'rgba(180,180,180,0.4)' : 'rgba(231,76,60,0.8)',
+                              background: isLocked ? 'rgba(212,175,55,0.12)' : 'rgba(231,76,60,0.08)',
+                              border: isLocked ? '1.5px solid rgba(212,175,55,0.4)' : '1.5px solid rgba(231,76,60,0.4)',
+                              color: isLocked ? 'var(--gold-primary)' : 'rgba(231,76,60,0.9)',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
                               cursor: isLocked ? 'not-allowed' : 'pointer',
-                              fontSize: '0.7rem',
+                              fontSize: '0.75rem',
                               zIndex: 10,
-                              boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                              boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
                               transition: 'all 0.2s'
                             }}
                             onClick={(e) => handleDeleteSlotClick(e, slot)}
-                            title={isLocked ? '🔒 ລຶບບໍ່ໄດ້: ມີສິນຄ້າ/ອັດກອບຄ້າງຢູ່' : 'ລຶບບັດຄິວ'}
+                            title={isLocked ? (isDebt ? '🔒 ລຶບບໍ່ໄດ້: ມີໜີ້ຄ້າງຢູ່ (Unpaid Debt)' : '🔒 ລຶບບໍ່ໄດ້: ມີສິນຄ້າ/ອັດກອບຄ້າງຢູ່') : 'ລຶບບັດຄິວ'}
                           >
-                            {isLocked ? '🔒' : '✕'}
+                            {isLocked ? (
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            ) : (
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            )}
                           </button>
                         );
                       })()}
