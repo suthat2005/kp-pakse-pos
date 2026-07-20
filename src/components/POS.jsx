@@ -3276,7 +3276,22 @@ export default function POS({
                                 color: activeJob.status === 'done' ? '#2ecc71' : activeJob.status === 'framing' ? '#f39c12' : '#e74c3c',
                                 fontWeight: 'bold'
                               }}>
-                                {activeJob.status === 'done' ? '✅ ອັດສຳເລັດ' : activeJob.status === 'framing' ? '⚙️ ກຳລັງອັດ' : '⏳ ລໍຖ້າ'}
+                                {activeJob.status === 'done' ? (
+                                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                                    ອັດສຳເລັດ
+                                  </span>
+                                ) : activeJob.status === 'framing' ? (
+                                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                                    ກຳລັງອັດ
+                                  </span>
+                                ) : (
+                                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    ລໍຖ້າ
+                                  </span>
+                                )}
                               </span>
                             </>
                           )}
@@ -3564,7 +3579,10 @@ export default function POS({
                             whiteSpace: 'nowrap',
                             lineHeight: '1.1'
                           }}>
-                            👤 {slot.customerName}
+                            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                              {slot.customerName}
+                            </span>
                           </span>
                         )}
 
@@ -3599,8 +3617,16 @@ export default function POS({
                             border: '1px solid ' + (activeJob.status === 'done' ? 'rgba(46,204,113,0.3)' : activeJob.status === 'framing' ? 'rgba(243,156,18,0.3)' : 'rgba(231,76,60,0.3)'),
                             lineHeight: '1.2'
                           }}>
-                            {activeJob.status === 'done' ? '✅ ' : activeJob.status === 'framing' ? '⚙️ ' : '⏳ '}
-                            {activeJob.status === 'done' ? db.getLabel('job_status_done', 'ອັດສຳເລັດ') : activeJob.status === 'framing' ? db.getLabel('job_status_framing', 'ກຳລັງອັດ') : db.getLabel('job_status_waiting', 'ລໍຖ້າ')}
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                              {activeJob.status === 'done' ? (
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                              ) : activeJob.status === 'framing' ? (
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                              ) : (
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                              )}
+                              {activeJob.status === 'done' ? db.getLabel('job_status_done', 'ອັດສຳເລັດ') : activeJob.status === 'framing' ? db.getLabel('job_status_framing', 'ກຳລັງອັດ') : db.getLabel('job_status_waiting', 'ລໍຖ້າ')}
+                            </span>
                           </span>
                         )}
 
@@ -3615,7 +3641,10 @@ export default function POS({
                             border: '1px solid rgba(52,152,219,0.3)',
                             lineHeight: '1.2'
                           }}>
-                            💰 ມັດຈຳແລ້ວ: ₭{(slot.depositAmount || 0).toLocaleString()}
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ flexShrink: 0 }}><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                              ມັດຈຳແລ້ວ:
+                            </span> ₭{(slot.depositAmount || 0).toLocaleString()}
                           </span>
                         )}
 
@@ -3630,7 +3659,10 @@ export default function POS({
                             border: '1px solid rgba(231,76,60,0.3)',
                             lineHeight: '1.2'
                           }}>
-                            ⚠️ ຕິດໜີ້
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                              ຕິດໜີ້
+                            </span>
                           </span>
                         )}
                       </div>
