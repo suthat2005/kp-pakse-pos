@@ -228,9 +228,12 @@ export default function App() {
   useEffect(() => {
     const tick = () => {
       const n = new Date();
-      const d = n.toLocaleDateString('lo-LA', { day: '2-digit', month: '2-digit', year: 'numeric' });
-      const t = n.toLocaleTimeString('lo-LA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      setClockStr(`${d} · ${t}`);
+      const day = String(n.getDate()).padStart(2, '0');
+      const month = String(n.getMonth() + 1).padStart(2, '0');
+      const year = n.getFullYear();
+      const d = `${day}/${month}/${year}`;
+      const t = n.toLocaleTimeString('lo-LA', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+      setClockStr(`${d} • ${t}`);
     };
     tick();
     const id = setInterval(tick, 1000);
@@ -1461,7 +1464,7 @@ export default function App() {
                 <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
               </svg>
               {(() => {
-                const parts = clockStr.includes('·') ? clockStr.split('·') : clockStr.split('-');
+                const parts = clockStr.includes('•') ? clockStr.split('•') : clockStr.includes('·') ? clockStr.split('·') : clockStr.split('-');
                 if (parts.length >= 2) {
                   return (
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem' }}>
