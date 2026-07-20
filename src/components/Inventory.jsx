@@ -4,6 +4,28 @@ import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
 import Portal from './Portal';
 import AmuletImageEditor from './AmuletImageEditor';
+const ConsumableCategoryIcons = {
+  packaging: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+  ),
+  cleaning: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M5 12h14"/></svg>
+  ),
+  stationery: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+  ),
+  default: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+  )
+};
+
+function getConsumableCatIconSvg(iconStr) {
+  if (iconStr === '📦') return <ConsumableCategoryIcons.packaging />;
+  if (iconStr === '🧹') return <ConsumableCategoryIcons.cleaning />;
+  if (iconStr === '📝' || iconStr === '✏️') return <ConsumableCategoryIcons.stationery />;
+  return <ConsumableCategoryIcons.default />;
+}
+
 const CategoryIcons = {
   amulet_frames: () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
@@ -74,6 +96,12 @@ const InventoryIcons = {
   ),
   category: () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+  ),
+  alert: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  ),
+  outflow: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 18 17 12 13 16 8 11 1 18"/><polyline points="17 18 23 18 23 12"/></svg>
   )
 };
 
@@ -550,7 +578,7 @@ const generateBarcodeDataUrl = async (text, format = 'CODE128') => {
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                 <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{db.getLabel('auto_ເລືອກເດືອນ__9kr26p', `ເລືອກເດືອນ:`)}</label>
-                <input type="month" className="form-control" style={{ width: '160px', background: '#1c1915' }} value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} />
+                <input type="month" className="form-control" style={{ width: '160px' }} value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} />
               </div>
 
               <div style={{ background: 'rgba(231,76,60,0.06)', border: '1px solid rgba(231,76,60,0.22)', padding: '16px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -782,20 +810,32 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
         </div>
       </div>
 
-      {/* KPI CARDS */}
+            {/* KPI CARDS */}
       <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)',gap:'12px'}}>
-        {[
-          {icon:'📦',label:'ລາຍການທັງໝົດ',value:consumables.length+' ລາຍການ',color:'#4fc3f7'},
-          {icon:'💰',label:'ມູນຄ່າສາງລວມ',value:totalStockValue.toLocaleString()+' ₭',color:'var(--gold-primary)'},
-          {icon:'⚠️',label:'ສາງໃກ້ໝົດ',value:lowStockItems.length+' ລາຍການ',color:lowStockItems.length>0?'#e74c3c':'#2ecc71'},
-          {icon:'📤',label:'ເບີກໃຊ້ເດືອນນີ້',value:totalDisburseMonth.toLocaleString()+' ₭',color:'#e17055'},
-        ].map((card,i)=>(
-          <div key={i} className="glass-card" style={{padding:'16px',display:'flex',flexDirection:'column',gap:'6px',borderTop:`3px solid ${card.color}`}}>
-            <div style={{fontSize:'1.5rem'}}>{card.icon}</div>
-            <div style={{fontSize:'0.72rem',color:'var(--text-secondary)'}}>{card.label}</div>
-            <div style={{fontWeight:'bold',fontSize:'1rem',color:card.color}}>{card.value}</div>
-          </div>
-        ))}
+        <InventoryKpiCard
+          icon={<InventoryIcons.box />}
+          label="ລາຍການທັງໝົດ"
+          value={consumables.length + ' ລາຍການ'}
+          accentColor="52, 152, 219"
+        />
+        <InventoryKpiCard
+          icon={<InventoryIcons.cost />}
+          label="ມູນຄ່າສາງລວມ"
+          value={totalStockValue.toLocaleString() + ' ₭'}
+          accentColor="212, 175, 55"
+        />
+        <InventoryKpiCard
+          icon={<InventoryIcons.alert />}
+          label="ສາງໃກ້ໝົດ"
+          value={lowStockItems.length + ' ລາຍການ'}
+          accentColor={lowStockItems.length > 0 ? "231, 76, 60" : "46, 204, 113"}
+        />
+        <InventoryKpiCard
+          icon={<InventoryIcons.outflow />}
+          label="ເບີກໃຊ້ເດືອນນີ້"
+          value={totalDisburseMonth.toLocaleString() + ' ₭'}
+          accentColor="225, 112, 85"
+        />
       </div>
 
       {/* CATEGORY BREAKDOWN */}
@@ -803,16 +843,30 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
         <div>
           <div style={{fontSize:'0.8rem',color:'var(--text-secondary)',marginBottom:'8px',fontWeight:'600'}}>{db.getLabel('auto____ສະຫຼຸບຕາມໝວດໝູ່__qcrg15', `📁 ສະຫຼຸບຕາມໝວດໝູ່:`)}</div>
           <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(auto-fill,minmax(180px,1fr))',gap:'10px'}}>
-            {categories.map(cat=>{
+                        {categories.map(cat=>{
               const items=consumables.filter(c=>c.category===cat.id);
               const catVal=items.reduce((s,c)=>s+((c.stock||0)*(c.costPerUnit||0)),0);
               const isActive=activeFilter===cat.id;
               return(
-                <button key={cat.id} type="button" onClick={()=>setActiveFilter(isActive?'all':cat.id)} style={{background:isActive?'rgba(212,175,55,0.12)':'rgba(255,255,255,0.03)',border:`1px solid ${isActive?'var(--gold-primary)':'var(--border-color)'}`,borderRadius:'10px',padding:'12px',cursor:'pointer',textAlign:'left',transition:'all 0.2s'}}>
-                  <div style={{fontSize:'1.3rem',marginBottom:'4px'}}>{cat.icon}</div>
-                  <div style={{fontSize:'0.8rem',fontWeight:'bold',color:isActive?'var(--gold-primary)':'white'}}>{cat.name}</div>
-                  <div style={{fontSize:'0.7rem',color:'var(--text-secondary)',marginTop:'2px'}}>{items.length} {db.getLabel('auto_ລາຍການ_ce8qoo', `ລາຍການ`)}</div>
-                  <div style={{fontSize:'0.7rem',color:'var(--gold-primary)',fontWeight:'600'}}>{catVal.toLocaleString()} ₭</div>
+                <button key={cat.id} type="button" onClick={()=>setActiveFilter(isActive?'all':cat.id)}
+                  style={{
+                    background: isActive ? 'rgba(212, 175, 55, 0.08)' : 'rgba(255,255,255,0.02)',
+                    border: isActive ? '1.5px solid var(--gold-primary)' : '1px solid var(--border-color)',
+                    borderRadius: '12px',
+                    padding: '14px 16px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = ''; }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: isActive ? 'var(--gold-primary)' : 'var(--text-primary)' }}>
+                    {getConsumableCatIconSvg(cat.icon)}
+                    <span style={{ fontSize: '0.82rem', fontWeight: '700' }}>{cat.name}</span>
+                  </div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{items.length} {db.getLabel('auto_ລາຍການ_ce8qoo', 'ລາຍການ')}</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--gold-primary)', fontWeight: '700', marginTop: '2px' }}>{catVal.toLocaleString()} ₭</div>
                 </button>
               );
             })}
@@ -850,7 +904,7 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
             <input type="text" className="form-control" style={{paddingLeft:'36px',height:'38px',fontSize:'0.85rem'}} placeholder={db.getLabel('auto_ຄົ້ນຫາອຸປະກອນ____b98y5r', `ຄົ້ນຫາອຸປະກອນ...`)} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)}/>
             {searchQuery&&<button type="button" onClick={()=>setSearchQuery('')} style={{position:'absolute',right:'10px',top:'50%',transform:'translateY(-50%)',background:'none',border:'none',color:'var(--text-secondary)',cursor:'pointer'}}>✕</button>}
           </div>
-          <select className="form-control" style={{width:isMobile?'100%':'200px',height:'38px',fontSize:'0.85rem',background:'#1c1915'}} value={sortMode} onChange={e=>setSortMode(e.target.value)}>
+          <select className="form-control" style={{width:isMobile?'100%':'200px',height:'38px',fontSize:'0.85rem'}} value={sortMode} onChange={e=>setSortMode(e.target.value)}>
             <option value="none">{db.getLabel('auto____ຮຽງ__ຄ່າເລີ່ມຕົ້ນ_wyyrod', `📋 ຮຽງ: ຄ່າເລີ່ມຕົ້ນ`)}</option>
             <option value="name_az">{db.getLabel('auto____ຊື່_A_Z_8fdi8g', `🔤 ຊື່ A-Z`)}</option>
             <option value="name_za">{db.getLabel('auto____ຊື່_Z_A_8fe0r4', `🔤 ຊື່ Z-A`)}</option>
@@ -1118,7 +1172,7 @@ function ConsumablesSubView({ isMobile, activeUser, onUpdate }) {
         </div>
         <div style={{display:'flex',alignItems:'center',gap:'10px',marginBottom:'20px',background:'rgba(255,255,255,0.03)',padding:'12px',borderRadius:'8px',border:'1px solid var(--border-color)'}}>
           <label style={{fontSize:'0.85rem',color:'var(--text-secondary)'}}>{db.getLabel('auto_ເລືອກເດືອນ__9kr26p', `ເລືອກເດືອນ:`)}</label>
-          <input type="month" className="form-control" style={{width:'160px',background:'#1c1915'}} value={selectedMonth} onChange={e=>setSelectedMonth(e.target.value)}/>
+          <input type="month" className="form-control" style={{width:'160px'}} value={selectedMonth} onChange={e=>setSelectedMonth(e.target.value)}/>
         </div>
         <div style={{background:'rgba(231,76,60,0.06)',border:'1px solid rgba(231,76,60,0.22)',padding:'16px',borderRadius:'12px',display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'20px'}}>
           <div><div style={{fontSize:'0.75rem',color:'var(--text-secondary)'}}>{db.getLabel('auto____ລວມລາຍຈ່າຍ__k7rnqu', `💵 ລວມລາຍຈ່າຍ:`)}</div><div style={{fontSize:'1.6rem',fontWeight:'bold',color:'#FAB1A0',marginTop:'4px'}}>{totalMonthExpenseVal.toLocaleString()} ₭</div></div>
@@ -1588,7 +1642,7 @@ function RawMaterialsSubView({ isMobile, activeUser }) {
               </p>
               <textarea
                 className="form-control"
-                style={{ width: '100%', minHeight: '180px', fontFamily: 'monospace', fontSize: '0.75rem', background: '#1c1915' }}
+                style={{ width: '100%', minHeight: '180px', fontFamily: 'monospace', fontSize: '0.75rem', background: 'rgba(0, 0, 0, 0.2)' }}
                 placeholder="ID,Name,Category,Unit,Stock Qty,Min Stock,Cost Price,Supplier&#10;,Acrylic sheet 2mm,acrylic,sheet,50,5,45000,PT Supplier"
                 value={csvText}
                 onChange={(e) => setCsvText(e.target.value)}
@@ -1914,7 +1968,8 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                   fontSize: '0.8rem',
                   padding: '8px 12px',
                   border: selectedProduct?.id === p.id ? '2px solid var(--gold-primary)' : '1px solid var(--border-color)',
-                  background: selectedProduct?.id === p.id ? 'rgba(212,175,55,0.06)' : '#1c1915',
+                  background: selectedProduct?.id === p.id ? 'rgba(212, 175, 55, 0.08)' : 'rgba(255,255,255,0.02)',
+                  borderRadius: '8px',
                   color: selectedProduct?.id === p.id ? 'var(--gold-primary)' : 'white',
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -1983,7 +2038,7 @@ function ManufacturingSubView({ isMobile, activeUser }) {
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                       {bomList.map(item => (
-                        <div key={item.materialId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#1c1915', padding: '6px 12px', borderRadius: '4px' }}>
+                        <div key={item.materialId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', padding: '8px 14px', borderRadius: '8px' }}>
                           <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{item.materialName}</span>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <span style={{ fontSize: '0.8rem', color: 'var(--gold-primary)' }}>{item.qty}</span>
@@ -5790,7 +5845,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   <textarea
                     className="form-control"
                     rows="3"
-                    style={{ background: '#1c1916', color: 'white', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '8px' }}
+                    style={{ background: 'rgba(255,255,255,0.02)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px' }}
                     placeholder={db.getLabel('auto_ປ້ອນລາຍລະອຽດສິນຄ້າ____8y7bpf', `ປ້ອນລາຍລະອຽດສິນຄ້າ...`)}
                     value={formData.description || ''}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -6417,9 +6472,9 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                   fontSize: '1.2rem',
                   letterSpacing: '2px',
                   fontFamily: 'monospace',
-                  background: '#1c1915',
+                  background: 'rgba(25, 20, 15, 0.45)',
                   border: '1px solid var(--border-color)',
-                  borderRadius: '6px',
+                  borderRadius: '8px',
                   padding: '12px',
                   width: '100%',
                   color: 'white'
