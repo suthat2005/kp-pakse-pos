@@ -1450,15 +1450,29 @@ export default function App() {
               <Icons.menu />
             </button>
             <div style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              padding: '4px 11px', borderRadius: '9px',
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.07)',
-              fontSize: '0.72rem', color: 'rgba(255,255,255,0.55)',
-              fontWeight: 600, letterSpacing: '0.3px',
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              padding: '5px 12px', borderRadius: '10px',
+              background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.08) 0%, rgba(212, 175, 55, 0.02) 100%)',
+              border: '1px solid rgba(212, 175, 55, 0.22)',
+              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.3), 0 0 12px rgba(212, 175, 55, 0.08)',
               whiteSpace: 'nowrap'
             }}>
-              <Icons.clock /><span>{clockStr}</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, filter: 'drop-shadow(0 0 4px rgba(212,175,55,0.4))' }}>
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              {(() => {
+                const parts = clockStr.includes('·') ? clockStr.split('·') : clockStr.split('-');
+                if (parts.length >= 2) {
+                  return (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem' }}>
+                      <span style={{ color: 'rgba(255, 255, 255, 0.65)', fontWeight: 600 }}>{parts[0].trim()}</span>
+                      <span style={{ color: 'rgba(212, 175, 55, 0.45)', fontWeight: 'bold' }}>•</span>
+                      <span style={{ color: 'var(--gold-primary)', fontWeight: 700, fontFamily: 'monospace', fontSize: '0.78rem', letterSpacing: '0.5px' }}>{parts[1].trim()}</span>
+                    </span>
+                  );
+                }
+                return <span style={{ color: 'var(--gold-primary)', fontWeight: 700, fontFamily: 'monospace' }}>{clockStr}</span>;
+              })()}
             </div>
 
             {/* Connection Status Badge */}
