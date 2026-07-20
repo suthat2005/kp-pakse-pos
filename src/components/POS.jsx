@@ -4298,7 +4298,9 @@ export default function POS({
               borderBottom: '1px solid rgba(212,175,55,0.2)',
               display: 'flex', alignItems: 'center', gap: '12px'
             }}>
-              <div style={{ fontSize: '1.5rem' }}>📿</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 10, background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', color: 'var(--gold-primary)', flexShrink: 0 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2 2z"/><line x1="12" y1="6" x2="12" y2="18" strokeDasharray="2 2"/></svg>
+              </div>
               <div>
                 <div style={{ fontSize: '1rem', fontWeight: 'bold', background: 'linear-gradient(135deg,#d4af37,#f5d76e)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                   {db.getLabel('pos_board_title_short', 'ບັດຄິວ')}: {slotEntryTarget.label === 'Walk-In' ? db.getLabel('pos_walk_in', 'Walk-In') : slotEntryTarget.label}
@@ -4325,7 +4327,7 @@ export default function POS({
                 display: 'flex', flexDirection: 'column', gap: '10px'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '1.2rem' }}>📋</span>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold-primary)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>
                   <div>
                     <div style={{ fontSize: '0.88rem', fontWeight: 'bold', color: 'var(--gold-primary)' }}>{db.getLabel('slot_entry_with_info', 'ລູກຄ້າຝາກ / ລົງທະບຽນ')}</div>
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{db.getLabel('slot_entry_with_info_desc', 'ໃສ່ຊື່ + ເບີໂທ ເພື່ອບັນທຶກຂໍ້ມູນໄວ້ດຶງຄືນໃນພາຍຫຼັງ')}</div>
@@ -4337,7 +4339,7 @@ export default function POS({
                     <input
                       type="text"
                       className="form-control"
-                      placeholder={db.getLabel('auto____ຄົ້ນຫາສະມາຊິກ__ເບີໂທ_ຫ_7ud0no', `🔍 ຄົ້ນຫາສະມາຊິກ (ເບີໂທ ຫຼື ຊື່)...`)}
+                      placeholder={db.getLabel('pos_search_member_ph', 'ຄົ້ນຫາສະມາຊິກ (ເບີໂທ ຫຼື ຊື່)...')}
                       value={entryMemberSearchVal}
                       onChange={(e) => {
                         setEntryMemberSearchVal(e.target.value);
@@ -4472,7 +4474,10 @@ export default function POS({
                       marginTop: '4px'
                     }}
                   >
-                    ✓ {db.getLabel('slot_entry_confirm', 'ບັນທຶກ ແລະ ເຂົ້າໜ້າຂາຍ')}
+                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      {db.getLabel('slot_entry_confirm', 'ບັນທຶກ ແລະ ເຂົ້າໜ້າຂາຍ')}
+                    </span>
                   </button>
                 </form>
               </div>
@@ -4500,7 +4505,9 @@ export default function POS({
                   transition: 'all 0.2s'
                 }}
               >
-                <span style={{ fontSize: '1.3rem' }}>🛒</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 10, background: 'rgba(39,174,96,0.15)', border: '1px solid rgba(39,174,96,0.3)', color: '#2ecc71', flexShrink: 0 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                </div>
                 <div>
                   <div>{db.getLabel('slot_entry_direct', 'ຂາຍໜ້າຮ້ານ (Walk-In)')}</div>
                   <div style={{ fontSize: '0.72rem', color: 'rgba(46,204,113,0.7)', fontWeight: 'normal', marginTop: '2px' }}>
@@ -4521,7 +4528,7 @@ export default function POS({
         <div className="modal-overlay" style={{ zIndex: 1200 }}>
           <div className="modal-content modal-sm glass-card" style={{ padding: '24px' }}>
             <div className="modal-header">
-              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>{db.getLabel('pos_add_queue_title', '➕ ເພີ່ມບັດຄິວ (Add Queue)')}</h3>
+              <h3 style={{ color: 'var(--gold-primary)', margin: 0 }}>{db.getLabel('pos_add_queue_title', 'ເພີ່ມບັດຄິວ (Add Queue)')}</h3>
               <button className="close-btn" onClick={() => { setShowAddSlotModal(false); setAddSlotError(''); }}>✕</button>
             </div>
             
