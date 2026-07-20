@@ -4609,7 +4609,7 @@ export default function Inventory({ activeUser, onUpdate, initialFilter, onFilte
                       gap: '4px'
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', color: selectedWarehouseCatFilter === cat.id ? 'var(--gold-primary)' : 'var(--text-primary)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', color: selectedCatFilter === cat.id ? 'var(--gold-primary)' : 'var(--text-primary)' }}>
                       {getCategoryIconSvg(cat.id, cat.icon)}
                       <span style={{ fontSize: '0.82rem', fontWeight: '600', lineHeight: 1.3 }}>{cat.name}</span>
                     </div>
