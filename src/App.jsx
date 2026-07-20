@@ -1575,18 +1575,22 @@ export default function App() {
                   fontSize: '0.75rem',
                   borderRadius: '12px',
                   cursor: 'pointer',
-                  background: 'rgba(229, 169, 59, 0.12)',
-                  color: 'var(--accent-amber)',
-                  borderColor: 'rgba(229, 169, 59, 0.3)',
+                  background: 'rgba(46, 204, 113, 0.12)',
+                  color: '#2ecc71',
+                  borderColor: 'rgba(46, 204, 113, 0.3)',
                   whiteSpace: 'nowrap',
-                  fontWeight: 'bold'
+                  fontWeight: 'bold',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
                 }}
                 onClick={() => {
                   setExpenseFormData({ category: 'food', categoryName: 'ຄ່າກັບເຂົ້າ', amount: '', notes: '', currency: 'LAK' });
                   setShowExpenseModal(true);
                 }}
               >
-                💸 ບັນທຶກລายຈ່າຍ
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ flexShrink: 0 }}><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><path d="M6 14h.01M10 14h.01M14 14h.01M18 14h.01"/></svg>
+                ບັນທຶກລາຍຈ່າຍ
               </button>
             )}
 
