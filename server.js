@@ -389,7 +389,10 @@ const server = http.createServer(async (req, res) => {
   if (pathname.startsWith('/api/') && pathname !== '/api/server-ip') {
     const authHeader = req.headers['authorization'];
     const expectedToken = 'Bearer KP-Pakse-Secret-Token-2026';
-    if (!authHeader || authHeader !== expectedToken) {
+    const queryToken = parsedUrl.searchParams.get('token');
+    const expectedQueryToken = 'KP-Pakse-Secret-Token-2026';
+    
+    if ((!authHeader || authHeader !== expectedToken) && queryToken !== expectedQueryToken) {
       res.statusCode = 401;
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({ success: false, error: 'Unauthorized API Access' }));

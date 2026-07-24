@@ -175,25 +175,81 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
     }
 
     try {
-      const reader = new FileReader();
-      reader.onload = async (evt) => {
-        const arrayBuffer = evt.target.result;
-        const res = await fetch('/api/production/restore', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/octet-stream' },
-          body: arrayBuffer
-        });
-        const result = await res.json();
-        if (result.success) {
-          alert('✓ ກູ້ຄືນຖານຂໍ້ມູນສຳເລັດແລ້ວ! ລະບົບຈະໂຫຼດໜ້າໃໝ່.');
-          window.location.reload();
-        } else {
-          alert('❌ ຜິດພາດ: ' + result.error);
-        }
-      };
-      reader.readAsArrayBuffer(file);
+      if (file.name.endsWith('.json')) {
+        const reader = new FileReader();
+        reader.onload = async (evt) => {
+          try {
+            const backup = JSON.parse(evt.target.result);
+            const now = Date.now();
+            for (const key in backup) {
+              const val = backup[key];
+              const cleanKey = key.startsWith('amulet_pos_') ? key : 'amulet_pos_' + key;
+              localStorage.setItem(cleanKey, typeof val === 'object' ? JSON.stringify(val) : val);
+              
+              if (!cleanKey.includes('_ts_')) {
+                const tsKey = cleanKey.replace('amulet_pos_', 'amulet_pos_ts_');
+                const originalTsKey = key.startsWith('amulet_pos_') ? key.replace('amulet_pos_', 'amulet_pos_ts_') : 'amulet_pos_ts_' + key;
+                const tsVal = backup[originalTsKey] || String(now);
+                localStorage.setItem(tsKey, String(tsVal));
+              }
+            }
+            alert('✓ ກູ້ຄືນຖານຂໍ້ມູນສຳເລັດແລ້ວ! ລະບົບຈະໂຫຼດໜ້າໃໝ່.');
+            window.location.reload();
+          } catch (err) {
+            alert('❌ ຜິດພາດໃນການອ່ານໄຟລ໌ JSON: ' + err.message);
+          }
+        };
+        reader.readAsText(file);
+      } else {
+        const reader = new FileReader();
+        reader.onload = async (evt) => {
+          const arrayBuffer = evt.target.result;
+          const res = await fetch('/api/production/restore', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/octet-stream' },
+            body: arrayBuffer
+          });
+          const result = await res.json();
+          if (result.success) {
+            alert('✓ ກູ້ຄືນຖານຂໍ້ມູນສຳເລັດແລ້ວ! ລະບົບຈະໂຫຼດໜ້າໃໝ່.');
+            window.location.reload();
+          } else {
+            alert('❌ ຜິດພາດ: ' + result.error);
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      }
     } catch (err) {
       alert('❌ ຜິດພາດ: ' + err.message);
+    }
+  };
+
+  const handleClientBackupDownload = () => {
+    try {
+      const backup = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('amulet_pos_')) {
+          const rawValue = localStorage.getItem(key);
+          try {
+            backup[key] = JSON.parse(rawValue);
+          } catch (e) {
+            backup[key] = rawValue;
+          }
+        }
+      }
+      
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `kp_pakse_pos_browser_backup_${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('❌ ຜິດພາດໃນການດາວໂຫຼດ: ' + err.message);
     }
   };
 
@@ -4175,10 +4231,36 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                     <button
                       type="button"
                       className="btn btn-primary"
-                      onClick={() => window.location.href = '/api/production/backup'}
+                      onClick={async () => {
+                        try {
+                          const res = await fetch('/api/production/backup', {
+                            headers: { 'Authorization': 'Bearer KP-Pakse-Secret-Token-2026' }
+                          });
+                          if (!res.ok) throw new Error('Unauthorized or Server Error: ' + res.status);
+                          const blob = await res.blob();
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = `pos_backup_${Date.now()}.json.gz`;
+                          document.body.appendChild(a);
+                          a.click();
+                          a.remove();
+                          URL.revokeObjectURL(url);
+                        } catch (err) {
+                          alert('❌ ຜິດພາດໃນการດາວໂຫຼດ: ' + err.message);
+                        }
+                      }}
                       style={{ background: '#3498db', borderColor: '#3498db', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                     >
                       📥 ດາວໂຫຼດໄຟລ໌ Backup (.json.gz)
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-success"
+                      onClick={handleClientBackupDownload}
+                      style={{ background: '#2ecc71', borderColor: '#2ecc71', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                    >
+                      📥 ດາວໂຫຼດໄຟລ໌ Backup (.json ຈາກ Browser)
                     </button>
                     
                     <div style={{ borderTop: '1px dashed rgba(52, 152, 219, 0.2)', paddingTop: '10px', marginTop: '5px' }}>
@@ -4187,7 +4269,7 @@ export default function Settings({ activeUser, onUpdate, isMobile }) {
                       </label>
                       <input
                         type="file"
-                        accept=".gz"
+                        accept=".gz,.json"
                         onChange={handleRestoreDatabase}
                         style={{ fontSize: '0.8rem', color: 'white', background: '#1c1917', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '6px', width: '100%' }}
                       />
